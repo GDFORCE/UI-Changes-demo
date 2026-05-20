@@ -26,6 +26,17 @@ import { ProfileSettingsScreen } from "@/components/clinical/screens/patient/pro
 import { ChatScreen } from "@/components/clinical/screens/patient/chat-screen"
 import { MedicationReminderScreen } from "@/components/clinical/screens/patient/medication-reminder-screen"
 import { AboutTrialScreen } from "@/components/clinical/screens/patient/about-trial-screen"
+// Admin screens
+import { AdminDashboard } from "@/components/clinical/screens/admin/admin-dashboard"
+import { UserManagementScreen } from "@/components/clinical/screens/admin/user-management-screen"
+import { OrganizationManagementScreen } from "@/components/clinical/screens/admin/organization-management-screen"
+import { TrialMonitoringScreen } from "@/components/clinical/screens/admin/trial-monitoring-screen"
+import { NotificationMonitoringScreen } from "@/components/clinical/screens/admin/notification-monitoring-screen"
+import { SupportTicketScreen } from "@/components/clinical/screens/admin/support-ticket-screen"
+import { AuditLogScreen } from "@/components/clinical/screens/admin/audit-log-screen"
+import { InvitationManagementScreen } from "@/components/clinical/screens/admin/invitation-management-screen"
+import { TermsManagementScreen } from "@/components/clinical/screens/admin/terms-management-screen"
+import { ReportsScreen } from "@/components/clinical/screens/admin/reports-screen"
 import { cn } from "@/lib/utils"
 
 type Screen =
@@ -53,6 +64,17 @@ type Screen =
   | "chat"
   | "medication-reminder"
   | "about-trial"
+  // Admin modules
+  | "admin-dashboard"
+  | "admin-users"
+  | "admin-organizations"
+  | "admin-trials"
+  | "admin-notifications"
+  | "admin-support"
+  | "admin-audit"
+  | "admin-invitations"
+  | "admin-terms"
+  | "admin-reports"
 
 const screenCategories = [
   {
@@ -73,6 +95,7 @@ const screenCategories = [
       { id: "sponsor-dashboard", label: "Sponsor/CRO" },
       { id: "investigator-dashboard", label: "Investigator" },
       { id: "patient-dashboard", label: "Patient" },
+      { id: "admin-dashboard", label: "Platform Admin" },
     ],
   },
   {
@@ -101,6 +124,21 @@ const screenCategories = [
       { id: "chat", label: "Chat" },
       { id: "about-trial", label: "About Trial" },
       { id: "profile-settings", label: "Profile & Settings" },
+    ],
+  },
+  {
+    name: "Platform Admin",
+    screens: [
+      { id: "admin-dashboard", label: "Admin Dashboard" },
+      { id: "admin-users", label: "User Management" },
+      { id: "admin-organizations", label: "Organizations" },
+      { id: "admin-trials", label: "Trial Monitoring" },
+      { id: "admin-invitations", label: "Invitations" },
+      { id: "admin-notifications", label: "Notification Monitor" },
+      { id: "admin-support", label: "Support Tickets" },
+      { id: "admin-audit", label: "Audit Logs" },
+      { id: "admin-terms", label: "Terms & Policy" },
+      { id: "admin-reports", label: "Reports" },
     ],
   },
 ]
@@ -281,6 +319,67 @@ export default function PatientVisitScheduleApp() {
             onBack={goBack}
           />
         )
+      // Admin screens
+      case "admin-dashboard":
+        return (
+          <AdminDashboard
+            onNavigate={(screen) => navigate(screen as Screen)}
+          />
+        )
+      case "admin-users":
+        return (
+          <UserManagementScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-organizations":
+        return (
+          <OrganizationManagementScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-trials":
+        return (
+          <TrialMonitoringScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-notifications":
+        return (
+          <NotificationMonitoringScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-support":
+        return (
+          <SupportTicketScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-audit":
+        return (
+          <AuditLogScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-invitations":
+        return (
+          <InvitationManagementScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-terms":
+        return (
+          <TermsManagementScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
+      case "admin-reports":
+        return (
+          <ReportsScreen
+            onBack={() => navigate("admin-dashboard")}
+          />
+        )
       default:
         return null
     }
@@ -336,7 +435,7 @@ export default function PatientVisitScheduleApp() {
           </div>
 
           {/* Quick Actions */}
-          <div className="w-full lg:w-72 bg-white rounded-2xl shadow-lg p-4 order-3">
+          <div className="w-full lg:w-72 bg-white rounded-2xl shadow-lg p-4 order-3 max-h-[80vh] overflow-y-auto">
             <h2 className="font-semibold text-gray-900 mb-4">Quick Actions</h2>
             <div className="space-y-2">
               <button
@@ -366,6 +465,13 @@ export default function PatientVisitScheduleApp() {
               >
                 Login as Patient
               </button>
+              <button
+                onClick={() => navigate("admin-dashboard")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-red-50 text-red-700 hover:bg-red-100"
+              >
+                Login as Platform Admin
+              </button>
+
               <div className="h-px bg-gray-200 my-3" />
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Patient Features
@@ -400,7 +506,46 @@ export default function PatientVisitScheduleApp() {
               >
                 Profile & Settings
               </button>
+
               <div className="h-px bg-gray-200 my-3" />
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                Admin Features
+              </p>
+              <button
+                onClick={() => navigate("admin-users")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-slate-50 text-slate-700 hover:bg-slate-100"
+              >
+                User Management
+              </button>
+              <button
+                onClick={() => navigate("admin-organizations")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-slate-50 text-slate-700 hover:bg-slate-100"
+              >
+                Organizations
+              </button>
+              <button
+                onClick={() => navigate("admin-support")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-slate-50 text-slate-700 hover:bg-slate-100"
+              >
+                Support Tickets
+              </button>
+              <button
+                onClick={() => navigate("admin-audit")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-slate-50 text-slate-700 hover:bg-slate-100"
+              >
+                Audit Logs
+              </button>
+              <button
+                onClick={() => navigate("admin-reports")}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-slate-50 text-slate-700 hover:bg-slate-100"
+              >
+                Reports
+              </button>
+
+              <div className="h-px bg-gray-200 my-3" />
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                Trial Actions
+              </p>
               <button
                 onClick={() => navigate("add-trial")}
                 className="w-full text-left px-3 py-2 rounded-lg text-sm bg-amber-50 text-[#D97706] hover:bg-amber-100"
