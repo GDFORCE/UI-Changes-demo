@@ -15,7 +15,7 @@ interface BottomNavProps {
 
 const patientTabs = [
   { id: "dashboard", label: "Home", icon: Home },
-  { id: "my-trial", label: "My Trial", icon: FlaskConical },
+  { id: "my-trial", label: "My Visits", icon: FlaskConical },
   { id: "calendar", label: "Calendar", icon: Calendar },
   { id: "notifs", label: "Notifs", icon: Bell },
   { id: "me", label: "Me", icon: User },
@@ -24,7 +24,7 @@ const patientTabs = [
 const sponsorTabs = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "trials", label: "Trials", icon: FlaskConical },
-  { id: "sites", label: "Sites", icon: MapPin },
+  { id: "chat", label: "Messages", icon: MessageCircle },
   { id: "notifs", label: "Notifs", icon: Bell },
   { id: "me", label: "Me", icon: User },
 ]
@@ -39,7 +39,7 @@ const investigatorTabs = [
 
 const piTabs = [
   { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "patients", label: "Patients", icon: Users },
+  { id: "my-trials", label: "My Trials", icon: FlaskConical },
   { id: "chat", label: "Messages", icon: MessageCircle },
   { id: "calendar", label: "Calendar", icon: Calendar },
   { id: "me", label: "Me", icon: User },
@@ -63,7 +63,7 @@ const adminTabs = [
 
 const patientTabs2 = [
   { id: "dashboard", label: "Home", icon: Home },
-  { id: "my-trial", label: "My Trial", icon: FlaskConical },
+  { id: "my-trial", label: "My Visits", icon: FlaskConical },
   { id: "chat", label: "Messages", icon: MessageCircle },
   { id: "calendar", label: "Calendar", icon: Calendar },
   { id: "me", label: "Me", icon: User },
@@ -73,7 +73,7 @@ const patientTabs2 = [
 // (e.g. sponsor/admin-only tabs) are shown verbatim.
 const navLabelKeys: Record<string, string> = {
   "Home": "nav.home",
-  "My Trial": "nav.myTrial",
+  "My Visits": "nav.myVisits",
   "Calendar": "nav.calendar",
   "Notifs": "nav.notifs",
   "Me": "nav.me",

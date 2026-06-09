@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { ChevronLeft, ChevronRight, RotateCw, Settings } from "lucide-react"
+import { ChevronLeft, ChevronRight, RotateCw, Settings, Building2, Phone, Calendar, Stethoscope, Tag } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "../bottom-nav"
 
@@ -9,6 +9,7 @@ interface TeamCalendarScreenProps {
   onNavigate: (screen: string) => void
   onBack: () => void
   role?: "pi" | "crc"
+  initialView?: "day" | "week" | "month"
 }
 
 type TeamVisitStatus = "completed" | "scheduled" | "overdue"
@@ -17,27 +18,42 @@ interface TeamVisit {
   subj: string
   name: string
   visit: string
+  visitName: string
+  visitType: string
+  pi: string
   date: Date
   status: TeamVisitStatus
   time: string
-  type: string
   location: string
+  protocolId: string
+  indication: string
 }
 
 // Site-wide visit schedule across all patients (PI / CRC view).
+// visitName = clinical purpose of the visit; visitType = how it's conducted (modality).
 const teamVisits: TeamVisit[] = [
-  { subj: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 7", date: new Date(2026, 5, 2), status: "completed", time: "9:30 AM", type: "Efficacy Assessment", location: "Apollo Hospital" },
-  { subj: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", date: new Date(2026, 5, 4), status: "completed", time: "2:00 PM", type: "Lab & Vitals", location: "Apollo Hospital" },
-  { subj: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", date: new Date(2026, 5, 5), status: "overdue", time: "11:00 AM", type: "Safety Follow-up", location: "Apollo Hospital" },
-  { subj: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 8", date: new Date(2026, 5, 8), status: "scheduled", time: "9:00 AM", type: "Efficacy Assessment", location: "Apollo Hospital" },
-  { subj: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", date: new Date(2026, 5, 8), status: "scheduled", time: "11:00 AM", type: "Baseline", location: "Apollo Hospital" },
-  { subj: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 6", date: new Date(2026, 5, 10), status: "scheduled", time: "10:00 AM", type: "Lab & Vitals", location: "Apollo Hospital" },
-  { subj: "SUBJ-005", name: "Deepa Nair", visit: "Screening", date: new Date(2026, 5, 11), status: "scheduled", time: "3:00 PM", type: "Screening", location: "Apollo Hospital" },
-  { subj: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 5", date: new Date(2026, 5, 12), status: "scheduled", time: "11:00 AM", type: "Safety Follow-up", location: "Apollo Hospital" },
-  { subj: "SUBJ-003", name: "Anita Patel", visit: "Visit 3", date: new Date(2026, 5, 15), status: "scheduled", time: "9:30 AM", type: "Safety Follow-up", location: "Apollo Hospital" },
-  { subj: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 9", date: new Date(2026, 5, 22), status: "scheduled", time: "10:00 AM", type: "Telephonic", location: "" },
-  { subj: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 7", date: new Date(2026, 5, 25), status: "scheduled", time: "2:00 PM", type: "Efficacy Assessment", location: "Apollo Hospital" },
+  { subj: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 7", visitName: "Efficacy Assessment", visitType: "On-site", pi: "Dr. Sharma", date: new Date(2026, 5, 2), status: "completed", time: "9:30 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", visitName: "Lab & Vitals", visitType: "Lab Visit", pi: "Dr. Anita Rao", date: new Date(2026, 5, 4), status: "completed", time: "2:00 PM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", visitName: "Safety Follow-up", visitType: "On-site", pi: "Dr. Sharma", date: new Date(2026, 5, 5), status: "overdue", time: "11:00 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 8", visitName: "Efficacy Assessment", visitType: "On-site", pi: "Dr. Sharma", date: new Date(2026, 5, 8), status: "scheduled", time: "9:00 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", visitName: "Baseline", visitType: "On-site", pi: "Dr. Sharma", date: new Date(2026, 5, 8), status: "scheduled", time: "11:00 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 6", visitName: "Lab & Vitals", visitType: "Lab Visit", pi: "Dr. Anita Rao", date: new Date(2026, 5, 10), status: "scheduled", time: "10:00 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-005", name: "Deepa Nair", visit: "Screening", visitName: "Screening", visitType: "On-site", pi: "Dr. Anita Rao", date: new Date(2026, 5, 11), status: "scheduled", time: "3:00 PM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 5", visitName: "Safety Follow-up", visitType: "On-site", pi: "Dr. Sharma", date: new Date(2026, 5, 12), status: "scheduled", time: "11:00 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-003", name: "Anita Patel", visit: "Visit 3", visitName: "Safety Follow-up", visitType: "On-site", pi: "Dr. Sharma", date: new Date(2026, 5, 15), status: "scheduled", time: "9:30 AM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 9", visitName: "Telephonic Check-in", visitType: "Telephonic", pi: "Dr. Sharma", date: new Date(2026, 5, 22), status: "scheduled", time: "10:00 AM", location: "", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
+  { subj: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 7", visitName: "Efficacy Assessment", visitType: "On-site", pi: "Dr. Anita Rao", date: new Date(2026, 5, 25), status: "scheduled", time: "2:00 PM", location: "Apollo Hospital", protocolId: "Protocol-001", indication: "Type 2 Diabetes" },
 ]
+
+// Patient privacy: show initials on the shared site calendar, not full names.
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0]?.toUpperCase() ?? "")
+    .join("")
+}
 
 function getStatusColor(status: TeamVisitStatus) {
   switch (status) {
@@ -73,7 +89,7 @@ function getDayTextClass(status: TeamVisitStatus) {
 
 function getStatusLabel(status: TeamVisitStatus) {
   switch (status) {
-    case "completed": return "Completed ✓"
+    case "completed": return "Completed"
     case "overdue": return "Overdue ⚠"
     default: return "Scheduled"
   }
@@ -99,8 +115,8 @@ function formatHeaderDate(date: Date) {
   return date.toLocaleString("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric" })
 }
 
-export function TeamCalendarScreen({ onNavigate, onBack, role = "pi" }: TeamCalendarScreenProps) {
-  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("month")
+export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialView = "month" }: TeamCalendarScreenProps) {
+  const [viewMode, setViewMode] = useState<"day" | "week" | "month">(initialView)
   const today = new Date(2026, 5, 8) // mock today
   // Month view state
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 5, 1)) // June 2026
@@ -176,7 +192,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi" }: TeamCale
   }
   const weekLabel = `${weekDays[0].getDate()}–${weekDays[6].getDate()} ${weekDays[6].toLocaleString("en-US", { month: "long", year: "numeric" })}`
 
-  const settingsScreen = role === "pi" ? "pi-dashboard" : "research-team-dashboard"
+  const settingsScreen = "calendar-settings"
 
   const renderVisitCard = (v: TeamVisit, i: number) => {
     const color = getStatusColor(v.status)
@@ -201,17 +217,21 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi" }: TeamCale
             {getStatusLabel(v.status)}
           </span>
         </div>
-        <p className="font-semibold text-[#0F172A] text-sm">{v.name}</p>
-        <p className="text-xs text-slate-500">{v.subj} · {v.visit} · {v.type}</p>
-        {v.location && <p className="text-xs text-slate-500 mt-1">🏥 {v.location}</p>}
-        {v.type === "Telephonic" && <p className="text-xs text-slate-500 mt-1">📞 Telephonic visit</p>}
+        <p className="font-semibold text-[#0F172A] text-sm">{initials(v.name)} · {v.subj}</p>
+        <p className="text-xs text-slate-500">{v.protocolId} · {v.indication}</p>
+        <p className="text-xs text-slate-500">{v.visit} · {v.visitName}</p>
+        <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Tag className="w-3.5 h-3.5 text-slate-400" /> Visit type: <span className="font-medium text-slate-600">{v.visitType}</span></p>
+        {/* On the CRC view, surface which PI is attending the patient for this visit. */}
+        {role === "crc" && <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Stethoscope className="w-3.5 h-3.5 text-slate-400" /> PI: <span className="font-medium text-slate-600">{v.pi}</span></p>}
+        {v.location && <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Building2 className="w-3.5 h-3.5 text-slate-400" /> {v.location}</p>}
+        {v.visitType === "Telephonic" && <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Phone className="w-3.5 h-3.5 text-slate-400" /> Telephonic visit</p>}
       </div>
     )
   }
 
   const emptyState = (
     <div className="flex flex-col items-center py-8 text-slate-400">
-      <span className="text-3xl mb-2">📅</span>
+      <Calendar className="w-8 h-8 mb-2" />
       <p className="text-sm">No visits on this day</p>
     </div>
   )
@@ -227,13 +247,13 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi" }: TeamCale
           {viewMode === "day" ? (
             <div className="flex items-center gap-2">
               <button onClick={prevDay}><ChevronLeft className="w-5 h-5" /></button>
-              <span className="font-semibold text-sm">📅 {formatHeaderDate(selectedDate)}</span>
+              <span className="font-semibold text-sm">{formatHeaderDate(selectedDate)}</span>
               <button onClick={nextDay}><ChevronRight className="w-5 h-5" /></button>
             </div>
           ) : viewMode === "week" ? (
             <div className="flex items-center gap-2">
               <button onClick={prevWeek}><ChevronLeft className="w-5 h-5" /></button>
-              <span className="font-semibold text-sm">📅 {weekLabel}</span>
+              <span className="font-semibold text-sm">{weekLabel}</span>
               <button onClick={nextWeek}><ChevronRight className="w-5 h-5" /></button>
             </div>
           ) : (
@@ -245,7 +265,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi" }: TeamCale
               }}>
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className="font-semibold text-base">📅 {formatMonthYear(currentMonth)}</span>
+              <span className="font-semibold text-base">{formatMonthYear(currentMonth)}</span>
               <button onClick={() => {
                 const d = new Date(currentMonth)
                 d.setMonth(d.getMonth() + 1)
@@ -271,7 +291,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi" }: TeamCale
           <p className="text-center text-xs text-blue-300 mt-1">Syncing...</p>
         )}
         {syncStatus === "done" && (
-          <p className="text-center text-xs text-[#0D9488] mt-1">✓ Updated just now</p>
+          <p className="text-center text-xs text-[#0D9488] mt-1">Updated just now</p>
         )}
       </div>
 

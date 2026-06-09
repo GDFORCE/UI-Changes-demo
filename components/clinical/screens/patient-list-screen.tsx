@@ -1,8 +1,7 @@
 "use client"
 
 import { AppBar } from "../app-bar"
-import { BottomNav } from "../bottom-nav"
-import { Search, Plus } from "lucide-react"
+import { Search } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -12,7 +11,6 @@ interface PatientListScreenProps {
 }
 
 export function PatientListScreen({ onNavigate, onBack }: PatientListScreenProps) {
-  const [activeTab, setActiveTab] = useState("patients")
   const [activeFilter, setActiveFilter] = useState("all")
 
   const filters = [
@@ -48,7 +46,7 @@ export function PatientListScreen({ onNavigate, onBack }: PatientListScreenProps
         </div>
         
         {/* Filters */}
-        <div className="px-4 pb-3 flex gap-2 overflow-x-auto">
+        <div className="px-4 pb-3 flex gap-2 overflow-x-auto scrollbar-hide">
           {filters.map((filter) => (
             <button
               key={filter.id}
@@ -90,20 +88,13 @@ export function PatientListScreen({ onNavigate, onBack }: PatientListScreenProps
         </div>
       </div>
       
-      {/* FAB */}
+      {/* FAB — sits above the global bottom nav so it doesn't overlap it */}
       <button
         onClick={() => onNavigate("add-patient")}
-        className="absolute bottom-20 right-4 w-14 h-14 bg-[#1A3872] rounded-full shadow-xl flex items-center justify-center"
+        className="absolute bottom-20 right-4 h-12 px-5 bg-[#1A3872] rounded-full shadow-xl flex items-center justify-center"
       >
-        <Plus className="w-6 h-6 text-white" />
+        <span className="text-white text-sm font-semibold whitespace-nowrap">Add Patient</span>
       </button>
-      
-      <BottomNav activeTab={activeTab} onTabChange={(tab) => {
-        setActiveTab(tab)
-        if (tab === "dashboard") onNavigate("sponsor-dashboard")
-        if (tab === "calendar") onNavigate("pi-calendar")
-        if (tab === "notifs") onNavigate("notifications")
-      }} />
     </div>
   )
 }

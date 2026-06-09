@@ -256,7 +256,7 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
         notificationCount={2}
         onTabChange={(tab) => {
           setActiveTab(tab)
-          if (tab === "my-trial") onNavigate("my-trial")
+          if (tab === "my-trial") onNavigate("my-visits")
           if (tab === "chat")     onNavigate("chat")
           if (tab === "calendar") onNavigate("patient-calendar")
           if (tab === "me")       onNavigate("profile-settings")

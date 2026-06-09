@@ -96,7 +96,7 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
         </div>
       )}
 
-      <div className="flex-1 overflow-auto pb-24 px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-auto pb-4 px-4 py-4 space-y-4">
         {/* DISPLAY */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
@@ -196,10 +196,8 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Save Button */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3 bg-white border-t border-slate-100">
+        {/* Save Button — part of the form, scrolls with the content */}
         <button
           onClick={handleSave}
           className="w-full bg-[#0D1B3E] text-white rounded-xl py-3 font-semibold text-sm"

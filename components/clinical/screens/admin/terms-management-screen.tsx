@@ -19,7 +19,6 @@ import {
   ArrowLeft,
   FileText,
   Shield,
-  Plus,
   Edit,
   Eye,
   CheckCircle,
@@ -165,7 +164,7 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
           <p className="text-sm text-gray-500">Publish new versions, track acceptance, and manage version history.</p>
         </div>
         <Button className="bg-[#1A3872] hover:bg-[#15305f]" onClick={openPublish}>
-          <Plus className="h-4 w-4 mr-2" /> Publish new version
+          Publish new version
         </Button>
       </div>
 

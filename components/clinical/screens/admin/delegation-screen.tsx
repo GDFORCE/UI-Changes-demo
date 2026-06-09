@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ArrowLeft, Plus, Pencil, PauseCircle, Ban, Users } from "lucide-react";
+import { ArrowLeft, Pencil, PauseCircle, Ban, Users } from "lucide-react";
 
 interface DelegationScreenProps {
   onBack?: () => void;
@@ -142,7 +142,7 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
           <p className="text-sm text-gray-500">Assign specific tasks to registered users designated as Admin Staff.</p>
         </div>
         <Button className="bg-[#1A3872] hover:bg-[#15305f]" onClick={openAdd}>
-          <Plus className="h-4 w-4 mr-2" /> Add admin staff
+          Add admin staff
         </Button>
       </div>
 

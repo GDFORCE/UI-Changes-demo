@@ -12,9 +12,27 @@ interface AddPatientScreenProps {
 
 const existingSubjects = ["SUBJ-001", "SUBJ-002", "SUBJ-003", "SUBJ-004", "SUBJ-005"]
 
+// Visit schedule offsets (days from the baseline date) auto-calculated for the patient.
+const VISIT_OFFSETS = [0, 14, 21, 28, 35, 49, 63, 77, 91]
+const BASELINE_DATE = new Date(2025, 4, 5) // 5 May 2025
+const VISITS_PREVIEW_COUNT = 5
+
+function formatVisitDate(baseline: Date, offsetDays: number) {
+  const d = new Date(baseline)
+  d.setDate(d.getDate() + offsetDays)
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+}
+
 export function AddPatientScreen({ onAdd, onBack }: AddPatientScreenProps) {
   const [subjectId, setSubjectId] = useState("")
+  const [showAllVisits, setShowAllVisits] = useState(false)
   const isDuplicate = existingSubjects.includes(`SUBJ-${subjectId}`)
+
+  const visits = VISIT_OFFSETS.map((offset, i) => ({
+    num: i + 1,
+    date: formatVisitDate(BASELINE_DATE, offset),
+  }))
+  const visibleVisits = showAllVisits ? visits : visits.slice(0, VISITS_PREVIEW_COUNT)
 
   return (
     <div className="h-full flex flex-col bg-gray-50">
@@ -139,26 +157,26 @@ export function AddPatientScreen({ onAdd, onBack }: AddPatientScreenProps) {
             <span className="font-medium text-gray-900">Auto-calculated Dates</span>
           </div>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Visit 1</span>
-              <span className="text-gray-900 font-medium">5 May 2025</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Visit 2</span>
-              <span className="text-gray-900 font-medium">19 May 2025</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Visit 3</span>
-              <span className="text-gray-900 font-medium">26 May 2025</span>
-            </div>
+            {visibleVisits.map((v) => (
+              <div key={v.num} className="flex justify-between">
+                <span className="text-gray-600">Visit {v.num}</span>
+                <span className="text-gray-900 font-medium">{v.date}</span>
+              </div>
+            ))}
           </div>
-          <button className="mt-3 text-[#0D9488] font-medium text-sm flex items-center gap-1">
-            View All 18 Visits <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => setShowAllVisits((s) => !s)}
+            className="mt-3 text-[#0D9488] font-medium text-sm flex items-center gap-1"
+          >
+            {showAllVisits ? (
+              <>Show Less <ChevronRight className="w-4 h-4 -rotate-90" /></>
+            ) : (
+              <>View All {visits.length} Visits <ChevronRight className="w-4 h-4 rotate-90" /></>
+            )}
           </button>
         </div>
-      </div>
 
-      <div className="px-4 py-4 bg-white border-t">
+        {/* Submit — part of the form, scrolls with the content */}
         <button
           onClick={onAdd}
           disabled={isDuplicate}

@@ -476,7 +476,7 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       </div>
 
       {/* Section Navigation */}
-      <div className="bg-white border-b border-gray-200 px-4 py-2 overflow-x-auto">
+      <div className="bg-white border-b border-gray-200 px-4 py-2 overflow-x-auto scrollbar-hide">
         <div className="flex gap-2">
           {sections.map((section) => (
             <button

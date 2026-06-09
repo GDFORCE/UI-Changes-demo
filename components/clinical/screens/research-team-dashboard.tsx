@@ -5,11 +5,12 @@ import { AppBar } from "../app-bar"
 import { BottomNav } from "../bottom-nav"
 import {
   CheckCircle, Clock, AlertTriangle, ChevronRight, CheckSquare,
-  Square, Users, FileText, Circle, ClipboardList, Calendar, Pill, Plus, Building2, X,
+  Square, Users, FileText, Circle, ClipboardList, Calendar, Pill, Building2, X,
   UserPlus, Send, FilePlus2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { AboutTrialScreen, buildTrialInfo } from "@/components/clinical/screens/patient/about-trial-screen"
+import { TrialSummaryScreen } from "@/components/clinical/screens/trial-summary-screen"
+import { SiteUserProfile } from "@/components/clinical/screens/site-user-profile"
 
 interface ResearchTeamDashboardProps {
   onNavigate: (screen: string) => void
@@ -250,8 +251,6 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{tr.title}</h4>
       <div className="grid grid-cols-2 gap-y-1.5 gap-x-3">
         {[
-          { label: "Protocol", val: tr.id },
-          { label: "Study Title", val: tr.title },
           { label: "Phase", val: tr.phase },
           { label: "Disease", val: tr.disease },
           { label: "Drug", val: tr.drug },
@@ -259,9 +258,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           { label: "Site Name", val: tr.site },
           { label: "PI Name", val: tr.pi },
           { label: "Department", val: tr.department },
-          { label: "Status of Trial", val: tr.status },
         ].map(f => (
-          <div key={f.label} className={f.label === "Study Title" ? "col-span-2" : undefined}>
+          <div key={f.label} className={f.label === "Department" ? "col-span-2 text-center" : undefined}>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
             <p className="text-xs font-medium text-[#0F172A]">{f.val}</p>
           </div>
@@ -663,41 +661,31 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
   // ── Profile / Me tab ─────────────────────────────────────────────────────
   const renderMe = () => (
-    <div className="flex-1 overflow-auto pb-4 pt-6 px-4">
-      <div className="flex flex-col items-center mb-6">
-        <div className="w-20 h-20 rounded-full bg-[#0D9488] flex items-center justify-center text-white text-2xl font-bold mb-3">MC</div>
-        <h2 className="text-lg font-bold text-[#0F172A] font-[family-name:var(--font-heading)]">Meera CRC</h2>
-        <p className="text-sm text-slate-500">Clinical Research Coordinator · Site 02</p>
-      </div>
-      <div className="bg-white rounded-2xl shadow-sm divide-y divide-slate-50">
-        {[
-          { label: "Protocol", value: "Protocol-001" },
-          { label: "Site", value: "Apollo Hospital, Chennai" },
-          { label: "Assigned Patients", value: "4 active" },
-          { label: "GCP Certification", value: "Valid till Jun 2026" },
-        ].map(({ label, value }) => (
-          <div key={label} className="px-4 py-3 flex justify-between">
-            <span className="text-sm text-slate-500">{label}</span>
-            <span className="text-sm font-medium text-[#0F172A]">{value}</span>
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={() => onNavigate("welcome")}
-        className="mt-6 w-full py-3 rounded-xl border border-red-200 text-red-600 text-sm font-semibold"
-      >
-        Sign Out
-      </button>
-    </div>
+    <SiteUserProfile
+      user={{
+        initials: "MC",
+        avatarColor: "bg-[#0D9488]",
+        name: "Meera CRC",
+        designation: "Clinical Research Coordinator",
+        phone: "+91 98401 22334",
+        email: "meera.crc@apollo.com",
+        entityType: "Site / Hospital",
+        orgName: "Apollo Hospital",
+        orgAddress: "Greams Road, Chennai 600006",
+        role: "Research Team",
+      }}
+      onSignOut={() => onNavigate("welcome")}
+    />
   )
 
-  // ── Trial Detail → full About Trial page (CRC view) ──────
+  // ── Trial Detail → Trial Summary page (CRC view) ─────────
   if (selectedTrial) {
     return (
-      <AboutTrialScreen
-        info={buildTrialInfo(selectedTrial)}
-        title={selectedTrial.id}
+      <TrialSummaryScreen
+        trial={selectedTrial}
+        patients={patients}
         onBack={() => setSelectedTrial(null)}
+        onAddPatient={() => onNavigate("add-patient")}
       />
     )
   }
@@ -710,7 +698,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           <button onClick={() => setShowAllTrials(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Total Trials</span>
           <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
-            <Plus className="w-3.5 h-3.5" /> Add Trial
+            Add Trial
           </button>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-3">

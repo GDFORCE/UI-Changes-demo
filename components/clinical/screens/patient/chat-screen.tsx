@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Activity, Building2, ChevronLeft, Send, Mic, Paperclip, Image, FileText, MoreVertical, Check, CheckCheck, Play, Pause, X, Search, Camera, Plus, ShieldCheck, Stethoscope, UsersRound } from "lucide-react"
+import { Activity, Building2, ChevronLeft, Send, Mic, Paperclip, Image, FileText, MoreVertical, Check, CheckCheck, Play, Pause, X, Search, Camera, ShieldCheck, Stethoscope, UsersRound, SquarePen } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // ── Types ────────────────────────────────────────────────
@@ -37,6 +37,8 @@ interface Message {
 interface ChatScreenProps {
   onBack?: () => void
   userRole?: UserRole
+  /** Reports whether a conversation is open, so the app can hide the bottom nav in that view. */
+  onConversationOpenChange?: (open: boolean) => void
 }
 
 // ── Data ─────────────────────────────────────────────────
@@ -164,8 +166,13 @@ function getStatusIcon(status: string, isSelf: boolean) {
 
 // ── Main Component ───────────────────────────────────────
 
-export function ChatScreen({ onBack, userRole = "sponsor" }: ChatScreenProps) {
+export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenChange }: ChatScreenProps) {
   const [activeChannel, setActiveChannel] = useState<ChatChannel | null>(null)
+
+  // Tell the parent when a conversation is open so it can hide the bottom nav.
+  useEffect(() => {
+    onConversationOpenChange?.(activeChannel !== null)
+  }, [activeChannel, onConversationOpenChange])
   const [channelFilter, setChannelFilter] = useState<ChannelType>(roleChannelTypes[userRole][0])
   const [search, setSearch]               = useState("")
   const [messages, setMessages]           = useState<Message[]>(defaultMessages)
@@ -466,21 +473,24 @@ export function ChatScreen({ onBack, userRole = "sponsor" }: ChatScreenProps) {
           )}
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-medium uppercase tracking-wider text-blue-200">Secure inbox</p>
-            <h1 className="text-xl font-semibold leading-tight">Messages</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold leading-tight">Messages</h1>
+              {totalUnread > 0 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#2563EB] px-2 py-0.5 text-[11px] font-bold text-white">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                  {totalUnread} unread
+                </span>
+              )}
+            </div>
           </div>
           <button
             onClick={() => setShowCompose(true)}
-            className="h-10 w-10 rounded-full bg-white text-[#132F63] shadow-sm flex items-center justify-center"
+            className="h-10 px-4 rounded-full bg-white text-[#132F63] shadow-sm flex items-center justify-center gap-1.5 text-sm font-semibold whitespace-nowrap active:scale-95 transition-transform"
             aria-label="Start new message"
           >
-            <Plus className="h-5 w-5" />
+            <SquarePen className="h-4 w-4" />
+            New
           </button>
-          <div className="rounded-full bg-white/12 px-3 py-1.5 text-right">
-            <p className="text-sm font-bold leading-none">{totalUnread}</p>
-            <p className="mt-0.5 text-[10px] font-medium text-blue-100">
-              {totalUnread > 0 ? "unread" : "clear"}
-            </p>
-          </div>
         </div>
         {/* Search */}
         <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 shadow-sm">
@@ -496,7 +506,7 @@ export function ChatScreen({ onBack, userRole = "sponsor" }: ChatScreenProps) {
       </div>
 
       {/* Filter chips */}
-      <div className="flex gap-2 bg-white px-4 py-3 overflow-x-auto border-b border-slate-100">
+      <div className="flex gap-2 bg-white px-4 py-3 overflow-x-auto scrollbar-hide border-b border-slate-100">
         {allowedTypes.map(type => {
           const meta = channelTypeMeta[type]
           const Icon = meta.icon

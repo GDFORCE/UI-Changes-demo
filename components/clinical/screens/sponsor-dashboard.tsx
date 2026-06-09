@@ -3,22 +3,25 @@
 import { useState, useEffect, useRef } from "react"
 import {
   LayoutDashboard, FlaskConical, MapPin, Bell, User, MessageCircle,
-  ChevronRight, ChevronDown, Plus, Search, TrendingUp,
-  BarChart2, Building2, Users, Download, Phone, Mail,
+  ChevronRight, ChevronDown, Search, TrendingUp,
+  BarChart2, ShieldCheck, Users, Download, Phone, Mail,
   X, Check, AlertTriangle, Info, SlidersHorizontal,
   FileText, UserPen, Lock, LogOut, Camera,
-  UserCheck
+  UserCheck, Eye, EyeOff, HelpCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface SponsorDashboardProps {
   onNavigate: (screen: string) => void
   /** When set, the dashboard opens directly on this trial's summary (e.g. after saving a schedule). */
   initialTrialId?: string
+  /** Which bottom-nav tab to open on (dashboard | trials | sites | notifs | me). */
+  initialTab?: string
 }
 
 const mockData = {
-  user: { name: "Rajesh Kumar", initials: "RK", role: "Sponsor Admin", org: "PharmaCo Ltd", email: "rajesh.kumar@pharmaco.com", phone: "+91 98765 43210" },
+  user: { name: "Rajesh Kumar", initials: "RK", role: "Sponsor Admin", designation: "Clinical Operations Lead", org: "PharmaCo Ltd", orgAddress: "4th Floor, Cyber Towers, HITEC City, Hyderabad 500081", email: "rajesh.kumar@pharmaco.com", phone: "+91 98765 43210" },
   trials: [
     { id: "Protocol-001", name: "Diabetes Phase II", phase: "Phase II", indication: "Type 2 Diabetes", drug: "Metformin XR", duration: "18 months", ctri: "CTRI/2024/001", totalVisits: 18, sponsor: "PharmaCo Ltd", status: "Active", sites: 3, screened: 48, enrolled: 45, target: 100, completed: 12, screenFail: 8, randomized: 40, withdrawn: 3, dropouts: 2, followUp: 23, scheduleVersion: "v3", lastModified: "12 May 2025", modifiedBy: "Dr. Sharma" },
     { id: "Protocol-002", name: "Hypertension Study", phase: "Phase III", indication: "Hypertension", drug: "Amlodipine", duration: "24 months", ctri: "CTRI/2024/002", totalVisits: 12, sponsor: "PharmaCo Ltd", status: "Active", sites: 2, screened: 32, enrolled: 28, target: 60, completed: 5, screenFail: 4, randomized: 28, withdrawn: 1, dropouts: 0, followUp: 22, scheduleVersion: "v1", lastModified: "8 May 2025", modifiedBy: "Dr. Rao" },
@@ -86,8 +89,13 @@ function sitePerformance(s: { enrolled: number; target: number; visitCompliance:
   return Math.round(0.35 * enrollment + 0.35 * compliance + 0.30 * adherence)
 }
 
-export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboardProps) {
-  const [activeTab, setActiveTab] = useState("dashboard")
+// Derive a recruitment status label from the trial's lifecycle status.
+function recruitmentStatus(status: string) {
+  return status === "Active" ? "Recruiting" : status === "Completed" ? "Closed" : "Terminated"
+}
+
+export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: SponsorDashboardProps) {
+  const [activeTab, setActiveTab] = useState(initialTab ?? "dashboard")
   const [trials, setTrials] = useState(mockData.trials)
   const [trialFilter, setTrialFilter] = useState("All")
   const [phaseFilter, setPhaseFilter] = useState("All")
@@ -115,6 +123,54 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
   const [showShareTrial, setShowShareTrial] = useState(false)
   const [shareForm, setShareForm] = useState({ fullName: "", designation: "", email: "", phone: "", accessType: "View Access" })
   const [shareSuccess, setShareSuccess] = useState(false)
+  // Account sub-screens (Edit Profile / Change Password / Notification Preferences)
+  const [profileForm, setProfileForm] = useState({
+    name: mockData.user.name,
+    designation: mockData.user.designation,
+    email: mockData.user.email,
+    phone: mockData.user.phone,
+    org: mockData.user.org,
+    orgAddress: mockData.user.orgAddress,
+  })
+  const [passwordForm, setPasswordForm] = useState({ current: "", next: "", confirm: "" })
+  const [showPwd, setShowPwd] = useState({ current: false, next: false, confirm: false })
+  const [notifPrefs, setNotifPrefs] = useState({
+    visitReminders: true,
+    enrolmentUpdates: true,
+    protocolDeviations: true,
+    weeklyDigest: false,
+    emailAlerts: true,
+    smsAlerts: false,
+    pushAlerts: true,
+  })
+  // Team members + invite
+  const [teamMembers, setTeamMembers] = useState([
+    { id: "1", name: "Dr. Rajesh Sharma", designation: "Principal Investigator", phone: "+91 98100 12345", email: "r.sharma@apollo.com", trials: ["Protocol-001", "Protocol-002"] },
+    { id: "2", name: "Ms. Priya Desai", designation: "Clinical Research Coordinator", phone: "+91 98201 54321", email: "p.desai@apollo.com", trials: ["Protocol-001"] },
+    { id: "3", name: "Dr. Sunita Rao", designation: "Principal Investigator", phone: "+91 98200 23456", email: "s.rao@maxhealthcare.com", trials: ["Protocol-001", "Protocol-003"] },
+    { id: "4", name: "Mr. Amit Singh", designation: "Research Team", phone: "+91 99300 67890", email: "a.singh@maxhealthcare.com", trials: ["Protocol-002"] },
+  ])
+  const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
+  const [expandedFaq, setExpandedFaq] = useState<string | null>(null)
+  const [inviteForm, setInviteForm] = useState({ name: "", designation: "", phone: "", email: "", trials: [] as string[] })
+
+  // Mask the middle digits of a phone number: "+91 98100 12345" → "+91 •••••  12345".
+  const maskPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, "")
+    if (digits.length <= 4) return phone
+    const last4 = digits.slice(-4)
+    return `+91 ••••• ${last4}`
+  }
+  const trialName = (id: string) => trials.find(t => t.id === id)?.name ?? id
+  const toggleInviteTrial = (id: string) =>
+    setInviteForm(p => ({ ...p, trials: p.trials.includes(id) ? p.trials.filter(t => t !== id) : [...p.trials, id] }))
+  const handleSendInvite = () => {
+    if (!inviteForm.name || !inviteForm.email) return
+    setTeamMembers(prev => [...prev, { id: Date.now().toString(), ...inviteForm }])
+    toast.success(`Invite sent to ${inviteForm.name}`)
+    setInviteForm({ name: "", designation: "", phone: "", email: "", trials: [] })
+    setMeSection("team-members")
+  }
 
   const handleShareTrial = () => {
     if (!shareForm.email) return
@@ -286,6 +342,40 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
     )
   }
 
+  // Shared bottom navigation — kept consistent across every sponsor screen.
+  const renderBottomNav = () => (
+    <div className="absolute bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-100 flex items-center">
+      {[
+        { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { id: "trials", icon: FlaskConical, label: "Trials" },
+        { id: "chat", icon: MessageCircle, label: "Messages" },
+        { id: "notifs", icon: Bell, label: "Notifs", badge: unreadCount },
+        { id: "me", icon: User, label: "Me" },
+      ].map(tab => {
+        const Icon = tab.icon
+        const active = activeTab === tab.id && !selectedTrial
+        return (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setSelectedTrial(null)
+              if (tab.id === "chat") { onNavigate("chat"); return }
+              setActiveTab(tab.id)
+            }}
+            className="flex-1 flex flex-col items-center gap-0.5 relative"
+          >
+            {active && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#2563EB] rounded-full" />}
+            <div className="relative">
+              <Icon className={cn("w-5 h-5", active ? "text-[#2563EB]" : "text-slate-400")} />
+              {tab.badge && tab.badge > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">{tab.badge}</span>}
+            </div>
+            <span className={cn("text-[10px] font-medium", active ? "text-[#2563EB]" : "text-slate-400")}>{tab.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+
   // ── Trial Detail ────────────────────────────────────────
   if (selectedTrial) {
     const t = selectedTrial
@@ -297,7 +387,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
           <span className="font-semibold flex-1">{t.id}</span>
           <Download className="w-5 h-5" />
         </div>
-        <div className="flex-1 overflow-auto pb-24 px-4 py-4 space-y-4">
+        <div className="flex-1 overflow-auto pb-40 px-4 py-4 space-y-4">
 
           {/* PANEL 1 — Trial Details */}
           <div className="bg-[#0D1B3E] rounded-2xl p-5 text-white">
@@ -357,7 +447,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
               <p className="font-semibold text-sm text-[#0F172A]">Sites · Recruitment Status</p>
               <button
                 onClick={() => { setNewSite(p => ({ ...p, protocolId: t.id })); setSelectedTrial(null); setActiveTab("sites"); setShowAddSite(true) }}
-                className="text-[#2563EB] text-xs font-semibold flex items-center gap-1"><Plus className="w-3.5 h-3.5" />Add Site</button>
+                className="text-[#2563EB] text-xs font-semibold">Add Site</button>
             </div>
             <div className="space-y-3">
               {sites.filter(s => s.trials.includes(t.id)).map(site => (
@@ -453,11 +543,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
           </div>
         </div>
 
-        {/* Bottom bar — Edit + Share Trial */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3 bg-white border-t border-slate-100 flex gap-3">
+        {/* Action bar — Edit + Share Trial (sits just above the consistent bottom nav) */}
+        <div className="absolute bottom-16 left-0 right-0 px-4 pb-3 pt-3 bg-white border-t border-slate-100 flex gap-3">
           <button onClick={() => openEditTrial(t)} className="flex-1 border border-slate-300 text-slate-700 rounded-xl py-3 text-sm font-semibold">Edit</button>
           <button onClick={() => setShowShareTrial(true)} className="flex-1 bg-[#2563EB] text-white rounded-xl py-3 text-sm font-semibold">Share Trial ›</button>
         </div>
+
+        {/* Consistent bottom navigation */}
+        {renderBottomNav()}
 
         {/* Share Trial overlay */}
         {showShareTrial && (
@@ -614,22 +707,18 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
           <div>
             {/* KPI Strip — counts computed from data, each tile opens its list */}
             <div className="px-4 pt-4 pb-2">
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="grid grid-cols-3 gap-3">
                 {[
-                  { icon: FlaskConical, val: totalTrials, label: "Total Trials", sub: "Across all protocols", bg: "bg-blue-50", iconColor: "text-[#2563EB]", tab: "trials" },
-                  { icon: MapPin, val: totalSites, label: "Total Sites", sub: `${sites.filter(s => s.status === "Active").length} active`, bg: "bg-teal-50", iconColor: "text-[#0D9488]", tab: "sites" },
-                  { icon: Users, val: totalPatients, label: "Total Patients", sub: "Across all trials", bg: "bg-purple-50", iconColor: "text-[#7C3AED]", tab: "patients" },
+                  { icon: FlaskConical, val: totalTrials, label: "Total Trials", iconColor: "text-[#2563EB]", bg: "bg-blue-50", tab: "trials" },
+                  { icon: MapPin, val: totalSites, label: "Total Sites", iconColor: "text-[#0D9488]", bg: "bg-teal-50", tab: "sites" },
+                  { icon: Users, val: totalPatients, label: "Total Patients", iconColor: "text-[#7C3AED]", bg: "bg-purple-50", tab: "patients" },
                 ].map(c => {
                   const Icon = c.icon
                   return (
-                    <button key={c.label} onClick={() => setActiveTab(c.tab)} className={cn("flex-shrink-0 w-32 rounded-2xl p-4 border border-slate-100 text-left", c.bg)}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon className={cn("w-4 h-4", c.iconColor)} />
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 ml-auto" />
-                      </div>
+                    <button key={c.label} onClick={() => setActiveTab(c.tab)} className={cn("rounded-2xl border border-slate-100 p-4 text-left shadow-sm", c.bg)}>
+                      <Icon className={cn("w-5 h-5 mb-2", c.iconColor)} />
                       <p className="text-2xl font-bold text-[#0F172A]">{c.val}</p>
-                      <p className="text-xs text-slate-500">{c.label}</p>
-                      <p className="text-xs text-slate-400">{c.sub}</p>
+                      <p className="text-xs text-slate-500 leading-tight">{c.label}</p>
                     </button>
                   )
                 })}
@@ -642,7 +731,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                 <h3 className="font-semibold text-[#0F172A]">Recruitment Overview</h3>
                 <button onClick={() => setActiveTab("trials")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                 {trials.filter(t => t.status === "Active").map(t => (
                   <div key={t.id} onClick={() => setSelectedTrial(t)} className="flex-shrink-0 w-72 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm cursor-pointer">
                     {/* Protocol ID + Status */}
@@ -688,13 +777,12 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
             <div className="px-4 mb-4">
               <div className="flex gap-2">
                 {[
-                  { label: "+ Add Trial", icon: Plus, onClick: () => onNavigate("add-trial"), color: "border-[#2563EB] text-[#2563EB]" },
-                  { label: "+ Add Site", icon: Plus, onClick: () => setShowAddSite(true), color: "border-[#2563EB] text-[#2563EB]" },
+                  { label: "Add Trial", onClick: () => onNavigate("add-trial"), color: "border-[#2563EB] text-[#2563EB]" },
+                  { label: "Add Site", onClick: () => setShowAddSite(true), color: "border-[#2563EB] text-[#2563EB]" },
                 ].map(a => {
-                  const Icon = a.icon
                   return (
                     <button key={a.label} onClick={a.onClick} className={cn("flex-1 flex items-center justify-center gap-1 border rounded-xl py-2.5 text-xs font-semibold", a.color)}>
-                      <Icon className="w-3.5 h-3.5" />{a.label.replace(/^[+↗] /, "")}
+                      {a.label}
                     </button>
                   )
                 })}
@@ -725,17 +813,17 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
         {/* ── TRIALS TAB ── */}
         {activeTab === "trials" && (
           <div className="px-4 pt-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
-                <Search className="w-4 h-4 text-slate-400" />
-                <input value={trialSearch} onChange={e => setTrialSearch(e.target.value)} placeholder="Search trials..." className="flex-1 text-sm outline-none" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex-1 min-w-0 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
+                <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <input value={trialSearch} onChange={e => setTrialSearch(e.target.value)} placeholder="Search trials..." className="flex-1 min-w-0 text-sm outline-none" />
               </div>
               <button
                 onClick={() => setShowTrialFilters(v => !v)}
-                className={cn("p-2 rounded-xl border", showTrialFilters || phaseFilter !== "All" ? "bg-[#2563EB] border-[#2563EB]" : "bg-white border-slate-200")}>
+                className={cn("flex-shrink-0 p-2 rounded-xl border", showTrialFilters || phaseFilter !== "All" ? "bg-[#2563EB] border-[#2563EB]" : "bg-white border-slate-200")}>
                 <SlidersHorizontal className={cn("w-4 h-4", showTrialFilters || phaseFilter !== "All" ? "text-white" : "text-slate-500")} />
               </button>
-              <button onClick={() => onNavigate("add-trial")} className="p-2 bg-[#2563EB] rounded-xl"><Plus className="w-4 h-4 text-white" /></button>
+              <button onClick={() => onNavigate("add-trial")} className="flex-shrink-0 px-3 py-2 bg-[#2563EB] rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Trial</button>
             </div>
             {/* Phase filter panel (toggled by the sliders button) */}
             {showTrialFilters && (
@@ -753,7 +841,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                 </div>
               </div>
             )}
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
               {[
                 { label: `All (${trials.length})`, val: "All" },
                 { label: `Active (${trials.filter(t => t.status === "Active").length})`, val: "Active" },
@@ -803,14 +891,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                 <div><p className="text-lg font-bold text-green-700">{sites.filter(s => s.status === "Active").length}</p><p className="text-xs text-slate-500">Active</p></div>
               </div>
             </div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
-                <Search className="w-4 h-4 text-slate-400" />
-                <input value={siteSearch} onChange={e => setSiteSearch(e.target.value)} placeholder="Search sites..." className="flex-1 text-sm outline-none" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex-1 min-w-0 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
+                <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <input value={siteSearch} onChange={e => setSiteSearch(e.target.value)} placeholder="Search sites..." className="flex-1 min-w-0 text-sm outline-none" />
               </div>
-              <button onClick={() => setShowAddSite(true)} className="p-2 bg-[#2563EB] rounded-xl"><Plus className="w-4 h-4 text-white" /></button>
+              <button onClick={() => setShowAddSite(true)} className="flex-shrink-0 px-3 py-2 bg-[#2563EB] rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Site</button>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
               {[
                 { label: `All (${sites.length})`, val: "All" },
                 { label: `Active (${sites.filter(s => s.status === "Active").length})`, val: "Active" },
@@ -822,50 +910,72 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
             </div>
             <div className="space-y-3">
               {filteredSites.map(s => (
-                <div key={s.id} onClick={() => setSelectedSite(s)} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm cursor-pointer">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="font-semibold text-[#0F172A]">{s.name}</p>
-                      <p className="text-xs text-slate-500">📍 {s.city}, {s.state}</p>
-                    </div>
-                    <div className="flex items-center gap-2"><StatusBadge status={s.status} /><ChevronRight className="w-4 h-4 text-slate-400" /></div>
+                <div key={s.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                  {/* Site name + status */}
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="font-semibold text-[#0F172A]">{s.name}</p>
+                    <StatusBadge status={s.status} />
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-[#0F172A] mb-2">
-                    <UserCheck className="w-3.5 h-3.5 text-slate-400" /><span>PI: {s.pi}</span>
+                  {/* Site address */}
+                  <div className="flex items-start gap-1.5 text-xs text-slate-500 mb-3">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
+                    <span>{s.hospital}, {s.city}, {s.state}</span>
                   </div>
-                  {/* Trials assigned */}
-                  {s.trials.length > 0 ? (
-                    <div className="mb-2">
-                      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Assigned Trials</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {s.trials.map(trialId => {
-                          const trial = trials.find(t => t.id === trialId)
-                          return (
-                            <button
-                              key={trialId}
-                              onClick={(e) => { e.stopPropagation(); if (trial) setSelectedTrial(trial) }}
-                              className="px-2 py-0.5 bg-blue-50 border border-blue-100 rounded-full text-[11px] font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                            >
-                              {trialId}{trial ? ` · ${trial.phase}` : ""}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
+
+                  {/* Trial details — one sub-panel per assigned trial */}
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Trial Details</p>
+                  {s.trials.length === 0 ? (
+                    <p className="text-xs text-slate-400 italic">No trials assigned yet</p>
                   ) : (
-                    <p className="text-xs text-slate-400 italic mb-2">No trials assigned yet</p>
+                    <div className="space-y-2.5">
+                      {s.trials.map(trialId => {
+                        const t = trials.find(tr => tr.id === trialId)
+                        if (!t) return null
+                        const counters = [
+                          { label: "Screened", val: t.screened, color: "text-[#0F172A]" },
+                          { label: "Screen Fail", val: t.screenFail, color: "text-red-600" },
+                          { label: "Randomized", val: t.randomized, color: "text-[#0F172A]" },
+                          { label: "Withdrawn", val: t.withdrawn, color: "text-amber-600" },
+                          { label: "Dropout", val: t.dropouts, color: "text-orange-600" },
+                          { label: "Follow-up", val: t.followUp, color: "text-[#0D9488]" },
+                          { label: "Completed", val: t.completed, color: "text-[#0D9488]" },
+                        ]
+                        return (
+                          <div key={trialId} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                            {/* Protocol ID + status */}
+                            <div className="flex items-center justify-between gap-2 mb-2.5">
+                              <button onClick={() => setSelectedTrial(t)} className="text-xs font-bold text-[#2563EB]">{t.id}</button>
+                              <StatusBadge status={t.status} />
+                            </div>
+                            {/* Trial meta */}
+                            <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-3">
+                              {[
+                                { label: "Phase", val: t.phase },
+                                { label: "Disease", val: t.indication },
+                                { label: "Drug", val: t.drug },
+                                { label: "PI Name", val: s.pi },
+                                { label: "Recruitment Status", val: recruitmentStatus(t.status) },
+                              ].map(f => (
+                                <div key={f.label}>
+                                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
+                                  <p className="text-xs font-medium text-[#0F172A]">{f.val}</p>
+                                </div>
+                              ))}
+                            </div>
+                            {/* Recruitment counters */}
+                            <div className="grid grid-cols-4 gap-1.5">
+                              {counters.map(c => (
+                                <div key={c.label} className="bg-white rounded-lg border border-slate-100 p-1.5 text-center">
+                                  <p className={cn("text-sm font-bold leading-none", c.color)}>{c.val}</p>
+                                  <p className="text-[9px] text-slate-500 leading-tight mt-0.5">{c.label}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   )}
-                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
-                    <span className="flex items-center gap-1">👤 {s.patients} Patients</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1">✓ {s.visitCompliance}% Compliance</span>
-                  </div>
-                  {/* Site performance score */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-slate-500">Performance</span>
-                    <span className="text-xs font-bold text-[#0D1B3E]">{sitePerformance(s)}%</span>
-                  </div>
-                  <ProgressBar value={sitePerformance(s)} color="bg-[#2563EB]" />
                 </div>
               ))}
             </div>
@@ -924,7 +1034,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
               <h2 className="font-bold text-lg text-[#0F172A]">Notifications</h2>
               <button onClick={() => setNotifications(prev => prev.map(n => ({ ...n, unread: false })))} className="text-[#2563EB] text-sm font-medium">Mark All Read</button>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
               {["All", "Trials", "Sites", "Recruitment", "System"].map(f => (
                 <button key={f} onClick={() => setNotifFilter(f)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", notifFilter === f ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200")}>{f}</button>
               ))}
@@ -963,23 +1073,38 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                 <div className="absolute bottom-3 right-0 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center"><Camera className="w-3 h-3 text-slate-500" /></div>
               </div>
               <p className="font-bold text-lg text-[#0F172A]">{mockData.user.name}</p>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-semibold mt-1">{mockData.user.role}</span>
-              <p className="text-sm text-slate-500 flex items-center gap-1 mt-1"><Building2 className="w-3.5 h-3.5" />{mockData.user.org}</p>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-semibold mt-1">{mockData.user.designation}</span>
             </div>
-            {/* Info card */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-4 mb-4">
-              {[{ label: "Email", val: mockData.user.email }, { label: "Phone", val: mockData.user.phone }, { label: "Entity Type", val: "Sponsor" }, { label: "Role", val: "Admin" }].map(r => (
-                <div key={r.label} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-                  <p className="text-xs text-slate-400">{r.label}</p>
-                  <p className="text-sm text-[#0F172A] font-medium">{r.val}</p>
+            {/* Info card — fields in required order */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-4 mb-2">
+              {[
+                { label: "Phone Number", val: mockData.user.phone, verify: true },
+                { label: "Email ID", val: mockData.user.email, verify: true },
+                { label: "Entity Type", val: "Sponsor" },
+                { label: "Org. Name", val: mockData.user.org },
+                { label: "Org. Address", val: mockData.user.orgAddress },
+              ].map(r => (
+                <div key={r.label} className="py-2 border-b border-slate-100 last:border-0">
+                  <p className="text-xs text-slate-400 flex items-center gap-1">
+                    {r.label}
+                    {r.verify && <ShieldCheck className="w-3 h-3 text-amber-500" />}
+                  </p>
+                  <p className="text-sm text-[#0F172A] font-medium mt-0.5">{r.val}</p>
                 </div>
               ))}
             </div>
+            {/* OTP / notification note for sensitive fields */}
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl p-3 mb-4">
+              <ShieldCheck className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-800 leading-relaxed">
+                Changing your <span className="font-medium">Phone Number</span> or <span className="font-medium">Email ID</span> requires OTP verification. All active trials will be notified of the change.
+              </p>
+            </div>
             {/* Menu */}
             {[
-              { section: "ACCOUNT", items: [{ icon: UserPen, label: "Edit Profile" }, { icon: Lock, label: "Change Password" }, { icon: Bell, label: "Notification Preferences" }] },
-              { section: "TRIAL MANAGEMENT", items: [{ icon: FlaskConical, label: "My Trials", onClick: () => setActiveTab("trials") }, { icon: MapPin, label: "My Sites", onClick: () => setActiveTab("sites") }, { icon: Users, label: "Team Members" }, { icon: FileText, label: "Documents" }] },
-              { section: "REPORTS", items: [{ icon: BarChart2, label: "Recruitment Reports" }, { icon: Download, label: "Export Data" }] },
+              { section: "ACCOUNT", items: [{ icon: UserPen, label: "Edit Profile", onClick: () => setMeSection("edit-profile") }, { icon: Lock, label: "Change Password", onClick: () => setMeSection("change-password") }, { icon: Bell, label: "Notification Preferences", onClick: () => setMeSection("notifications") }] },
+              { section: "TRIAL MANAGEMENT", items: [{ icon: FlaskConical, label: "My Trials", onClick: () => setActiveTab("trials") }, { icon: MapPin, label: "My Sites", onClick: () => setActiveTab("sites") }, { icon: Users, label: "Team Members", onClick: () => setMeSection("team-members") }] },
+              { section: "REPORTS", items: [{ icon: BarChart2, label: "Reports", onClick: () => setMeSection("reports") }, { icon: FileText, label: "T&C", onClick: () => setMeSection("tnc") }, { icon: HelpCircle, label: "Help & Support", onClick: () => setMeSection("help") }] },
             ].map(group => (
               <div key={group.section} className="mb-4">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{group.section}</p>
@@ -1008,28 +1133,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
       </div>
 
       {/* Bottom Nav */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-100 flex items-center">
-        {[
-          { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-          { id: "trials", icon: FlaskConical, label: "Trials" },
-          { id: "chat", icon: MessageCircle, label: "Messages" },
-          { id: "notifs", icon: Bell, label: "Notifs", badge: unreadCount },
-          { id: "me", icon: User, label: "Me" },
-        ].map(tab => {
-          const Icon = tab.icon
-          const active = activeTab === tab.id
-          return (
-            <button key={tab.id} onClick={() => { if (tab.id === "chat") { onNavigate("chat"); return } setActiveTab(tab.id) }} className="flex-1 flex flex-col items-center gap-0.5 relative">
-              {active && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#2563EB] rounded-full" />}
-              <div className="relative">
-                <Icon className={cn("w-5 h-5", active ? "text-[#2563EB]" : "text-slate-400")} />
-                {tab.badge && tab.badge > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">{tab.badge}</span>}
-              </div>
-              <span className={cn("text-[10px] font-medium", active ? "text-[#2563EB]" : "text-slate-400")}>{tab.label}</span>
-            </button>
-          )
-        })}
-      </div>
+      {renderBottomNav()}
 
       {/* ── Add Site Screen (full-screen) ── */}
       {showAddSite && (
@@ -1081,7 +1185,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                     <>
                       {/* PANEL 1 — Trial Details (auto-populated from Protocol ID) */}
                       <div className="bg-slate-50 rounded-xl border border-slate-100 p-3 space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Panel 1 · Trial Details</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trial Details</p>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1.5">Protocol ID <span className="text-red-500">*</span></label>
                           <input value={newSite.protocolId} onChange={e => setNewSite(p => ({ ...p, protocolId: e.target.value }))}
@@ -1110,7 +1214,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
 
                       {/* PANEL 2 — Site Details */}
                       <div className="space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Panel 2 · Site Details</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Site Details</p>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1.5">Site Name <span className="text-red-500">*</span></label>
                           <input value={newSite.siteName} onChange={e => setNewSite(p => ({ ...p, siteName: e.target.value }))}
@@ -1143,12 +1247,10 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1.5">Access Type</label>
-                          <select value={newSite.accessType} onChange={e => setNewSite(p => ({ ...p, accessType: e.target.value }))}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm bg-white focus:border-[#1A3872]">
-                            <option>Patient Management</option>
-                            <option>View Only</option>
-                            <option>Full Access</option>
-                          </select>
+                          <div className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-slate-50 text-sm flex items-center justify-between">
+                            <span className="font-medium text-[#0F172A]">{newSite.accessType}</span>
+                            <span className="flex items-center gap-1 text-[10px] font-medium text-slate-400"><Lock className="w-3 h-3" /> Default</span>
+                          </div>
                         </div>
                       </div>
                     </>
@@ -1181,6 +1283,473 @@ export function SponsorDashboard({ onNavigate, initialTrialId }: SponsorDashboar
                 )}
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Profile (full-screen) ── */}
+      {meSection === "edit-profile" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Edit Profile</span>
+          </div>
+          <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
+            {[
+              { key: "name", label: "Full Name" },
+              { key: "designation", label: "Designation" },
+              { key: "org", label: "Organization Name" },
+              { key: "orgAddress", label: "Organization Address" },
+            ].map(f => (
+              <div key={f.key}>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                <input
+                  value={profileForm[f.key as keyof typeof profileForm]}
+                  onChange={e => setProfileForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                />
+              </div>
+            ))}
+            {/* Sensitive fields — require OTP */}
+            {[
+              { key: "phone", label: "Phone Number" },
+              { key: "email", label: "Email ID" },
+            ].map(f => (
+              <div key={f.key}>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                <input
+                  value={profileForm[f.key as keyof typeof profileForm]}
+                  onChange={e => setProfileForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                />
+              </div>
+            ))}
+            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl p-3">
+              <ShieldCheck className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-800 leading-relaxed">Changing your phone or email requires OTP verification.</p>
+            </div>
+          </div>
+          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+            <button
+              onClick={() => { toast.success("Profile updated"); setMeSection(null) }}
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Change Password (full-screen) ── */}
+      {meSection === "change-password" && (() => {
+        const { current, next, confirm } = passwordForm
+        const passwordRules = [
+          { label: "8+ characters", met: next.length >= 8 },
+          { label: "Uppercase letter", met: /[A-Z]/.test(next) },
+          { label: "Lowercase letter", met: /[a-z]/.test(next) },
+          { label: "Number", met: /[0-9]/.test(next) },
+          { label: "Special character", met: /[!@#$%^&*(),.?":{}|<>]/.test(next) },
+        ]
+        const metRules = passwordRules.filter(r => r.met).length
+        const strengthPercentage = (metRules / passwordRules.length) * 100
+        const allRulesMet = metRules === passwordRules.length
+        const passwordsMatch = next.length > 0 && next === confirm
+        const mismatch = confirm.length > 0 && next !== confirm
+        const canSave = current.length > 0 && allRulesMet && passwordsMatch
+        const fields = [
+          { key: "current", label: "Current Password" },
+          { key: "next", label: "New Password" },
+          { key: "confirm", label: "Confirm New Password" },
+        ] as const
+        return (
+          <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+            <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+              <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+              <span className="font-semibold flex-1">Change Password</span>
+            </div>
+            <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
+              {fields.map(f => (
+                <div key={f.key}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                  <div className="relative">
+                    <input
+                      type={showPwd[f.key] ? "text" : "password"}
+                      value={passwordForm[f.key]}
+                      onChange={e => setPasswordForm(p => ({ ...p, [f.key]: e.target.value }))}
+                      placeholder="••••••••"
+                      className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwd(s => ({ ...s, [f.key]: !s[f.key] }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPwd[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Match indicator */}
+              {passwordsMatch && (
+                <p className="text-[#0D9488] text-sm flex items-center gap-1">
+                  <Check className="w-4 h-4" /> Passwords match
+                </p>
+              )}
+              {mismatch && (
+                <p className="text-red-500 text-sm flex items-center gap-1">
+                  <X className="w-4 h-4" /> Passwords do not match
+                </p>
+              )}
+
+              {/* Strength bar */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#0D9488] transition-all"
+                    style={{ width: `${strengthPercentage}%` }}
+                  />
+                </div>
+                <span className={cn(
+                  "text-sm font-medium",
+                  strengthPercentage >= 80 ? "text-[#0D9488]" : strengthPercentage >= 60 ? "text-[#D97706]" : "text-[#DC2626]"
+                )}>
+                  {strengthPercentage >= 80 ? "Strong" : strengthPercentage >= 60 ? "Medium" : "Weak"}
+                </span>
+              </div>
+
+              {/* Rules checklist */}
+              <div className="space-y-1.5">
+                {passwordRules.map(rule => (
+                  <div key={rule.label} className="flex items-center gap-2">
+                    {rule.met ? <Check className="w-4 h-4 text-[#0D9488]" /> : <X className="w-4 h-4 text-gray-400" />}
+                    <span className={cn("text-sm", rule.met ? "text-[#0D9488]" : "text-gray-500")}>{rule.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="px-5 py-4 border-t border-slate-100 bg-white">
+              <button
+                onClick={() => { toast.success("Password changed"); setPasswordForm({ current: "", next: "", confirm: "" }); setMeSection(null) }}
+                disabled={!canSave}
+                className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", canSave ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+              >
+                Update Password
+              </button>
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ── Notification Preferences (full-screen) ── */}
+      {meSection === "notifications" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Notification Preferences</span>
+          </div>
+          <div className="flex-1 overflow-auto px-5 py-5 space-y-5">
+            {[
+              {
+                title: "Activity", items: [
+                  { key: "visitReminders", label: "Visit reminders", desc: "Upcoming and overdue patient visits" },
+                  { key: "enrolmentUpdates", label: "Enrolment updates", desc: "New screenings and randomizations" },
+                  { key: "protocolDeviations", label: "Protocol deviations", desc: "Alerts when a deviation is logged" },
+                  { key: "weeklyDigest", label: "Weekly digest", desc: "A summary email every Monday" },
+                ],
+              },
+              {
+                title: "Channels", items: [
+                  { key: "emailAlerts", label: "Email", desc: "Send notifications to your email" },
+                  { key: "smsAlerts", label: "SMS", desc: "Send text messages to your phone" },
+                  { key: "pushAlerts", label: "Push", desc: "In-app push notifications" },
+                ],
+              },
+            ].map(group => (
+              <div key={group.title}>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{group.title}</p>
+                <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                  {group.items.map(item => {
+                    const on = notifPrefs[item.key as keyof typeof notifPrefs]
+                    return (
+                      <button
+                        key={item.key}
+                        onClick={() => setNotifPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof typeof notifPrefs] }))}
+                        className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 text-left"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-[#0F172A]">{item.label}</p>
+                          <p className="text-xs text-slate-400">{item.desc}</p>
+                        </div>
+                        <span className={cn("w-11 h-6 rounded-full p-0.5 flex-shrink-0 transition-colors", on ? "bg-[#1A3872]" : "bg-slate-300")}>
+                          <span className={cn("block w-5 h-5 bg-white rounded-full shadow-sm transition-transform", on ? "translate-x-5" : "translate-x-0")} />
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+            <button
+              onClick={() => { toast.success("Preferences saved"); setMeSection(null) }}
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white"
+            >
+              Save Preferences
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Team Members (full-screen) ── */}
+      {meSection === "team-members" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Team Members</span>
+            <span className="text-xs text-blue-200">{teamMembers.length} total</span>
+          </div>
+          <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+            {teamMembers.map(m => {
+              const expanded = expandedMemberId === m.id
+              return (
+                <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                  {/* Name + designation */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center text-sm font-bold text-[#1A3872] flex-shrink-0">
+                      {m.name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-[#0F172A] truncate">{m.name}</p>
+                      <p className="text-xs text-slate-500 truncate">{m.designation}</p>
+                    </div>
+                  </div>
+                  {/* Contact */}
+                  <div className="space-y-1.5 pt-3 border-t border-slate-100">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span className="font-mono">{maskPhone(m.phone)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                      <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span className="truncate">{m.email}</span>
+                    </div>
+                  </div>
+                  {/* Trials involved — clickable total */}
+                  <button
+                    onClick={() => setExpandedMemberId(expanded ? null : m.id)}
+                    className="mt-3 w-full flex items-center justify-between bg-blue-50 rounded-xl px-3 py-2 text-left"
+                  >
+                    <span className="flex items-center gap-2 text-xs font-medium text-[#1A3872]">
+                      <FlaskConical className="w-3.5 h-3.5" />
+                      {m.trials.length} {m.trials.length === 1 ? "trial" : "trials"} involved
+                    </span>
+                    <ChevronDown className={cn("w-4 h-4 text-[#1A3872] transition-transform", expanded && "rotate-180")} />
+                  </button>
+                  {expanded && (
+                    <div className="mt-2 space-y-1.5">
+                      {m.trials.map(tid => (
+                        <div key={tid} className="flex items-center gap-2 text-xs text-slate-600 px-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] flex-shrink-0" />
+                          <span className="font-medium text-[#0F172A]">{tid}</span> — {trialName(tid)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+            <button
+              onClick={() => setMeSection("invite-member")}
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white flex items-center justify-center gap-2"
+            >
+              <UserCheck className="w-4 h-4" /> Invite Members
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Invite Members (full-screen) ── */}
+      {meSection === "invite-member" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection("team-members")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Invite Member</span>
+          </div>
+          <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
+              <input value={inviteForm.name} onChange={e => setInviteForm(p => ({ ...p, name: e.target.value }))}
+                placeholder="Enter member's name"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Designation</label>
+              <input value={inviteForm.designation} onChange={e => setInviteForm(p => ({ ...p, designation: e.target.value }))}
+                placeholder="e.g. Principal Investigator"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+              <div className="flex gap-2">
+                <div className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-600 text-sm">+91</div>
+                <input value={inviteForm.phone} onChange={e => setInviteForm(p => ({ ...p, phone: e.target.value }))}
+                  placeholder="Enter phone number" type="tel"
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email ID *</label>
+              <input value={inviteForm.email} onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))}
+                placeholder="member@example.com" type="email"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+            </div>
+            {/* Trials to involve */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Trials Involved</label>
+              <div className="space-y-2">
+                {trials.map(t => {
+                  const checked = inviteForm.trials.includes(t.id)
+                  return (
+                    <button key={t.id} onClick={() => toggleInviteTrial(t.id)}
+                      className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors",
+                        checked ? "border-[#1A3872] bg-blue-50" : "border-gray-200 bg-white")}>
+                      <span className={cn("w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0",
+                        checked ? "border-[#1A3872] bg-[#1A3872]" : "border-slate-300")}>
+                        {checked && <Check className="w-3 h-3 text-white" />}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-medium text-[#0F172A] truncate">{t.id}</span>
+                        <span className="block text-xs text-slate-500 truncate">{t.name}</span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
+              <Mail className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+              <p className="text-xs text-blue-700">An invitation email will be sent. The member joins once they accept and verify their identity.</p>
+            </div>
+          </div>
+          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+            <button
+              onClick={handleSendInvite}
+              disabled={!inviteForm.name || !inviteForm.email}
+              className={cn("w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all",
+                inviteForm.name && inviteForm.email ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+            >
+              <Mail className="w-4 h-4" /> Send Invite
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reports (full-screen) ── */}
+      {meSection === "reports" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Reports</span>
+          </div>
+          <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+            {[
+              { label: "Recruitment Report", desc: "Screened, randomized & withdrawn across trials" },
+              { label: "Enrolment Summary", desc: "Enrolment vs target by site" },
+              { label: "Visit Compliance", desc: "On-time vs overdue visits" },
+              { label: "Protocol Deviations", desc: "Logged deviations by trial" },
+              { label: "Export Data", desc: "Download data as CSV / Excel" },
+            ].map(r => (
+              <button key={r.label} className="w-full bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3 text-left">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <BarChart2 className="w-5 h-5 text-[#1A3872]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-[#0F172A]">{r.label}</p>
+                  <p className="text-xs text-slate-500">{r.desc}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Terms & Conditions (full-screen) ── */}
+      {meSection === "tnc" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Terms &amp; Conditions</span>
+          </div>
+          <div className="flex-1 overflow-auto px-5 py-4 text-sm text-slate-600 leading-relaxed space-y-4">
+            {[
+              { t: "1. Acceptance of Terms", d: "By using this platform you agree to be bound by these Terms and our Privacy Policy." },
+              { t: "2. Data Privacy & Compliance", d: "All personal and clinical data is handled per applicable data protection laws and used solely for clinical trial management." },
+              { t: "3. Data Security", d: "We use encryption at rest and in transit. You are responsible for keeping your credentials confidential." },
+              { t: "4. Use of Platform", d: "Access is granted strictly for clinical trial management. Misuse may result in account termination." },
+              { t: "5. Audit & Compliance", d: "All actions are logged for audit and may be shared with authorized regulators upon request." },
+              { t: "6. Contact", d: "For questions about these terms, contact support@mtb-pvs.com." },
+            ].map(s => (
+              <div key={s.t} className="space-y-1">
+                <p className="font-bold text-slate-800">{s.t}</p>
+                <p>{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Help & Support (full-screen) ── */}
+      {meSection === "help" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Help &amp; Support</span>
+          </div>
+          <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
+                <Mail className="w-4 h-4 text-[#1A3872]" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#0F172A]">Email Support</p>
+                  <p className="text-xs text-slate-500">support@mtb-pvs.com</p>
+                </div>
+              </a>
+              <a href="tel:+918000000000" className="flex items-center gap-3 px-4 py-3">
+                <Phone className="w-4 h-4 text-[#1A3872]" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#0F172A]">Call Helpline</p>
+                  <p className="text-xs text-slate-500">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
+                </div>
+              </a>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">FAQ</p>
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50">
+                {[
+                  { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
+                  { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite." },
+                  { q: "How do I add a new site?", a: "Go to the Sites tab and tap Add Site. Enter the site and PI details, then share access with the PI to onboard them." },
+                  { q: "How are visit schedules created?", a: "Upload the protocol and the AI extracts the visit template. You can review, edit, and save it, after which patient visits are auto-calculated from each baseline date." },
+                ].map(item => {
+                  const open = expandedFaq === item.q
+                  return (
+                    <div key={item.q}>
+                      <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full flex items-center gap-2 px-4 py-3 text-left">
+                        <HelpCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="text-sm text-[#0F172A] flex-1">{item.q}</span>
+                        <ChevronDown className={cn("w-4 h-4 text-slate-300 transition-transform", open && "rotate-180")} />
+                      </button>
+                      {open && <p className="px-4 pb-3 pl-10 text-xs text-slate-500 leading-relaxed">{item.a}</p>}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Plus, Search, Users, Link, Mail, Check, ChevronRight, X, Copy } from "lucide-react"
+import { ArrowLeft, Search, Users, Link, Mail, Check, ChevronRight, X, Copy } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface TeamScreenProps {
@@ -126,8 +126,8 @@ export function TeamScreen({ onBack }: TeamScreenProps) {
       <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
         <button onClick={onBack} className="p-1"><ArrowLeft className="w-5 h-5" /></button>
         <span className="font-semibold flex-1">Team Management</span>
-        <button onClick={() => setShowAddForm(true)} className="p-1.5 bg-white/20 rounded-lg">
-          <Plus className="w-4 h-4" />
+        <button onClick={() => setShowAddForm(true)} className="px-3 py-1.5 bg-white/20 rounded-lg text-xs font-semibold whitespace-nowrap">
+          Add Member
         </button>
       </div>
 
@@ -178,7 +178,7 @@ export function TeamScreen({ onBack }: TeamScreenProps) {
             className="flex-1 text-sm outline-none" />
           {search && <button onClick={() => setSearch("")}><X className="w-4 h-4 text-slate-400" /></button>}
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {(["all", "Sponsor", "CRO", "PI", "Research Team", "MTB Admin"] as const).map(r => (
             <button key={r} onClick={() => setRoleFilter(r)}
               className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", roleFilter === r ? "bg-[#1A3872] text-white border-[#1A3872]" : "bg-white text-slate-600 border-slate-200")}>

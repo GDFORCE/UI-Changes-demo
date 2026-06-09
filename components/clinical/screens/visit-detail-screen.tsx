@@ -371,10 +371,8 @@ function ClinicalVisitDetail({ onUpdate, onBack }: { onUpdate: () => void; onBac
             className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none resize-none bg-white"
           />
         </div>
-      </div>
 
-      {/* Update Button */}
-      <div className="px-4 py-4 bg-white border-t">
+        {/* Update Button — part of the form, scrolls with the content */}
         <button
           onClick={onUpdate}
           className="w-full py-4 rounded-full font-semibold bg-[#1A3872] text-white"

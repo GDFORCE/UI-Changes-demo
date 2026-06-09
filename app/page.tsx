@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import { MobileFrame } from "@/components/clinical/mobile-frame"
+import { BottomNav, type UserRole } from "@/components/clinical/bottom-nav"
 import { WelcomeScreen } from "@/components/clinical/screens/welcome-screen"
 import { EntityTypeScreen } from "@/components/clinical/screens/entity-type-screen"
 import { RegistrationScreen } from "@/components/clinical/screens/registration-screen"
 import { OTPScreen } from "@/components/clinical/screens/otp-screen"
+import { SecurityQuestionsScreen } from "@/components/clinical/screens/security-questions-screen"
 import { PasswordScreen } from "@/components/clinical/screens/password-screen"
 import { SuccessScreen } from "@/components/clinical/screens/success-screen"
 import { SignInScreen } from "@/components/clinical/screens/sign-in-screen"
@@ -42,6 +44,7 @@ type Screen =
   | "welcome"
   | "entity-type"
   | "registration"
+  | "security-questions"
   | "otp"
   | "password"
   | "success"
@@ -82,6 +85,7 @@ const screenCategories = [
       { id: "welcome", label: "Welcome" },
       { id: "entity-type", label: "Entity Type" },
       { id: "registration", label: "Registration" },
+      { id: "security-questions", label: "Security Questions" },
       { id: "otp", label: "OTP" },
       { id: "password", label: "Password" },
       { id: "success", label: "Success" },
@@ -154,12 +158,29 @@ export default function PatientVisitScheduleApp() {
   const [openTrialSummary, setOpenTrialSummary] = useState(false)
   // The visit a patient tapped in My Visits, shown on the Visit Detail screen.
   const [selectedVisitId, setSelectedVisitId] = useState<string | undefined>(undefined)
+  // Which sponsor-dashboard tab to open on when the global nav routes back to it.
+  const [sponsorTab, setSponsorTab] = useState<string | undefined>(undefined)
+  // Which view the PI/CRC calendar should open in (deep-linked from the dashboard).
+  const [calendarView, setCalendarView] = useState<"day" | "week" | "month">("month")
+  // Which PI-dashboard tab to open on when the nav routes into it.
+  const [piTab, setPiTab] = useState<"dashboard" | "my-trials">("dashboard")
+  // Hide the bottom nav while a chat conversation (message thread) is open.
+  const [chatConversationOpen, setChatConversationOpen] = useState(false)
 
   const navigate = (screen: Screen | string) => {
+    let target = screen as string
+    // Calendar deep-links: open the PI/CRC calendar directly in a given view.
+    if (target === "pi-calendar-week") { setCalendarView("week"); target = "pi-calendar" }
+    else if (target === "crc-calendar-week") { setCalendarView("week"); target = "crc-calendar" }
+    else if (target === "pi-calendar" || target === "crc-calendar") { setCalendarView("month") }
+
     // Clear the pending trial-summary request on any nav except into the dashboard itself.
-    if (screen !== "sponsor-dashboard") setOpenTrialSummary(false)
-    setHistory([...history, screen as Screen])
-    setCurrentScreen(screen as Screen)
+    if (target !== "sponsor-dashboard") {
+      setOpenTrialSummary(false)
+      setSponsorTab(undefined)
+    }
+    setHistory([...history, target as Screen])
+    setCurrentScreen(target as Screen)
   }
 
   const goBack = () => {
@@ -192,9 +213,16 @@ export default function PatientVisitScheduleApp() {
       case "registration":
         return (
           <RegistrationScreen
-            onSubmit={() => navigate("otp")}
+            onSubmit={() => navigate("security-questions")}
             onBack={goBack}
             entityType={selectedEntity}
+          />
+        )
+      case "security-questions":
+        return (
+          <SecurityQuestionsScreen
+            onSubmit={() => navigate("otp")}
+            onBack={goBack}
           />
         )
       case "otp":
@@ -243,9 +271,9 @@ export default function PatientVisitScheduleApp() {
           />
         )
       case "sponsor-dashboard":
-        return <SponsorDashboard onNavigate={(screen) => navigate(screen as Screen)} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} />
+        return <SponsorDashboard onNavigate={(screen) => navigate(screen as Screen)} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} initialTab={sponsorTab} />
       case "pi-dashboard":
-        return <PIDashboard onNavigate={(screen) => navigate(screen as Screen)} />
+        return <PIDashboard initialTab={piTab} onNavigate={(screen) => navigate(screen as Screen)} />
       case "research-team-dashboard":
         return <ResearchTeamDashboard onNavigate={(screen) => navigate(screen as Screen)} />
       case "patient-dashboard":
@@ -326,6 +354,7 @@ export default function PatientVisitScheduleApp() {
               currentScreen === "chat" && history.includes("pi-dashboard") ? "pi" :
               "sponsor"
             }
+            onConversationOpenChange={setChatConversationOpen}
           />
         )
       case "medication-reminder":
@@ -383,6 +412,7 @@ export default function PatientVisitScheduleApp() {
         return (
           <TeamCalendarScreen
             role="pi"
+            initialView={calendarView}
             onNavigate={(screen) => navigate(screen as Screen)}
             onBack={goBack}
           />
@@ -391,6 +421,7 @@ export default function PatientVisitScheduleApp() {
         return (
           <TeamCalendarScreen
             role="crc"
+            initialView={calendarView}
             onNavigate={(screen) => navigate(screen as Screen)}
             onBack={goBack}
           />
@@ -413,6 +444,72 @@ export default function PatientVisitScheduleApp() {
   }
 
   const renderedScreen = renderScreen()
+
+  // ── Persistent role-based bottom navigation ──────────────────────────────
+  // The nav differs per profile but stays pinned on every in-app page.
+  const navRole: UserRole | null =
+    selectedEntity === "patient" ? "patient" :
+    (selectedEntity === "sponsor" || selectedEntity === "cro" || selectedEntity === "smo") ? "sponsor" :
+    history.includes("research-team-dashboard") || history.includes("crc-calendar") ? "crc" :
+    history.includes("pi-dashboard") || history.includes("pi-calendar") ? "pi" :
+    selectedEntity === "site" ? "pi" :
+    null
+
+  // Pre-login / onboarding screens — no nav.
+  const authScreens: Screen[] = [
+    "welcome", "entity-type", "registration", "security-questions", "otp", "password", "success",
+    "sign-in", "forgot-password", "session-timeout", "no-internet",
+  ]
+  // Screens that already render their own bottom nav.
+  const selfNavScreens: Screen[] = [
+    "sponsor-dashboard", "pi-dashboard", "research-team-dashboard", "patient-dashboard",
+    "patient-calendar", "pi-calendar", "crc-calendar", "my-trial",
+  ]
+  // Screens that get the persistent global nav. The wrapper is always rendered for
+  // these so the inner screen never remounts when the nav itself shows/hides.
+  const isGlobalNavScreen =
+    navRole !== null &&
+    !authScreens.includes(currentScreen) &&
+    !selfNavScreens.includes(currentScreen)
+  // The nav is hidden while a chat conversation (message thread) is open.
+  const navVisible = isGlobalNavScreen && !(currentScreen === "chat" && chatConversationOpen)
+
+  // Highlight the nav tab that matches the current screen (best-effort).
+  const globalActiveTab: Record<string, string> = {
+    "patient-list": "patients",
+    "add-patient": "patients",
+    "chat": "chat",
+    "notifications": "notifs",
+    "profile-settings": "me",
+    "add-trial": "trials",
+    "visit-schedule": "trials",
+    "my-visits": "my-trial",
+    "about-trial": "my-trial",
+  }
+
+  // Maps a nav tab to its destination screen for the active role.
+  const handleGlobalNav = (tab: string) => {
+    if (tab === "chat") { navigate("chat"); return }
+    if (navRole === "patient") {
+      if (tab === "dashboard") navigate("patient-dashboard")
+      else if (tab === "my-trial") navigate("my-visits")
+      else if (tab === "calendar") navigate("patient-calendar")
+      else if (tab === "me") navigate("profile-settings")
+    } else if (navRole === "sponsor") {
+      setSponsorTab(tab === "dashboard" ? undefined : tab)
+      navigate("sponsor-dashboard")
+    } else if (navRole === "pi") {
+      if (tab === "dashboard") { setPiTab("dashboard"); navigate("pi-dashboard") }
+      else if (tab === "my-trials") { setPiTab("my-trials"); navigate("pi-dashboard") }
+      else if (tab === "calendar") navigate("pi-calendar")
+      else if (tab === "me") navigate("profile-settings")
+    } else if (navRole === "crc") {
+      if (tab === "dashboard") navigate("research-team-dashboard")
+      else if (tab === "patients") navigate("patient-list")
+      else if (tab === "calendar") navigate("crc-calendar")
+      else if (tab === "me") navigate("profile-settings")
+    }
+  }
 
   return (
     <LanguageProvider>
@@ -460,7 +557,23 @@ export default function PatientVisitScheduleApp() {
                 currentScreen === "welcome" ? "bg-transparent absolute top-0 left-0 right-0 z-10" : ""
               }
             >
-              {renderedScreen}
+              {isGlobalNavScreen && navRole ? (
+                <div className="h-full flex flex-col">
+                  <div className="flex-1 min-h-0 overflow-auto">{renderedScreen}</div>
+                  {navVisible && (
+                    <div className="shrink-0">
+                      <BottomNav
+                        role={navRole}
+                        activeTab={globalActiveTab[currentScreen] ?? ""}
+                        onTabChange={handleGlobalNav}
+                        notificationCount={2}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                renderedScreen
+              )}
             </MobileFrame>
           </div>
 

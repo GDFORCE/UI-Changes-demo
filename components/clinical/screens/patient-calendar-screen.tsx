@@ -342,7 +342,7 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                         )}
                         {(v.status === "upcoming" || v.status === "scheduled") && (
                           <button
-                            onClick={() => onNavigate("my-trial")}
+                            onClick={() => onNavigate("my-visits")}
                             className="text-xs text-[#2563EB] font-medium mt-2"
                           >
                             View Details →
@@ -496,7 +496,7 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
         onTabChange={(tab) => {
           setActiveTab(tab)
           if (tab === "dashboard") onNavigate("patient-dashboard")
-          if (tab === "my-trial") onNavigate("my-trial")
+          if (tab === "my-trial") onNavigate("my-visits")
           if (tab === "chat") onNavigate("chat")
           if (tab === "me") onNavigate("profile-settings")
         }}

@@ -166,10 +166,8 @@ export function AddTrialScreen({ onSave, onBack }: AddTrialScreenProps) {
             <option>Terminated</option>
           </select>
         </div>
-      </div>
-      
-      {/* Save Button */}
-      <div className="px-4 py-4 bg-white border-t">
+
+        {/* Save Button — part of the form, scrolls with the content */}
         <button
           onClick={onSave}
           className="w-full py-4 rounded-full font-semibold bg-[#1A3872] text-white"

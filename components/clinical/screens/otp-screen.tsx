@@ -2,7 +2,7 @@
 
 import { AppBar } from "../app-bar"
 import { Smartphone, Mail, Clock, ShieldOff } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
 interface OTPScreenProps {
@@ -13,6 +13,28 @@ interface OTPScreenProps {
 
 const OTP_DURATION = 300 // 5 minutes
 const MAX_RESEND = 3
+
+// Where the OTP was actually sent (would come from the account in production).
+const PHONE_COUNTRY_CODE = "+91"
+const PHONE_NUMBER = "9876543210"
+const EMAIL = "john.doe@gmail.com"
+
+// Show only the last 4 digits, country code stays visible: "+91 ••••••3210".
+function maskPhone(countryCode: string, number: string): string {
+  const digits = number.replace(/\D/g, "")
+  if (digits.length <= 4) return `${countryCode} ${digits}`
+  const last4 = digits.slice(-4)
+  return `${countryCode} ${"•".repeat(digits.length - 4)}${last4}`
+}
+
+// Mask the local part (keep first + last char), keep the domain visible: "j•••e@example.com".
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@")
+  if (!domain) return email
+  if (local.length <= 2) return `${local[0]}•@${domain}`
+  const middle = "•".repeat(Math.min(local.length - 2, 4))
+  return `${local[0]}${middle}${local[local.length - 1]}@${domain}`
+}
 
 type Channel = "phone" | "email"
 
@@ -28,7 +50,62 @@ function OtpRow({
   onChange: (index: number, v: string) => void
 }) {
   const [focusedIndex, setFocusedIndex] = useState(0)
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const Icon = channel === "phone" ? Smartphone : Mail
+
+  const focusInput = (index: number) => {
+    const el = inputRefs.current[index]
+    if (el) {
+      el.focus()
+      el.select()
+    }
+  }
+
+  const handleChange = (index: number, raw: string) => {
+    // Keep digits only.
+    const digits = raw.replace(/\D/g, "")
+    if (!digits) {
+      onChange(index, "")
+      return
+    }
+    // Support pasting / fast typing of multiple digits: spread across boxes.
+    if (digits.length > 1) {
+      const chars = digits.split("")
+      let lastIndex = index
+      chars.forEach((c, offset) => {
+        const target = index + offset
+        if (target <= 5) {
+          onChange(target, c)
+          lastIndex = target
+        }
+      })
+      focusInput(Math.min(lastIndex + 1, 5))
+      return
+    }
+    onChange(index, digits)
+    if (index < 5) focusInput(index + 1)
+  }
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (value[index]) {
+        // Clear current box first.
+        onChange(index, "")
+      } else if (index > 0) {
+        // Move to the previous box and clear it.
+        e.preventDefault()
+        onChange(index - 1, "")
+        focusInput(index - 1)
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      e.preventDefault()
+      focusInput(index - 1)
+    } else if (e.key === "ArrowRight" && index < 5) {
+      e.preventDefault()
+      focusInput(index + 1)
+    }
+  }
+
   return (
     <div className="w-full mb-6">
       <div className="flex items-center gap-2 mb-2">
@@ -42,14 +119,14 @@ function OtpRow({
         {value.map((digit, index) => (
           <input
             key={index}
+            ref={(el) => { inputRefs.current[index] = el }}
             type="text"
             inputMode="numeric"
+            autoComplete={index === 0 ? "one-time-code" : "off"}
             maxLength={1}
             value={digit}
-            onChange={(e) => {
-              onChange(index, e.target.value)
-              if (e.target.value && index < 5) setFocusedIndex(index + 1)
-            }}
+            onChange={(e) => handleChange(index, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(index, e)}
             onFocus={() => setFocusedIndex(index)}
             className={cn(
               "w-11 h-14 text-center text-xl font-semibold rounded-lg border-2 outline-none transition-all",
@@ -130,7 +207,7 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
               <OtpRow
                 key={ch}
                 channel={ch}
-                destination={ch === "phone" ? "+91 98XXXXXXXX" : "j***@example.com"}
+                destination={ch === "phone" ? maskPhone(PHONE_COUNTRY_CODE, PHONE_NUMBER) : maskEmail(EMAIL)}
                 value={ch === "phone" ? phoneOtp : emailOtp}
                 onChange={(i, v) => setOtpDigit(ch, i, v)}
               />

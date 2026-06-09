@@ -6,16 +6,18 @@ import { BottomNav } from "../bottom-nav"
 import {
   CheckCircle, Clock, AlertTriangle, FileText, ChevronRight,
   PenLine, Users, Activity, Shield, Calendar, TrendingUp, Info
-  , Plus, Building2, UserPlus, Send, FilePlus2, CheckSquare, Square, X
+  , Building2, UserPlus, Send, FilePlus2, CheckSquare, Square, X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { AboutTrialScreen, buildTrialInfo } from "@/components/clinical/screens/patient/about-trial-screen"
+import { TrialSummaryScreen } from "@/components/clinical/screens/trial-summary-screen"
+import { SiteUserProfile } from "@/components/clinical/screens/site-user-profile"
 
 interface PIDashboardProps {
   onNavigate: (screen: string) => void
+  initialTab?: PiTab
 }
 
-type PiTab = "dashboard" | "patients" | "approvals" | "chat" | "notifs" | "me"
+type PiTab = "dashboard" | "my-trials" | "patients" | "approvals" | "chat" | "notifs" | "me"
 type ApprovalSubTab = "deviations" | "ecrf" | "enrolments"
 type WeekVisit = { time: string; subj: string; name: string; visit: string; status: string }
 
@@ -33,6 +35,8 @@ type Patient = {
   name: string
   age: number
   visit: string
+  visitName?: string
+  visitType?: string
   dateISO: string
   status: PatientStatus
   note?: string
@@ -43,7 +47,7 @@ type Patient = {
 
 const initialPatients: Patient[] = [
   {
-    id: "SUBJ-001", name: "Priya Krishnan", age: 45, visit: "Visit 7", dateISO: "2026-05-23", status: "on-track",
+    id: "SUBJ-001", name: "Priya Krishnan", age: 45, visit: "Visit 7", visitName: "Efficacy Assessment", visitType: "Hospital", dateISO: "2026-05-23", status: "on-track",
     history: [
       { visit: "Visit 1", dateISO: "2026-01-15", type: "Screening", outcome: "completed", note: "Eligibility confirmed, ICF signed" },
       { visit: "Visit 2", dateISO: "2026-02-05", type: "Baseline", outcome: "completed", note: "Randomized to treatment arm" },
@@ -54,7 +58,7 @@ const initialPatients: Patient[] = [
     ],
   },
   {
-    id: "SUBJ-002", name: "Rahul Mehta", age: 52, visit: "Visit 4", dateISO: "2026-05-19", status: "overdue",
+    id: "SUBJ-002", name: "Rahul Mehta", age: 52, visit: "Visit 4", visitName: "Safety Follow-up", visitType: "Hospital", dateISO: "2026-05-19", status: "overdue",
     history: [
       { visit: "Visit 1", dateISO: "2026-02-10", type: "Screening", outcome: "completed", note: "ICF signed" },
       { visit: "Visit 2", dateISO: "2026-03-03", type: "Baseline", outcome: "completed", note: "Randomized" },
@@ -62,13 +66,13 @@ const initialPatients: Patient[] = [
     ],
   },
   {
-    id: "SUBJ-003", name: "Anita Patel", age: 38, visit: "Visit 2", dateISO: "2026-06-08", status: "on-track",
+    id: "SUBJ-003", name: "Anita Patel", age: 38, visit: "Visit 2", visitName: "Baseline", visitType: "Hospital", dateISO: "2026-06-08", status: "on-track",
     history: [
       { visit: "Visit 1", dateISO: "2026-05-18", type: "Screening", outcome: "completed", note: "Eligibility confirmed" },
     ],
   },
   {
-    id: "SUBJ-004", name: "Vijay Sharma", age: 61, visit: "Visit 5", dateISO: "2026-06-08", status: "on-track",
+    id: "SUBJ-004", name: "Vijay Sharma", age: 61, visit: "Visit 5", visitName: "Lab & Vitals", visitType: "Hospital", dateISO: "2026-06-08", status: "on-track",
     history: [
       { visit: "Visit 1", dateISO: "2026-02-20", type: "Screening", outcome: "completed" },
       { visit: "Visit 2", dateISO: "2026-03-13", type: "Baseline", outcome: "completed", note: "Randomized" },
@@ -77,7 +81,7 @@ const initialPatients: Patient[] = [
     ],
   },
   {
-    id: "SUBJ-005", name: "Deepa Nair", age: 44, visit: "—", dateISO: "", status: "withdrawn",
+    id: "SUBJ-005", name: "Deepa Nair", age: 44, visit: "—", visitName: "—", visitType: "—", dateISO: "", status: "withdrawn",
     history: [
       { visit: "Visit 1", dateISO: "2026-03-01", type: "Screening", outcome: "completed" },
       { visit: "Visit 2", dateISO: "2026-03-22", type: "Baseline", outcome: "completed", note: "Randomized" },
@@ -96,6 +100,25 @@ function visitLine(p: Patient): string {
   else if (p.dateISO === TODAY_ISO) dateLabel = "Today"
   else dateLabel = new Date(p.dateISO + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
   return `${p.visit} · ${dateLabel}`
+}
+
+// Total visits in the protocol — drives the "visits completed" progress bar.
+const PROTOCOL_TOTAL_VISITS = 8
+
+function patientInitials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() ?? "").join("")
+}
+
+function visitNumber(visit: string): string {
+  const m = visit.match(/\d+/)
+  return m ? m[0] : "—"
+}
+
+function visitDateLabel(p: Patient): string {
+  if (p.status === "overdue") return "Overdue"
+  if (!p.dateISO) return "Not scheduled"
+  if (p.dateISO === TODAY_ISO) return "Today"
+  return new Date(p.dateISO + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
 }
 
 const deviations = [
@@ -165,8 +188,8 @@ const statusStyle: Record<string, { label: string; bg: string; text: string }> =
   withdrawn:  { label: "Withdrawn",bg: "bg-slate-100",   text: "text-slate-500" },
 }
 
-export function PIDashboard({ onNavigate }: PIDashboardProps) {
-  const [activeTab, setActiveTab] = useState<PiTab>("dashboard")
+export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboardProps) {
+  const [activeTab, setActiveTab] = useState<PiTab>(initialTab)
   const [approvalTab, setApprovalTab] = useState<ApprovalSubTab>("deviations")
   const [signedDeviations, setSignedDeviations] = useState<Set<string>>(new Set())
   const [signedEcrf, setSignedEcrf] = useState<Set<string>>(new Set())
@@ -175,7 +198,6 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
   const [selectedTrial, setSelectedTrial] = useState<typeof piTrials[0] | null>(null)
   const [showAllTrials, setShowAllTrials] = useState(false)
   const [showSponsors, setShowSponsors] = useState(false)
-  const [showWeekSchedule, setShowWeekSchedule] = useState(false)
   // Patient visit updates
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [editPatient, setEditPatient] = useState<Patient | null>(null)
@@ -253,8 +275,6 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
       <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{tr.title}</h4>
       <div className="grid grid-cols-2 gap-y-1.5 gap-x-3">
         {[
-          { label: "Protocol", val: tr.id },
-          { label: "Study Title", val: tr.title },
           { label: "Phase", val: tr.phase },
           { label: "Disease", val: tr.disease },
           { label: "Drug", val: tr.drug },
@@ -262,9 +282,8 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
           { label: "Site Name", val: tr.site },
           { label: "PI Name", val: tr.pi },
           { label: "Department", val: tr.department },
-          { label: "Status of Trial", val: tr.status },
         ].map(f => (
-          <div key={f.label} className={f.label === "Study Title" ? "col-span-2" : undefined}>
+          <div key={f.label} className={f.label === "Department" ? "col-span-2 text-center" : undefined}>
             <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
             <p className="text-xs font-medium text-[#0F172A]">{f.val}</p>
           </div>
@@ -326,42 +345,22 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
   // ── Dashboard tab ────────────────────────────────────────────────────────
   const renderDashboard = () => (
     <div className="flex-1 overflow-auto pb-4 space-y-4 pt-4">
-      {/* Hero */}
-      <div className="px-4">
-        <div className="bg-gradient-to-br from-[#0D1B3E] via-[#1A3872] to-[#2563EB] rounded-2xl p-5 text-white shadow-lg">
-          <h2 className="text-xl font-bold mb-0.5 font-[family-name:var(--font-heading)]">Good morning, Dr. Sharma</h2>
-          <p className="text-blue-200 text-sm mb-4">Protocol-001 · Site 02</p>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Active Patients", value: "4", icon: Users },
-              { label: "Visits This Week", value: "6", icon: Calendar },
-              { label: "Pending Approvals", value: String(pendingApprovalsCount), icon: PenLine, alert: pendingApprovalsCount > 0 },
-              { label: "Deviations", value: "2", icon: AlertTriangle, alert: true },
-            ].map(({ label, value, icon: Icon, alert }) => (
-              <div key={label} className="bg-white/10 rounded-xl p-3 flex items-center gap-3">
-                <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", alert ? "bg-amber-400/20" : "bg-white/20")}>
-                  <Icon className={cn("w-4 h-4", alert ? "text-amber-300" : "text-white")} />
-                </div>
-                <div>
-                  <p className="text-xl font-bold leading-none">{value}</p>
-                  <p className="text-[10px] text-blue-200 leading-tight mt-0.5">{label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="px-4 grid grid-cols-2 gap-3">
-        <button onClick={() => setShowAllTrials(true)} className="bg-white rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
+      {/* Summary stats */}
+      <div className="px-4 grid grid-cols-3 gap-3">
+        <button onClick={() => setShowAllTrials(true)} className="bg-blue-50 rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
           <FileText className="w-5 h-5 text-[#2563EB] mb-2" />
           <p className="text-2xl font-bold text-[#0F172A]">{piTrials.length}</p>
           <p className="text-xs text-slate-500">Total Trials</p>
         </button>
-        <button onClick={() => setShowSponsors(true)} className="bg-white rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
+        <button onClick={() => setShowSponsors(true)} className="bg-teal-50 rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
           <Building2 className="w-5 h-5 text-[#0D9488] mb-2" />
           <p className="text-2xl font-bold text-[#0F172A]">{piSponsors.length}</p>
           <p className="text-xs text-slate-500">Sponsors</p>
+        </button>
+        <button onClick={() => setActiveTab("patients")} className="bg-purple-50 rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
+          <Users className="w-5 h-5 text-[#7C3AED] mb-2" />
+          <p className="text-2xl font-bold text-[#0F172A]">{patients.length}</p>
+          <p className="text-xs text-slate-500">Total Patients</p>
         </button>
       </div>
 
@@ -394,10 +393,10 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
       <div className="px-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">This Week's Schedule</h3>
-          <button onClick={() => setShowWeekSchedule(true)} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">View Week <ChevronRight className="w-4 h-4" /></button>
+          <button onClick={() => onNavigate("pi-calendar-week")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">View Week <ChevronRight className="w-4 h-4" /></button>
         </div>
         <button
-          onClick={() => setShowWeekSchedule(true)}
+          onClick={() => onNavigate("pi-calendar-week")}
           className="w-full bg-white rounded-2xl p-4 shadow-sm flex justify-between text-left hover:bg-slate-50 transition-colors"
         >
           {weekDays.map((d) => (
@@ -503,46 +502,64 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
   // ── Patients tab (operational) ───────────────────────────────────────────
   const renderPatients = () => (
     <div className="flex-1 overflow-auto pb-4 pt-4 px-4 space-y-2">
-      <div className="flex gap-2 mb-1">
+      <div className="flex gap-2.5 pb-3 mb-1 border-b border-slate-200">
         <button
           onClick={() => onNavigate("add-patient")}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-[#0D1B3E] text-white py-2.5 rounded-xl text-xs font-semibold"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-[#0D1B3E] text-white py-2.5 rounded-xl text-xs font-semibold shadow-sm active:scale-[0.98] transition-transform"
         >
           <UserPlus className="w-4 h-4" /> Add Patient
         </button>
         <button
           onClick={() => onNavigate("invite-patient")}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 border-2 border-[#0D1B3E] text-[#0D1B3E] py-2.5 rounded-xl text-xs font-semibold active:scale-[0.98] transition-transform"
         >
           <Send className="w-4 h-4" /> Send Invite
         </button>
       </div>
       {patients.map((p) => {
         const style = statusStyle[p.status]
+        const trialInfo = piTrials[0]
+        const completedVisits = p.history?.filter(h => h.outcome === "completed").length ?? 0
         return (
           <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <p className="font-semibold text-[#0F172A]">{p.name}</p>
-                <p className="text-xs text-slate-400">{p.id} · Age {p.age}</p>
+            {/* Subject ID + initials + visit status */}
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-9 h-9 rounded-full bg-[#1A3872] text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">{patientInitials(p.name)}</div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-[#0F172A] leading-tight">{p.id}</p>
+                  <p className="text-[11px] text-slate-400">{patientInitials(p.name)}</p>
+                </div>
               </div>
-              <span className={cn("px-2 py-0.5 rounded-full text-[11px] font-medium", style.bg, style.text)}>
+              <span className={cn("px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0", style.bg, style.text)}>
                 {style.label}
               </span>
             </div>
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <p className="text-xs text-slate-500 flex items-center gap-1">
-                <Clock className="w-3 h-3" /> {visitLine(p)}
-              </p>
-              {p.visitCompleted && (
-                <span className="text-[10px] bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" /> Visit completed
-                </span>
-              )}
+
+            {/* Trial meta */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Protocol ID</p><p className="text-xs font-medium text-[#0F172A]">{trialInfo.id}</p></div>
+              <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-[#0F172A]">{trialInfo.phase}</p></div>
+              <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Indication</p><p className="text-xs font-medium text-[#0F172A]">{trialInfo.disease}</p></div>
             </div>
-            {p.note && (
-              <p className="text-[11px] text-slate-400 mb-3 -mt-1">Remarks: {p.note}</p>
-            )}
+
+            {/* Next visit */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 mb-3">
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Next Visit</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                <div><p className="text-[10px] text-slate-400">Visit No.</p><p className="text-xs font-medium text-[#0F172A]">{visitNumber(p.visit)}</p></div>
+                <div><p className="text-[10px] text-slate-400">Visit Name</p><p className="text-xs font-medium text-[#0F172A]">{p.visitName ?? "—"}</p></div>
+                <div><p className="text-[10px] text-slate-400">Visit Type</p><p className="text-xs font-medium text-[#0F172A]">{p.visitType ?? "—"}</p></div>
+                <div><p className="text-[10px] text-slate-400">Visit Date</p><p className="text-xs font-medium text-[#0F172A]">{visitDateLabel(p)}</p></div>
+              </div>
+            </div>
+
+            {/* Visits completed */}
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] text-slate-400 uppercase tracking-wide">Visits Completed</span>
+              <span className="text-xs font-semibold text-[#0F172A]">{completedVisits} of {PROTOCOL_TOTAL_VISITS}</span>
+            </div>
+
             <div className="flex gap-2">
               <button
                 onClick={() => openVisitUpdate(p)}
@@ -693,99 +710,50 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
     </div>
   )
 
-  // ── Profile / Me tab ─────────────────────────────────────────────────────
-  const renderMe = () => (
-    <div className="flex-1 overflow-auto pb-4 pt-6 px-4">
-      <div className="flex flex-col items-center mb-6">
-        <div className="w-20 h-20 rounded-full bg-[#1A3872] flex items-center justify-center text-white text-2xl font-bold mb-3">DS</div>
-        <h2 className="text-lg font-bold text-[#0F172A] font-[family-name:var(--font-heading)]">Dr. Sharma</h2>
-        <p className="text-sm text-slate-500">Principal Investigator · Site 02</p>
+  // ── My Trials tab ────────────────────────────────────────────────────────
+  const renderMyTrials = () => (
+    <div className="flex-1 overflow-auto bg-[#F8FAFC]">
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <h3 className="font-semibold text-[#0F172A] text-lg font-[family-name:var(--font-heading)]">My Trials</h3>
+        <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-[#2563EB] text-white rounded-full px-3 py-1.5 text-xs font-semibold">
+          Add Trial
+        </button>
       </div>
-      <div className="bg-white rounded-2xl shadow-sm divide-y divide-slate-50">
-        {[
-          { label: "Specialisation", value: "Oncology" },
-          { label: "Protocol", value: "Protocol-001" },
-          { label: "GCP Certification", value: "Valid till Dec 2026" },
-          { label: "Site", value: "Apollo Hospital, Chennai" },
-        ].map(({ label, value }) => (
-          <div key={label} className="px-4 py-3 flex justify-between">
-            <span className="text-sm text-slate-500">{label}</span>
-            <span className="text-sm font-medium text-[#0F172A]">{value}</span>
-          </div>
-        ))}
+      <div className="px-4 pb-4 space-y-3">
+        {piTrials.map(tr => <TrialPanel key={tr.id} tr={tr} />)}
       </div>
-      <button
-        onClick={() => onNavigate("welcome")}
-        className="mt-6 w-full py-3 rounded-xl border border-red-200 text-red-600 text-sm font-semibold"
-      >
-        Sign Out
-      </button>
     </div>
   )
 
-  // ── Trial Detail → full About Trial page (PI view) ───────
+  // ── Profile / Me tab ─────────────────────────────────────────────────────
+  const renderMe = () => (
+    <SiteUserProfile
+      user={{
+        initials: "DS",
+        avatarColor: "bg-[#1A3872]",
+        name: "Dr. Sharma",
+        designation: "Principal Investigator",
+        phone: "+91 98100 12345",
+        email: "dr.sharma@apollo.com",
+        entityType: "Site / Hospital",
+        orgName: "Apollo Hospital",
+        orgAddress: "Greams Road, Chennai 600006",
+        role: "PI",
+        department: "Oncology",
+      }}
+      onSignOut={() => onNavigate("welcome")}
+    />
+  )
+
+  // ── Trial Detail → Trial Summary page (PI view) ──────────
   if (selectedTrial) {
     return (
-      <AboutTrialScreen
-        info={buildTrialInfo(selectedTrial)}
-        title={selectedTrial.id}
+      <TrialSummaryScreen
+        trial={selectedTrial}
+        patients={patients}
         onBack={() => setSelectedTrial(null)}
+        onAddPatient={() => onNavigate("add-patient")}
       />
-    )
-  }
-
-  // ── This Week's Schedule (detailed) ──────────────────────
-  if (showWeekSchedule) {
-    const totalVisits = weekDays.reduce((sum, d) => sum + d.visits.length, 0)
-    return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setShowWeekSchedule(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
-          <div className="flex-1">
-            <p className="font-semibold leading-tight">This Week</p>
-            <p className="text-[11px] text-blue-200">26 May – 1 Jun · {totalVisits} visits scheduled</p>
-          </div>
-          <Calendar className="w-5 h-5 text-blue-200" />
-        </div>
-        <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
-          {weekDays.map((d) => (
-            <div key={d.day} className="bg-white rounded-2xl shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-sm font-semibold text-[#0F172A]">{d.weekday}</span>
-                  <span className="text-xs text-slate-400">{d.date} May</span>
-                </div>
-                <span className="text-[11px] font-medium text-slate-400">
-                  {d.visits.length > 0 ? `${d.visits.length} visit${d.visits.length > 1 ? "s" : ""}` : "No visits"}
-                </span>
-              </div>
-              {d.visits.length > 0 ? (
-                <div className="divide-y divide-slate-50">
-                  {d.visits.map((v, i) => {
-                    const st = statusStyle[v.status] ?? statusStyle["on-track"]
-                    return (
-                      <div key={i} className="flex items-center gap-3 px-4 py-3">
-                        <div className="flex flex-col items-center w-12 shrink-0">
-                          <Clock className="w-3.5 h-3.5 text-[#2563EB] mb-0.5" />
-                          <span className="text-xs font-semibold text-[#0F172A]">{v.time}</span>
-                        </div>
-                        <div className="w-px self-stretch bg-slate-100" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#0F172A] truncate">{v.name}</p>
-                          <p className="text-xs text-slate-400">{v.subj} · {v.visit}</p>
-                        </div>
-                        <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0", st.bg, st.text)}>{st.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="px-4 py-3 text-xs text-slate-300">No visits scheduled</div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
     )
   }
 
@@ -797,7 +765,7 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
           <button onClick={() => setShowAllTrials(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Total Trials</span>
           <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
-            <Plus className="w-3.5 h-3.5" /> Add Trial
+            Add Trial
           </button>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
@@ -935,6 +903,7 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
       />
 
       {activeTab === "dashboard" && renderDashboard()}
+      {activeTab === "my-trials" && renderMyTrials()}
       {activeTab === "patients" && renderPatients()}
       {activeTab === "chat" && (
         <div className="flex-1 overflow-hidden">
@@ -971,7 +940,7 @@ export function PIDashboard({ onNavigate }: PIDashboardProps) {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="font-bold text-[#0F172A] text-base font-[family-name:var(--font-heading)]">Update Visit</h3>
-                <p className="text-xs text-slate-400">{editPatient.name} · {editPatient.id}</p>
+                <p className="text-xs text-slate-400">{patientInitials(editPatient.name)} · {editPatient.id}</p>
               </div>
               <button onClick={() => setEditPatient(null)} className="p-1 text-slate-400">
                 <X className="w-5 h-5" />

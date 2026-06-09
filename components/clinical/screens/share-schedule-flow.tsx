@@ -173,7 +173,7 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
 
       <StepBar step={step} />
 
-      <div className="flex-1 overflow-auto pb-28">
+      <div className="flex-1 overflow-auto pb-2">
 
         {/* ── STEP 1: Select Sites ─────────────────────────── */}
         {step === 1 && (
@@ -381,7 +381,7 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
       </div>
 
       {/* Footer CTA */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3 bg-white border-t border-slate-100">
+      <div className="px-4 pb-4 pt-3 bg-white border-t border-slate-100">
         {step === 1 && (
           <button
             onClick={() => setStep(2)}

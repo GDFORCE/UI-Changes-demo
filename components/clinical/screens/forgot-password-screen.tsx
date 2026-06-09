@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Mail, Phone, CheckCircle, Eye, EyeOff, Check, X } from "lucide-react"
+import { ArrowLeft, Mail, Phone, CheckCircle, Eye, EyeOff, Check, X, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,9 +11,26 @@ interface ForgotPasswordScreenProps {
   onSuccess?: () => void
 }
 
+// Mock list of accounts known to the system. In production this check is done server-side.
+const registeredAccounts = [
+  "rajesh.kumar@pharmaco.com",
+  "+919876543210",
+  "priya.kumar@gmail.com",
+  "+919812345678",
+  "dr.sharma@apollo.com",
+]
+
+const normalize = (value: string) => value.trim().toLowerCase().replace(/[\s\-()]/g, "")
+
+const isRegistered = (value: string) => {
+  const v = normalize(value)
+  return registeredAccounts.some((acc) => normalize(acc) === v)
+}
+
 export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreenProps) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
   const [emailOrPhone, setEmailOrPhone] = useState("")
+  const [accountError, setAccountError] = useState("")
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -51,6 +68,11 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
   }
 
   const handleSendResetLink = () => {
+    if (!isRegistered(emailOrPhone)) {
+      setAccountError("This email or phone number is not registered with any account.")
+      return
+    }
+    setAccountError("")
     setStep(2)
     // Start timer
     const interval = setInterval(() => {
@@ -104,7 +126,7 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
             </div>
           </div>
           <p className="text-center text-gray-600 mb-8">
-            Enter your email or phone number and we&apos;ll send you a verification code to reset your password.
+            Enter the email or phone number <span className="font-medium text-gray-800">registered with your account</span> and we&apos;ll send you a verification code to reset your password.
           </p>
           <div className="space-y-4">
             <div>
@@ -113,9 +135,17 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
                 type="text"
                 placeholder="Enter email or phone"
                 value={emailOrPhone}
-                onChange={(e) => setEmailOrPhone(e.target.value)}
-                className="mt-1.5 h-12 rounded-lg border-gray-200"
+                onChange={(e) => {
+                  setEmailOrPhone(e.target.value)
+                  if (accountError) setAccountError("")
+                }}
+                className={`mt-1.5 h-12 rounded-lg ${
+                  accountError ? "border-red-500 focus-visible:ring-red-500" : "border-gray-200"
+                }`}
               />
+              {accountError && (
+                <p className="text-xs text-red-500 mt-1.5">{accountError}</p>
+              )}
             </div>
           </div>
           <Button
@@ -125,6 +155,14 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
           >
             Send Reset Link
           </Button>
+
+          <button
+            type="button"
+            className="w-full mt-6 flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-[#2563EB]"
+          >
+            <HelpCircle className="w-4 h-4" />
+            Need help? Contact Support
+          </button>
         </div>
       )}
 
