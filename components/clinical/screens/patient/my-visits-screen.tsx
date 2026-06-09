@@ -3,104 +3,12 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, MapPin, User, Calendar, Clock, Phone, Home, Building2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trials, visits } from "@/components/clinical/data/visits";
 
 interface MyVisitsScreenProps {
   onBack?: () => void;
   onVisitClick?: (visitId: string) => void;
 }
-
-const trials = [
-  {
-    id: "trial-1",
-    protocolId: "ONCO-2024-001",
-    studyTitle: "Phase III Study of Novel Cancer Treatment",
-    diseaseIndication: "Non-Small Cell Lung Cancer",
-    drugName: "Pembrolizumab + Novel Agent",
-    scope: "Global",
-    hospitalName: "City Medical Center",
-    piName: "Dr. Sarah Johnson",
-    status: "active",
-  },
-  {
-    id: "trial-2",
-    protocolId: "CARD-2023-015",
-    studyTitle: "Cardiovascular Risk Reduction Study",
-    diseaseIndication: "Hypertension",
-    drugName: "Experimental Drug XYZ",
-    scope: "Domestic",
-    hospitalName: "Heart Care Hospital",
-    piName: "Dr. Michael Chen",
-    status: "completed",
-  },
-];
-
-const visits = [
-  {
-    id: "v1",
-    visitNumber: "Visit 1",
-    visitName: "Screening Visit",
-    visitType: "Hospital",
-    scheduledDate: "2024-01-15",
-    scheduledTime: "09:00 AM",
-    visitWindow: "Jan 13 - Jan 17",
-    hospitalName: "City Medical Center",
-    piName: "Dr. Sarah Johnson",
-    status: "completed",
-    instructions: "Please fast for 12 hours before the visit. Bring all current medications.",
-  },
-  {
-    id: "v2",
-    visitNumber: "Visit 2",
-    visitName: "Baseline Visit",
-    visitType: "Hospital",
-    scheduledDate: "2024-01-29",
-    scheduledTime: "10:00 AM",
-    visitWindow: "Jan 27 - Jan 31",
-    hospitalName: "City Medical Center",
-    piName: "Dr. Sarah Johnson",
-    status: "completed",
-    instructions: "Blood samples will be collected. ECG will be performed.",
-  },
-  {
-    id: "v3",
-    visitNumber: "Visit 3",
-    visitName: "Week 4 Follow-up",
-    visitType: "Telephonic",
-    scheduledDate: "2024-02-26",
-    scheduledTime: "02:00 PM",
-    visitWindow: "Feb 24 - Feb 28",
-    hospitalName: "City Medical Center",
-    piName: "Dr. Sarah Johnson",
-    status: "upcoming",
-    instructions: "Research coordinator will call to check on your progress and any side effects.",
-  },
-  {
-    id: "v4",
-    visitNumber: "Visit 4",
-    visitName: "Week 8 Assessment",
-    visitType: "Hospital",
-    scheduledDate: "2024-03-25",
-    scheduledTime: "09:30 AM",
-    visitWindow: "Mar 23 - Mar 27",
-    hospitalName: "City Medical Center",
-    piName: "Dr. Sarah Johnson",
-    status: "scheduled",
-    instructions: "Full physical examination and lab tests.",
-  },
-  {
-    id: "v5",
-    visitNumber: "Visit 5",
-    visitName: "Week 12 Home Visit",
-    visitType: "Home",
-    scheduledDate: "2024-04-22",
-    scheduledTime: "11:00 AM",
-    visitWindow: "Apr 20 - Apr 24",
-    hospitalName: "City Medical Center",
-    piName: "Dr. Sarah Johnson",
-    status: "scheduled",
-    instructions: "Nurse will visit your home for routine checkup.",
-  },
-];
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -134,6 +42,9 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
   const [selectedTrial, setSelectedTrial] = useState<string | null>(null);
   const trial = trials.find((t) => t.id === selectedTrial);
   const upcomingVisit = visits.find((v) => v.status === "upcoming");
+  const completedVisits = visits.filter((v) => v.status === "completed").length;
+  const totalVisits = visits.length;
+  const completionPercent = totalVisits ? Math.round((completedVisits / totalVisits) * 100) : 0;
 
   if (!selectedTrial) {
     return (
@@ -160,26 +71,61 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
                 onClick={() => setSelectedTrial(t.id)}
                 className="w-full bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-left"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-[#2563EB]">{t.protocolId}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    {/* Protocol ID + Status */}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div>
+                        <p className="text-[11px] text-gray-400">Protocol ID</p>
+                        <span className="text-xs font-semibold text-[#2563EB]">{t.protocolId}</span>
+                      </div>
                       <span
                         className={cn(
-                          "text-xs px-2 py-0.5 rounded-full",
+                          "text-xs px-2 py-0.5 rounded-full capitalize shrink-0",
                           t.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"
                         )}
                       >
-                        {t.status === "active" ? "Active" : "Completed"}
+                        {t.status}
                       </span>
                     </div>
-                    <h3 className="font-medium text-gray-900 text-sm mb-2">{t.studyTitle}</h3>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <MapPin className="h-3 w-3" />
-                      <span>{t.hospitalName}</span>
+
+                    {/* Study Title (public title) */}
+                    <div className="mb-2">
+                      <p className="text-[11px] text-gray-400">Study Title</p>
+                      <h3 className="font-semibold text-gray-900 text-sm leading-snug">{t.studyTitle}</h3>
+                    </div>
+
+                    {/* Indication + Phase */}
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div>
+                        <p className="text-[11px] text-gray-400">Indication</p>
+                        <p className="text-xs font-medium text-gray-800">{t.diseaseIndication}</p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] text-gray-400">Phase</p>
+                        <p className="text-xs font-medium text-gray-800">{t.phase}</p>
+                      </div>
+                    </div>
+
+                    {/* Site Name + PI Name */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                      <div>
+                        <p className="text-[11px] text-gray-400">Site Name</p>
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-800">
+                          <MapPin className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                          <span className="truncate">{t.hospitalName}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[11px] text-gray-400">PI Name</p>
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-800">
+                          <User className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                          <span className="truncate">{t.piName}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                  <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
                 </div>
               </button>
             ))}
@@ -204,8 +150,18 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
       <div className="flex-1 overflow-auto">
         {/* Panel 1: Trial Details */}
         <div className="bg-white m-4 rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="bg-[#DBEAFE] px-4 py-2">
+          <div className="bg-[#DBEAFE] px-4 py-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[#1A3872]">Trial Details</h2>
+            {trial?.status && (
+              <span
+                className={cn(
+                  "text-xs px-2 py-0.5 rounded-full capitalize",
+                  trial.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"
+                )}
+              >
+                {trial.status}
+              </span>
+            )}
           </div>
           <div className="p-4 space-y-3">
             <div className="grid grid-cols-2 gap-3 text-sm">
@@ -214,13 +170,9 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
                 <p className="font-medium text-gray-900">{trial?.protocolId}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Scope</p>
-                <p className="font-medium text-gray-900">{trial?.scope}</p>
+                <p className="text-gray-500 text-xs">Phase</p>
+                <p className="font-medium text-gray-900">{trial?.phase}</p>
               </div>
-            </div>
-            <div>
-              <p className="text-gray-500 text-xs">Study Title</p>
-              <p className="font-medium text-gray-900 text-sm">{trial?.studyTitle}</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
@@ -232,17 +184,48 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
                 <p className="font-medium text-gray-900">{trial?.drugName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-400" />
-                <span className="text-sm text-gray-700">{trial?.hospitalName}</span>
+            <div>
+              <p className="text-gray-500 text-xs">Study Title</p>
+              <p className="font-medium text-gray-900 text-sm">{trial?.studyTitle}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100 text-sm">
+              <div>
+                <p className="text-gray-500 text-xs">Site Name</p>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 text-gray-400 shrink-0" />
+                  <span className="font-medium text-gray-900">{trial?.hospitalName}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-gray-400" />
-                <span className="text-sm text-gray-700">{trial?.piName}</span>
+              <div>
+                <p className="text-gray-500 text-xs">PI Name</p>
+                <div className="flex items-center gap-1.5">
+                  <User className="h-4 w-4 text-gray-400 shrink-0" />
+                  <span className="font-medium text-gray-900">{trial?.piName}</span>
+                </div>
               </div>
             </div>
+            <div>
+              <p className="text-gray-500 text-xs">Department</p>
+              <p className="font-medium text-gray-900 text-sm">{trial?.department}</p>
+            </div>
           </div>
+        </div>
+
+        {/* Visit Status Bar */}
+        <div className="bg-white mx-4 mb-4 rounded-xl shadow-sm border border-gray-100 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-gray-900">Visit Completion</p>
+            <span className="text-sm font-medium text-[#0D9488]">{completionPercent}%</span>
+          </div>
+          <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#0D9488] to-[#2563EB] transition-all duration-500"
+              style={{ width: `${completionPercent}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            {completedVisits} of {totalVisits} visits complete ({completionPercent}%)
+          </p>
         </div>
 
         {/* Panel 2: Upcoming Visit */}
@@ -285,12 +268,34 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
                 <p className="text-xs text-gray-500 mb-1">Visit Window</p>
                 <p className="text-sm font-medium text-[#1A3872]">{upcomingVisit.visitWindow}</p>
               </div>
-              {upcomingVisit.instructions && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-xs text-gray-500 mb-1">Instructions</p>
-                  <p className="text-sm text-gray-700">{upcomingVisit.instructions}</p>
+              <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-gray-500">Protocol ID</p>
+                  <p className="font-medium text-gray-900">{trial?.protocolId}</p>
                 </div>
-              )}
+                <div>
+                  <p className="text-xs text-gray-500">Phase</p>
+                  <p className="font-medium text-gray-900">{trial?.phase}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Indication</p>
+                  <p className="font-medium text-gray-900">{trial?.diseaseIndication}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Site Name</p>
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4 text-gray-400 shrink-0" />
+                    <span className="font-medium text-gray-900">{trial?.hospitalName}</span>
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-xs text-gray-500">PI Name</p>
+                  <div className="flex items-center gap-1.5">
+                    <User className="h-4 w-4 text-gray-400 shrink-0" />
+                    <span className="font-medium text-gray-900">{trial?.piName}</span>
+                  </div>
+                </div>
+              </div>
             </button>
           </div>
         )}
@@ -316,7 +321,7 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{visit.visitName}</p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-1.5">
                       <div className="flex items-center gap-1">
                         {getVisitTypeIcon(visit.visitType)}
                         <span>{visit.visitType}</span>
@@ -329,6 +334,10 @@ export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
                         <Clock className="h-3 w-3" />
                         <span>{visit.scheduledTime}</span>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <span className="text-gray-400">Window Period:</span>
+                      <span className="font-medium text-gray-700">{visit.visitWindow}</span>
                     </div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />

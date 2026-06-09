@@ -152,6 +152,8 @@ export default function PatientVisitScheduleApp() {
   const [history, setHistory] = useState<Screen[]>(["welcome"])
   // When a trial's schedule is saved, open the Sponsor Dashboard on that trial's summary.
   const [openTrialSummary, setOpenTrialSummary] = useState(false)
+  // The visit a patient tapped in My Visits, shown on the Visit Detail screen.
+  const [selectedVisitId, setSelectedVisitId] = useState<string | undefined>(undefined)
 
   const navigate = (screen: Screen | string) => {
     // Clear the pending trial-summary request on any nav except into the dashboard itself.
@@ -279,7 +281,10 @@ export default function PatientVisitScheduleApp() {
       case "visit-detail":
         return (
           <VisitDetailScreen
+            role={history.includes("my-visits") || history.includes("patient-dashboard") ? "patient" : "clinical"}
+            visitId={selectedVisitId}
             onUpdate={() => navigate("patient-list")}
+            onContact={() => navigate("chat")}
             onBack={goBack}
           />
         )
@@ -295,7 +300,10 @@ export default function PatientVisitScheduleApp() {
         return (
           <MyVisitsScreen
             onBack={goBack}
-            onVisitClick={() => navigate("visit-detail")}
+            onVisitClick={(visitId) => {
+              setSelectedVisitId(visitId)
+              navigate("visit-detail")
+            }}
           />
         )
       case "profile-settings":
