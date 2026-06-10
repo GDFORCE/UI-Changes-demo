@@ -146,13 +146,6 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
               <p className="text-xs text-amber-700">Changing this will notify your research team and require OTP verification</p>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Preferred Language</label>
-            <select value={profile.language} onChange={e => setProfile({ ...profile, language: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3872] bg-white">
-              <option>English</option><option>Hindi</option><option>Tamil</option><option>Telugu</option><option>Kannada</option>
-            </select>
-          </div>
           <button className="w-full bg-[#0D1B3E] text-white py-3.5 rounded-xl font-semibold text-sm">Save Changes</button>
         </div>
       </div>
@@ -490,7 +483,6 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
     { icon: FileText,    label: t("termsConditions"),          action: () => setSection("terms") },
     { icon: Shield,      label: t("privacyPolicy"),            action: () => setSection("privacy") },
     { icon: HelpCircle,  label: t("helpSupport"),              action: () => setSection("help") },
-    { icon: AlertTriangle, label: t("reportIssue"),            action: () => setSection("contact-support") },
   ]
 
   return (

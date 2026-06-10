@@ -155,7 +155,7 @@ function PatientVisitDetail({ onBack, visit, onContact }: { onBack: () => void; 
         </Section>
 
         {/* What to expect */}
-        <Section title="What to Expect" icon={ClipboardList}>
+        <Section title="Activities" icon={ClipboardList}>
           <div className="space-y-3">
             {procedures.map((p) => (
               <div key={p.label} className="flex items-start gap-3">

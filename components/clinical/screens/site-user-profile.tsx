@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Camera, ShieldCheck, UserPen, Lock, Bell, ChevronRight, ChevronDown, Eye, EyeOff, Check, X, LogOut, Mail, Phone, Plus, Trash2, Building2, FlaskConical, FileText, HelpCircle, BarChart2, Users, UserCheck } from "lucide-react"
+import { Camera, ShieldCheck, UserPen, Lock, Bell, ChevronRight, ChevronDown, Eye, EyeOff, Check, X, LogOut, Mail, Phone, Plus, Trash2, Building2, FlaskConical, FileText, HelpCircle, BarChart2, Users, UserCheck, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -49,11 +49,14 @@ interface SiteUserProfileProps {
   user: SiteUser
   onSignOut: () => void
   trials?: SiteTrial[]
+  /** When provided, the "My Trials" menu item opens this instead of the built-in list (e.g. the PI dashboard's My Trials tab). */
+  onOpenTrials?: () => void
 }
 
 type Section =
   | null
   | "edit-profile"
+  | "entity-change"
   | "change-password"
   | "notifications"
   | "my-trials"
@@ -69,7 +72,7 @@ const DEFAULT_TRIALS: SiteTrial[] = [
   { id: "Protocol-008", name: "Rheumatoid Arthritis Trial" },
 ]
 
-export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS }: SiteUserProfileProps) {
+export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOpenTrials }: SiteUserProfileProps) {
   const isSMO = user.entityType.toUpperCase() === "SMO"
   const [section, setSection] = useState<Section>(null)
 
@@ -111,6 +114,14 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS }: Si
     department: user.department ?? "",
   })
   const [hospitals, setHospitals] = useState<SiteHospital[]>(user.hospitals ?? [])
+
+  // Entity Change request flow
+  const [entityForm, setEntityForm] = useState<{ field: string; newValue: string }>({ field: "Entity Type", newValue: "" })
+  const [entityDoc, setEntityDoc] = useState<string | null>(null)
+  const [entitySubmitted, setEntitySubmitted] = useState(false)
+  const entityChangingToSMO = entityForm.field === "Entity Type" && entityForm.newValue.toUpperCase() === "SMO"
+  const entityCanSubmit =
+    !!entityForm.newValue.trim() && !!entityDoc && (!entityChangingToSMO || hospitals.some(h => h.name.trim()))
 
   const [passwordForm, setPasswordForm] = useState({ current: "", next: "", confirm: "" })
   const [showPwd, setShowPwd] = useState({ current: false, next: false, confirm: false })
@@ -205,6 +216,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS }: Si
       <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-6">
         {[
           { icon: UserPen, label: "Edit Profile", onClick: () => setSection("edit-profile") },
+          { icon: Building2, label: "Entity Change", onClick: () => setSection("entity-change") },
           { icon: Lock, label: "Change Password", onClick: () => setSection("change-password") },
           { icon: Bell, label: "Notification Preferences", onClick: () => setSection("notifications") },
         ].map(item => {
@@ -223,7 +235,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS }: Si
       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Trial Management</p>
       <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-6">
         {[
-          { icon: FlaskConical, label: "My Trials", onClick: () => setSection("my-trials") },
+          { icon: FlaskConical, label: "My Trials", onClick: onOpenTrials ?? (() => setSection("my-trials")) },
           { icon: Users, label: "Team Members", onClick: () => setSection("team-members") },
         ].map(item => {
           const Icon = item.icon
@@ -639,6 +651,149 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS }: Si
     </div>
   )
 
+  /* ─────────────── Entity Change ─────────────── */
+  const entityChange = (
+    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <button onClick={() => { setSection(null); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityDoc(null) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+        <span className="font-semibold flex-1">Entity Change</span>
+      </div>
+      <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
+        <p className="text-sm text-slate-500">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
+
+        {/* What are you changing */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">What are you changing?</label>
+          <select
+            value={entityForm.field}
+            onChange={e => setEntityForm({ field: e.target.value, newValue: "" })}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+          >
+            {["Entity Type", "Organization Name", "Organization Address"].map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+        </div>
+
+        {/* Current value */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Value</label>
+          <div className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-sm text-slate-500">
+            {entityForm.field === "Entity Type" ? user.entityType : entityForm.field === "Organization Name" ? user.orgName : user.orgAddress}
+          </div>
+        </div>
+
+        {/* Change to */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Change To</label>
+          {entityForm.field === "Entity Type" ? (
+            <select
+              value={entityForm.newValue}
+              onChange={e => setEntityForm(c => ({ ...c, newValue: e.target.value }))}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+            >
+              <option value="">Select entity type</option>
+              {["Site / Hospital", "SMO"].map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          ) : (
+            <input
+              value={entityForm.newValue}
+              onChange={e => setEntityForm(c => ({ ...c, newValue: e.target.value }))}
+              placeholder={`Enter new ${entityForm.field.toLowerCase()}`}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+            />
+          )}
+        </div>
+
+        {/* SMO → add hospitals */}
+        {entityChangingToSMO && (
+          <div className="pt-1">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Hospitals</p>
+            <div className="space-y-3">
+              {hospitals.map((h, i) => (
+                <div key={i} className="bg-white rounded-xl border border-slate-200 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500">Hospital {i + 1}</span>
+                    <button onClick={() => removeHospital(i)} className="text-rose-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                  <input value={h.name} onChange={e => updateHospital(i, { name: e.target.value })} placeholder="Hospital Name *"
+                    className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                  <input value={h.address} onChange={e => updateHospital(i, { address: e.target.value })} placeholder="Hospital Address"
+                    className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                  <div>
+                    <label className="block text-xs font-medium text-slate-500 mb-1">Role</label>
+                    <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                      {(["PI", "Research Team"] as SiteRole[]).map(r => (
+                        <button key={r} onClick={() => updateHospital(i, { role: r })}
+                          className={cn("flex-1 py-2 text-sm font-medium", h.role === r ? "bg-[#1A3872] text-white" : "bg-white text-gray-600")}>
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {h.role === "PI" && (
+                    <input value={h.department ?? ""} onChange={e => updateHospital(i, { department: e.target.value })} placeholder="Department"
+                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                  )}
+                </div>
+              ))}
+              <button onClick={addHospital}
+                className="w-full py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-sm text-slate-500 font-medium flex items-center justify-center gap-1.5 hover:border-[#1A3872] hover:text-[#1A3872] transition-colors">
+                <Plus className="w-4 h-4" /> Add Hospital
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Supporting document */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Supporting Document</label>
+          {entityDoc ? (
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <FileText className="w-4 h-4 text-[#2563EB] shrink-0" />
+              <span className="flex-1 text-sm text-[#0F172A] truncate">{entityDoc}</span>
+              <button onClick={() => setEntityDoc(null)} className="text-slate-400"><X className="w-4 h-4" /></button>
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-slate-300 px-4 py-6 text-center cursor-pointer hover:border-[#1A3872]">
+              <Upload className="w-5 h-5 text-slate-400" />
+              <span className="text-sm font-medium text-slate-500">Upload document</span>
+              <span className="text-xs text-slate-400">PDF, JPG or PNG supporting your change</span>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEntityDoc(f.name) }} />
+            </label>
+          )}
+        </div>
+      </div>
+
+      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+        <button
+          disabled={!entityCanSubmit}
+          onClick={() => setEntitySubmitted(true)}
+          className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityCanSubmit ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+        >
+          Submit Request
+        </button>
+      </div>
+
+      {/* Confirmation popup */}
+      {entitySubmitted && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 px-8">
+          <div className="bg-white rounded-2xl p-6 text-center w-full max-w-xs shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
+              <Check className="w-6 h-6 text-teal-600" />
+            </div>
+            <p className="font-semibold text-[#0F172A] mb-1">Request submitted</p>
+            <p className="text-sm text-slate-500 mb-4">We'll verify your request and update your entity details within 24 hours.</p>
+            <button
+              onClick={() => { setEntitySubmitted(false); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityDoc(null); setSection(null) }}
+              className="w-full py-3 rounded-xl bg-[#0D1B3E] text-white text-sm font-semibold"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
   /* ─────────────── Change Password ─────────────── */
   const { current, next, confirm } = passwordForm
   const passwordRules = [
@@ -779,6 +934,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS }: Si
     <>
       {profileBody}
       {section === "edit-profile" && editProfile}
+      {section === "entity-change" && entityChange}
       {section === "change-password" && changePassword}
       {section === "notifications" && notifications}
       {section === "my-trials" && myTrials}

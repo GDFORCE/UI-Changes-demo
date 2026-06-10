@@ -39,10 +39,8 @@ const getVisitTypeIcon = (type: string) => {
 };
 
 export function MyVisitsScreen({ onBack, onVisitClick }: MyVisitsScreenProps) {
-  // Land directly on the trial the patient is actively participating in,
-  // falling back to the first trial if none is marked active.
-  const activeTrialId = trials.find((t) => t.status === "active")?.id ?? trials[0]?.id ?? null;
-  const [selectedTrial, setSelectedTrial] = useState<string | null>(activeTrialId);
+  // Open on the trial list first; the patient picks a trial to view its visits.
+  const [selectedTrial, setSelectedTrial] = useState<string | null>(null);
   const trial = trials.find((t) => t.id === selectedTrial);
   const upcomingVisit = visits.find((v) => v.status === "upcoming");
   const completedVisits = visits.filter((v) => v.status === "completed").length;

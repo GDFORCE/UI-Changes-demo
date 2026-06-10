@@ -7,7 +7,7 @@ import {
   BarChart2, ShieldCheck, Users, Download, Phone, Mail,
   X, Check, AlertTriangle, Info, SlidersHorizontal,
   FileText, UserPen, Lock, LogOut, Camera,
-  UserCheck, Eye, EyeOff, HelpCircle
+  UserCheck, Eye, EyeOff, HelpCircle, Building2, Upload
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -110,6 +110,10 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   const [siteSearch, setSiteSearch] = useState("")
   const [notifications, setNotifications] = useState(mockData.notifications)
   const [meSection, setMeSection] = useState<string | null>(null)
+  // Entity Change request (full-screen flow off the profile menu).
+  const [entityChange, setEntityChange] = useState<{ field: string; newValue: string }>({ field: "Entity Type", newValue: "" })
+  const [entityDoc, setEntityDoc] = useState<string | null>(null)
+  const [entitySubmitted, setEntitySubmitted] = useState(false)
   const [sites, setSites] = useState(mockData.sites)
   const [showAddSite, setShowAddSite] = useState(false)
   const [siteEntryMode, setSiteEntryMode] = useState<"single" | "upload">("single")
@@ -275,12 +279,12 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   const totalSites = sites.length
   const totalPatients = sites.reduce((sum, s) => sum + s.patients, 0)
 
-  const notifIconMap: Record<string, { icon: typeof Bell; bg: string; color: string }> = {
-    trial: { icon: FlaskConical, bg: "bg-blue-100", color: "text-blue-600" },
-    milestone: { icon: TrendingUp, bg: "bg-green-100", color: "text-green-600" },
-    overdue: { icon: AlertTriangle, bg: "bg-red-100", color: "text-red-600" },
-    site: { icon: MapPin, bg: "bg-teal-100", color: "text-teal-600" },
-    system: { icon: Info, bg: "bg-slate-100", color: "text-slate-600" },
+  const notifIconMap: Record<string, { icon: typeof Bell; bg: string; color: string; border: string }> = {
+    trial: { icon: FlaskConical, bg: "bg-blue-100", color: "text-blue-600", border: "border-blue-400" },
+    milestone: { icon: TrendingUp, bg: "bg-green-100", color: "text-green-600", border: "border-green-400" },
+    overdue: { icon: AlertTriangle, bg: "bg-red-100", color: "text-red-600", border: "border-red-400" },
+    site: { icon: MapPin, bg: "bg-teal-100", color: "text-teal-600", border: "border-teal-400" },
+    system: { icon: Info, bg: "bg-slate-100", color: "text-slate-600", border: "border-slate-300" },
   }
 
   // ── Edit Trial ──────────────────────────────────────────
@@ -725,22 +729,25 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               </div>
             </div>
 
-            {/* Recruitment Overview */}
+            {/* My Trials */}
             <div className="px-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-[#0F172A]">Recruitment Overview</h3>
+                <h3 className="font-semibold text-[#0F172A]">My Trials</h3>
                 <button onClick={() => setActiveTab("trials")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
               </div>
-              <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              <div className="space-y-3">
                 {trials.filter(t => t.status === "Active").map(t => (
-                  <div key={t.id} onClick={() => setSelectedTrial(t)} className="flex-shrink-0 w-72 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm cursor-pointer">
+                  <button key={t.id} onClick={() => setSelectedTrial(t)} className="w-full text-left bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
                     {/* Protocol ID + Status */}
                     <div className="flex items-center justify-between mb-2">
                       <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{t.id}</span>
-                      <StatusBadge status={t.status} />
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge status={t.status} />
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </div>
                     </div>
                     {/* Study Title */}
-                    <h4 className="font-semibold text-[#0F172A] mb-2">{t.name}</h4>
+                    <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{t.name}</h4>
                     {/* Phase · Disease · Drug · Sites */}
                     <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
                       <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-[#0F172A]">{t.phase}</p></div>
@@ -751,8 +758,34 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                     {/* Enrollment Bar */}
                     <ProgressBar value={Math.round((t.enrolled / t.target) * 100)} />
                     <p className="text-xs text-slate-500 mt-1">{t.enrolled}/{t.target} enrolled</p>
-                  </div>
+                  </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Notifications — latest */}
+            <div className="px-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-[#0F172A]">Notifications</h3>
+                <button onClick={() => setActiveTab("notifs")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
+              </div>
+              <div className="space-y-2">
+                {notifications.slice(0, 2).map(n => {
+                  const iconInfo = notifIconMap[n.type] || notifIconMap.system
+                  const Icon = iconInfo.icon
+                  return (
+                    <button key={n.id} onClick={() => setActiveTab("notifs")} className={cn("w-full text-left bg-white rounded-2xl p-3 shadow-sm border-l-4 flex items-start gap-3", iconInfo.border)}>
+                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5", iconInfo.bg)}>
+                        <Icon className={cn("w-4 h-4", iconInfo.color)} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#0F172A] leading-tight">{n.title}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{n.message}</p>
+                      </div>
+                      <span className="text-xs text-slate-400 shrink-0">{n.time}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -931,24 +964,18 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                       {s.trials.map(trialId => {
                         const t = trials.find(tr => tr.id === trialId)
                         if (!t) return null
-                        const counters = [
-                          { label: "Screened", val: t.screened, color: "text-[#0F172A]" },
-                          { label: "Screen Fail", val: t.screenFail, color: "text-red-600" },
-                          { label: "Randomized", val: t.randomized, color: "text-[#0F172A]" },
-                          { label: "Withdrawn", val: t.withdrawn, color: "text-amber-600" },
-                          { label: "Dropout", val: t.dropouts, color: "text-orange-600" },
-                          { label: "Follow-up", val: t.followUp, color: "text-[#0D9488]" },
-                          { label: "Completed", val: t.completed, color: "text-[#0D9488]" },
-                        ]
                         return (
-                          <div key={trialId} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                          <button key={trialId} onClick={() => setSelectedTrial(t)} className="w-full text-left rounded-xl border border-slate-100 bg-slate-50 p-3">
                             {/* Protocol ID + status */}
                             <div className="flex items-center justify-between gap-2 mb-2.5">
-                              <button onClick={() => setSelectedTrial(t)} className="text-xs font-bold text-[#2563EB]">{t.id}</button>
-                              <StatusBadge status={t.status} />
+                              <span className="text-xs font-bold text-[#2563EB]">{t.id}</span>
+                              <div className="flex items-center gap-1.5">
+                                <StatusBadge status={t.status} />
+                                <ChevronRight className="w-4 h-4 text-slate-400" />
+                              </div>
                             </div>
                             {/* Trial meta */}
-                            <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-3">
+                            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                               {[
                                 { label: "Phase", val: t.phase },
                                 { label: "Disease", val: t.indication },
@@ -962,16 +989,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                                 </div>
                               ))}
                             </div>
-                            {/* Recruitment counters */}
-                            <div className="grid grid-cols-4 gap-1.5">
-                              {counters.map(c => (
-                                <div key={c.label} className="bg-white rounded-lg border border-slate-100 p-1.5 text-center">
-                                  <p className={cn("text-sm font-bold leading-none", c.color)}>{c.val}</p>
-                                  <p className="text-[9px] text-slate-500 leading-tight mt-0.5">{c.label}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                          </button>
                         )
                       })}
                     </div>
@@ -1102,7 +1120,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             </div>
             {/* Menu */}
             {[
-              { section: "ACCOUNT", items: [{ icon: UserPen, label: "Edit Profile", onClick: () => setMeSection("edit-profile") }, { icon: Lock, label: "Change Password", onClick: () => setMeSection("change-password") }, { icon: Bell, label: "Notification Preferences", onClick: () => setMeSection("notifications") }] },
+              { section: "ACCOUNT", items: [{ icon: UserPen, label: "Edit Profile", onClick: () => setMeSection("edit-profile") }, { icon: Building2, label: "Entity Change", onClick: () => setMeSection("entity-change") }, { icon: Lock, label: "Change Password", onClick: () => setMeSection("change-password") }, { icon: Bell, label: "Notification Preferences", onClick: () => setMeSection("notifications") }] },
               { section: "TRIAL MANAGEMENT", items: [{ icon: FlaskConical, label: "My Trials", onClick: () => setActiveTab("trials") }, { icon: MapPin, label: "My Sites", onClick: () => setActiveTab("sites") }, { icon: Users, label: "Team Members", onClick: () => setMeSection("team-members") }] },
               { section: "REPORTS", items: [{ icon: BarChart2, label: "Reports", onClick: () => setMeSection("reports") }, { icon: FileText, label: "T&C", onClick: () => setMeSection("tnc") }, { icon: HelpCircle, label: "Help & Support", onClick: () => setMeSection("help") }] },
             ].map(group => (
@@ -1337,6 +1355,98 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               Save Changes
             </button>
           </div>
+        </div>
+      )}
+
+      {/* ── Entity Change (full-screen) ── */}
+      {meSection === "entity-change" && (
+        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
+          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => { setMeSection(null); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityDoc(null) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Entity Change</span>
+          </div>
+          <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
+            <p className="text-sm text-slate-500">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
+
+            {/* What are you changing */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">What are you changing?</label>
+              <select
+                value={entityChange.field}
+                onChange={e => setEntityChange(c => ({ ...c, field: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+              >
+                {["Entity Type", "Organization Name", "Organization Address"].map(o => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+
+            {/* Current value (read-only) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Value</label>
+              <div className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-sm text-slate-500">
+                {entityChange.field === "Entity Type" ? "Sponsor" : entityChange.field === "Organization Name" ? mockData.user.org : mockData.user.orgAddress}
+              </div>
+            </div>
+
+            {/* New value */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Change To</label>
+              <input
+                value={entityChange.newValue}
+                onChange={e => setEntityChange(c => ({ ...c, newValue: e.target.value }))}
+                placeholder={`Enter new ${entityChange.field.toLowerCase()}`}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+              />
+            </div>
+
+            {/* Supporting document */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Supporting Document</label>
+              {entityDoc ? (
+                <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+                  <FileText className="w-4 h-4 text-[#2563EB] shrink-0" />
+                  <span className="flex-1 text-sm text-[#0F172A] truncate">{entityDoc}</span>
+                  <button onClick={() => setEntityDoc(null)} className="text-slate-400"><X className="w-4 h-4" /></button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-slate-300 px-4 py-6 text-center cursor-pointer hover:border-[#1A3872]">
+                  <Upload className="w-5 h-5 text-slate-400" />
+                  <span className="text-sm font-medium text-slate-500">Upload document</span>
+                  <span className="text-xs text-slate-400">PDF, JPG or PNG supporting your change</span>
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEntityDoc(f.name) }} />
+                </label>
+              )}
+            </div>
+          </div>
+
+          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+            <button
+              disabled={!entityChange.newValue.trim() || !entityDoc}
+              onClick={() => setEntitySubmitted(true)}
+              className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityChange.newValue.trim() && entityDoc ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400")}
+            >
+              Submit Request
+            </button>
+          </div>
+
+          {/* Confirmation popup */}
+          {entitySubmitted && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 px-8">
+              <div className="bg-white rounded-2xl p-6 text-center w-full max-w-xs shadow-2xl">
+                <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
+                  <Check className="w-6 h-6 text-teal-600" />
+                </div>
+                <p className="font-semibold text-[#0F172A] mb-1">Request submitted</p>
+                <p className="text-sm text-slate-500 mb-4">We'll verify your request and update your entity details within 24 hours.</p>
+                <button
+                  onClick={() => { setEntitySubmitted(false); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityDoc(null); setMeSection(null) }}
+                  className="w-full py-3 rounded-xl bg-[#0D1B3E] text-white text-sm font-semibold"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

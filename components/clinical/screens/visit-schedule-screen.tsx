@@ -1,7 +1,7 @@
 "use client"
 
 import { AppBar } from "../app-bar"
-import { Download, Edit, AlertTriangle, Check, Calendar, Clock, X, Stethoscope, ClipboardList, Plus, Trash2, Pencil } from "lucide-react"
+import { Download, Edit, AlertTriangle, Check, Calendar, Clock, X, Stethoscope, ClipboardList, Plus, Trash2, Pencil, GripVertical } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -92,6 +92,21 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
     setOpenIndex(null)
   }
 
+  // ── Drag-and-drop reordering ───────────────────────────
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
+
+  const reorderVisits = (from: number, to: number) => {
+    if (from === to) return
+    setVisits((prev) => {
+      const next = [...prev]
+      const [moved] = next.splice(from, 1)
+      next.splice(to, 0, moved)
+      // Renumber sequentially so the # column follows the new order.
+      return next.map((v, i) => ({ ...v, num: i + 1 }))
+    })
+  }
+
   const handleSaveTemplate = () => {
     toast.success("Visit template saved")
     onSave()
@@ -135,7 +150,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
       {isEditing && (
         <div className="px-4 py-2 bg-blue-50 border-b border-blue-100 flex items-center gap-2">
           <Pencil className="w-3.5 h-3.5 text-[#1A3872]" />
-          <span className="text-xs text-[#1A3872] font-medium">Editing — tap a visit to edit its details, or remove it.</span>
+          <span className="text-xs text-[#1A3872] font-medium">Editing — tap a visit to edit, drag <GripVertical className="inline w-3 h-3 -mt-0.5" /> to reorder, or remove it.</span>
         </div>
       )}
 
@@ -168,8 +183,9 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
           {/* Table header */}
           <div className={cn(
             "grid gap-2 px-4 py-2.5 bg-gray-50 border-b text-xs font-semibold text-gray-500",
-            isEditing ? "grid-cols-[2rem_1fr_3rem_3rem_2rem]" : "grid-cols-[2rem_1fr_3rem_3rem]"
+            isEditing ? "grid-cols-[1.25rem_2rem_1fr_3rem_3rem_2rem]" : "grid-cols-[2rem_1fr_3rem_3rem]"
           )}>
+            {isEditing && <span />}
             <span>#</span>
             <span>Visit Name</span>
             <span>Day</span>
@@ -178,16 +194,39 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
           </div>
 
           {/* Table body */}
-          {visibleVisits.map(({ v: visit, index }) => (
+          {visibleVisits.map(({ v: visit, index }) => {
+            const draggable = isEditing && activeFilter === "all"
+            return (
             <div
               key={index}
+              draggable={draggable}
+              onDragStart={() => setDragIndex(index)}
+              onDragOver={(e) => { if (draggable) { e.preventDefault(); setOverIndex(index) } }}
+              onDrop={(e) => {
+                if (!draggable) return
+                e.preventDefault()
+                if (dragIndex !== null) reorderVisits(dragIndex, index)
+                setDragIndex(null); setOverIndex(null)
+              }}
+              onDragEnd={() => { setDragIndex(null); setOverIndex(null) }}
               className={cn(
                 "grid gap-2 px-4 py-3 text-sm border-b last:border-b-0 items-center cursor-pointer transition-colors hover:bg-slate-50",
-                isEditing ? "grid-cols-[2rem_1fr_3rem_3rem_2rem]" : "grid-cols-[2rem_1fr_3rem_3rem]",
-                visit.warning ? "bg-amber-50/40" : "bg-white"
+                isEditing ? "grid-cols-[1.25rem_2rem_1fr_3rem_3rem_2rem]" : "grid-cols-[2rem_1fr_3rem_3rem]",
+                visit.warning ? "bg-amber-50/40" : "bg-white",
+                dragIndex === index && "opacity-40",
+                overIndex === index && dragIndex !== null && dragIndex !== index && "ring-2 ring-inset ring-[#1A3872]"
               )}
               onClick={() => setOpenIndex(index)}
             >
+              {isEditing && (
+                <span
+                  onClick={(e) => e.stopPropagation()}
+                  className={cn("flex items-center justify-center text-slate-300", draggable ? "cursor-grab active:cursor-grabbing hover:text-slate-500" : "opacity-30")}
+                  aria-label="Drag to reorder"
+                >
+                  <GripVertical className="w-4 h-4" />
+                </span>
+              )}
               <span className={cn("font-semibold flex items-center", visit.warning ? "text-[#D97706]" : "text-gray-900")}>
                 {visit.warning ? <AlertTriangle className="w-3.5 h-3.5" /> : visit.num}
               </span>
@@ -204,7 +243,8 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
                 </button>
               )}
             </div>
-          ))}
+            )
+          })}
 
           {visibleVisits.length === 0 && (
             <div className="px-4 py-8 text-center text-sm text-slate-400">No visits in this filter.</div>

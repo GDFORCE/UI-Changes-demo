@@ -174,8 +174,8 @@ export default function PatientVisitScheduleApp() {
     else if (target === "crc-calendar-week") { setCalendarView("week"); target = "crc-calendar" }
     else if (target === "pi-calendar" || target === "crc-calendar") { setCalendarView("month") }
 
-    // Clear the pending trial-summary request on any nav except into the dashboard itself.
-    if (target !== "sponsor-dashboard") {
+    // Clear the pending trial-summary request on any nav except into a dashboard that consumes it.
+    if (target !== "sponsor-dashboard" && target !== "pi-dashboard") {
       setOpenTrialSummary(false)
       setSponsorTab(undefined)
     }
@@ -273,7 +273,7 @@ export default function PatientVisitScheduleApp() {
       case "sponsor-dashboard":
         return <SponsorDashboard onNavigate={(screen) => navigate(screen as Screen)} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} initialTab={sponsorTab} />
       case "pi-dashboard":
-        return <PIDashboard initialTab={piTab} onNavigate={(screen) => navigate(screen as Screen)} />
+        return <PIDashboard initialTab={piTab} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} onNavigate={(screen) => navigate(screen as Screen)} />
       case "research-team-dashboard":
         return <ResearchTeamDashboard onNavigate={(screen) => navigate(screen as Screen)} />
       case "patient-dashboard":
@@ -288,7 +288,11 @@ export default function PatientVisitScheduleApp() {
       case "visit-schedule":
         return (
           <VisitScheduleScreen
-            onSave={() => { setOpenTrialSummary(true); navigate("sponsor-dashboard") }}
+            onSave={() => {
+              setOpenTrialSummary(true)
+              // Return to whichever dashboard launched the add-trial flow.
+              navigate(history.includes("pi-dashboard") ? "pi-dashboard" : "sponsor-dashboard")
+            }}
             onBack={goBack}
           />
         )

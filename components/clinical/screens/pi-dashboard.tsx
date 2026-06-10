@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AppBar } from "../app-bar"
 import { BottomNav } from "../bottom-nav"
 import {
   CheckCircle, Clock, AlertTriangle, FileText, ChevronRight,
   PenLine, Users, Activity, Shield, Calendar, TrendingUp, Info
-  , Building2, UserPlus, Send, FilePlus2, CheckSquare, Square, X
+  , Building2, UserPlus, Send, FilePlus2, X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TrialSummaryScreen } from "@/components/clinical/screens/trial-summary-screen"
@@ -15,6 +15,8 @@ import { SiteUserProfile } from "@/components/clinical/screens/site-user-profile
 interface PIDashboardProps {
   onNavigate: (screen: string) => void
   initialTab?: PiTab
+  /** When set, the dashboard opens directly on this trial's summary (e.g. after saving a new trial). */
+  initialTrialId?: string
 }
 
 type PiTab = "dashboard" | "my-trials" | "patients" | "approvals" | "chat" | "notifs" | "me"
@@ -92,6 +94,40 @@ const initialPatients: Patient[] = [
 
 const TODAY_ISO = "2026-06-08"
 
+// System-generated visit plan — created when the trial schedule is uploaded and the
+// patient is enrolled. Planned dates are projected from the patient's Visit 1 anchor.
+const PROTOCOL_SCHEDULE: { visit: string; type: string }[] = [
+  { visit: "Visit 1", type: "Screening" },
+  { visit: "Visit 2", type: "Baseline" },
+  { visit: "Visit 3", type: "Safety Follow-up" },
+  { visit: "Visit 4", type: "Efficacy Assessment" },
+  { visit: "Visit 5", type: "Lab & Vitals" },
+  { visit: "Visit 6", type: "Efficacy Assessment" },
+  { visit: "Visit 7", type: "Efficacy Assessment" },
+  { visit: "Visit 8", type: "End of Study" },
+]
+const VISIT_INTERVAL_DAYS = 21
+const VISIT_WINDOW_DAYS = 3
+
+type ScheduledVisit = { visit: string; type: string; dateISO: string; state: "completed" | "missed" | "upcoming" | "planned" }
+
+function buildVisitSchedule(p: Patient): ScheduledVisit[] {
+  const anchorISO = p.history?.find(v => v.visit === "Visit 1")?.dateISO || p.history?.[0]?.dateISO || p.dateISO || ""
+  const anchor = anchorISO ? new Date(anchorISO + "T00:00:00") : null
+  return PROTOCOL_SCHEDULE.map((s, i) => {
+    const rec = p.history?.find(h => h.visit === s.visit)
+    if (rec) return { visit: s.visit, type: s.type, dateISO: rec.dateISO, state: rec.outcome === "missed" ? "missed" : "completed" }
+    if (p.visit === s.visit && p.dateISO) return { visit: s.visit, type: s.type, dateISO: p.dateISO, state: "upcoming" }
+    let dateISO = ""
+    if (anchor) {
+      const d = new Date(anchor)
+      d.setDate(d.getDate() + i * VISIT_INTERVAL_DAYS)
+      dateISO = d.toISOString().slice(0, 10)
+    }
+    return { visit: s.visit, type: s.type, dateISO, state: "planned" }
+  })
+}
+
 // Build the "Visit 7 · 23 May" line shown on each patient card.
 function visitLine(p: Patient): string {
   if (!p.dateISO) return p.visit === "—" ? "No upcoming visit" : p.visit
@@ -138,7 +174,7 @@ const enrolments = [
 ]
 
 const piTrials = [
-  { id: "Protocol-001", title: "Diabetes Phase II", phase: "Phase II", disease: "Type 2 Diabetes", drug: "Metformin XR", sponsor: "PharmaCo Ltd", site: "Apollo Hospital Chennai", pi: "Dr. Sharma", department: "Endocrinology", status: "Active", recruitment: "Recruiting", screened: 48, screenFail: 7, randomized: 34, withdrawn: 2, dropout: 1, followUp: 18, completed: 9 },
+  { id: "Protocol-001", title: "Multicentre, randomised, double-blind, Phase III trial to investigate the efficacy and safety of oral BIBF 1120 plus standard docetaxel therapy compared to placebo plus standard docetaxel therapy in patients with stage IIIB/IV or recurrent non small cell lung cancer after failure of first line chemotherapy.", phase: "Phase II", disease: "Type 2 Diabetes", drug: "Metformin XR", sponsor: "PharmaCo Ltd", site: "Apollo Hospital Chennai", pi: "Dr. Sharma", department: "Endocrinology", status: "Active", recruitment: "Recruiting", screened: 48, screenFail: 7, randomized: 34, withdrawn: 2, dropout: 1, followUp: 18, completed: 9 },
   { id: "Protocol-005", title: "Asthma Maintenance Study", phase: "Phase III", disease: "Asthma", drug: "Budesonide", sponsor: "Respira Labs", site: "Apollo Hospital Chennai", pi: "Dr. Sharma", department: "Pulmonology", status: "Active", recruitment: "Recruiting", screened: 31, screenFail: 4, randomized: 22, withdrawn: 1, dropout: 0, followUp: 12, completed: 6 },
   { id: "Protocol-008", title: "Rheumatoid Arthritis Trial", phase: "Phase II", disease: "Rheumatoid Arthritis", drug: "Methotrexate", sponsor: "NovaCure Bio", site: "Apollo Hospital Chennai", pi: "Dr. Sharma", department: "Rheumatology", status: "Completed", recruitment: "Closed", screened: 62, screenFail: 8, randomized: 46, withdrawn: 3, dropout: 2, followUp: 0, completed: 41 },
 ]
@@ -188,7 +224,7 @@ const statusStyle: Record<string, { label: string; bg: string; text: string }> =
   withdrawn:  { label: "Withdrawn",bg: "bg-slate-100",   text: "text-slate-500" },
 }
 
-export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboardProps) {
+export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrialId }: PIDashboardProps) {
   const [activeTab, setActiveTab] = useState<PiTab>(initialTab)
   const [approvalTab, setApprovalTab] = useState<ApprovalSubTab>("deviations")
   const [signedDeviations, setSignedDeviations] = useState<Set<string>>(new Set())
@@ -202,17 +238,26 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [editPatient, setEditPatient] = useState<Patient | null>(null)
   const [viewPatient, setViewPatient] = useState<Patient | null>(null)
-  const [form, setForm] = useState<{ visit: string; dateISO: string; status: PatientStatus; visitCompleted: boolean; note: string }>({
-    visit: "", dateISO: "", status: "on-track", visitCompleted: false, note: "",
+  const [form, setForm] = useState<{ visit: string; visitName: string; visitType: string; dateISO: string; status: PatientStatus; note: string }>({
+    visit: "", visitName: "", visitType: "Hospital", dateISO: "", status: "on-track", note: "",
   })
   const [savedToast, setSavedToast] = useState<string | null>(null)
+
+  // Open straight to a trial's summary when requested (e.g. after a new trial is saved).
+  useEffect(() => {
+    if (initialTrialId) {
+      const t = piTrials.find(tr => tr.id === initialTrialId)
+      if (t) { setSelectedTrial(t); setActiveTab("dashboard") }
+    }
+  }, [initialTrialId])
 
   const openVisitUpdate = (p: Patient) => {
     setForm({
       visit: p.visit,
+      visitName: p.visitName ?? p.history?.find(v => v.visit === p.visit)?.type ?? "",
+      visitType: p.visitType ?? "Hospital",
       dateISO: p.dateISO,
       status: p.status,
-      visitCompleted: p.visitCompleted ?? false,
       note: p.note ?? "",
     })
     setEditPatient(p)
@@ -224,15 +269,16 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
     setPatients((prev) =>
       prev.map((p) => {
         if (p.id !== editPatient.id) return p
-        // When a visit is marked completed, log it into the history timeline.
+        const completed = form.status !== "withdrawn"
+        // Log the visit into the history timeline.
         let history = p.history ?? []
-        if (form.visitCompleted && form.visit) {
+        if (form.visit) {
           const existing = history.find((v) => v.visit === form.visit)
           const entry: VisitRecord = {
             visit: form.visit,
             dateISO: form.dateISO,
-            type: existing?.type ?? "Visit",
-            outcome: "completed",
+            type: form.visitName.trim() || form.visitType || existing?.type || "Visit",
+            outcome: completed ? "completed" : "missed",
             note: form.note.trim() || existing?.note,
           }
           history = existing
@@ -242,9 +288,11 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
         return {
           ...p,
           visit: form.visit,
+          visitName: form.visitName.trim() || undefined,
+          visitType: form.visitType || undefined,
           dateISO: form.dateISO,
           status: form.status,
-          visitCompleted: form.visitCompleted,
+          visitCompleted: completed,
           note: form.note.trim(),
           lastUpdated: now,
           history,
@@ -272,7 +320,6 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
           <ChevronRight className="w-4 h-4 text-slate-400" />
         </div>
       </div>
-      <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{tr.title}</h4>
       <div className="grid grid-cols-2 gap-y-1.5 gap-x-3">
         {[
           { label: "Phase", val: tr.phase },
@@ -742,6 +789,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
         department: "Oncology",
       }}
       onSignOut={() => onNavigate("welcome")}
+      onOpenTrials={() => setActiveTab("my-trials")}
     />
   )
 
@@ -830,6 +878,56 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
           <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Remarks</p>
             <p className="text-sm text-[#0F172A]">{p.note?.trim() ? p.note : "No remarks recorded yet."}</p>
+          </div>
+
+          {/* System-generated visit schedule */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-[#0F172A] text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
+              <span className="text-xs text-slate-400">{PROTOCOL_SCHEDULE.length} visits</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Visit</th>
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Visit Name</th>
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400 text-right">Window Period</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {buildVisitSchedule(p).map((v, i, arr) => {
+                    const sc = {
+                      completed: { Icon: CheckCircle, color: "text-teal-500" },
+                      missed:    { Icon: AlertTriangle, color: "text-red-500" },
+                      upcoming:  { Icon: Clock, color: "text-blue-500" },
+                      planned:   { Icon: Calendar, color: "text-slate-400" },
+                    }[v.state]
+                    const Icon = sc.Icon
+                    const windowLabel = (() => {
+                      if (!v.dateISO) return "—"
+                      const d = new Date(v.dateISO + "T00:00:00")
+                      const start = new Date(d); start.setDate(start.getDate() - VISIT_WINDOW_DAYS)
+                      const end = new Date(d); end.setDate(end.getDate() + VISIT_WINDOW_DAYS)
+                      const fmt = (x: Date) => x.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
+                      return `${fmt(start)} – ${fmt(end)}`
+                    })()
+                    return (
+                      <tr key={v.visit} className={cn(i < arr.length - 1 && "border-b border-slate-50")}>
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-1.5">
+                            <Icon className={cn("w-3.5 h-3.5 shrink-0", sc.color)} />
+                            <span className="text-sm font-semibold text-[#0F172A] whitespace-nowrap">{v.visit}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3 text-xs text-slate-500">{v.type}</td>
+                        <td className="py-2.5 px-3 text-xs text-slate-500 text-right whitespace-nowrap">{windowLabel}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Visit history */}
@@ -948,6 +1046,20 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
             </div>
 
             <div className="space-y-4">
+              {/* Trial context (read-only) */}
+              <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 border border-slate-100 p-3">
+                {[
+                  { label: "Protocol ID", val: piTrials[0].id },
+                  { label: "Phase", val: piTrials[0].phase },
+                  { label: "Indication", val: piTrials[0].disease },
+                ].map((f) => (
+                  <div key={f.label}>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
+                    <p className="text-xs font-semibold text-[#0F172A]">{f.val}</p>
+                  </div>
+                ))}
+              </div>
+
               {/* Visit + Date */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -971,21 +1083,35 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard" }: PIDashboar
                 </div>
               </div>
 
-              {/* Visit completed toggle */}
-              <button
-                type="button"
-                onClick={() => setForm({ ...form, visitCompleted: !form.visitCompleted })}
-                className="w-full flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2.5"
-              >
-                {form.visitCompleted
-                  ? <CheckSquare className="w-5 h-5 text-teal-500 shrink-0" />
-                  : <Square className="w-5 h-5 text-slate-300 shrink-0" />}
-                <span className="text-sm font-medium text-[#0F172A]">Visit completed</span>
-              </button>
+              {/* Visit Name + Type */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Name</label>
+                  <input
+                    type="text"
+                    value={form.visitName}
+                    onChange={(e) => setForm({ ...form, visitName: e.target.value })}
+                    placeholder="e.g. Efficacy Assessment"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Type</label>
+                  <select
+                    value={form.visitType}
+                    onChange={(e) => setForm({ ...form, visitType: e.target.value })}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] bg-white focus:outline-none focus:border-[#2563EB]"
+                  >
+                    {["Hospital", "Phone", "Remote", "Home"].map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
               {/* Status */}
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Patient status in trial</label>
+                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Status</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["on-track", "overdue", "completed", "withdrawn"] as PatientStatus[]).map((s) => {
                     const st = statusStyle[s]
