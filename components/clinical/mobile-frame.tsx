@@ -11,7 +11,7 @@ interface MobileFrameProps {
 
 export function MobileFrame({ children, className, statusBarClassName }: MobileFrameProps) {
   return (
-    <div className={cn("w-[375px] h-[812px] bg-white rounded-[40px] overflow-hidden shadow-2xl border-8 border-gray-800 relative", className)}>
+    <div className={cn("w-[375px] h-[812px] bg-background rounded-[40px] overflow-hidden shadow-xl border-8 border-slate-900 relative", className)}>
       <div className={statusBarClassName}>
         <StatusBar />
       </div>

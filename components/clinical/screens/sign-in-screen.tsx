@@ -67,23 +67,23 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
   /* ---------------------------------------------------------------- */
   if (locked) {
     return (
-      <div className="h-full flex flex-col bg-gray-50">
+      <div className="h-full flex flex-col bg-surface">
         <div className="flex-1 px-6 py-8">
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center">
-              <Lock className="w-10 h-10 text-red-600" />
+            <div className="w-20 h-20 bg-destructive/10 rounded-2xl flex items-center justify-center">
+              <Lock className="w-10 h-10 text-destructive" />
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-1">Account Locked</h2>
-          <p className="text-gray-500 text-center mb-8">
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground text-center mb-1">Account Locked</h2>
+          <p className="text-muted-foreground text-center mb-8">
             Too many incorrect password attempts. Answer your security question to unlock your account.
           </p>
 
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 space-y-4">
+          <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
             <div className="flex items-start gap-2">
-              <ShieldQuestion className="w-5 h-5 text-[#1A3872] mt-0.5 shrink-0" />
-              <p className="text-sm font-medium text-gray-800">{SECURITY_QUESTION}</p>
+              <ShieldQuestion className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+              <p className="text-sm font-medium text-foreground">{SECURITY_QUESTION}</p>
             </div>
             <div>
               <input
@@ -94,13 +94,13 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
                   if (unlockError) setUnlockError("")
                 }}
                 placeholder="Your answer"
-                className={`w-full px-4 py-3 rounded-xl border outline-none bg-white focus:ring-2 ${
+                className={`w-full px-4 py-3 rounded-xl border outline-none bg-card focus:ring-2 ${
                   unlockError
-                    ? "border-red-500 focus:ring-red-100"
-                    : "border-gray-300 focus:border-[#1A3872] focus:ring-blue-100"
+                    ? "border-red-500 focus:ring-destructive/15"
+                    : "border-border focus:border-primary focus:ring-info/15"
                 }`}
               />
-              {unlockError && <p className="text-xs text-red-500 mt-1.5">{unlockError}</p>}
+              {unlockError && <p className="text-xs text-destructive mt-1.5">{unlockError}</p>}
             </div>
           </div>
         </div>
@@ -109,11 +109,11 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
           <button
             onClick={handleUnlock}
             disabled={!securityAnswer.trim()}
-            className="w-full py-4 rounded-full font-semibold bg-[#1A3872] text-white disabled:bg-gray-300"
+            className="w-full py-4 rounded-full font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary-deep active:scale-[0.99] disabled:bg-muted-foreground/30 disabled:text-white"
           >
             Unlock Account
           </button>
-          <button onClick={onForgotPassword} className="w-full text-center text-sm text-[#1A3872] font-medium">
+          <button onClick={onForgotPassword} className="w-full text-center text-sm text-primary font-medium">
             Forgot your security answer? Reset password
           </button>
         </div>
@@ -125,36 +125,36 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
   /* Normal sign-in                                                    */
   /* ---------------------------------------------------------------- */
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-surface">
       <div className="flex-1 px-6 py-8">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="w-20 h-20 bg-[#1A3872] rounded-2xl flex items-center justify-center">
+          <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center">
             <Building2 className="w-10 h-10 text-white" />
           </div>
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-1">
+        <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground text-center mb-1">
           Welcome Back 👋
         </h2>
-        <p className="text-gray-500 text-center mb-8">
+        <p className="text-muted-foreground text-center mb-8">
           Sign in to continue
         </p>
 
         {/* Form */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Email or Phone</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Email or Phone</label>
             <input
               type="text"
               defaultValue="john.doe@example.com"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none bg-white"
+              className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none bg-card"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -163,22 +163,22 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
                   setPassword(e.target.value)
                   if (error) setError("")
                 }}
-                className={`w-full px-4 py-3 pr-12 rounded-xl border outline-none bg-white focus:ring-2 ${
-                  error ? "border-red-500 focus:ring-red-100" : "border-gray-300 focus:border-[#1A3872] focus:ring-blue-100"
+                className={`w-full px-4 py-3 pr-12 rounded-xl border outline-none bg-card focus:ring-2 ${
+                  error ? "border-red-500 focus:ring-destructive/15" : "border-border focus:border-primary focus:ring-info/15"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
             {error && (
               <div className="flex items-start gap-1.5 mt-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
-                <p className="text-xs text-red-500">{error}</p>
+                <AlertCircle className="w-3.5 h-3.5 text-destructive mt-0.5 shrink-0" />
+                <p className="text-xs text-destructive">{error}</p>
               </div>
             )}
           </div>
@@ -190,11 +190,11 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-gray-300 text-[#1A3872] focus:ring-[#1A3872]"
+                className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
               />
-              <span className="text-sm text-gray-600">Remember me</span>
+              <span className="text-sm text-muted-foreground">Remember me</span>
             </label>
-            <button onClick={onForgotPassword} className="text-sm text-[#1A3872] font-medium">
+            <button onClick={onForgotPassword} className="text-sm text-primary font-medium">
               Forgot?
             </button>
           </div>
@@ -205,20 +205,20 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
       <div className="px-6 py-4 space-y-4">
         <button
           onClick={handleSignIn}
-          className="w-full py-4 rounded-full font-semibold bg-[#1A3872] text-white"
+          className="w-full py-4 rounded-full font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary-deep active:scale-[0.99]"
         >
           Sign In
         </button>
 
         <div className="flex items-center gap-4">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="text-gray-500 text-sm">or</span>
-          <div className="flex-1 h-px bg-gray-300" />
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-muted-foreground text-sm">or</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
-        <p className="text-center text-gray-600 text-sm">
+        <p className="text-center text-muted-foreground text-sm">
           {"Don't have an account? "}
-          <button onClick={onSignUp} className="text-[#1A3872] font-semibold">
+          <button onClick={onSignUp} className="text-primary font-semibold">
             Sign Up
           </button>
         </p>

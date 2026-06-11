@@ -100,43 +100,43 @@ export function TrialMonitoringScreen({ onBack }: TrialMonitoringScreenProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Active":
-        return <Activity className="h-4 w-4 text-green-500" />;
+        return <Activity className="h-4 w-4 text-success" />;
       case "Completed":
-        return <CheckCircle className="h-4 w-4 text-blue-500" />;
+        return <CheckCircle className="h-4 w-4 text-info" />;
       case "Suspended":
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Active":
-        return "bg-green-100 text-green-700";
+        return "bg-success/15 text-success";
       case "Completed":
-        return "bg-blue-100 text-blue-700";
+        return "bg-info/10 text-info";
       case "Suspended":
-        return "bg-red-100 text-red-700";
+        return "bg-destructive/10 text-destructive";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
     }
   };
 
   const tiles = [
-    { label: "Total trials", value: trials.length, accent: "text-[#1A3872]" },
-    { label: "Active", value: trials.filter((t) => t.status === "Active").length, accent: "text-green-600" },
-    { label: "Completed", value: trials.filter((t) => t.status === "Completed").length, accent: "text-blue-600" },
-    { label: "Suspended", value: trials.filter((t) => t.status === "Suspended").length, accent: "text-red-600" },
-    { label: "Total enrolled", value: trials.reduce((n, t) => n + t.patients, 0), accent: "text-[#1A3872]" },
+    { label: "Total trials", value: trials.length, accent: "text-primary" },
+    { label: "Active", value: trials.filter((t) => t.status === "Active").length, accent: "text-success" },
+    { label: "Completed", value: trials.filter((t) => t.status === "Completed").length, accent: "text-info" },
+    { label: "Suspended", value: trials.filter((t) => t.status === "Suspended").length, accent: "text-destructive" },
+    { label: "Total enrolled", value: trials.reduce((n, t) => n + t.patients, 0), accent: "text-primary" },
   ];
 
   return (
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* Header row */}
       <div>
-        <h1 className="text-xl font-bold text-[#1A3872]">Trial metadata & recruitment</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-xl font-bold text-primary">Trial metadata & recruitment</h1>
+        <p className="text-sm text-muted-foreground">
           Operational oversight only · aggregate counts · no subject-level data (BTG required).
         </p>
       </div>
@@ -144,17 +144,17 @@ export function TrialMonitoringScreen({ onBack }: TrialMonitoringScreenProps) {
       {/* Summary tiles (ADM-06 Section 1) */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl bg-white border border-gray-200 p-4">
+          <div key={t.label} className="rounded-xl bg-card border border-border p-4">
             <div className={`text-2xl font-bold leading-none ${t.accent}`}>{t.value}</div>
-            <div className="text-xs text-gray-500 mt-2">{t.label}</div>
+            <div className="text-xs text-muted-foreground mt-2">{t.label}</div>
           </div>
         ))}
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
           <Input
             placeholder="Search by protocol ID, title, or sponsor..."
             value={searchQuery}
@@ -176,11 +176,11 @@ export function TrialMonitoringScreen({ onBack }: TrialMonitoringScreenProps) {
       </div>
 
       {/* Trial metadata table (ADM-06 Section 2) */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+              <tr className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Protocol / Study</th>
                 <th className="px-4 py-3 font-medium">Sponsor / CRO</th>
                 <th className="px-4 py-3 font-medium">Enrollment</th>
@@ -189,32 +189,32 @@ export function TrialMonitoringScreen({ onBack }: TrialMonitoringScreenProps) {
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {filteredTrials.map((trial) => (
-                <tr key={trial.id} className="hover:bg-gray-50/70 align-top">
+                <tr key={trial.id} className="hover:bg-surface/70 align-top">
                   <td className="px-4 py-3 max-w-[280px]">
-                    <div className="font-medium text-gray-900">{trial.title}</div>
-                    <div className="text-xs text-gray-500">{trial.id}</div>
+                    <div className="font-medium text-foreground">{trial.title}</div>
+                    <div className="text-xs text-muted-foreground">{trial.id}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    <div className="flex items-center gap-1"><Building2 className="h-3 w-3 text-gray-400" /> {trial.sponsor}</div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5"><FileText className="h-3 w-3 text-gray-400" /> {trial.cro}</div>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    <div className="flex items-center gap-1"><Building2 className="h-3 w-3 text-muted-foreground/70" /> {trial.sponsor}</div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5"><FileText className="h-3 w-3 text-muted-foreground/70" /> {trial.cro}</div>
                   </td>
                   <td className="px-4 py-3 w-[180px]">
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-gray-500">Enrolled</span>
+                      <span className="text-muted-foreground">Enrolled</span>
                       <span className="font-medium">{trial.patients}/{trial.targetEnrollment}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-border rounded-full h-2">
                       <div
-                        className="bg-[#2563EB] h-2 rounded-full"
+                        className="bg-info h-2 rounded-full"
                         style={{ width: `${(trial.patients / trial.targetEnrollment) * 100}%` }}
                       />
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-muted-foreground">
                     <div className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {trial.lastModified}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">{trial.changeSummary}</div>
+                    <div className="text-xs text-muted-foreground/70 mt-0.5">{trial.changeSummary}</div>
                   </td>
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-1.5">
@@ -238,7 +238,7 @@ export function TrialMonitoringScreen({ onBack }: TrialMonitoringScreenProps) {
           </table>
         </div>
         {filteredTrials.length === 0 && (
-          <p className="text-center text-sm text-gray-400 py-10">No trials match the current filters.</p>
+          <p className="text-center text-sm text-muted-foreground/70 py-10">No trials match the current filters.</p>
         )}
       </div>
     </div>

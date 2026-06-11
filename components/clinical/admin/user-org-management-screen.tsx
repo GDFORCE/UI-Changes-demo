@@ -18,7 +18,7 @@ export function UserOrgManagementScreen({ defaultTab = "users", initialFilter }:
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
       <div className="px-6 lg:px-8 pt-6 max-w-[1400px] mx-auto">
-        <TabsList className="bg-white border border-gray-200 rounded-lg h-auto p-1">
+        <TabsList className="bg-card border border-border rounded-lg h-auto p-1">
           <TabsTrigger value="users" className="text-sm gap-1.5">
             <Users className="h-4 w-4" /> Users
           </TabsTrigger>

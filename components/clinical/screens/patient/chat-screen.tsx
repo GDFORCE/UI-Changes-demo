@@ -79,37 +79,37 @@ const channelTypeLabel: Record<ChannelType, string> = {
 }
 
 const channelTypeColor: Record<ChannelType, string> = {
-  "sponsor-pi": "bg-blue-100 text-blue-700",
-  "sponsor-rt": "bg-teal-100 text-teal-700",
-  "pi-patient": "bg-purple-100 text-purple-700",
-  "rt-patient": "bg-emerald-100 text-emerald-700",
-  "admin-user": "bg-red-100 text-red-700",
+  "sponsor-pi": "bg-info/10 text-info",
+  "sponsor-rt": "bg-accent/10 text-accent",
+  "pi-patient": "bg-violet/10 text-violet",
+  "rt-patient": "bg-success/15 text-success",
+  "admin-user": "bg-destructive/10 text-destructive",
 }
 
 const channelTypeMeta = {
   "sponsor-pi": {
     icon: Stethoscope,
-    accent: "bg-blue-500",
-    soft: "bg-blue-50 text-blue-700 border-blue-100",
-    avatar: "bg-blue-50 text-blue-700 ring-blue-100",
+    accent: "bg-info",
+    soft: "bg-info/5 text-info border-info/20",
+    avatar: "bg-info/5 text-info ring-info/15",
   },
   "sponsor-rt": {
     icon: Building2,
-    accent: "bg-teal-500",
-    soft: "bg-teal-50 text-teal-700 border-teal-100",
-    avatar: "bg-teal-50 text-teal-700 ring-teal-100",
+    accent: "bg-accent",
+    soft: "bg-accent/5 text-accent border-accent/20",
+    avatar: "bg-accent/5 text-accent ring-teal-100",
   },
   "pi-patient": {
     icon: Activity,
-    accent: "bg-violet-500",
-    soft: "bg-violet-50 text-violet-700 border-violet-100",
-    avatar: "bg-violet-50 text-violet-700 ring-violet-100",
+    accent: "bg-violet",
+    soft: "bg-violet/5 text-violet border-violet-100",
+    avatar: "bg-violet/5 text-violet ring-violet-100",
   },
   "rt-patient": {
     icon: UsersRound,
-    accent: "bg-emerald-500",
-    soft: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    avatar: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    accent: "bg-success",
+    soft: "bg-success/10 text-success border-success/20",
+    avatar: "bg-success/10 text-success ring-emerald-100",
   },
   "admin-user": {
     icon: ShieldCheck,
@@ -158,9 +158,9 @@ const defaultMessages: Message[] = [
 
 function getStatusIcon(status: string, isSelf: boolean) {
   if (!isSelf) return null
-  if (status === "sent")      return <Check className="h-3 w-3 text-gray-400" />
-  if (status === "delivered") return <CheckCheck className="h-3 w-3 text-gray-400" />
-  if (status === "read")      return <CheckCheck className="h-3 w-3 text-[#2563EB]" />
+  if (status === "sent")      return <Check className="h-3 w-3 text-muted-foreground/70" />
+  if (status === "delivered") return <CheckCheck className="h-3 w-3 text-muted-foreground/70" />
+  if (status === "read")      return <CheckCheck className="h-3 w-3 text-info" />
   return null
 }
 
@@ -280,9 +280,9 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
   // ── Conversation View ─────────────────────────────────
   if (activeChannel) {
     return (
-      <div className="flex flex-col h-full bg-[#F0F4F8]">
+      <div className="flex flex-col h-full bg-surface">
         {/* Header */}
-        <div className="bg-[#1A3872] text-white px-4 py-3 flex items-center gap-3">
+        <div className="bg-primary text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setActiveChannel(null)} className="p-1">
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -291,7 +291,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-sm leading-tight truncate">{activeChannel.name}</p>
-            <p className="text-[11px] text-blue-200 truncate">{activeChannel.role}</p>
+            <p className="text-[11px] text-primary-foreground/75 truncate">{activeChannel.role}</p>
           </div>
           <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0", channelTypeColor[activeChannel.channelType])}>
             {channelTypeLabel[activeChannel.channelType]}
@@ -304,7 +304,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
           {messages.map(msg => (
             <div key={msg.id} className={cn("flex", msg.isSelf ? "justify-end" : "justify-start")}>
               {!msg.isSelf && (
-                <div className="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center text-xs font-bold text-slate-600 mr-2 flex-shrink-0 self-end">
+                <div className="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center text-xs font-bold text-muted-foreground mr-2 flex-shrink-0 self-end">
                   {activeChannel.avatar}
                 </div>
               )}
@@ -314,8 +314,8 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                   <div className={cn(
                     "rounded-2xl px-4 py-2.5",
                     msg.isSelf
-                      ? "bg-[#1A3872] text-white rounded-br-sm"
-                      : "bg-white text-gray-900 rounded-bl-sm shadow-sm"
+                      ? "bg-primary text-white rounded-br-sm"
+                      : "bg-card text-foreground rounded-bl-sm shadow-sm"
                   )}>
                     <p className="text-sm leading-snug">{msg.content}</p>
                   </div>
@@ -325,14 +325,14 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                 {msg.type === "document" && (
                   <div className={cn(
                     "rounded-2xl px-3 py-2.5 flex items-center gap-3",
-                    msg.isSelf ? "bg-[#1A3872] rounded-br-sm" : "bg-white shadow-sm rounded-bl-sm"
+                    msg.isSelf ? "bg-primary rounded-br-sm" : "bg-card shadow-sm rounded-bl-sm"
                   )}>
-                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0", msg.isSelf ? "bg-white/20" : "bg-red-50")}>
-                      <FileText className={cn("h-5 w-5", msg.isSelf ? "text-white" : "text-red-500")} />
+                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0", msg.isSelf ? "bg-white/20" : "bg-destructive/5")}>
+                      <FileText className={cn("h-5 w-5", msg.isSelf ? "text-white" : "text-destructive")} />
                     </div>
                     <div className="min-w-0">
-                      <p className={cn("text-xs font-semibold truncate", msg.isSelf ? "text-white" : "text-[#0F172A]")}>{msg.attachmentName}</p>
-                      <p className={cn("text-[10px]", msg.isSelf ? "text-white/60" : "text-slate-400")}>{msg.attachmentSize} · Tap to open</p>
+                      <p className={cn("text-xs font-semibold truncate", msg.isSelf ? "text-white" : "text-foreground")}>{msg.attachmentName}</p>
+                      <p className={cn("text-[10px]", msg.isSelf ? "text-white/60" : "text-muted-foreground/70")}>{msg.attachmentSize} · Tap to open</p>
                     </div>
                   </div>
                 )}
@@ -343,10 +343,10 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                     "rounded-2xl overflow-hidden",
                     msg.isSelf ? "rounded-br-sm" : "rounded-bl-sm shadow-sm"
                   )}>
-                    <div className={cn("w-48 h-36 flex flex-col items-center justify-center gap-2", msg.isSelf ? "bg-[#1A3872]" : "bg-slate-100")}>
-                      <Camera className={cn("h-8 w-8", msg.isSelf ? "text-white/60" : "text-slate-400")} />
-                      <p className={cn("text-xs", msg.isSelf ? "text-white/70" : "text-slate-500")}>{msg.attachmentName}</p>
-                      <p className={cn("text-[10px]", msg.isSelf ? "text-white/50" : "text-slate-400")}>{msg.attachmentSize}</p>
+                    <div className={cn("w-48 h-36 flex flex-col items-center justify-center gap-2", msg.isSelf ? "bg-primary" : "bg-muted")}>
+                      <Camera className={cn("h-8 w-8", msg.isSelf ? "text-white/60" : "text-muted-foreground/70")} />
+                      <p className={cn("text-xs", msg.isSelf ? "text-white/70" : "text-muted-foreground")}>{msg.attachmentName}</p>
+                      <p className={cn("text-[10px]", msg.isSelf ? "text-white/50" : "text-muted-foreground/70")}>{msg.attachmentSize}</p>
                     </div>
                   </div>
                 )}
@@ -355,27 +355,27 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                 {msg.type === "voice" && (
                   <div className={cn(
                     "rounded-2xl px-3 py-2.5 flex items-center gap-3",
-                    msg.isSelf ? "bg-[#1A3872] rounded-br-sm" : "bg-white shadow-sm rounded-bl-sm"
+                    msg.isSelf ? "bg-primary rounded-br-sm" : "bg-card shadow-sm rounded-bl-sm"
                   )}>
                     <button
                       onClick={() => setPlayingVoice(playingVoice === msg.id ? null : msg.id)}
-                      className={cn("w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0", msg.isSelf ? "bg-white/20" : "bg-blue-100")}
+                      className={cn("w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0", msg.isSelf ? "bg-white/20" : "bg-info/10")}
                     >
                       {playingVoice === msg.id
-                        ? <Pause className={cn("h-4 w-4", msg.isSelf ? "text-white" : "text-[#1A3872]")} />
-                        : <Play  className={cn("h-4 w-4", msg.isSelf ? "text-white" : "text-[#1A3872]")} />
+                        ? <Pause className={cn("h-4 w-4", msg.isSelf ? "text-white" : "text-primary")} />
+                        : <Play  className={cn("h-4 w-4", msg.isSelf ? "text-white" : "text-primary")} />
                       }
                     </button>
-                    <div className={cn("flex-1 h-1 rounded-full", msg.isSelf ? "bg-white/30" : "bg-slate-200")}>
-                      <div className={cn("h-1 w-1/3 rounded-full", msg.isSelf ? "bg-white" : "bg-[#1A3872]")} />
+                    <div className={cn("flex-1 h-1 rounded-full", msg.isSelf ? "bg-white/30" : "bg-border")}>
+                      <div className={cn("h-1 w-1/3 rounded-full", msg.isSelf ? "bg-card" : "bg-primary")} />
                     </div>
-                    <span className={cn("text-xs flex-shrink-0", msg.isSelf ? "text-white/70" : "text-slate-500")}>{fmt(msg.duration ?? 0)}</span>
+                    <span className={cn("text-xs flex-shrink-0", msg.isSelf ? "text-white/70" : "text-muted-foreground")}>{fmt(msg.duration ?? 0)}</span>
                   </div>
                 )}
 
                 {/* Timestamp + status */}
                 <div className={cn("flex items-center gap-1 mt-1", msg.isSelf ? "justify-end" : "justify-start")}>
-                  <span className="text-[10px] text-slate-400">{msg.timestamp}</span>
+                  <span className="text-[10px] text-muted-foreground/70">{msg.timestamp}</span>
                   {getStatusIcon(msg.status, msg.isSelf)}
                 </div>
               </div>
@@ -386,45 +386,45 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
 
         {/* Recording bar */}
         {isRecording && (
-          <div className="bg-red-50 px-4 py-3 flex items-center justify-between border-t border-red-100">
+          <div className="bg-destructive/5 px-4 py-3 flex items-center justify-between border-t border-destructive/20">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-sm text-red-600 font-medium">Recording… {fmt(recordingTime)}</span>
+              <div className="w-3 h-3 bg-destructive rounded-full animate-pulse" />
+              <span className="text-sm text-destructive font-medium">Recording… {fmt(recordingTime)}</span>
             </div>
-            <button onClick={stopRecording} className="text-sm text-red-600 font-semibold">Stop</button>
+            <button onClick={stopRecording} className="text-sm text-destructive font-semibold">Stop</button>
           </div>
         )}
 
         {/* Attach menu */}
         {showAttachMenu && !isRecording && (
-          <div className="bg-white border-t border-slate-100 px-4 py-3 flex gap-4">
+          <div className="bg-card border-t border-border px-4 py-3 flex gap-4">
             <button onClick={() => handleAttach("document")} className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-red-500" />
+              <div className="w-12 h-12 rounded-xl bg-destructive/5 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-destructive" />
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">Document</span>
+              <span className="text-[10px] text-muted-foreground font-medium">Document</span>
             </button>
             <button onClick={() => handleAttach("image")} className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-violet/5 flex items-center justify-center">
                 <Image className="h-6 w-6 text-purple-500" />
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">Photo</span>
+              <span className="text-[10px] text-muted-foreground font-medium">Photo</span>
             </button>
             <button onClick={() => handleAttach("image")} className="flex flex-col items-center gap-1.5">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                <Camera className="h-6 w-6 text-blue-500" />
+              <div className="w-12 h-12 rounded-xl bg-info/5 flex items-center justify-center">
+                <Camera className="h-6 w-6 text-info" />
               </div>
-              <span className="text-[10px] text-slate-500 font-medium">Camera</span>
+              <span className="text-[10px] text-muted-foreground font-medium">Camera</span>
             </button>
           </div>
         )}
 
         {/* Input */}
-        <div className="bg-white border-t border-gray-200 px-3 py-3">
+        <div className="bg-card border-t border-border px-3 py-3">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAttachMenu(!showAttachMenu)}
-              className={cn("p-2 rounded-full transition-colors", showAttachMenu ? "bg-blue-100 text-[#1A3872]" : "text-gray-400 hover:text-gray-600")}
+              className={cn("p-2 rounded-full transition-colors", showAttachMenu ? "bg-info/10 text-primary" : "text-muted-foreground/70 hover:text-muted-foreground")}
             >
               <Paperclip className="h-5 w-5" />
             </button>
@@ -435,11 +435,11 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                 onChange={e => setInputText(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSend()}
                 placeholder="Type a message…"
-                className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm outline-none"
+                className="w-full px-4 py-2 bg-muted rounded-full text-sm outline-none"
               />
             </div>
             {inputText.trim() ? (
-              <button onClick={handleSend} className="p-2 bg-[#1A3872] text-white rounded-full flex-shrink-0">
+              <button onClick={handleSend} className="p-2 bg-primary text-white rounded-full flex-shrink-0">
                 <Send className="h-5 w-5" />
               </button>
             ) : (
@@ -449,7 +449,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                 onMouseLeave={() => { if (isRecording) stopRecording() }}
                 onTouchStart={startRecording}
                 onTouchEnd={stopRecording}
-                className={cn("p-2 rounded-full transition-colors flex-shrink-0", isRecording ? "bg-red-500 text-white" : "bg-gray-100 text-gray-600")}
+                className={cn("p-2 rounded-full transition-colors flex-shrink-0", isRecording ? "bg-destructive text-white" : "bg-muted text-muted-foreground")}
               >
                 <Mic className="h-5 w-5" />
               </button>
@@ -462,9 +462,9 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
 
   // ── Channel List View ─────────────────────────────────
   return (
-    <div className="relative flex flex-col h-full bg-[#F3F6FA]">
+    <div className="relative flex flex-col h-full bg-surface">
       {/* Header */}
-      <div className="bg-[#132F63] text-white px-4 pt-3 pb-4">
+      <div className="bg-primary text-white px-4 pt-3 pb-4">
         <div className="flex items-center gap-3 mb-4">
           {onBack && (
             <button onClick={onBack} className="p-1 rounded-full hover:bg-white/10">
@@ -472,12 +472,12 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
             </button>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-blue-200">Secure inbox</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-primary-foreground/75">Secure inbox</p>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold leading-tight">Messages</h1>
               {totalUnread > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#2563EB] px-2 py-0.5 text-[11px] font-bold text-white">
-                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-info px-2 py-0.5 text-[11px] font-bold text-white">
+                  <span className="h-1.5 w-1.5 rounded-full bg-card" />
                   {totalUnread} unread
                 </span>
               )}
@@ -485,7 +485,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
           </div>
           <button
             onClick={() => setShowCompose(true)}
-            className="h-10 px-4 rounded-full bg-white text-[#132F63] shadow-sm flex items-center justify-center gap-1.5 text-sm font-semibold whitespace-nowrap active:scale-95 transition-transform"
+            className="h-10 px-4 rounded-full bg-card text-primary shadow-sm flex items-center justify-center gap-1.5 text-sm font-semibold whitespace-nowrap active:scale-95 transition-transform"
             aria-label="Start new message"
           >
             <SquarePen className="h-4 w-4" />
@@ -493,20 +493,20 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
           </button>
         </div>
         {/* Search */}
-        <div className="flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 shadow-sm">
-          <Search className="h-4 w-4 text-slate-400 flex-shrink-0" />
+        <div className="flex items-center gap-2 rounded-xl bg-card px-3 py-2.5 shadow-sm">
+          <Search className="h-4 w-4 text-muted-foreground/70 flex-shrink-0" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search conversations..."
-            className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 text-sm outline-none"
+            className="flex-1 bg-transparent text-foreground placeholder-slate-400 text-sm outline-none"
           />
-          {search && <button onClick={() => setSearch("")} className="rounded-full p-0.5 hover:bg-slate-100"><X className="h-4 w-4 text-slate-400" /></button>}
+          {search && <button onClick={() => setSearch("")} className="rounded-full p-0.5 hover:bg-muted"><X className="h-4 w-4 text-muted-foreground/70" /></button>}
         </div>
       </div>
 
       {/* Filter chips */}
-      <div className="flex gap-2 bg-white px-4 py-3 overflow-x-auto scrollbar-hide border-b border-slate-100">
+      <div className="flex gap-2 bg-card px-4 py-3 overflow-x-auto scrollbar-hide border-b border-border">
         {allowedTypes.map(type => {
           const meta = channelTypeMeta[type]
           const Icon = meta.icon
@@ -517,7 +517,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
               key={type}
               onClick={() => setChannelFilter(type)}
               className={cn("flex-shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors whitespace-nowrap inline-flex items-center gap-1.5",
-                channelFilter === type ? "bg-[#132F63] text-white border-[#132F63]" : meta.soft)}
+                channelFilter === type ? "bg-primary text-white border-primary" : meta.soft)}
             >
               <Icon className="h-3.5 w-3.5" />
               {channelTypeLabel[type]}
@@ -544,11 +544,11 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                 <span className={cn("h-7 w-7 rounded-full flex items-center justify-center border", meta.soft)}>
                   <Icon className="h-3.5 w-3.5" />
                 </span>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                   {channelTypeLabel[channelType]}
                 </span>
               </div>
-              <span className="text-[11px] font-semibold text-slate-400">{channels.length}</span>
+              <span className="text-[11px] font-semibold text-muted-foreground/70">{channels.length}</span>
             </div>
 
             <div className="space-y-2">
@@ -557,8 +557,8 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                   key={ch.id}
                   onClick={() => openChannel(ch)}
                   className={cn(
-                    "relative w-full overflow-hidden rounded-lg border bg-white px-3 py-3 text-left shadow-sm transition-colors hover:bg-slate-50",
-                    ch.unread > 0 ? "border-blue-100 shadow-blue-950/5" : "border-slate-100"
+                    "relative w-full overflow-hidden rounded-lg border bg-card px-3 py-3 text-left shadow-sm transition-colors hover:bg-surface",
+                    ch.unread > 0 ? "border-info/20 shadow-blue-950/5" : "border-border"
                   )}
                 >
                   <span className={cn("absolute inset-y-0 left-0 w-1", ch.unread > 0 ? meta.accent : "bg-transparent")} />
@@ -568,16 +568,16 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                         {ch.avatar}
                       </div>
                       {ch.online && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white" />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-white" />
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="mb-1 flex items-center gap-2">
-                        <p className={cn("min-w-0 flex-1 truncate text-sm", ch.unread > 0 ? "font-bold text-slate-950" : "font-semibold text-slate-800")}>
+                        <p className={cn("min-w-0 flex-1 truncate text-sm", ch.unread > 0 ? "font-bold text-slate-950" : "font-semibold text-foreground")}>
                           {ch.name}
                         </p>
-                        <p className={cn("flex-shrink-0 text-[11px]", ch.unread > 0 ? "font-bold text-[#132F63]" : "font-medium text-slate-400")}>
+                        <p className={cn("flex-shrink-0 text-[11px]", ch.unread > 0 ? "font-bold text-primary" : "font-medium text-muted-foreground/70")}>
                           {ch.time}
                         </p>
                       </div>
@@ -589,11 +589,11 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <p className={cn("min-w-0 flex-1 truncate text-xs", ch.unread > 0 ? "font-semibold text-slate-700" : "text-slate-500")}>
+                        <p className={cn("min-w-0 flex-1 truncate text-xs", ch.unread > 0 ? "font-semibold text-foreground/80" : "text-muted-foreground")}>
                           {ch.lastMessage}
                         </p>
                         {ch.unread > 0 && (
-                          <span className="h-5 min-w-5 rounded-full bg-[#132F63] px-1.5 text-center text-[10px] font-bold leading-5 text-white">
+                          <span className="h-5 min-w-5 rounded-full bg-primary px-1.5 text-center text-[10px] font-bold leading-5 text-white">
                             {ch.unread}
                           </span>
                         )}
@@ -610,14 +610,14 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
         {filteredChannels.length === 0 && (
           <div className="flex flex-col items-center justify-center h-48 gap-3 text-center px-6">
             <Search className="w-10 h-10 text-slate-300" />
-            <p className="text-slate-500 font-medium text-sm">No conversations found</p>
+            <p className="text-muted-foreground font-medium text-sm">No conversations found</p>
           </div>
         )}
       </div>
 
       {showCompose && (
-        <div className="absolute inset-0 z-20 flex flex-col bg-[#F3F6FA]">
-          <div className="bg-[#132F63] px-4 py-4 text-white">
+        <div className="absolute inset-0 z-20 flex flex-col bg-surface">
+          <div className="bg-primary px-4 py-4 text-white">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowCompose(false)}
@@ -627,7 +627,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-blue-200">Start chat</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-primary-foreground/75">Start chat</p>
                 <h2 className="text-lg font-semibold leading-tight">New message</h2>
               </div>
             </div>
@@ -647,7 +647,7 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                     <span className={cn("h-7 w-7 rounded-full flex items-center justify-center border", meta.soft)}>
                       <Icon className="h-3.5 w-3.5" />
                     </span>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                       {channelTypeLabel[type]}
                     </span>
                   </div>
@@ -657,21 +657,21 @@ export function ChatScreen({ onBack, userRole = "sponsor", onConversationOpenCha
                       <button
                         key={ch.id}
                         onClick={() => openChannel(ch)}
-                        className="flex w-full items-center gap-3 rounded-lg border border-slate-100 bg-white px-3 py-3 text-left shadow-sm hover:bg-slate-50"
+                        className="flex w-full items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 text-left shadow-sm hover:bg-surface"
                       >
                         <div className="relative flex-shrink-0">
                           <div className={cn("h-11 w-11 rounded-full flex items-center justify-center text-sm font-bold ring-1", meta.avatar)}>
                             {ch.avatar}
                           </div>
                           {ch.online && (
-                            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
+                            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-success" />
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold text-slate-900">{ch.name}</p>
-                          <p className="truncate text-xs text-slate-500">{ch.role}</p>
+                          <p className="truncate text-sm font-bold text-foreground">{ch.name}</p>
+                          <p className="truncate text-xs text-muted-foreground">{ch.role}</p>
                         </div>
-                        <span className="rounded-full bg-[#132F63] px-2.5 py-1 text-[11px] font-semibold text-white">
+                        <span className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-white">
                           Message
                         </span>
                       </button>

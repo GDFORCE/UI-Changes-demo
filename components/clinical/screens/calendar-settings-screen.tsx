@@ -14,12 +14,12 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       onClick={onToggle}
       className={cn(
         "relative w-11 h-6 rounded-full transition-colors duration-200",
-        on ? "bg-[#0D9488]" : "bg-slate-300"
+        on ? "bg-accent" : "bg-slate-300"
       )}
     >
       <div
         className={cn(
-          "absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200",
+          "absolute top-1 w-4 h-4 bg-card rounded-full shadow transition-transform duration-200",
           on ? "translate-x-6" : "translate-x-1"
         )}
       />
@@ -38,11 +38,11 @@ function RadioGroup({ options, value, onChange }: { options: string[]; value: st
         >
           <div className={cn(
             "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
-            value === opt ? "border-[#0D1B3E] bg-[#0D1B3E]" : "border-slate-300 bg-white"
+            value === opt ? "border-primary-deep bg-primary-deep" : "border-border bg-card"
           )}>
-            {value === opt && <div className="w-2 h-2 rounded-full bg-white" />}
+            {value === opt && <div className="w-2 h-2 rounded-full bg-card" />}
           </div>
-          <span className="text-sm text-[#0F172A]">{opt}</span>
+          <span className="text-sm text-foreground">{opt}</span>
         </button>
       ))}
     </div>
@@ -80,9 +80,9 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC]">
+    <div className="h-full flex flex-col bg-surface">
       {/* App Bar */}
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={onBack} className="p-1">
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -91,28 +91,28 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
 
       {/* Toast */}
       {saved && (
-        <div className="mx-4 mt-3 bg-green-100 text-green-800 border border-green-200 rounded-xl px-4 py-3 text-sm font-medium text-center">
+        <div className="mx-4 mt-3 bg-success/15 text-success border border-success/20 rounded-xl px-4 py-3 text-sm font-medium text-center">
           ✓ Settings saved
         </div>
       )}
 
       <div className="flex-1 overflow-auto pb-4 px-4 py-4 space-y-4">
         {/* DISPLAY */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Display</p>
+        <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+          <div className="px-4 py-2 bg-surface border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">Display</p>
           </div>
           <div className="px-4 py-4 space-y-4">
             <div>
-              <p className="text-sm font-medium text-[#0F172A]">Default View</p>
+              <p className="text-sm font-medium text-foreground">Default View</p>
               <RadioGroup
                 options={["Day", "Month", "Week"]}
                 value={defaultView}
                 onChange={setDefaultView}
               />
             </div>
-            <div className="border-t border-slate-100 pt-4">
-              <p className="text-sm font-medium text-[#0F172A]">Start Week On</p>
+            <div className="border-t border-border pt-4">
+              <p className="text-sm font-medium text-foreground">Start Week On</p>
               <RadioGroup
                 options={["Sunday", "Monday"]}
                 value={startWeekOn}
@@ -123,18 +123,18 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
         </div>
 
         {/* VISIT REMINDERS */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Visit Reminders</p>
+        <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+          <div className="px-4 py-2 bg-surface border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">Visit Reminders</p>
           </div>
           <div className="px-4 py-4 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[#0F172A]">Show visit reminders</p>
+              <p className="text-sm font-medium text-foreground">Show visit reminders</p>
               <Toggle on={showReminders} onToggle={() => setShowReminders(!showReminders)} />
             </div>
             {showReminders && (
-              <div className="border-t border-slate-100 pt-4">
-                <p className="text-sm font-medium text-[#0F172A] mb-2">Reminder timing</p>
+              <div className="border-t border-border pt-4">
+                <p className="text-sm font-medium text-foreground mb-2">Reminder timing</p>
                 <RadioGroup
                   options={["1 day before", "2 days before", "3 days before"]}
                   value={reminderTiming}
@@ -146,15 +146,15 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
         </div>
 
         {/* SYNC */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sync</p>
+        <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+          <div className="px-4 py-2 bg-surface border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">Sync</p>
           </div>
           <div className="px-4 py-4 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[#0F172A]">Sync with device calendar</p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-sm font-medium text-foreground">Sync with device calendar</p>
+                <p className="text-xs text-muted-foreground/70 mt-0.5">
                   {syncDone ? "✓ Synced just now" : "Last synced: Today at 9:41 AM"}
                 </p>
               </div>
@@ -164,34 +164,34 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
               <button
                 onClick={handleSyncNow}
                 disabled={syncing}
-                className="w-full border-2 border-[#2563EB] text-[#2563EB] rounded-xl py-2.5 text-sm font-semibold"
+                className="w-full border-2 border-info text-info rounded-xl py-2.5 text-sm font-semibold"
               >
                 {syncing ? "Syncing..." : "Sync Now"}
               </button>
             )}
-            <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-              <p className="text-sm font-medium text-[#0F172A]">Export calendar as PDF</p>
-              <ChevronLeft className="w-5 h-5 text-slate-400 rotate-180" />
+            <div className="flex items-center justify-between border-t border-border pt-4">
+              <p className="text-sm font-medium text-foreground">Export calendar as PDF</p>
+              <ChevronLeft className="w-5 h-5 text-muted-foreground/70 rotate-180" />
             </div>
           </div>
         </div>
 
         {/* VISIT DISPLAY */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Visit Display</p>
+        <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+          <div className="px-4 py-2 bg-surface border-b border-border">
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">Visit Display</p>
           </div>
           <div className="px-4 py-4 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[#0F172A]">Show visit window dates</p>
+              <p className="text-sm font-medium text-foreground">Show visit window dates</p>
               <Toggle on={showWindowDates} onToggle={() => setShowWindowDates(!showWindowDates)} />
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[#0F172A]">Show hospital location</p>
+              <p className="text-sm font-medium text-foreground">Show hospital location</p>
               <Toggle on={showLocation} onToggle={() => setShowLocation(!showLocation)} />
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[#0F172A]">Show doctor name</p>
+              <p className="text-sm font-medium text-foreground">Show doctor name</p>
               <Toggle on={showDoctorName} onToggle={() => setShowDoctorName(!showDoctorName)} />
             </div>
           </div>
@@ -200,7 +200,7 @@ export function CalendarSettingsScreen({ onBack }: CalendarSettingsScreenProps) 
         {/* Save Button — part of the form, scrolls with the content */}
         <button
           onClick={handleSave}
-          className="w-full bg-[#0D1B3E] text-white rounded-xl py-3 font-semibold text-sm"
+          className="w-full bg-primary-deep text-white rounded-xl py-3 font-semibold text-sm"
         >
           Save Settings
         </button>

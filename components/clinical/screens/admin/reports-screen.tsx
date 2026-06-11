@@ -30,8 +30,8 @@ const reportTypes = [
     name: "Registered Users Report",
     description: "Complete list of registered users with status and details",
     icon: Users,
-    color: "text-blue-500",
-    bgColor: "bg-blue-50",
+    color: "text-info",
+    bgColor: "bg-info/5",
     filters: ["Date Range", "Organization", "User Role", "Status"],
   },
   {
@@ -40,7 +40,7 @@ const reportTypes = [
     description: "Users grouped by organization with role breakdown",
     icon: Building2,
     color: "text-purple-500",
-    bgColor: "bg-purple-50",
+    bgColor: "bg-violet/5",
     filters: ["Date Range", "Organization Type"],
   },
   {
@@ -48,8 +48,8 @@ const reportTypes = [
     name: "User Status Report",
     description: "Active, suspended, and pending verification users",
     icon: Activity,
-    color: "text-green-500",
-    bgColor: "bg-green-50",
+    color: "text-success",
+    bgColor: "bg-success/10",
     filters: ["Date Range", "Status"],
   },
   {
@@ -57,8 +57,8 @@ const reportTypes = [
     name: "Login Activity Report",
     description: "User login history and patterns",
     icon: Calendar,
-    color: "text-amber-500",
-    bgColor: "bg-amber-50",
+    color: "text-warning",
+    bgColor: "bg-warning/10",
     filters: ["Date Range", "User Type"],
   },
   {
@@ -67,7 +67,7 @@ const reportTypes = [
     description: "Overview of all trials with enrollment status",
     icon: FileText,
     color: "text-teal-500",
-    bgColor: "bg-teal-50",
+    bgColor: "bg-accent/5",
     filters: ["Date Range", "Trial Status", "Sponsor"],
   },
 ];
@@ -81,14 +81,14 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* Header row */}
       <div>
-        <h1 className="text-xl font-bold text-[#1A3872]">Reports</h1>
-        <p className="text-sm text-gray-500">Generate and export platform reports.</p>
+        <h1 className="text-xl font-bold text-primary">Reports</h1>
+        <p className="text-sm text-muted-foreground">Generate and export platform reports.</p>
       </div>
 
       {/* Content */}
       <div className="space-y-6">
         {/* Quick Filters */}
-        <Card className="border border-gray-200 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardHeader className="pb-2 pt-3 px-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Filter className="h-4 w-4" />
@@ -97,7 +97,7 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
           </CardHeader>
           <CardContent className="px-3 pb-3 space-y-3">
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Date Range</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Date Range</label>
               <Select value={dateRange} onValueChange={setDateRange}>
                 <SelectTrigger className="h-9">
                   <SelectValue />
@@ -113,12 +113,12 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
               </Select>
             </div>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Export Format</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Export Format</label>
               <div className="flex gap-2">
                 <Button
                   variant={exportFormat === "excel" ? "default" : "outline"}
                   size="sm"
-                  className={`flex-1 ${exportFormat === "excel" ? "bg-[#1A3872]" : ""}`}
+                  className={`flex-1 ${exportFormat === "excel" ? "bg-primary" : ""}`}
                   onClick={() => setExportFormat("excel")}
                 >
                   <FileSpreadsheet className="h-4 w-4 mr-1" />
@@ -127,7 +127,7 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
                 <Button
                   variant={exportFormat === "pdf" ? "default" : "outline"}
                   size="sm"
-                  className={`flex-1 ${exportFormat === "pdf" ? "bg-[#1A3872]" : ""}`}
+                  className={`flex-1 ${exportFormat === "pdf" ? "bg-primary" : ""}`}
                   onClick={() => setExportFormat("pdf")}
                 >
                   <File className="h-4 w-4 mr-1" />
@@ -140,14 +140,14 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
 
         {/* Report Types */}
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-500 px-1">Available Reports</h3>
+          <h3 className="text-sm font-medium text-muted-foreground px-1">Available Reports</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {reportTypes.map((report) => (
             <Card
               key={report.id}
-              className={`border border-gray-200 shadow-sm cursor-pointer transition-all ${
+              className={`border border-border shadow-sm cursor-pointer transition-all ${
                 selectedReport === report.id
-                  ? "ring-2 ring-[#2563EB] bg-blue-50"
+                  ? "ring-2 ring-info bg-info/5"
                   : "hover:shadow-md"
               }`}
               onClick={() => setSelectedReport(report.id)}
@@ -164,16 +164,16 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
                       <h3 className="font-medium text-sm">{report.name}</h3>
                       <Checkbox
                         checked={selectedReport === report.id}
-                        className="data-[state=checked]:bg-[#2563EB]"
+                        className="data-[state=checked]:bg-info"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{report.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{report.description}</p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {report.filters.map((filter) => (
                         <Badge
                           key={filter}
                           variant="outline"
-                          className="text-xs px-1.5 py-0 text-gray-500"
+                          className="text-xs px-1.5 py-0 text-muted-foreground"
                         >
                           {filter}
                         </Badge>
@@ -188,7 +188,7 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
         </div>
 
         {/* Recently Generated */}
-        <Card className="border border-gray-200 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardHeader className="pb-2 pt-3 px-3">
             <CardTitle className="text-sm font-medium">Recently Generated</CardTitle>
           </CardHeader>
@@ -200,17 +200,17 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
             ].map((report, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-2 bg-surface rounded-lg"
               >
                 <div className="flex items-center gap-2">
                   {report.format === "xlsx" ? (
-                    <FileSpreadsheet className="h-4 w-4 text-green-600" />
+                    <FileSpreadsheet className="h-4 w-4 text-success" />
                   ) : (
-                    <File className="h-4 w-4 text-red-600" />
+                    <File className="h-4 w-4 text-destructive" />
                   )}
                   <div>
                     <p className="text-sm font-medium">{report.name}</p>
-                    <p className="text-xs text-gray-400">{report.date}</p>
+                    <p className="text-xs text-muted-foreground/70">{report.date}</p>
                   </div>
                 </div>
                 <Button
@@ -229,7 +229,7 @@ export function ReportsScreen({ onBack }: ReportsScreenProps) {
         {/* Generate Button */}
         <div className="flex justify-end">
           <Button
-            className="bg-[#1A3872] hover:bg-[#15305f]"
+            className="bg-primary hover:bg-primary/90"
             disabled={!selectedReport}
             onClick={() => {
               const name = reportTypes.find((r) => r.id === selectedReport)?.name;

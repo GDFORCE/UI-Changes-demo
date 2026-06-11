@@ -112,11 +112,11 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Delivered":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case "Failed":
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       case "Pending":
-        return <Clock className="h-4 w-4 text-amber-500" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       default:
         return null;
     }
@@ -140,8 +140,8 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">Notification delivery</h1>
-          <p className="text-sm text-gray-500">Delivery metadata only · message content &amp; patient identity are protected.</p>
+          <h1 className="text-xl font-bold text-primary">Notification delivery</h1>
+          <p className="text-sm text-muted-foreground">Delivery metadata only · message content &amp; patient identity are protected.</p>
         </div>
         <Button variant="outline" onClick={() => toast.info("Notification settings")}>
           <Settings className="h-4 w-4 mr-2" /> Settings
@@ -150,29 +150,29 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
 
       {/* Summary tiles (ADM-07 Section 1) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-xl bg-white border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-green-600 leading-none">{stats.delivered.toLocaleString()}</div>
-          <div className="text-xs text-gray-500 mt-2">Sent (7 days)</div>
+        <div className="rounded-xl bg-card border border-border p-4">
+          <div className="text-2xl font-bold text-success leading-none">{stats.delivered.toLocaleString()}</div>
+          <div className="text-xs text-muted-foreground mt-2">Sent (7 days)</div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-red-600 leading-none">{stats.failed}</div>
-          <div className="text-xs text-gray-500 mt-2">Failed</div>
+        <div className="rounded-xl bg-card border border-border p-4">
+          <div className="text-2xl font-bold text-destructive leading-none">{stats.failed}</div>
+          <div className="text-xs text-muted-foreground mt-2">Failed</div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-amber-600 leading-none">{stats.pending}</div>
-          <div className="text-xs text-gray-500 mt-2">Pending</div>
+        <div className="rounded-xl bg-card border border-border p-4">
+          <div className="text-2xl font-bold text-warning leading-none">{stats.pending}</div>
+          <div className="text-xs text-muted-foreground mt-2">Pending</div>
         </div>
-        <div className="rounded-xl bg-white border border-gray-200 p-4">
-          <div className="text-2xl font-bold text-[#1A3872] leading-none">
+        <div className="rounded-xl bg-card border border-border p-4">
+          <div className="text-2xl font-bold text-primary leading-none">
             {Math.round((stats.delivered / stats.totalToday) * 100)}%
           </div>
-          <div className="text-xs text-gray-500 mt-2">Delivery rate</div>
+          <div className="text-xs text-muted-foreground mt-2">Delivery rate</div>
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-white border border-gray-200 rounded-lg h-auto p-1">
+        <TabsList className="bg-card border border-border rounded-lg h-auto p-1">
           <TabsTrigger value="overview" className="text-sm">Overview</TabsTrigger>
           <TabsTrigger value="history" className="text-sm">Delivery log</TabsTrigger>
           <TabsTrigger value="settings" className="text-sm">Settings</TabsTrigger>
@@ -180,7 +180,7 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
 
         <TabsContent value="overview" className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-0">
           {/* Delivery Stats */}
-          <Card className="border border-gray-200 shadow-sm">
+          <Card className="border border-border shadow-sm">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm font-medium">Delivery Status</CardTitle>
             </CardHeader>
@@ -188,14 +188,14 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-success" />
                     <span className="text-sm">Delivered</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{stats.delivered}</span>
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 bg-border rounded-full h-2">
                       <div
-                        className="bg-green-500 h-2 rounded-full"
+                        className="bg-success h-2 rounded-full"
                         style={{ width: `${(stats.delivered / stats.totalToday) * 100}%` }}
                       />
                     </div>
@@ -203,14 +203,14 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-amber-500" />
+                    <Clock className="h-4 w-4 text-warning" />
                     <span className="text-sm">Pending</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{stats.pending}</span>
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 bg-border rounded-full h-2">
                       <div
-                        className="bg-amber-500 h-2 rounded-full"
+                        className="bg-warning h-2 rounded-full"
                         style={{ width: `${(stats.pending / stats.totalToday) * 100}%` }}
                       />
                     </div>
@@ -218,14 +218,14 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <XCircle className="h-4 w-4 text-red-500" />
+                    <XCircle className="h-4 w-4 text-destructive" />
                     <span className="text-sm">Failed</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{stats.failed}</span>
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                    <div className="w-20 bg-border rounded-full h-2">
                       <div
-                        className="bg-red-500 h-2 rounded-full"
+                        className="bg-destructive h-2 rounded-full"
                         style={{ width: `${(stats.failed / stats.totalToday) * 100}%` }}
                       />
                     </div>
@@ -242,20 +242,20 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
             </CardHeader>
             <CardContent className="px-3 pb-3">
               <div className="grid grid-cols-3 gap-2">
-                <div className="text-center p-2 bg-blue-50 rounded-lg">
-                  <Smartphone className="h-5 w-5 text-[#2563EB] mx-auto mb-1" />
+                <div className="text-center p-2 bg-info/5 rounded-lg">
+                  <Smartphone className="h-5 w-5 text-info mx-auto mb-1" />
                   <div className="text-lg font-semibold">{stats.push}</div>
-                  <div className="text-xs text-gray-500">Push</div>
+                  <div className="text-xs text-muted-foreground">Push</div>
                 </div>
-                <div className="text-center p-2 bg-green-50 rounded-lg">
-                  <MessageSquare className="h-5 w-5 text-green-600 mx-auto mb-1" />
+                <div className="text-center p-2 bg-success/10 rounded-lg">
+                  <MessageSquare className="h-5 w-5 text-success mx-auto mb-1" />
                   <div className="text-lg font-semibold">{stats.sms}</div>
-                  <div className="text-xs text-gray-500">SMS</div>
+                  <div className="text-xs text-muted-foreground">SMS</div>
                 </div>
-                <div className="text-center p-2 bg-purple-50 rounded-lg">
-                  <Mail className="h-5 w-5 text-purple-600 mx-auto mb-1" />
+                <div className="text-center p-2 bg-violet/5 rounded-lg">
+                  <Mail className="h-5 w-5 text-violet mx-auto mb-1" />
                   <div className="text-lg font-semibold">{stats.email}</div>
-                  <div className="text-xs text-gray-500">Email</div>
+                  <div className="text-xs text-muted-foreground">Email</div>
                 </div>
               </div>
             </CardContent>
@@ -264,13 +264,13 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
           {/* Failed Notifications */}
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm font-medium text-red-600">Failed Notifications</CardTitle>
+              <CardTitle className="text-sm font-medium text-destructive">Failed Notifications</CardTitle>
             </CardHeader>
             <CardContent className="px-3 pb-3 space-y-2">
               {notifications
                 .filter((n) => n.status === "Failed")
                 .map((notif) => (
-                  <div key={notif.id} className="p-2 bg-red-50 rounded-lg">
+                  <div key={notif.id} className="p-2 bg-destructive/5 rounded-lg">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium">{notif.recipient}</span>
                       <Button
@@ -283,8 +283,8 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
                         Retry
                       </Button>
                     </div>
-                    <p className="text-xs text-gray-600 truncate">{notif.message}</p>
-                    <p className="text-xs text-red-500 mt-1">Error: {notif.error}</p>
+                    <p className="text-xs text-muted-foreground truncate">{notif.message}</p>
+                    <p className="text-xs text-destructive mt-1">Error: {notif.error}</p>
                   </div>
                 ))}
             </CardContent>
@@ -293,9 +293,9 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
 
         <TabsContent value="history" className="space-y-4 mt-0">
           {/* Filters */}
-          <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+          <div className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search by recipient role or trigger event..."
                 value={searchQuery}
@@ -330,11 +330,11 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
           </div>
 
           {/* Delivery log table (ADM-07 Section 3) */}
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                  <tr className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-4 py-3 font-medium">Recipient role</th>
                     <th className="px-4 py-3 font-medium">Trigger event</th>
                     <th className="px-4 py-3 font-medium">Channel</th>
@@ -343,28 +343,28 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
                     <th className="px-4 py-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-border">
                   {filteredNotifications.map((notif) => (
-                    <tr key={notif.id} className="hover:bg-gray-50/70">
+                    <tr key={notif.id} className="hover:bg-surface/70">
                       <td className="px-4 py-3">
                         <Badge variant="outline" className="text-xs">{notif.recipientType}</Badge>
                       </td>
                       <td className="px-4 py-3 max-w-[320px]">
-                        <div className="font-medium text-gray-800">{notif.type}</div>
+                        <div className="font-medium text-foreground">{notif.type}</div>
                         {notif.status === "Failed" && (
-                          <div className="text-xs text-red-500">Error: {notif.error}</div>
+                          <div className="text-xs text-destructive">Error: {notif.error}</div>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="flex items-center gap-1.5 text-gray-600">
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
                           {getChannelIcon(notif.channel)} {notif.channel}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-500">{notif.sentAt}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{notif.sentAt}</td>
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-1.5">
                           {getStatusIcon(notif.status)}
-                          <span className="text-xs text-gray-600">{notif.status}</span>
+                          <span className="text-xs text-muted-foreground">{notif.status}</span>
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -387,7 +387,7 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
               </table>
             </div>
             {filteredNotifications.length === 0 && (
-              <p className="text-center text-sm text-gray-400 py-10">No notifications match the current filters.</p>
+              <p className="text-center text-sm text-muted-foreground/70 py-10">No notifications match the current filters.</p>
             )}
           </div>
         </TabsContent>
@@ -435,24 +435,24 @@ export function NotificationMonitoringScreen({ onBack }: NotificationMonitoringS
             <CardContent className="px-3 pb-3 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4 text-gray-500" />
+                  <Smartphone className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Push Notifications</span>
                 </div>
-                <Badge className="bg-green-100 text-green-700">Enabled</Badge>
+                <Badge className="bg-success/15 text-success">Enabled</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4 text-gray-500" />
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">SMS Notifications</span>
                 </div>
-                <Badge className="bg-green-100 text-green-700">Enabled</Badge>
+                <Badge className="bg-success/15 text-success">Enabled</Badge>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-500" />
+                  <Mail className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Email Notifications</span>
                 </div>
-                <Badge className="bg-green-100 text-green-700">Enabled</Badge>
+                <Badge className="bg-success/15 text-success">Enabled</Badge>
               </div>
             </CardContent>
           </Card>

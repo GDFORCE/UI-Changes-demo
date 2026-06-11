@@ -124,28 +124,28 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Open":
-        return "bg-red-100 text-red-700";
+        return "bg-destructive/10 text-destructive";
       case "In Progress":
-        return "bg-amber-100 text-amber-700";
+        return "bg-warning/15 text-warning";
       case "Resolved":
-        return "bg-green-100 text-green-700";
+        return "bg-success/15 text-success";
       case "Closed":
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "High":
-        return "border-red-500 text-red-700";
+        return "border-red-500 text-destructive";
       case "Medium":
-        return "border-amber-500 text-amber-700";
+        return "border-amber-500 text-warning";
       case "Low":
-        return "border-gray-400 text-gray-600";
+        return "border-gray-400 text-muted-foreground";
       default:
-        return "border-gray-400 text-gray-600";
+        return "border-gray-400 text-muted-foreground";
     }
   };
 
@@ -154,34 +154,34 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
 
   const resolvedCount = tickets.filter((t) => t.status === "Resolved").length;
   const tiles = [
-    { label: "Open", value: openCount, accent: "text-red-600" },
-    { label: "In progress", value: inProgressCount, accent: "text-amber-600" },
-    { label: "Resolved this week", value: resolvedCount, accent: "text-green-600" },
-    { label: "Total this month", value: tickets.length, accent: "text-[#1A3872]" },
+    { label: "Open", value: openCount, accent: "text-destructive" },
+    { label: "In progress", value: inProgressCount, accent: "text-warning" },
+    { label: "Resolved this week", value: resolvedCount, accent: "text-success" },
+    { label: "Total this month", value: tickets.length, accent: "text-primary" },
   ];
 
   return (
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* Header row */}
       <div>
-        <h1 className="text-xl font-bold text-[#1A3872]">Issue tracker</h1>
-        <p className="text-sm text-gray-500">Receive, track, action and close all user-reported issues.</p>
+        <h1 className="text-xl font-bold text-primary">Issue tracker</h1>
+        <p className="text-sm text-muted-foreground">Receive, track, action and close all user-reported issues.</p>
       </div>
 
       {/* Summary tiles (ADM-10 Section 1) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl bg-white border border-gray-200 p-4">
+          <div key={t.label} className="rounded-xl bg-card border border-border p-4">
             <div className={`text-2xl font-bold leading-none ${t.accent}`}>{t.value}</div>
-            <div className="text-xs text-gray-500 mt-2">{t.label}</div>
+            <div className="text-xs text-muted-foreground mt-2">{t.label}</div>
           </div>
         ))}
       </div>
 
       {/* Filter bar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-3 lg:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
           <Input
             placeholder="Search by ticket ID, user, or subject..."
             value={searchQuery}
@@ -192,34 +192,34 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
         <div className="flex gap-2 flex-wrap">
           <Badge
             variant="outline"
-            className={`cursor-pointer h-9 px-3 ${statusFilter === "Open" ? "bg-red-50 border-red-500" : ""}`}
+            className={`cursor-pointer h-9 px-3 ${statusFilter === "Open" ? "bg-destructive/5 border-red-500" : ""}`}
             onClick={() => setStatusFilter(statusFilter === "Open" ? "all" : "Open")}
           >
-            <AlertCircle className="h-3 w-3 mr-1 text-red-500" /> Open ({openCount})
+            <AlertCircle className="h-3 w-3 mr-1 text-destructive" /> Open ({openCount})
           </Badge>
           <Badge
             variant="outline"
-            className={`cursor-pointer h-9 px-3 ${statusFilter === "In Progress" ? "bg-amber-50 border-amber-500" : ""}`}
+            className={`cursor-pointer h-9 px-3 ${statusFilter === "In Progress" ? "bg-warning/10 border-amber-500" : ""}`}
             onClick={() => setStatusFilter(statusFilter === "In Progress" ? "all" : "In Progress")}
           >
-            <Clock className="h-3 w-3 mr-1 text-amber-500" /> In progress ({inProgressCount})
+            <Clock className="h-3 w-3 mr-1 text-warning" /> In progress ({inProgressCount})
           </Badge>
           <Badge
             variant="outline"
-            className={`cursor-pointer h-9 px-3 ${statusFilter === "Resolved" ? "bg-green-50 border-green-500" : ""}`}
+            className={`cursor-pointer h-9 px-3 ${statusFilter === "Resolved" ? "bg-success/10 border-green-500" : ""}`}
             onClick={() => setStatusFilter(statusFilter === "Resolved" ? "all" : "Resolved")}
           >
-            <CheckCircle className="h-3 w-3 mr-1 text-green-500" /> Resolved
+            <CheckCircle className="h-3 w-3 mr-1 text-success" /> Resolved
           </Badge>
         </div>
       </div>
 
       {/* Ticket tracker table (ADM-10 Section 3) */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+              <tr className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Ticket</th>
                 <th className="px-4 py-3 font-medium">Reported by</th>
                 <th className="px-4 py-3 font-medium">Priority</th>
@@ -228,16 +228,16 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {filteredTickets.map((ticket) => (
-                <tr key={ticket.id} className="hover:bg-gray-50/70">
+                <tr key={ticket.id} className="hover:bg-surface/70">
                   <td className="px-4 py-3 max-w-[300px]">
-                    <div className="font-medium text-gray-900">{ticket.subject}</div>
-                    <div className="text-xs text-gray-500 truncate">{ticket.id} · {ticket.category}</div>
+                    <div className="font-medium text-foreground">{ticket.subject}</div>
+                    <div className="text-xs text-muted-foreground truncate">{ticket.id} · {ticket.category}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <User className="h-3 w-3 text-gray-400" /> {ticket.user}
+                      <User className="h-3 w-3 text-muted-foreground/70" /> {ticket.user}
                     </div>
                     <Badge variant="outline" className="text-[10px] mt-0.5">{ticket.userType}</Badge>
                   </td>
@@ -247,7 +247,7 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
                   <td className="px-4 py-3">
                     <Badge className={`text-xs ${getStatusColor(ticket.status)}`}>{ticket.status}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{ticket.createdAt}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{ticket.createdAt}</td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="outline" size="sm" className="h-8" onClick={() => setSelectedTicket(ticket)}>
                       View
@@ -259,7 +259,7 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
           </table>
         </div>
         {filteredTickets.length === 0 && (
-          <p className="text-center text-sm text-gray-400 py-10">No tickets match the current filters.</p>
+          <p className="text-center text-sm text-muted-foreground/70 py-10">No tickets match the current filters.</p>
         )}
       </div>
 
@@ -278,22 +278,22 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
             <div className="mt-4 flex flex-col h-[calc(100%-60px)]">
               <div className="space-y-4 flex-1 overflow-y-auto">
                 {/* Ticket Info */}
-                <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                <div className="p-3 bg-surface rounded-lg space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{selectedTicket.id}</span>
+                    <span className="text-xs text-muted-foreground">{selectedTicket.id}</span>
                     <Badge variant="outline" className={getPriorityColor(selectedTicket.priority)}>
                       {selectedTicket.priority} Priority
                     </Badge>
                   </div>
                   <h3 className="font-semibold">{selectedTicket.subject}</h3>
                   <div className="flex items-center gap-2 text-sm">
-                    <User className="h-4 w-4 text-gray-400" />
+                    <User className="h-4 w-4 text-muted-foreground/70" />
                     <span>{selectedTicket.user}</span>
                     <Badge variant="outline" className="text-xs">
                       {selectedTicket.userType}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MessageSquare className="h-4 w-4" />
                     <span>{selectedTicket.category}</span>
                   </div>
@@ -302,7 +302,7 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
                 {/* Description */}
                 <div>
                   <h4 className="text-sm font-medium mb-2">Description</h4>
-                  <p className="text-sm text-gray-600 bg-white p-3 rounded-lg border">
+                  <p className="text-sm text-muted-foreground bg-card p-3 rounded-lg border">
                     {selectedTicket.description}
                   </p>
                 </div>
@@ -311,14 +311,14 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
                 <div>
                   <h4 className="text-sm font-medium mb-2">Activity</h4>
                   <div className="space-y-2">
-                    <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+                    <div className="text-xs text-muted-foreground p-2 bg-surface rounded">
                       <span className="font-medium">{selectedTicket.user}</span> created ticket
                       <span className="float-right">{selectedTicket.createdAt}</span>
                     </div>
                     {selectedTicket.notes.map((note, idx) => (
-                      <div key={idx} className="text-xs p-2 bg-blue-50 rounded">
-                        <span className="font-medium text-[#1A3872]">{note.by}</span>: {note.text}
-                        <span className="float-right text-gray-500">{note.at}</span>
+                      <div key={idx} className="text-xs p-2 bg-info/5 rounded">
+                        <span className="font-medium text-primary">{note.by}</span>: {note.text}
+                        <span className="float-right text-muted-foreground">{note.at}</span>
                       </div>
                     ))}
                   </div>
@@ -347,7 +347,7 @@ export function SupportTicketScreen({ onBack }: SupportTicketScreenProps) {
                       </SelectContent>
                     </Select>
                     <Button
-                      className="flex-1 bg-[#1A3872]"
+                      className="flex-1 bg-primary"
                       disabled={!replyText.trim()}
                       onClick={() => {
                         toast.success(`Response sent for ${selectedTicket.id}`);

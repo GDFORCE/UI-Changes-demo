@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { StatusBadge as SharedStatusBadge } from "@/components/clinical/status-badge"
 
 interface SponsorDashboardProps {
   onNavigate: (screen: string) => void
@@ -59,23 +60,16 @@ const mockData = {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const colorMap: Record<string, string> = {
-    Active: "bg-green-100 text-green-700",
-    Completed: "bg-blue-100 text-blue-700",
-    Terminated: "bg-red-100 text-red-700",
-    Inactive: "bg-slate-100 text-slate-600",
-  }
-  return (
-    <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", colorMap[status] || "bg-slate-100 text-slate-600")}>
-      {status === "Active" ? "● " : ""}{status}
-    </span>
-  )
+  return <SharedStatusBadge status={status} dot />
 }
 
-function ProgressBar({ value, color = "bg-[#2563EB]" }: { value: number; color?: string }) {
+function ProgressBar({ value, color = "bg-info" }: { value: number; color?: string }) {
   return (
-    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-      <div className={cn("h-full rounded-full", color)} style={{ width: `${value}%` }} />
+    <div className="h-2 bg-muted rounded-full overflow-hidden">
+      <div
+        className={cn("h-full rounded-full transition-[width] duration-500 ease-out", color)}
+        style={{ width: `${value}%` }}
+      />
     </div>
   )
 }
@@ -280,67 +274,67 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   const totalPatients = sites.reduce((sum, s) => sum + s.patients, 0)
 
   const notifIconMap: Record<string, { icon: typeof Bell; bg: string; color: string; border: string }> = {
-    trial: { icon: FlaskConical, bg: "bg-blue-100", color: "text-blue-600", border: "border-blue-400" },
-    milestone: { icon: TrendingUp, bg: "bg-green-100", color: "text-green-600", border: "border-green-400" },
-    overdue: { icon: AlertTriangle, bg: "bg-red-100", color: "text-red-600", border: "border-red-400" },
-    site: { icon: MapPin, bg: "bg-teal-100", color: "text-teal-600", border: "border-teal-400" },
-    system: { icon: Info, bg: "bg-slate-100", color: "text-slate-600", border: "border-slate-300" },
+    trial: { icon: FlaskConical, bg: "bg-info/10", color: "text-info", border: "border-blue-400" },
+    milestone: { icon: TrendingUp, bg: "bg-success/15", color: "text-success", border: "border-green-400" },
+    overdue: { icon: AlertTriangle, bg: "bg-destructive/10", color: "text-destructive", border: "border-red-400" },
+    site: { icon: MapPin, bg: "bg-accent/10", color: "text-accent", border: "border-teal-400" },
+    system: { icon: Info, bg: "bg-muted", color: "text-muted-foreground", border: "border-border" },
   }
 
   // ── Edit Trial ──────────────────────────────────────────
   if (editingTrial) {
     const setField = (k: keyof typeof editDraft, v: string) => setEditDraft(p => ({ ...p, [k]: v }))
-    const inputCls = "w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] bg-white"
+    const inputCls = "w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary bg-card"
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setEditingTrial(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Edit Trial</span>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
           {/* Protocol ID — read-only */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Protocol ID</label>
-            <div className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-500">{editingTrial.id}</div>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Protocol ID</label>
+            <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-muted-foreground">{editingTrial.id}</div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Study Title</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Study Title</label>
             <input value={editDraft.name} onChange={e => setField("name", e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Phase</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Phase</label>
             <select value={editDraft.phase} onChange={e => setField("phase", e.target.value)} className={inputCls}>
               <option>Phase I</option><option>Phase II</option><option>Phase III</option><option>Phase IV</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Disease</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Disease</label>
             <input value={editDraft.indication} onChange={e => setField("indication", e.target.value)} className={inputCls} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Drug</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Drug</label>
             <input value={editDraft.drug} onChange={e => setField("drug", e.target.value)} className={inputCls} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Duration</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Duration</label>
               <input value={editDraft.duration} onChange={e => setField("duration", e.target.value)} className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Sample Size</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Sample Size</label>
               <input type="number" value={editDraft.target} onChange={e => setField("target", e.target.value)} className={inputCls} />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Status of Trial</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Status of Trial</label>
             <select value={editDraft.status} onChange={e => setField("status", e.target.value)} className={inputCls}>
               <option>Active</option><option>Completed</option><option>Terminated</option>
             </select>
           </div>
         </div>
-        <div className="px-4 py-4 bg-white border-t border-slate-100 flex gap-3">
-          <button onClick={() => setEditingTrial(null)} className="flex-1 border border-slate-300 text-slate-700 rounded-xl py-3 text-sm font-semibold">Cancel</button>
-          <button onClick={saveEditTrial} className="flex-1 bg-[#0D1B3E] text-white rounded-xl py-3 text-sm font-semibold">Save Changes</button>
+        <div className="px-4 py-4 bg-card border-t border-border flex gap-3">
+          <button onClick={() => setEditingTrial(null)} className="flex-1 border border-border text-foreground/80 rounded-xl py-3 text-sm font-semibold">Cancel</button>
+          <button onClick={saveEditTrial} className="flex-1 bg-primary-deep text-white rounded-xl py-3 text-sm font-semibold">Save Changes</button>
         </div>
       </div>
     )
@@ -348,7 +342,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
   // Shared bottom navigation — kept consistent across every sponsor screen.
   const renderBottomNav = () => (
-    <div className="absolute bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-100 flex items-center">
+    <div className="absolute bottom-0 left-0 right-0 h-16 bg-card border-t border-border flex items-center">
       {[
         { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { id: "trials", icon: FlaskConical, label: "Trials" },
@@ -368,12 +362,12 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             }}
             className="flex-1 flex flex-col items-center gap-0.5 relative"
           >
-            {active && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#2563EB] rounded-full" />}
+            {active && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-info rounded-full" />}
             <div className="relative">
-              <Icon className={cn("w-5 h-5", active ? "text-[#2563EB]" : "text-slate-400")} />
-              {tab.badge && tab.badge > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">{tab.badge}</span>}
+              <Icon className={cn("w-5 h-5", active ? "text-info" : "text-muted-foreground/70")} />
+              {tab.badge && tab.badge > 0 && <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">{tab.badge}</span>}
             </div>
-            <span className={cn("text-[10px] font-medium", active ? "text-[#2563EB]" : "text-slate-400")}>{tab.label}</span>
+            <span className={cn("text-[10px] font-medium", active ? "text-info" : "text-muted-foreground/70")}>{tab.label}</span>
           </button>
         )
       })}
@@ -385,8 +379,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
     const t = selectedTrial
     const enrolled = t.enrolled; const target = t.target
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setSelectedTrial(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">{t.id}</span>
           <Download className="w-5 h-5" />
@@ -394,9 +388,9 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         <div className="flex-1 overflow-auto pb-40 px-4 py-4 space-y-4">
 
           {/* PANEL 1 — Trial Details */}
-          <div className="bg-[#0D1B3E] rounded-2xl p-5 text-white">
+          <div className="bg-primary-deep rounded-2xl p-5 text-white">
             <div className="flex items-start justify-between mb-3">
-              <span className="px-2 py-0.5 bg-blue-500/30 text-blue-200 text-xs rounded-full font-medium">{t.id}</span>
+              <span className="px-2 py-0.5 bg-info/30 text-primary-foreground/75 text-xs rounded-full font-medium">{t.id}</span>
               <StatusBadge status={t.status} />
             </div>
             <h2 className="text-lg font-bold mb-3">{t.name}</h2>
@@ -410,7 +404,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 { label: "Total Visits", val: t.totalVisits },
               ].map(f => (
                 <div key={f.label}>
-                  <p className="text-[10px] text-blue-200/80 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-[10px] text-primary-foreground/75/80 uppercase tracking-wide">{f.label}</p>
                   <p className="text-sm font-medium">{f.val}</p>
                 </div>
               ))}
@@ -418,96 +412,96 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
           </div>
 
           {/* PANEL 2 — Recruitment Details Across All Sites */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4">
-            <p className="font-semibold text-sm text-[#0F172A] mb-3">Recruitment · Across All Sites</p>
+          <div className="bg-card rounded-2xl border border-border p-4">
+            <p className="font-semibold text-sm text-foreground mb-3">Recruitment · Across All Sites</p>
             <div className="grid grid-cols-2 gap-2 mb-3">
-              <div className="bg-slate-50 rounded-lg p-2.5 text-center"><p className="text-lg font-bold text-[#0D1B3E]">{t.sites}</p><p className="text-[10px] text-slate-500">Total Sites</p></div>
-              <div className="bg-slate-50 rounded-lg p-2.5 text-center"><p className="text-lg font-bold text-[#0D1B3E]">{t.target}</p><p className="text-[10px] text-slate-500">Sample Size</p></div>
+              <div className="bg-surface rounded-lg p-2.5 text-center"><p className="text-lg font-bold text-primary-deep">{t.sites}</p><p className="text-[10px] text-muted-foreground">Total Sites</p></div>
+              <div className="bg-surface rounded-lg p-2.5 text-center"><p className="text-lg font-bold text-primary-deep">{t.target}</p><p className="text-[10px] text-muted-foreground">Sample Size</p></div>
             </div>
             <div className="grid grid-cols-4 gap-1.5 mb-3">
               {[
-                { label: "Screened", val: t.screened, color: "text-[#0F172A]" },
-                { label: "Screen Fail", val: t.screenFail, color: "text-red-600" },
-                { label: "Randomized", val: t.randomized, color: "text-[#0F172A]" },
-                { label: "Withdrawn", val: t.withdrawn, color: "text-amber-600" },
-                { label: "Dropout", val: t.dropouts, color: "text-orange-600" },
-                { label: "Follow-up", val: t.followUp, color: "text-[#0D9488]" },
-                { label: "Completed", val: t.completed, color: "text-[#0D9488]" },
+                { label: "Screened", val: t.screened, color: "text-foreground" },
+                { label: "Screen Fail", val: t.screenFail, color: "text-destructive" },
+                { label: "Randomized", val: t.randomized, color: "text-foreground" },
+                { label: "Withdrawn", val: t.withdrawn, color: "text-warning" },
+                { label: "Dropout", val: t.dropouts, color: "text-warning" },
+                { label: "Follow-up", val: t.followUp, color: "text-accent" },
+                { label: "Completed", val: t.completed, color: "text-accent" },
               ].map(m => (
-                <div key={m.label} className="bg-slate-50 rounded-lg p-1.5 text-center border border-slate-100">
+                <div key={m.label} className="bg-surface rounded-lg p-1.5 text-center border border-border">
                   <p className={cn("text-sm font-bold leading-none", m.color)}>{m.val}</p>
-                  <p className="text-[9px] text-slate-500 leading-tight mt-0.5">{m.label}</p>
+                  <p className="text-[9px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Enrolment</p>
+            <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1">Enrolment</p>
             <ProgressBar value={Math.round((enrolled / target) * 100)} />
-            <p className="text-xs text-slate-500 mt-1">{enrolled} / {target} enrolled ({Math.round((enrolled / target) * 100)}%)</p>
+            <p className="text-xs text-muted-foreground mt-1">{enrolled} / {target} enrolled ({Math.round((enrolled / target) * 100)}%)</p>
           </div>
 
           {/* PANEL 3 — Sites (per-site recruitment status) */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+          <div className="bg-card rounded-2xl border border-border p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="font-semibold text-sm text-[#0F172A]">Sites · Recruitment Status</p>
+              <p className="font-semibold text-sm text-foreground">Sites · Recruitment Status</p>
               <button
                 onClick={() => { setNewSite(p => ({ ...p, protocolId: t.id })); setSelectedTrial(null); setActiveTab("sites"); setShowAddSite(true) }}
-                className="text-[#2563EB] text-xs font-semibold">Add Site</button>
+                className="text-info text-xs font-semibold">Add Site</button>
             </div>
             <div className="space-y-3">
               {sites.filter(s => s.trials.includes(t.id)).map(site => (
-                <div key={site.id} className="bg-slate-50 rounded-xl border border-slate-100 p-3">
-                  <p className="font-semibold text-sm text-[#0F172A]">{site.name}</p>
-                  <p className="text-xs text-slate-500 flex items-start gap-1"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />{site.hospital}, {site.city}, {site.state}</p>
+                <div key={site.id} className="bg-surface rounded-xl border border-border p-3">
+                  <p className="font-semibold text-sm text-foreground">{site.name}</p>
+                  <p className="text-xs text-muted-foreground flex items-start gap-1"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />{site.hospital}, {site.city}, {site.state}</p>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 mb-2">
-                    <p className="text-xs text-slate-500">PI: <span className="text-[#0F172A]">{site.pi}</span></p>
-                    <p className="text-xs text-slate-500">Dept: <span className="text-[#0F172A]">{site.department}</span></p>
-                    <p className="text-xs text-slate-500 col-span-2 truncate">{site.piEmail}</p>
+                    <p className="text-xs text-muted-foreground">PI: <span className="text-foreground">{site.pi}</span></p>
+                    <p className="text-xs text-muted-foreground">Dept: <span className="text-foreground">{site.department}</span></p>
+                    <p className="text-xs text-muted-foreground col-span-2 truncate">{site.piEmail}</p>
                   </div>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { label: "Screened", val: site.screened, color: "text-[#0F172A]" },
-                      { label: "Screen Fail", val: site.screenFail, color: "text-red-600" },
-                      { label: "Randomized", val: site.randomized, color: "text-[#0F172A]" },
-                      { label: "Withdrawn", val: site.withdrawn, color: "text-amber-600" },
-                      { label: "Dropout", val: site.dropouts, color: "text-orange-600" },
-                      { label: "Follow-up", val: site.followUp, color: "text-[#0D9488]" },
-                      { label: "Completed", val: site.completed, color: "text-[#0D9488]" },
+                      { label: "Screened", val: site.screened, color: "text-foreground" },
+                      { label: "Screen Fail", val: site.screenFail, color: "text-destructive" },
+                      { label: "Randomized", val: site.randomized, color: "text-foreground" },
+                      { label: "Withdrawn", val: site.withdrawn, color: "text-warning" },
+                      { label: "Dropout", val: site.dropouts, color: "text-warning" },
+                      { label: "Follow-up", val: site.followUp, color: "text-accent" },
+                      { label: "Completed", val: site.completed, color: "text-accent" },
                     ].map(m => (
-                      <div key={m.label} className="bg-white rounded-lg p-1.5 text-center border border-slate-100">
+                      <div key={m.label} className="bg-card rounded-lg p-1.5 text-center border border-border">
                         <p className={cn("text-sm font-bold leading-none", m.color)}>{m.val}</p>
-                        <p className="text-[9px] text-slate-500 leading-tight mt-0.5">{m.label}</p>
+                        <p className="text-[9px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               ))}
               {sites.filter(s => s.trials.includes(t.id)).length === 0 && (
-                <p className="text-xs text-slate-400 italic">No sites added to this trial yet.</p>
+                <p className="text-xs text-muted-foreground/70 italic">No sites added to this trial yet.</p>
               )}
             </div>
           </div>
 
           {/* PANEL 4 — Documents */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4">
-            <p className="font-semibold text-sm text-[#0F172A] mb-3">Documents</p>
-            <div className="flex items-start gap-3 py-2 border-b border-slate-100">
-              <FileText className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+          <div className="bg-card rounded-2xl border border-border p-4">
+            <p className="font-semibold text-sm text-foreground mb-3">Documents</p>
+            <div className="flex items-start gap-3 py-2 border-b border-border">
+              <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-[#0F172A]">Uploaded Protocol</p>
-                <p className="text-[11px] text-slate-400">Uploaded by {t.modifiedBy} · {t.lastModified}, 10:32 AM</p>
+                <p className="text-sm text-foreground">Uploaded Protocol</p>
+                <p className="text-[11px] text-muted-foreground/70">Uploaded by {t.modifiedBy} · {t.lastModified}, 10:32 AM</p>
               </div>
-              <Download className="w-4 h-4 text-[#2563EB] flex-shrink-0" />
+              <Download className="w-4 h-4 text-info flex-shrink-0" />
             </div>
-            <div className="flex items-start gap-3 py-2 border-b border-slate-100">
-              <FileText className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 py-2 border-b border-border">
+              <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-[#0F172A]">Schedule Template</p>
-                <p className="text-[11px] text-slate-400">{t.scheduleVersion} · updated {t.lastModified} by {t.modifiedBy}</p>
+                <p className="text-sm text-foreground">Schedule Template</p>
+                <p className="text-[11px] text-muted-foreground/70">{t.scheduleVersion} · updated {t.lastModified} by {t.modifiedBy}</p>
               </div>
-              <Download className="w-4 h-4 text-[#2563EB] flex-shrink-0" />
+              <Download className="w-4 h-4 text-info flex-shrink-0" />
             </div>
             <div className="py-2">
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Version History</p>
+              <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1.5">Version History</p>
               <div className="space-y-1">
                 {[
                   { v: t.scheduleVersion, note: `Current · ${t.lastModified} · ${t.modifiedBy}` },
@@ -515,21 +509,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                   { v: "v1", note: "10 Apr 2025 · Admin" },
                 ].map(h => (
                   <div key={h.v} className="flex items-center gap-2 text-xs">
-                    <span className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-medium">{h.v}</span>
-                    <span className="text-slate-500">{h.note}</span>
+                    <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded font-medium">{h.v}</span>
+                    <span className="text-muted-foreground">{h.note}</span>
                   </div>
                 ))}
               </div>
             </div>
             {/* Newly uploaded documents */}
             {uploadedDocs.map((name, i) => (
-              <div key={i} className="flex items-start gap-3 py-2 border-t border-slate-100">
-                <FileText className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+              <div key={i} className="flex items-start gap-3 py-2 border-t border-border">
+                <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#0F172A] truncate">{name}</p>
-                  <p className="text-[11px] text-green-600">Uploaded by {mockData.user.name} · just now</p>
+                  <p className="text-sm text-foreground truncate">{name}</p>
+                  <p className="text-[11px] text-success">Uploaded by {mockData.user.name} · just now</p>
                 </div>
-                <Download className="w-4 h-4 text-[#2563EB] flex-shrink-0" />
+                <Download className="w-4 h-4 text-info flex-shrink-0" />
               </div>
             ))}
             <input
@@ -543,14 +537,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 e.target.value = ""
               }}
             />
-            <button onClick={() => docInputRef.current?.click()} className="w-full mt-2 border border-[#2563EB] text-[#2563EB] rounded-xl py-2 text-sm font-semibold">+ Upload Document</button>
+            <button onClick={() => docInputRef.current?.click()} className="w-full mt-2 border border-info text-info rounded-xl py-2 text-sm font-semibold">+ Upload Document</button>
           </div>
         </div>
 
         {/* Action bar — Edit + Share Trial (sits just above the consistent bottom nav) */}
-        <div className="absolute bottom-16 left-0 right-0 px-4 pb-3 pt-3 bg-white border-t border-slate-100 flex gap-3">
-          <button onClick={() => openEditTrial(t)} className="flex-1 border border-slate-300 text-slate-700 rounded-xl py-3 text-sm font-semibold">Edit</button>
-          <button onClick={() => setShowShareTrial(true)} className="flex-1 bg-[#2563EB] text-white rounded-xl py-3 text-sm font-semibold">Share Trial ›</button>
+        <div className="absolute bottom-16 left-0 right-0 px-4 pb-3 pt-3 bg-card border-t border-border flex gap-3">
+          <button onClick={() => openEditTrial(t)} className="flex-1 border border-border text-foreground/80 rounded-xl py-3 text-sm font-semibold">Edit</button>
+          <button onClick={() => setShowShareTrial(true)} className="flex-1 bg-info text-white rounded-xl py-3 text-sm font-semibold">Share Trial ›</button>
         </div>
 
         {/* Consistent bottom navigation */}
@@ -558,54 +552,54 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
         {/* Share Trial overlay */}
         {showShareTrial && (
-          <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-            <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+          <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+            <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
               <button onClick={() => setShowShareTrial(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
               <span className="font-semibold flex-1">Share Trial</span>
             </div>
             {shareSuccess ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6 text-center">
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center"><Check className="w-8 h-8 text-green-600" /></div>
-                <p className="font-bold text-[#0F172A] text-lg">Trial Shared!</p>
-                <p className="text-sm text-slate-500">{t.id} shared with {shareForm.email} ({shareForm.accessType}).</p>
+                <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center"><Check className="w-8 h-8 text-success" /></div>
+                <p className="font-bold text-foreground text-lg">Trial Shared!</p>
+                <p className="text-sm text-muted-foreground">{t.id} shared with {shareForm.email} ({shareForm.accessType}).</p>
               </div>
             ) : (
               <>
                 <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-                  <p className="text-xs text-slate-500">Share this trial with members of your organization.</p>
+                  <p className="text-xs text-muted-foreground">Share this trial with members of your organization.</p>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
-                    <input value={shareForm.fullName} onChange={e => setShareForm(p => ({ ...p, fullName: e.target.value }))} placeholder="Full name" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                    <label className="block text-sm font-medium text-foreground/80 mb-1.5">Full Name</label>
+                    <input value={shareForm.fullName} onChange={e => setShareForm(p => ({ ...p, fullName: e.target.value }))} placeholder="Full name" className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Designation</label>
-                    <input value={shareForm.designation} onChange={e => setShareForm(p => ({ ...p, designation: e.target.value }))} placeholder="e.g. Clinical Project Manager" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                    <label className="block text-sm font-medium text-foreground/80 mb-1.5">Designation</label>
+                    <input value={shareForm.designation} onChange={e => setShareForm(p => ({ ...p, designation: e.target.value }))} placeholder="e.g. Clinical Project Manager" className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email ID <span className="text-red-500">*</span></label>
-                    <input type="email" value={shareForm.email} onChange={e => setShareForm(p => ({ ...p, email: e.target.value }))} placeholder="name@pharmaco.com" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                    <label className="block text-sm font-medium text-foreground/80 mb-1.5">Email ID <span className="text-destructive">*</span></label>
+                    <input type="email" value={shareForm.email} onChange={e => setShareForm(p => ({ ...p, email: e.target.value }))} placeholder="name@pharmaco.com" className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
-                    <input type="tel" value={shareForm.phone} onChange={e => setShareForm(p => ({ ...p, phone: e.target.value }))} placeholder="+91 98XXXXXXXX" className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                    <label className="block text-sm font-medium text-foreground/80 mb-1.5">Phone Number</label>
+                    <input type="tel" value={shareForm.phone} onChange={e => setShareForm(p => ({ ...p, phone: e.target.value }))} placeholder="+91 98XXXXXXXX" className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Organization Name</label>
-                    <div className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-500">{mockData.user.org}</div>
+                    <label className="block text-sm font-medium text-foreground/80 mb-1.5">Organization Name</label>
+                    <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-muted-foreground">{mockData.user.org}</div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Access Type</label>
-                    <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+                    <label className="block text-sm font-medium text-foreground/80 mb-1.5">Access Type</label>
+                    <div className="flex rounded-xl border border-border overflow-hidden">
                       {(["View Access", "Edit Access"] as const).map(a => (
                         <button key={a} onClick={() => setShareForm(p => ({ ...p, accessType: a }))}
-                          className={cn("flex-1 py-2.5 text-sm font-medium", shareForm.accessType === a ? "bg-[#1A3872] text-white" : "bg-white text-slate-600")}>{a}</button>
+                          className={cn("flex-1 py-2.5 text-sm font-medium", shareForm.accessType === a ? "bg-primary text-white" : "bg-card text-muted-foreground")}>{a}</button>
                       ))}
                     </div>
                   </div>
                 </div>
-                <div className="px-4 py-4 border-t border-slate-100">
+                <div className="px-4 py-4 border-t border-border">
                   <button onClick={handleShareTrial} disabled={!shareForm.email}
-                    className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", shareForm.email ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}>
+                    className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", shareForm.email ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}>
                     Share Trial
                   </button>
                 </div>
@@ -621,14 +615,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   if (selectedSite) {
     const s = selectedSite
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setSelectedSite(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1 truncate">{s.name}</span>
         </div>
         <div className="flex-1 overflow-auto pb-4 px-4 py-4 space-y-4">
           {/* Header */}
-          <div className="bg-[#0D9488] rounded-2xl p-5 text-white">
+          <div className="bg-accent rounded-2xl p-5 text-white">
             <div className="flex items-start justify-between mb-2">
               <h2 className="text-lg font-bold">{s.name}</h2>
               <StatusBadge status={s.status} />
@@ -640,43 +634,43 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
           <div className="grid grid-cols-2 gap-3">
             {[{ title: "Principal Investigator", name: s.pi, email: s.piEmail, phone: s.piPhone },
               { title: "Coordinator", name: s.crc, email: "", phone: "" }].map(c => (
-              <div key={c.title} className="bg-white rounded-xl p-3 border border-slate-100">
-                <p className="text-xs text-slate-400 mb-1">{c.title}</p>
-                <p className="font-semibold text-sm text-[#0F172A] leading-tight">{c.name}</p>
+              <div key={c.title} className="bg-card rounded-xl p-3 border border-border">
+                <p className="text-xs text-muted-foreground/70 mb-1">{c.title}</p>
+                <p className="font-semibold text-sm text-foreground leading-tight">{c.name}</p>
                 <div className="flex gap-2 mt-2">
-                  <button className="p-1.5 bg-teal-50 rounded-lg"><Phone className="w-3.5 h-3.5 text-[#0D9488]" /></button>
-                  <button className="p-1.5 bg-blue-50 rounded-lg"><Mail className="w-3.5 h-3.5 text-[#2563EB]" /></button>
+                  <button className="p-1.5 bg-accent/5 rounded-lg"><Phone className="w-3.5 h-3.5 text-accent" /></button>
+                  <button className="p-1.5 bg-info/5 rounded-lg"><Mail className="w-3.5 h-3.5 text-info" /></button>
                 </div>
               </div>
             ))}
           </div>
           {/* Enrollment */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+          <div className="bg-card rounded-2xl border border-border p-4">
             <div className="flex items-center justify-between mb-2">
               <p className="font-semibold text-sm">Patient Enrollment</p>
-              <span className="text-xs font-bold text-[#0D1B3E]">{s.enrolled}/{s.target}</span>
+              <span className="text-xs font-bold text-primary-deep">{s.enrolled}/{s.target}</span>
             </div>
-            <ProgressBar value={s.enrollmentPct} color="bg-[#0D9488]" />
-            <div className="mt-3 p-3 bg-slate-50 rounded-xl flex items-start gap-2">
-              <Info className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-slate-500">Patient-level data is managed by the site investigator</p>
+            <ProgressBar value={s.enrollmentPct} color="bg-accent" />
+            <div className="mt-3 p-3 bg-surface rounded-xl flex items-start gap-2">
+              <Info className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground">Patient-level data is managed by the site investigator</p>
             </div>
           </div>
           {/* Performance */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4">
+          <div className="bg-card rounded-2xl border border-border p-4">
             <p className="font-semibold text-sm mb-3">Performance Metrics</p>
             <div className="grid grid-cols-3 gap-2 text-center">
               {[{ label: "Enrollment Rate", val: `${s.enrollmentPct}%` },
                 { label: "Visit Compliance", val: `${s.visitCompliance}%` },
                 { label: "Screen Fail", val: "8%" }].map(m => (
-                <div key={m.label} className="bg-slate-50 rounded-xl p-2">
-                  <p className="text-lg font-bold text-[#0D1B3E]">{m.val}</p>
-                  <p className="text-[10px] text-slate-500 leading-tight">{m.label}</p>
+                <div key={m.label} className="bg-surface rounded-xl p-2">
+                  <p className="text-lg font-bold text-primary-deep">{m.val}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{m.label}</p>
                 </div>
               ))}
             </div>
             {s.overdueVisits > 0 && (
-              <div className="mt-3 flex items-center gap-2 text-red-600 text-xs">
+              <div className="mt-3 flex items-center gap-2 text-destructive text-xs">
                 <AlertTriangle className="w-4 h-4" /><span>Overdue: {s.overdueVisits} visits</span>
               </div>
             )}
@@ -688,19 +682,19 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
   // ── MAIN TABS ───────────────────────────────────────────
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC]">
+    <div className="h-full flex flex-col bg-surface">
       {/* App Bar */}
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center justify-between">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center justify-between">
         <div>
           <p className="font-bold text-base">Good morning, Rajesh ☀️</p>
-          <p className="text-blue-200 text-xs">{mockData.user.org}</p>
+          <p className="text-primary-foreground/75 text-xs">{mockData.user.org}</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="relative" onClick={() => setActiveTab("notifs")}>
             <Bell className="w-5 h-5" />
-            {unreadCount > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{unreadCount}</span>}
+            {unreadCount > 0 && <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{unreadCount}</span>}
           </button>
-          <button onClick={() => setActiveTab("me")} className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">{mockData.user.initials}</button>
+          <button onClick={() => setActiveTab("me")} className="w-8 h-8 rounded-full bg-info flex items-center justify-center text-xs font-bold">{mockData.user.initials}</button>
         </div>
       </div>
 
@@ -713,16 +707,16 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             <div className="px-4 pt-4 pb-2">
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { icon: FlaskConical, val: totalTrials, label: "Total Trials", iconColor: "text-[#2563EB]", bg: "bg-blue-50", tab: "trials" },
-                  { icon: MapPin, val: totalSites, label: "Total Sites", iconColor: "text-[#0D9488]", bg: "bg-teal-50", tab: "sites" },
-                  { icon: Users, val: totalPatients, label: "Total Patients", iconColor: "text-[#7C3AED]", bg: "bg-purple-50", tab: "patients" },
+                  { icon: FlaskConical, val: totalTrials, label: "Total Trials", iconColor: "text-info", bg: "bg-info/5", tab: "trials" },
+                  { icon: MapPin, val: totalSites, label: "Total Sites", iconColor: "text-accent", bg: "bg-accent/5", tab: "sites" },
+                  { icon: Users, val: totalPatients, label: "Total Patients", iconColor: "text-violet", bg: "bg-violet/5", tab: "patients" },
                 ].map(c => {
                   const Icon = c.icon
                   return (
-                    <button key={c.label} onClick={() => setActiveTab(c.tab)} className={cn("rounded-2xl border border-slate-100 p-4 text-left shadow-sm", c.bg)}>
+                    <button key={c.label} onClick={() => setActiveTab(c.tab)} className={cn("rounded-2xl border border-border p-4 text-left shadow-sm", c.bg)}>
                       <Icon className={cn("w-5 h-5 mb-2", c.iconColor)} />
-                      <p className="text-2xl font-bold text-[#0F172A]">{c.val}</p>
-                      <p className="text-xs text-slate-500 leading-tight">{c.label}</p>
+                      <p className="text-2xl font-bold text-foreground">{c.val}</p>
+                      <p className="text-xs text-muted-foreground leading-tight">{c.label}</p>
                     </button>
                   )
                 })}
@@ -732,32 +726,32 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             {/* My Trials */}
             <div className="px-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-[#0F172A]">My Trials</h3>
-                <button onClick={() => setActiveTab("trials")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
+                <h3 className="font-semibold text-foreground">My Trials</h3>
+                <button onClick={() => setActiveTab("trials")} className="text-info text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
               </div>
               <div className="space-y-3">
                 {trials.filter(t => t.status === "Active").map(t => (
-                  <button key={t.id} onClick={() => setSelectedTrial(t)} className="w-full text-left bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                  <button key={t.id} onClick={() => setSelectedTrial(t)} className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs">
                     {/* Protocol ID + Status */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{t.id}</span>
+                      <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{t.id}</span>
                       <div className="flex items-center gap-1.5">
                         <StatusBadge status={t.status} />
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
                       </div>
                     </div>
                     {/* Study Title */}
-                    <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{t.name}</h4>
+                    <h4 className="font-semibold text-foreground text-sm mb-2">{t.name}</h4>
                     {/* Phase · Disease · Drug · Sites */}
                     <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
-                      <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-[#0F172A]">{t.phase}</p></div>
-                      <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-[#0F172A]">{t.indication}</p></div>
-                      <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-[#0F172A]">{t.drug}</p></div>
-                      <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-[#0F172A]">{t.sites}</p></div>
+                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
+                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-foreground">{t.indication}</p></div>
+                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
+                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-foreground">{t.sites}</p></div>
                     </div>
                     {/* Enrollment Bar */}
                     <ProgressBar value={Math.round((t.enrolled / t.target) * 100)} />
-                    <p className="text-xs text-slate-500 mt-1">{t.enrolled}/{t.target} enrolled</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t.enrolled}/{t.target} enrolled</p>
                   </button>
                 ))}
               </div>
@@ -766,23 +760,23 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             {/* Notifications — latest */}
             <div className="px-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-[#0F172A]">Notifications</h3>
-                <button onClick={() => setActiveTab("notifs")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
+                <h3 className="font-semibold text-foreground">Notifications</h3>
+                <button onClick={() => setActiveTab("notifs")} className="text-info text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
               </div>
               <div className="space-y-2">
                 {notifications.slice(0, 2).map(n => {
                   const iconInfo = notifIconMap[n.type] || notifIconMap.system
                   const Icon = iconInfo.icon
                   return (
-                    <button key={n.id} onClick={() => setActiveTab("notifs")} className={cn("w-full text-left bg-white rounded-2xl p-3 shadow-sm border-l-4 flex items-start gap-3", iconInfo.border)}>
+                    <button key={n.id} onClick={() => setActiveTab("notifs")} className={cn("w-full text-left bg-card rounded-2xl p-3 shadow-sm border-l-4 flex items-start gap-3", iconInfo.border)}>
                       <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5", iconInfo.bg)}>
                         <Icon className={cn("w-4 h-4", iconInfo.color)} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#0F172A] leading-tight">{n.title}</p>
-                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{n.message}</p>
+                        <p className="text-sm font-medium text-foreground leading-tight">{n.title}</p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5 line-clamp-1">{n.message}</p>
                       </div>
-                      <span className="text-xs text-slate-400 shrink-0">{n.time}</span>
+                      <span className="text-xs text-muted-foreground/70 shrink-0">{n.time}</span>
                     </button>
                   )
                 })}
@@ -793,13 +787,13 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             <div className="px-4 mb-3">
               <button
                 onClick={() => onNavigate("share-schedule")}
-                className="w-full bg-purple-50 border border-purple-200 rounded-2xl p-4 flex items-center gap-3 text-left"
+                className="w-full bg-violet/5 border border-purple-200 rounded-2xl p-4 flex items-center gap-3 text-left"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#7C3AED] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-violet flex items-center justify-center shrink-0">
                   <FileText className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[#7C3AED] text-sm">Share Schedule</p>
+                  <p className="font-semibold text-violet text-sm">Share Schedule</p>
                   <p className="text-xs text-purple-400">Send protocol documents to sites</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-purple-400 shrink-0" />
@@ -810,8 +804,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             <div className="px-4 mb-4">
               <div className="flex gap-2">
                 {[
-                  { label: "Add Trial", onClick: () => onNavigate("add-trial"), color: "border-[#2563EB] text-[#2563EB]" },
-                  { label: "Add Site", onClick: () => setShowAddSite(true), color: "border-[#2563EB] text-[#2563EB]" },
+                  { label: "Add Trial", onClick: () => onNavigate("add-trial"), color: "border-info text-info" },
+                  { label: "Add Site", onClick: () => setShowAddSite(true), color: "border-info text-info" },
                 ].map(a => {
                   return (
                     <button key={a.label} onClick={a.onClick} className={cn("flex-1 flex items-center justify-center gap-1 border rounded-xl py-2.5 text-xs font-semibold", a.color)}>
@@ -825,15 +819,15 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             {/* Site Performance */}
             <div className="px-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-[#0F172A]">Site Performance</h3>
-                <button onClick={() => setActiveTab("sites")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">View All <ChevronRight className="w-4 h-4" /></button>
+                <h3 className="font-semibold text-foreground">Site Performance</h3>
+                <button onClick={() => setActiveTab("sites")} className="text-info text-sm font-medium flex items-center gap-1">View All <ChevronRight className="w-4 h-4" /></button>
               </div>
-              <div className="bg-white rounded-2xl border border-slate-100 p-4 space-y-4">
+              <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
                 {mockData.sites.map(s => (
                   <div key={s.id}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-[#0F172A]">{s.name}</span>
-                      <span className="text-xs font-bold text-[#0D1B3E]">{s.enrollmentPct}%</span>
+                      <span className="text-sm text-foreground">{s.name}</span>
+                      <span className="text-xs font-bold text-primary-deep">{s.enrollmentPct}%</span>
                     </div>
                     <ProgressBar value={s.enrollmentPct} />
                   </div>
@@ -847,29 +841,29 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         {activeTab === "trials" && (
           <div className="px-4 pt-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 min-w-0 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
-                <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0 flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2">
+                <Search className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
                 <input value={trialSearch} onChange={e => setTrialSearch(e.target.value)} placeholder="Search trials..." className="flex-1 min-w-0 text-sm outline-none" />
               </div>
               <button
                 onClick={() => setShowTrialFilters(v => !v)}
-                className={cn("flex-shrink-0 p-2 rounded-xl border", showTrialFilters || phaseFilter !== "All" ? "bg-[#2563EB] border-[#2563EB]" : "bg-white border-slate-200")}>
-                <SlidersHorizontal className={cn("w-4 h-4", showTrialFilters || phaseFilter !== "All" ? "text-white" : "text-slate-500")} />
+                className={cn("flex-shrink-0 p-2 rounded-xl border", showTrialFilters || phaseFilter !== "All" ? "bg-info border-info" : "bg-card border-border")}>
+                <SlidersHorizontal className={cn("w-4 h-4", showTrialFilters || phaseFilter !== "All" ? "text-white" : "text-muted-foreground")} />
               </button>
-              <button onClick={() => onNavigate("add-trial")} className="flex-shrink-0 px-3 py-2 bg-[#2563EB] rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Trial</button>
+              <button onClick={() => onNavigate("add-trial")} className="flex-shrink-0 px-3 py-2 bg-info rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Trial</button>
             </div>
             {/* Phase filter panel (toggled by the sliders button) */}
             {showTrialFilters && (
-              <div className="bg-white border border-slate-200 rounded-xl p-3 mb-3">
+              <div className="bg-card border border-border rounded-xl p-3 mb-3">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Filter by Phase</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">Filter by Phase</p>
                   {phaseFilter !== "All" && (
-                    <button onClick={() => setPhaseFilter("All")} className="text-[11px] text-[#2563EB] font-medium">Clear</button>
+                    <button onClick={() => setPhaseFilter("All")} className="text-[11px] text-info font-medium">Clear</button>
                   )}
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {["All", "Phase I", "Phase II", "Phase III", "Phase IV"].map(p => (
-                    <button key={p} onClick={() => setPhaseFilter(p)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium border", phaseFilter === p ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200")}>{p}</button>
+                    <button key={p} onClick={() => setPhaseFilter(p)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium border", phaseFilter === p ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{p}</button>
                   ))}
                 </div>
               </div>
@@ -881,29 +875,29 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 { label: `Completed (${trials.filter(t => t.status === "Completed").length})`, val: "Completed" },
                 { label: `Terminated (${trials.filter(t => t.status === "Terminated").length})`, val: "Terminated" },
               ].map(f => (
-                <button key={f.val} onClick={() => setTrialFilter(f.val)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", trialFilter === f.val ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200")}>{f.label}</button>
+                <button key={f.val} onClick={() => setTrialFilter(f.val)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", trialFilter === f.val ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{f.label}</button>
               ))}
             </div>
             <div className="space-y-3">
               {filteredTrials.map(t => (
-                <div key={t.id} onClick={() => setSelectedTrial(t)} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm cursor-pointer">
+                <div key={t.id} onClick={() => setSelectedTrial(t)} className="bg-card rounded-2xl border border-border p-4 shadow-xs cursor-pointer">
                   {/* Protocol ID + Status */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{t.id}</span>
-                    <div className="flex items-center gap-2"><StatusBadge status={t.status} /><ChevronRight className="w-4 h-4 text-slate-400" /></div>
+                    <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{t.id}</span>
+                    <div className="flex items-center gap-2"><StatusBadge status={t.status} /><ChevronRight className="w-4 h-4 text-muted-foreground/70" /></div>
                   </div>
                   {/* Study Title */}
-                  <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{t.name}</h4>
+                  <h4 className="font-semibold text-foreground text-sm mb-2">{t.name}</h4>
                   {/* Phase · Disease · Drug · Sites */}
                   <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-[#0F172A]">{t.phase}</p></div>
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-[#0F172A]">{t.indication}</p></div>
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-[#0F172A]">{t.drug}</p></div>
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-[#0F172A]">{t.sites}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-foreground">{t.indication}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-foreground">{t.sites}</p></div>
                   </div>
                   {/* Enrollment Bar */}
                   <ProgressBar value={Math.round((t.enrolled / t.target) * 100)} />
-                  <p className="text-xs text-slate-500 mt-1">{t.enrolled}/{t.target} enrolled</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t.enrolled}/{t.target} enrolled</p>
                 </div>
               ))}
             </div>
@@ -915,21 +909,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
           <div className="px-4 pt-4">
             {/* Summary */}
             <div className="flex gap-3 mb-4">
-              <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3 flex-1">
-                <MapPin className="w-5 h-5 text-[#0D9488]" />
-                <div><p className="text-lg font-bold text-[#0D1B3E]">{sites.length}</p><p className="text-xs text-slate-500">Total Sites</p></div>
+              <div className="bg-surface rounded-xl p-3 flex items-center gap-3 flex-1">
+                <MapPin className="w-5 h-5 text-accent" />
+                <div><p className="text-lg font-bold text-primary-deep">{sites.length}</p><p className="text-xs text-muted-foreground">Total Sites</p></div>
               </div>
-              <div className="bg-green-50 rounded-xl p-3 flex items-center gap-3 flex-1">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-0.5" />
-                <div><p className="text-lg font-bold text-green-700">{sites.filter(s => s.status === "Active").length}</p><p className="text-xs text-slate-500">Active</p></div>
+              <div className="bg-success/10 rounded-xl p-3 flex items-center gap-3 flex-1">
+                <div className="w-2 h-2 rounded-full bg-success mt-0.5" />
+                <div><p className="text-lg font-bold text-success">{sites.filter(s => s.status === "Active").length}</p><p className="text-xs text-muted-foreground">Active</p></div>
               </div>
             </div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 min-w-0 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
-                <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <div className="flex-1 min-w-0 flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2">
+                <Search className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
                 <input value={siteSearch} onChange={e => setSiteSearch(e.target.value)} placeholder="Search sites..." className="flex-1 min-w-0 text-sm outline-none" />
               </div>
-              <button onClick={() => setShowAddSite(true)} className="flex-shrink-0 px-3 py-2 bg-[#2563EB] rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Site</button>
+              <button onClick={() => setShowAddSite(true)} className="flex-shrink-0 px-3 py-2 bg-info rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Site</button>
             </div>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
               {[
@@ -938,40 +932,40 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 { label: `Completed (${sites.filter(s => s.status === "Completed").length})`, val: "Completed" },
                 { label: `Terminated (${sites.filter(s => s.status === "Terminated").length})`, val: "Terminated" },
               ].map(f => (
-                <button key={f.val} onClick={() => setSiteFilter(f.val)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", siteFilter === f.val ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200")}>{f.label}</button>
+                <button key={f.val} onClick={() => setSiteFilter(f.val)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", siteFilter === f.val ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{f.label}</button>
               ))}
             </div>
             <div className="space-y-3">
               {filteredSites.map(s => (
-                <div key={s.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                <div key={s.id} className="bg-card rounded-2xl border border-border p-4 shadow-xs">
                   {/* Site name + status */}
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className="font-semibold text-[#0F172A]">{s.name}</p>
+                    <p className="font-semibold text-foreground">{s.name}</p>
                     <StatusBadge status={s.status} />
                   </div>
                   {/* Site address */}
-                  <div className="flex items-start gap-1.5 text-xs text-slate-500 mb-3">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start gap-1.5 text-xs text-muted-foreground mb-3">
+                    <MapPin className="w-3.5 h-3.5 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
                     <span>{s.hospital}, {s.city}, {s.state}</span>
                   </div>
 
                   {/* Trial details — one sub-panel per assigned trial */}
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Trial Details</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Trial Details</p>
                   {s.trials.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic">No trials assigned yet</p>
+                    <p className="text-xs text-muted-foreground/70 italic">No trials assigned yet</p>
                   ) : (
                     <div className="space-y-2.5">
                       {s.trials.map(trialId => {
                         const t = trials.find(tr => tr.id === trialId)
                         if (!t) return null
                         return (
-                          <button key={trialId} onClick={() => setSelectedTrial(t)} className="w-full text-left rounded-xl border border-slate-100 bg-slate-50 p-3">
+                          <button key={trialId} onClick={() => setSelectedTrial(t)} className="w-full text-left rounded-xl border border-border bg-surface p-3">
                             {/* Protocol ID + status */}
                             <div className="flex items-center justify-between gap-2 mb-2.5">
-                              <span className="text-xs font-bold text-[#2563EB]">{t.id}</span>
+                              <span className="text-xs font-bold text-info">{t.id}</span>
                               <div className="flex items-center gap-1.5">
                                 <StatusBadge status={t.status} />
-                                <ChevronRight className="w-4 h-4 text-slate-400" />
+                                <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
                               </div>
                             </div>
                             {/* Trial meta */}
@@ -984,8 +978,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                                 { label: "Recruitment Status", val: recruitmentStatus(t.status) },
                               ].map(f => (
                                 <div key={f.label}>
-                                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-                                  <p className="text-xs font-medium text-[#0F172A]">{f.val}</p>
+                                  <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+                                  <p className="text-xs font-medium text-foreground">{f.val}</p>
                                 </div>
                               ))}
                             </div>
@@ -1003,39 +997,39 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         {/* ── PATIENTS TAB · Patient Recruitment Status ── */}
         {activeTab === "patients" && (
           <div className="px-4 pt-4">
-            <h2 className="font-bold text-lg text-[#0F172A] mb-1">Patient Recruitment Status</h2>
-            <p className="text-xs text-slate-500 mb-4">{totalPatients} patients enrolled across {trials.length} trials</p>
+            <h2 className="font-bold text-lg text-foreground mb-1">Patient Recruitment Status</h2>
+            <p className="text-xs text-muted-foreground mb-4">{totalPatients} patients enrolled across {trials.length} trials</p>
 
             {/* All trials with recruitment funnel — each opens the Trial Summary */}
             <div className="space-y-3">
               {trials.map(t => (
-                <button key={t.id} onClick={() => setSelectedTrial(t)} className="w-full text-left bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+                <button key={t.id} onClick={() => setSelectedTrial(t)} className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs">
                   {/* Protocol ID + Status */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{t.id}</span>
-                    <div className="flex items-center gap-1.5"><StatusBadge status={t.status} /><ChevronRight className="w-4 h-4 text-slate-400" /></div>
+                    <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{t.id}</span>
+                    <div className="flex items-center gap-1.5"><StatusBadge status={t.status} /><ChevronRight className="w-4 h-4 text-muted-foreground/70" /></div>
                   </div>
                   {/* Phase · Disease · Drug */}
                   <div className="grid grid-cols-3 gap-2 mb-3">
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-[#0F172A]">{t.phase}</p></div>
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-[#0F172A]">{t.indication}</p></div>
-                    <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-[#0F172A]">{t.drug}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-foreground">{t.indication}</p></div>
+                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
                   </div>
                   {/* Recruitment Status funnel */}
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Recruitment Status</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1.5">Recruitment Status</p>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
-                      { label: "Screened", val: t.screened, color: "text-[#0F172A]" },
-                      { label: "Screen Fail", val: t.screenFail, color: "text-red-600" },
-                      { label: "Randomized", val: t.randomized, color: "text-[#0F172A]" },
-                      { label: "Withdrawn", val: t.withdrawn, color: "text-amber-600" },
-                      { label: "Dropout", val: t.dropouts, color: "text-orange-600" },
-                      { label: "Follow-up", val: t.followUp, color: "text-[#0D9488]" },
-                      { label: "Completed", val: t.completed, color: "text-[#0D9488]" },
+                      { label: "Screened", val: t.screened, color: "text-foreground" },
+                      { label: "Screen Fail", val: t.screenFail, color: "text-destructive" },
+                      { label: "Randomized", val: t.randomized, color: "text-foreground" },
+                      { label: "Withdrawn", val: t.withdrawn, color: "text-warning" },
+                      { label: "Dropout", val: t.dropouts, color: "text-warning" },
+                      { label: "Follow-up", val: t.followUp, color: "text-accent" },
+                      { label: "Completed", val: t.completed, color: "text-accent" },
                     ].map(m => (
-                      <div key={m.label} className="bg-slate-50 rounded-lg p-1.5 text-center border border-slate-100">
+                      <div key={m.label} className="bg-surface rounded-lg p-1.5 text-center border border-border">
                         <p className={cn("text-sm font-bold leading-none", m.color)}>{m.val}</p>
-                        <p className="text-[9px] text-slate-500 leading-tight mt-0.5">{m.label}</p>
+                        <p className="text-[9px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
                       </div>
                     ))}
                   </div>
@@ -1049,12 +1043,12 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         {activeTab === "notifs" && (
           <div className="px-4 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-lg text-[#0F172A]">Notifications</h2>
-              <button onClick={() => setNotifications(prev => prev.map(n => ({ ...n, unread: false })))} className="text-[#2563EB] text-sm font-medium">Mark All Read</button>
+              <h2 className="font-bold text-lg text-foreground">Notifications</h2>
+              <button onClick={() => setNotifications(prev => prev.map(n => ({ ...n, unread: false })))} className="text-info text-sm font-medium">Mark All Read</button>
             </div>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
               {["All", "Trials", "Sites", "Recruitment", "System"].map(f => (
-                <button key={f} onClick={() => setNotifFilter(f)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", notifFilter === f ? "bg-[#2563EB] text-white border-[#2563EB]" : "bg-white text-slate-600 border-slate-200")}>{f}</button>
+                <button key={f} onClick={() => setNotifFilter(f)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", notifFilter === f ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{f}</button>
               ))}
             </div>
             <div className="space-y-2">
@@ -1062,17 +1056,17 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 const iconInfo = notifIconMap[n.type] || notifIconMap.system
                 const Icon = iconInfo.icon
                 return (
-                  <div key={n.id} onClick={() => setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, unread: false } : x))} className={cn("bg-white rounded-xl border p-3 flex gap-3 cursor-pointer", n.unread ? "border-blue-100 bg-slate-50" : "border-slate-100")}>
-                    {n.unread && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />}
+                  <div key={n.id} onClick={() => setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, unread: false } : x))} className={cn("bg-card rounded-xl border p-3 flex gap-3 cursor-pointer", n.unread ? "border-info/20 bg-surface" : "border-border")}>
+                    {n.unread && <div className="w-2 h-2 rounded-full bg-info mt-1.5 flex-shrink-0" />}
                     <div className={cn("w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0", iconInfo.bg, !n.unread && "opacity-70")}>
                       <Icon className={cn("w-4 h-4", iconInfo.color)} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-sm text-[#0F172A] leading-tight">{n.title}</p>
-                        <p className="text-xs text-slate-400 flex-shrink-0">{n.time}</p>
+                        <p className="font-semibold text-sm text-foreground leading-tight">{n.title}</p>
+                        <p className="text-xs text-muted-foreground/70 flex-shrink-0">{n.time}</p>
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">{n.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.message}</p>
                     </div>
                   </div>
                 )
@@ -1087,14 +1081,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             {/* Profile Header */}
             <div className="flex flex-col items-center mb-6">
               <div className="relative">
-                <div className="w-18 h-18 w-[72px] h-[72px] rounded-full bg-[#0D1B3E] flex items-center justify-center text-white text-xl font-bold mb-3">{mockData.user.initials}</div>
-                <div className="absolute bottom-3 right-0 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center"><Camera className="w-3 h-3 text-slate-500" /></div>
+                <div className="w-18 h-18 w-[72px] h-[72px] rounded-full bg-primary-deep flex items-center justify-center text-white text-xl font-bold mb-3">{mockData.user.initials}</div>
+                <div className="absolute bottom-3 right-0 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center"><Camera className="w-3 h-3 text-muted-foreground" /></div>
               </div>
-              <p className="font-bold text-lg text-[#0F172A]">{mockData.user.name}</p>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-semibold mt-1">{mockData.user.designation}</span>
+              <p className="font-bold text-lg text-foreground">{mockData.user.name}</p>
+              <span className="px-3 py-1 bg-info/10 text-info text-xs rounded-full font-semibold mt-1">{mockData.user.designation}</span>
             </div>
             {/* Info card — fields in required order */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-4 mb-2">
+            <div className="bg-card rounded-2xl border border-border p-4 mb-2">
               {[
                 { label: "Phone Number", val: mockData.user.phone, verify: true },
                 { label: "Email ID", val: mockData.user.email, verify: true },
@@ -1102,19 +1096,19 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 { label: "Org. Name", val: mockData.user.org },
                 { label: "Org. Address", val: mockData.user.orgAddress },
               ].map(r => (
-                <div key={r.label} className="py-2 border-b border-slate-100 last:border-0">
-                  <p className="text-xs text-slate-400 flex items-center gap-1">
+                <div key={r.label} className="py-2 border-b border-border last:border-0">
+                  <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
                     {r.label}
-                    {r.verify && <ShieldCheck className="w-3 h-3 text-amber-500" />}
+                    {r.verify && <ShieldCheck className="w-3 h-3 text-warning" />}
                   </p>
-                  <p className="text-sm text-[#0F172A] font-medium mt-0.5">{r.val}</p>
+                  <p className="text-sm text-foreground font-medium mt-0.5">{r.val}</p>
                 </div>
               ))}
             </div>
             {/* OTP / notification note for sensitive fields */}
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl p-3 mb-4">
-              <ShieldCheck className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-amber-800 leading-relaxed">
+            <div className="flex items-start gap-2 bg-warning/10 border border-warning/20 rounded-xl p-3 mb-4">
+              <ShieldCheck className="w-4 h-4 text-warning mt-0.5 shrink-0" />
+              <p className="text-xs text-warning leading-relaxed">
                 Changing your <span className="font-medium">Phone Number</span> or <span className="font-medium">Email ID</span> requires OTP verification. All active trials will be notified of the change.
               </p>
             </div>
@@ -1125,14 +1119,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               { section: "REPORTS", items: [{ icon: BarChart2, label: "Reports", onClick: () => setMeSection("reports") }, { icon: FileText, label: "T&C", onClick: () => setMeSection("tnc") }, { icon: HelpCircle, label: "Help & Support", onClick: () => setMeSection("help") }] },
             ].map(group => (
               <div key={group.section} className="mb-4">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{group.section}</p>
-                <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">{group.section}</p>
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
                   {group.items.map((item, i) => {
                     const Icon = item.icon
                     return (
-                      <button key={item.label} onClick={(item as any).onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50">
-                        <Icon className="w-4 h-4 text-slate-400" />
-                        <span className="flex-1 text-sm text-[#0F172A] text-left">{item.label}</span>
+                      <button key={item.label} onClick={(item as any).onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-surface">
+                        <Icon className="w-4 h-4 text-muted-foreground/70" />
+                        <span className="flex-1 text-sm text-foreground text-left">{item.label}</span>
                         <ChevronRight className="w-4 h-4 text-slate-300" />
                       </button>
                     )
@@ -1140,10 +1134,10 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 </div>
               </div>
             ))}
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-6">
-              <button onClick={() => onNavigate("welcome")} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50">
-                <LogOut className="w-4 h-4 text-red-500" />
-                <span className="flex-1 text-sm text-red-500 text-left font-medium">Sign Out</span>
+            <div className="bg-card rounded-2xl border border-border overflow-hidden mb-6">
+              <button onClick={() => onNavigate("welcome")} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-destructive/5">
+                <LogOut className="w-4 h-4 text-destructive" />
+                <span className="flex-1 text-sm text-destructive text-left font-medium">Sign Out</span>
               </button>
             </div>
           </div>
@@ -1155,21 +1149,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Add Site Screen (full-screen) ── */}
       {showAddSite && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC]">
+        <div className="absolute inset-0 z-50 bg-surface">
           <div className="h-full w-full flex flex-col">
             {/* App bar */}
-            <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+            <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
               <button onClick={() => setShowAddSite(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
               <span className="font-semibold flex-1">Add New Site</span>
             </div>
 
             {addSiteSuccess ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-3 py-10 px-6 text-center">
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                  <Check className="w-8 h-8 text-green-600" />
+                <div className="w-16 h-16 rounded-full bg-success/15 flex items-center justify-center">
+                  <Check className="w-8 h-8 text-success" />
                 </div>
-                <p className="font-bold text-[#0F172A] text-lg">Site Added & Shared!</p>
-                <p className="text-sm text-slate-500">
+                <p className="font-bold text-foreground text-lg">Site Added & Shared!</p>
+                <p className="text-sm text-muted-foreground">
                   {newSite.siteName} added{addSiteTrial ? ` · ${addSiteTrial.id} shared with ${newSite.piName || "the PI"}` : ""}.
                 </p>
               </div>
@@ -1178,10 +1172,10 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 <div className="flex-1 overflow-auto px-5 py-4 space-y-4">
 
                   {/* Entry mode: single vs bulk upload */}
-                  <div className="flex rounded-xl border border-slate-200 overflow-hidden">
+                  <div className="flex rounded-xl border border-border overflow-hidden">
                     {(["single", "upload"] as const).map(m => (
                       <button key={m} onClick={() => setSiteEntryMode(m)}
-                        className={cn("flex-1 py-2.5 text-sm font-medium", siteEntryMode === m ? "bg-[#1A3872] text-white" : "bg-white text-slate-600")}>
+                        className={cn("flex-1 py-2.5 text-sm font-medium", siteEntryMode === m ? "bg-primary text-white" : "bg-card text-muted-foreground")}>
                         {m === "single" ? "Single Entry" : "Upload File"}
                       </button>
                     ))}
@@ -1189,85 +1183,85 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
                   {siteEntryMode === "upload" ? (
                     <>
-                      <div className="border-2 border-dashed border-slate-300 rounded-2xl p-6 bg-slate-50 text-center">
-                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-200">
-                          <FileText className="w-6 h-6 text-slate-500" />
+                      <div className="border-2 border-dashed border-border rounded-2xl p-6 bg-surface text-center">
+                        <div className="w-12 h-12 bg-card rounded-full flex items-center justify-center mx-auto mb-3 border border-border">
+                          <FileText className="w-6 h-6 text-muted-foreground" />
                         </div>
-                        <p className="text-sm text-slate-600 mb-3">Upload multiple sites at once</p>
-                        <button className="px-4 py-2 border-2 border-[#1A3872] text-[#1A3872] rounded-lg font-medium text-sm">Browse Files</button>
-                        <p className="text-xs text-slate-400 mt-2">PDF, Word, Excel, CSV</p>
+                        <p className="text-sm text-muted-foreground mb-3">Upload multiple sites at once</p>
+                        <button className="px-4 py-2 border-2 border-primary text-primary rounded-lg font-medium text-sm">Browse Files</button>
+                        <p className="text-xs text-muted-foreground/70 mt-2">PDF, Word, Excel, CSV</p>
                       </div>
-                      <p className="text-xs text-slate-400">Each row should include Protocol ID, Site Name, Address, PI Name, PI Email and Department.</p>
+                      <p className="text-xs text-muted-foreground/70">Each row should include Protocol ID, Site Name, Address, PI Name, PI Email and Department.</p>
                     </>
                   ) : (
                     <>
                       {/* PANEL 1 — Trial Details (auto-populated from Protocol ID) */}
-                      <div className="bg-slate-50 rounded-xl border border-slate-100 p-3 space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trial Details</p>
+                      <div className="bg-surface rounded-xl border border-border p-3 space-y-3">
+                        <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Trial Details</p>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Protocol ID <span className="text-red-500">*</span></label>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Protocol ID <span className="text-destructive">*</span></label>
                           <input value={newSite.protocolId} onChange={e => setNewSite(p => ({ ...p, protocolId: e.target.value }))}
                             placeholder="e.g. Protocol-001" list="add-site-protocols"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm bg-white focus:border-[#1A3872]" />
+                            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm bg-card focus:border-primary" />
                           <datalist id="add-site-protocols">
                             {trials.map(t => <option key={t.id} value={t.id} />)}
                           </datalist>
                           {newSite.protocolId.trim() && !addSiteTrial && (
-                            <p className="text-xs text-amber-600 mt-1">No trial found for this Protocol ID.</p>
+                            <p className="text-xs text-warning mt-1">No trial found for this Protocol ID.</p>
                           )}
                         </div>
                         {addSiteTrial ? (
                           <div className="grid grid-cols-2 gap-y-2.5 gap-x-3">
-                            <div className="col-span-2"><p className="text-[10px] text-slate-400 uppercase tracking-wide">Study Title</p><p className="text-sm font-medium text-[#0F172A]">{addSiteTrial.name}</p></div>
-                            <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-sm font-medium text-[#0F172A]">{addSiteTrial.phase}</p></div>
-                            <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Disease</p><p className="text-sm font-medium text-[#0F172A]">{addSiteTrial.indication}</p></div>
-                            <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Drug</p><p className="text-sm font-medium text-[#0F172A]">{addSiteTrial.drug}</p></div>
-                            <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Duration</p><p className="text-sm font-medium text-[#0F172A]">{addSiteTrial.duration}</p></div>
-                            <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Sample Size</p><p className="text-sm font-medium text-[#0F172A]">{addSiteTrial.target}</p></div>
+                            <div className="col-span-2"><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Study Title</p><p className="text-sm font-medium text-foreground">{addSiteTrial.name}</p></div>
+                            <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-sm font-medium text-foreground">{addSiteTrial.phase}</p></div>
+                            <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Disease</p><p className="text-sm font-medium text-foreground">{addSiteTrial.indication}</p></div>
+                            <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-sm font-medium text-foreground">{addSiteTrial.drug}</p></div>
+                            <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Duration</p><p className="text-sm font-medium text-foreground">{addSiteTrial.duration}</p></div>
+                            <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sample Size</p><p className="text-sm font-medium text-foreground">{addSiteTrial.target}</p></div>
                           </div>
                         ) : (
-                          <p className="text-xs text-slate-400">Enter a Protocol ID to auto-populate trial details.</p>
+                          <p className="text-xs text-muted-foreground/70">Enter a Protocol ID to auto-populate trial details.</p>
                         )}
                       </div>
 
                       {/* PANEL 2 — Site Details */}
                       <div className="space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Site Details</p>
+                        <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider">Site Details</p>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Site Name <span className="text-red-500">*</span></label>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Site Name <span className="text-destructive">*</span></label>
                           <input value={newSite.siteName} onChange={e => setNewSite(p => ({ ...p, siteName: e.target.value }))}
                             placeholder="e.g. Apollo Mumbai"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Site Address</label>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Site Address</label>
                           <input value={newSite.siteAddress} onChange={e => setNewSite(p => ({ ...p, siteAddress: e.target.value }))}
                             placeholder="Building, Street, City, State"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">PI Name</label>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">PI Name</label>
                           <input value={newSite.piName} onChange={e => setNewSite(p => ({ ...p, piName: e.target.value }))}
                             placeholder="Dr. First Last"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Department</label>
                           <input value={newSite.department} onChange={e => setNewSite(p => ({ ...p, department: e.target.value }))}
                             placeholder="e.g. Endocrinology"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">PI Email ID <span className="text-red-500">*</span></label>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">PI Email ID <span className="text-destructive">*</span></label>
                           <input type="email" value={newSite.piEmail} onChange={e => setNewSite(p => ({ ...p, piEmail: e.target.value }))}
                             placeholder="pi@hospital.com"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872]" />
+                            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Access Type</label>
-                          <div className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-slate-50 text-sm flex items-center justify-between">
-                            <span className="font-medium text-[#0F172A]">{newSite.accessType}</span>
-                            <span className="flex items-center gap-1 text-[10px] font-medium text-slate-400"><Lock className="w-3 h-3" /> Default</span>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Access Type</label>
+                          <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm flex items-center justify-between">
+                            <span className="font-medium text-foreground">{newSite.accessType}</span>
+                            <span className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground/70"><Lock className="w-3 h-3" /> Default</span>
                           </div>
                         </div>
                       </div>
@@ -1277,15 +1271,15 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
                 {/* Submit */}
                 {siteEntryMode === "single" && (
-                  <div className="px-5 py-4 border-t border-slate-100">
+                  <div className="px-5 py-4 border-t border-border">
                     <button
                       onClick={handleAddSite}
                       disabled={!newSite.siteName || !newSite.piName || !newSite.piEmail}
                       className={cn(
                         "w-full py-3.5 rounded-xl font-semibold text-sm transition-all",
                         newSite.siteName && newSite.piName && newSite.piEmail
-                          ? "bg-[#0D1B3E] text-white"
-                          : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                          ? "bg-primary-deep text-white"
+                          : "bg-border text-muted-foreground/70 cursor-not-allowed"
                       )}
                     >
                       Save & Share with PI
@@ -1293,8 +1287,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                   </div>
                 )}
                 {siteEntryMode === "upload" && (
-                  <div className="px-5 py-4 border-t border-slate-100">
-                    <button className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white">
+                  <div className="px-5 py-4 border-t border-border">
+                    <button className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white">
                       Upload & Share with PIs
                     </button>
                   </div>
@@ -1307,8 +1301,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Edit Profile (full-screen) ── */}
       {meSection === "edit-profile" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Edit Profile</span>
           </div>
@@ -1320,11 +1314,11 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               { key: "orgAddress", label: "Organization Address" },
             ].map(f => (
               <div key={f.key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                <label className="block text-sm font-medium text-foreground/80 mb-1.5">{f.label}</label>
                 <input
                   value={profileForm[f.key as keyof typeof profileForm]}
                   onChange={e => setProfileForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                  className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
                 />
               </div>
             ))}
@@ -1334,23 +1328,23 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               { key: "email", label: "Email ID" },
             ].map(f => (
               <div key={f.key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                <label className="block text-sm font-medium text-foreground/80 mb-1.5">{f.label}</label>
                 <input
                   value={profileForm[f.key as keyof typeof profileForm]}
                   onChange={e => setProfileForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                  className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
                 />
               </div>
             ))}
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl p-3">
-              <ShieldCheck className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-amber-800 leading-relaxed">Changing your phone or email requires OTP verification.</p>
+            <div className="flex items-start gap-2 bg-warning/10 border border-warning/20 rounded-xl p-3">
+              <ShieldCheck className="w-4 h-4 text-warning mt-0.5 shrink-0" />
+              <p className="text-xs text-warning leading-relaxed">Changing your phone or email requires OTP verification.</p>
             </div>
           </div>
-          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+          <div className="px-5 py-4 border-t border-border bg-card">
             <button
               onClick={() => { toast.success("Profile updated"); setMeSection(null) }}
-              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white"
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white"
             >
               Save Changes
             </button>
@@ -1360,21 +1354,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Entity Change (full-screen) ── */}
       {meSection === "entity-change" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => { setMeSection(null); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityDoc(null) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Entity Change</span>
           </div>
           <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
-            <p className="text-sm text-slate-500">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
+            <p className="text-sm text-muted-foreground">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
 
             {/* What are you changing */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">What are you changing?</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">What are you changing?</label>
               <select
                 value={entityChange.field}
                 onChange={e => setEntityChange(c => ({ ...c, field: e.target.value }))}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
               >
                 {["Entity Type", "Organization Name", "Organization Address"].map(o => <option key={o} value={o}>{o}</option>)}
               </select>
@@ -1382,48 +1376,48 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
             {/* Current value (read-only) */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Value</label>
-              <div className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-sm text-slate-500">
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Current Value</label>
+              <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-muted-foreground">
                 {entityChange.field === "Entity Type" ? "Sponsor" : entityChange.field === "Organization Name" ? mockData.user.org : mockData.user.orgAddress}
               </div>
             </div>
 
             {/* New value */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Change To</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Change To</label>
               <input
                 value={entityChange.newValue}
                 onChange={e => setEntityChange(c => ({ ...c, newValue: e.target.value }))}
                 placeholder={`Enter new ${entityChange.field.toLowerCase()}`}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
               />
             </div>
 
             {/* Supporting document */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Supporting Document</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Supporting Document</label>
               {entityDoc ? (
-                <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                  <FileText className="w-4 h-4 text-[#2563EB] shrink-0" />
-                  <span className="flex-1 text-sm text-[#0F172A] truncate">{entityDoc}</span>
-                  <button onClick={() => setEntityDoc(null)} className="text-slate-400"><X className="w-4 h-4" /></button>
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
+                  <FileText className="w-4 h-4 text-info shrink-0" />
+                  <span className="flex-1 text-sm text-foreground truncate">{entityDoc}</span>
+                  <button onClick={() => setEntityDoc(null)} className="text-muted-foreground/70"><X className="w-4 h-4" /></button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-slate-300 px-4 py-6 text-center cursor-pointer hover:border-[#1A3872]">
-                  <Upload className="w-5 h-5 text-slate-400" />
-                  <span className="text-sm font-medium text-slate-500">Upload document</span>
-                  <span className="text-xs text-slate-400">PDF, JPG or PNG supporting your change</span>
+                <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border px-4 py-6 text-center cursor-pointer hover:border-primary">
+                  <Upload className="w-5 h-5 text-muted-foreground/70" />
+                  <span className="text-sm font-medium text-muted-foreground">Upload document</span>
+                  <span className="text-xs text-muted-foreground/70">PDF, JPG or PNG supporting your change</span>
                   <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEntityDoc(f.name) }} />
                 </label>
               )}
             </div>
           </div>
 
-          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+          <div className="px-5 py-4 border-t border-border bg-card">
             <button
               disabled={!entityChange.newValue.trim() || !entityDoc}
               onClick={() => setEntitySubmitted(true)}
-              className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityChange.newValue.trim() && entityDoc ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400")}
+              className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityChange.newValue.trim() && entityDoc ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70")}
             >
               Submit Request
             </button>
@@ -1432,15 +1426,15 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
           {/* Confirmation popup */}
           {entitySubmitted && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 px-8">
-              <div className="bg-white rounded-2xl p-6 text-center w-full max-w-xs shadow-2xl">
-                <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
-                  <Check className="w-6 h-6 text-teal-600" />
+              <div className="bg-card rounded-2xl p-6 text-center w-full max-w-xs shadow-2xl">
+                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">
+                  <Check className="w-6 h-6 text-accent" />
                 </div>
-                <p className="font-semibold text-[#0F172A] mb-1">Request submitted</p>
-                <p className="text-sm text-slate-500 mb-4">We'll verify your request and update your entity details within 24 hours.</p>
+                <p className="font-semibold text-foreground mb-1">Request submitted</p>
+                <p className="text-sm text-muted-foreground mb-4">We'll verify your request and update your entity details within 24 hours.</p>
                 <button
                   onClick={() => { setEntitySubmitted(false); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityDoc(null); setMeSection(null) }}
-                  className="w-full py-3 rounded-xl bg-[#0D1B3E] text-white text-sm font-semibold"
+                  className="w-full py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold"
                 >
                   Done
                 </button>
@@ -1472,27 +1466,27 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
           { key: "confirm", label: "Confirm New Password" },
         ] as const
         return (
-          <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-            <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+          <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+            <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
               <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
               <span className="font-semibold flex-1">Change Password</span>
             </div>
             <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
               {fields.map(f => (
                 <div key={f.key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+                  <label className="block text-sm font-medium text-foreground/80 mb-1.5">{f.label}</label>
                   <div className="relative">
                     <input
                       type={showPwd[f.key] ? "text" : "password"}
                       value={passwordForm[f.key]}
                       onChange={e => setPasswordForm(p => ({ ...p, [f.key]: e.target.value }))}
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                      className="w-full px-4 py-3 pr-11 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPwd(s => ({ ...s, [f.key]: !s[f.key] }))}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground"
                     >
                       {showPwd[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -1502,27 +1496,27 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
               {/* Match indicator */}
               {passwordsMatch && (
-                <p className="text-[#0D9488] text-sm flex items-center gap-1">
+                <p className="text-accent text-sm flex items-center gap-1">
                   <Check className="w-4 h-4" /> Passwords match
                 </p>
               )}
               {mismatch && (
-                <p className="text-red-500 text-sm flex items-center gap-1">
+                <p className="text-destructive text-sm flex items-center gap-1">
                   <X className="w-4 h-4" /> Passwords do not match
                 </p>
               )}
 
               {/* Strength bar */}
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#0D9488] transition-all"
+                    className="h-full rounded-full bg-gradient-to-r from-info to-accent transition-all"
                     style={{ width: `${strengthPercentage}%` }}
                   />
                 </div>
                 <span className={cn(
                   "text-sm font-medium",
-                  strengthPercentage >= 80 ? "text-[#0D9488]" : strengthPercentage >= 60 ? "text-[#D97706]" : "text-[#DC2626]"
+                  strengthPercentage >= 80 ? "text-accent" : strengthPercentage >= 60 ? "text-warning" : "text-destructive"
                 )}>
                   {strengthPercentage >= 80 ? "Strong" : strengthPercentage >= 60 ? "Medium" : "Weak"}
                 </span>
@@ -1532,17 +1526,17 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               <div className="space-y-1.5">
                 {passwordRules.map(rule => (
                   <div key={rule.label} className="flex items-center gap-2">
-                    {rule.met ? <Check className="w-4 h-4 text-[#0D9488]" /> : <X className="w-4 h-4 text-gray-400" />}
-                    <span className={cn("text-sm", rule.met ? "text-[#0D9488]" : "text-gray-500")}>{rule.label}</span>
+                    {rule.met ? <Check className="w-4 h-4 text-accent" /> : <X className="w-4 h-4 text-muted-foreground/70" />}
+                    <span className={cn("text-sm", rule.met ? "text-accent" : "text-muted-foreground")}>{rule.label}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="px-5 py-4 border-t border-slate-100 bg-white">
+            <div className="px-5 py-4 border-t border-border bg-card">
               <button
                 onClick={() => { toast.success("Password changed"); setPasswordForm({ current: "", next: "", confirm: "" }); setMeSection(null) }}
                 disabled={!canSave}
-                className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", canSave ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+                className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", canSave ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}
               >
                 Update Password
               </button>
@@ -1553,8 +1547,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Notification Preferences (full-screen) ── */}
       {meSection === "notifications" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Notification Preferences</span>
           </div>
@@ -1577,22 +1571,22 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               },
             ].map(group => (
               <div key={group.title}>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{group.title}</p>
-                <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">{group.title}</p>
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
                   {group.items.map(item => {
                     const on = notifPrefs[item.key as keyof typeof notifPrefs]
                     return (
                       <button
                         key={item.key}
                         onClick={() => setNotifPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof typeof notifPrefs] }))}
-                        className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#0F172A]">{item.label}</p>
-                          <p className="text-xs text-slate-400">{item.desc}</p>
+                          <p className="text-sm font-medium text-foreground">{item.label}</p>
+                          <p className="text-xs text-muted-foreground/70">{item.desc}</p>
                         </div>
-                        <span className={cn("w-11 h-6 rounded-full p-0.5 flex-shrink-0 transition-colors", on ? "bg-[#1A3872]" : "bg-slate-300")}>
-                          <span className={cn("block w-5 h-5 bg-white rounded-full shadow-sm transition-transform", on ? "translate-x-5" : "translate-x-0")} />
+                        <span className={cn("w-11 h-6 rounded-full p-0.5 flex-shrink-0 transition-colors", on ? "bg-primary" : "bg-slate-300")}>
+                          <span className={cn("block w-5 h-5 bg-card rounded-full shadow-sm transition-transform", on ? "translate-x-5" : "translate-x-0")} />
                         </span>
                       </button>
                     )
@@ -1601,10 +1595,10 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               </div>
             ))}
           </div>
-          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+          <div className="px-5 py-4 border-t border-border bg-card">
             <button
               onClick={() => { toast.success("Preferences saved"); setMeSection(null) }}
-              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white"
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white"
             >
               Save Preferences
             </button>
@@ -1614,55 +1608,55 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Team Members (full-screen) ── */}
       {meSection === "team-members" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Team Members</span>
-            <span className="text-xs text-blue-200">{teamMembers.length} total</span>
+            <span className="text-xs text-primary-foreground/75">{teamMembers.length} total</span>
           </div>
           <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
             {teamMembers.map(m => {
               const expanded = expandedMemberId === m.id
               return (
-                <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                <div key={m.id} className="bg-card rounded-2xl border border-border shadow-xs p-4">
                   {/* Name + designation */}
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center text-sm font-bold text-[#1A3872] flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
                       {m.name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm text-[#0F172A] truncate">{m.name}</p>
-                      <p className="text-xs text-slate-500 truncate">{m.designation}</p>
+                      <p className="font-semibold text-sm text-foreground truncate">{m.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{m.designation}</p>
                     </div>
                   </div>
                   {/* Contact */}
-                  <div className="space-y-1.5 pt-3 border-t border-slate-100">
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                      <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                  <div className="space-y-1.5 pt-3 border-t border-border">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Phone className="w-3.5 h-3.5 text-muted-foreground/70 flex-shrink-0" />
                       <span className="font-mono">{maskPhone(m.phone)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                      <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Mail className="w-3.5 h-3.5 text-muted-foreground/70 flex-shrink-0" />
                       <span className="truncate">{m.email}</span>
                     </div>
                   </div>
                   {/* Trials involved — clickable total */}
                   <button
                     onClick={() => setExpandedMemberId(expanded ? null : m.id)}
-                    className="mt-3 w-full flex items-center justify-between bg-blue-50 rounded-xl px-3 py-2 text-left"
+                    className="mt-3 w-full flex items-center justify-between bg-info/5 rounded-xl px-3 py-2 text-left"
                   >
-                    <span className="flex items-center gap-2 text-xs font-medium text-[#1A3872]">
+                    <span className="flex items-center gap-2 text-xs font-medium text-primary">
                       <FlaskConical className="w-3.5 h-3.5" />
                       {m.trials.length} {m.trials.length === 1 ? "trial" : "trials"} involved
                     </span>
-                    <ChevronDown className={cn("w-4 h-4 text-[#1A3872] transition-transform", expanded && "rotate-180")} />
+                    <ChevronDown className={cn("w-4 h-4 text-primary transition-transform", expanded && "rotate-180")} />
                   </button>
                   {expanded && (
                     <div className="mt-2 space-y-1.5">
                       {m.trials.map(tid => (
-                        <div key={tid} className="flex items-center gap-2 text-xs text-slate-600 px-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] flex-shrink-0" />
-                          <span className="font-medium text-[#0F172A]">{tid}</span> — {trialName(tid)}
+                        <div key={tid} className="flex items-center gap-2 text-xs text-muted-foreground px-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-info flex-shrink-0" />
+                          <span className="font-medium text-foreground">{tid}</span> — {trialName(tid)}
                         </div>
                       ))}
                     </div>
@@ -1671,10 +1665,10 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               )
             })}
           </div>
-          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+          <div className="px-5 py-4 border-t border-border bg-card">
             <button
               onClick={() => setMeSection("invite-member")}
-              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white flex items-center justify-center gap-2"
             >
               <UserCheck className="w-4 h-4" /> Invite Members
             </button>
@@ -1684,73 +1678,73 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Invite Members (full-screen) ── */}
       {meSection === "invite-member" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection("team-members")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Invite Member</span>
           </div>
           <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name *</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Full Name *</label>
               <input value={inviteForm.name} onChange={e => setInviteForm(p => ({ ...p, name: e.target.value }))}
                 placeholder="Enter member's name"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+                className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Designation</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Designation</label>
               <input value={inviteForm.designation} onChange={e => setInviteForm(p => ({ ...p, designation: e.target.value }))}
                 placeholder="e.g. Principal Investigator"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+                className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Phone Number</label>
               <div className="flex gap-2">
-                <div className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-600 text-sm">+91</div>
+                <div className="px-4 py-3 rounded-xl border border-border bg-surface text-muted-foreground text-sm">+91</div>
                 <input value={inviteForm.phone} onChange={e => setInviteForm(p => ({ ...p, phone: e.target.value }))}
                   placeholder="Enter phone number" type="tel"
-                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+                  className="flex-1 px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email ID *</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Email ID *</label>
               <input value={inviteForm.email} onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))}
                 placeholder="member@example.com" type="email"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+                className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card" />
             </div>
             {/* Trials to involve */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Trials Involved</label>
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Trials Involved</label>
               <div className="space-y-2">
                 {trials.map(t => {
                   const checked = inviteForm.trials.includes(t.id)
                   return (
                     <button key={t.id} onClick={() => toggleInviteTrial(t.id)}
                       className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors",
-                        checked ? "border-[#1A3872] bg-blue-50" : "border-gray-200 bg-white")}>
+                        checked ? "border-primary bg-info/5" : "border-border bg-card")}>
                       <span className={cn("w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0",
-                        checked ? "border-[#1A3872] bg-[#1A3872]" : "border-slate-300")}>
+                        checked ? "border-primary bg-primary" : "border-border")}>
                         {checked && <Check className="w-3 h-3 text-white" />}
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-medium text-[#0F172A] truncate">{t.id}</span>
-                        <span className="block text-xs text-slate-500 truncate">{t.name}</span>
+                        <span className="block text-sm font-medium text-foreground truncate">{t.id}</span>
+                        <span className="block text-xs text-muted-foreground truncate">{t.name}</span>
                       </span>
                     </button>
                   )
                 })}
               </div>
             </div>
-            <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
-              <Mail className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-blue-700">An invitation email will be sent. The member joins once they accept and verify their identity.</p>
+            <div className="flex items-start gap-2 bg-info/5 border border-info/20 rounded-xl p-3">
+              <Mail className="w-4 h-4 text-info mt-0.5 shrink-0" />
+              <p className="text-xs text-info">An invitation email will be sent. The member joins once they accept and verify their identity.</p>
             </div>
           </div>
-          <div className="px-5 py-4 border-t border-slate-100 bg-white">
+          <div className="px-5 py-4 border-t border-border bg-card">
             <button
               onClick={handleSendInvite}
               disabled={!inviteForm.name || !inviteForm.email}
               className={cn("w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all",
-                inviteForm.name && inviteForm.email ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+                inviteForm.name && inviteForm.email ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}
             >
               <Mail className="w-4 h-4" /> Send Invite
             </button>
@@ -1760,8 +1754,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Reports (full-screen) ── */}
       {meSection === "reports" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Reports</span>
           </div>
@@ -1773,13 +1767,13 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               { label: "Protocol Deviations", desc: "Logged deviations by trial" },
               { label: "Export Data", desc: "Download data as CSV / Excel" },
             ].map(r => (
-              <button key={r.label} className="w-full bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3 text-left">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <BarChart2 className="w-5 h-5 text-[#1A3872]" />
+              <button key={r.label} className="w-full bg-card rounded-2xl border border-border shadow-xs p-4 flex items-center gap-3 text-left">
+                <div className="w-10 h-10 rounded-xl bg-info/5 flex items-center justify-center flex-shrink-0">
+                  <BarChart2 className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-[#0F172A]">{r.label}</p>
-                  <p className="text-xs text-slate-500">{r.desc}</p>
+                  <p className="font-semibold text-sm text-foreground">{r.label}</p>
+                  <p className="text-xs text-muted-foreground">{r.desc}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-slate-300" />
               </button>
@@ -1790,12 +1784,12 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Terms & Conditions (full-screen) ── */}
       {meSection === "tnc" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Terms &amp; Conditions</span>
           </div>
-          <div className="flex-1 overflow-auto px-5 py-4 text-sm text-slate-600 leading-relaxed space-y-4">
+          <div className="flex-1 overflow-auto px-5 py-4 text-sm text-muted-foreground leading-relaxed space-y-4">
             {[
               { t: "1. Acceptance of Terms", d: "By using this platform you agree to be bound by these Terms and our Privacy Policy." },
               { t: "2. Data Privacy & Compliance", d: "All personal and clinical data is handled per applicable data protection laws and used solely for clinical trial management." },
@@ -1805,7 +1799,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               { t: "6. Contact", d: "For questions about these terms, contact support@mtb-pvs.com." },
             ].map(s => (
               <div key={s.t} className="space-y-1">
-                <p className="font-bold text-slate-800">{s.t}</p>
+                <p className="font-bold text-foreground">{s.t}</p>
                 <p>{s.d}</p>
               </div>
             ))}
@@ -1815,31 +1809,31 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
       {/* ── Help & Support (full-screen) ── */}
       {meSection === "help" && (
-        <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-          <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Help &amp; Support</span>
           </div>
           <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
-                <Mail className="w-4 h-4 text-[#1A3872]" />
+            <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+              <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-border">
+                <Mail className="w-4 h-4 text-primary" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#0F172A]">Email Support</p>
-                  <p className="text-xs text-slate-500">support@mtb-pvs.com</p>
+                  <p className="text-sm font-medium text-foreground">Email Support</p>
+                  <p className="text-xs text-muted-foreground">support@mtb-pvs.com</p>
                 </div>
               </a>
               <a href="tel:+918000000000" className="flex items-center gap-3 px-4 py-3">
-                <Phone className="w-4 h-4 text-[#1A3872]" />
+                <Phone className="w-4 h-4 text-primary" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#0F172A]">Call Helpline</p>
-                  <p className="text-xs text-slate-500">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
+                  <p className="text-sm font-medium text-foreground">Call Helpline</p>
+                  <p className="text-xs text-muted-foreground">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
                 </div>
               </a>
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">FAQ</p>
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50">
+              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">FAQ</p>
+              <div className="bg-card rounded-2xl border border-border shadow-xs divide-y divide-border/60">
                 {[
                   { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
                   { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite." },
@@ -1850,11 +1844,11 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                   return (
                     <div key={item.q}>
                       <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full flex items-center gap-2 px-4 py-3 text-left">
-                        <HelpCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <span className="text-sm text-[#0F172A] flex-1">{item.q}</span>
+                        <HelpCircle className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
+                        <span className="text-sm text-foreground flex-1">{item.q}</span>
                         <ChevronDown className={cn("w-4 h-4 text-slate-300 transition-transform", open && "rotate-180")} />
                       </button>
-                      {open && <p className="px-4 pb-3 pl-10 text-xs text-slate-500 leading-relaxed">{item.a}</p>}
+                      {open && <p className="px-4 pb-3 pl-10 text-xs text-muted-foreground leading-relaxed">{item.a}</p>}
                     </div>
                   )
                 })}

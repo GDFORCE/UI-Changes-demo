@@ -178,15 +178,15 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
   const getTypeColor = (type: string) => {
     switch (type) {
       case "Sponsor":
-        return "bg-purple-100 text-purple-700";
+        return "bg-violet/10 text-violet";
       case "CRO":
-        return "bg-blue-100 text-blue-700";
+        return "bg-info/10 text-info";
       case "SMO":
-        return "bg-teal-100 text-teal-700";
+        return "bg-accent/10 text-accent";
       case "Site":
-        return "bg-green-100 text-green-700";
+        return "bg-success/15 text-success";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
     }
   };
 
@@ -195,10 +195,10 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">Organization master list</h1>
-          <p className="text-sm text-gray-500">Manage organizations, duplicates, and name correction requests.</p>
+          <h1 className="text-xl font-bold text-primary">Organization master list</h1>
+          <p className="text-sm text-muted-foreground">Manage organizations, duplicates, and name correction requests.</p>
         </div>
-        <Button className="bg-[#1A3872] hover:bg-[#15305f]" onClick={() => toast.success("Add organization form")}>
+        <Button className="bg-primary hover:bg-primary/90" onClick={() => toast.success("Add organization form")}>
           <Building2 className="h-4 w-4 mr-2" /> Add organization
         </Button>
       </div>
@@ -206,9 +206,9 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
       {/* Summary tiles (ADM-03 Section 1) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl bg-white border border-gray-200 p-3 text-center">
-            <div className="text-xl font-bold text-[#1A3872] leading-none">{t.value}</div>
-            <div className="text-[11px] text-gray-500 mt-1.5">{t.label}</div>
+          <div key={t.label} className="rounded-xl bg-card border border-border p-3 text-center">
+            <div className="text-xl font-bold text-primary leading-none">{t.value}</div>
+            <div className="text-[11px] text-muted-foreground mt-1.5">{t.label}</div>
           </div>
         ))}
       </div>
@@ -216,9 +216,9 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left: search + org table */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+          <div className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
               <Input
                 placeholder="Search organizations by name or address..."
                 value={searchQuery}
@@ -240,11 +240,11 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
             </Select>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+                  <tr className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-4 py-3 font-medium">Organization</th>
                     <th className="px-4 py-3 font-medium">Address</th>
                     <th className="px-4 py-3 font-medium">Users</th>
@@ -253,31 +253,31 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
                     <th className="px-4 py-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-border">
                   {filteredOrgs.map((org) => (
-                    <tr key={org.id} className="hover:bg-gray-50/70">
+                    <tr key={org.id} className="hover:bg-surface/70">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-lg bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                            <Building2 className="h-5 w-5 text-[#1A3872]" />
+                          <div className="h-9 w-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                            <Building2 className="h-5 w-5 text-primary" />
                           </div>
                           <div className="min-w-0">
-                            <div className="font-medium text-gray-900 truncate">{org.name}</div>
+                            <div className="font-medium text-foreground truncate">{org.name}</div>
                             <Badge className={`text-[10px] mt-0.5 ${getTypeColor(org.type)}`}>{org.type}</Badge>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 max-w-[220px]">
+                      <td className="px-4 py-3 text-muted-foreground max-w-[220px]">
                         <span className="flex items-center gap-1 truncate">
                           <MapPin className="h-3 w-3 shrink-0" /> {org.address}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{org.users}</td>
-                      <td className="px-4 py-3 text-gray-600">{org.trials}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{org.users}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{org.trials}</td>
                       <td className="px-4 py-3">
                         <Badge
                           variant="outline"
-                          className={`text-xs ${org.status === "Active" ? "border-green-500 text-green-700" : "border-red-500 text-red-700"}`}
+                          className={`text-xs ${org.status === "Active" ? "border-green-500 text-success" : "border-red-500 text-destructive"}`}
                         >
                           {org.status}
                         </Badge>
@@ -304,11 +304,11 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
                                 <Merge className="h-4 w-4 mr-2" /> Merge duplicate
                               </DropdownMenuItem>
                               {org.status === "Active" ? (
-                                <DropdownMenuItem className="text-red-600" onClick={() => toast.success(`${org.name} suspended`)}>
+                                <DropdownMenuItem className="text-destructive" onClick={() => toast.success(`${org.name} suspended`)}>
                                   <Ban className="h-4 w-4 mr-2" /> Suspend
                                 </DropdownMenuItem>
                               ) : (
-                                <DropdownMenuItem className="text-green-600" onClick={() => toast.success(`${org.name} activated`)}>
+                                <DropdownMenuItem className="text-success" onClick={() => toast.success(`${org.name} activated`)}>
                                   <Building2 className="h-4 w-4 mr-2" /> Activate
                                 </DropdownMenuItem>
                               )}
@@ -326,22 +326,22 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
 
         {/* Right: Name correction requests (ADM-03 Section 4) */}
         <div className="xl:col-span-1">
-          <Card className="border border-gray-200 shadow-sm">
+          <Card className="border border-border shadow-sm">
             <CardContent className="p-4">
-              <h2 className="text-sm font-semibold text-[#1A3872] mb-3">Name correction requests</h2>
+              <h2 className="text-sm font-semibold text-primary mb-3">Name correction requests</h2>
               {nameRequests.length === 0 && (
-                <p className="text-xs text-gray-400 py-6 text-center">No pending requests.</p>
+                <p className="text-xs text-muted-foreground/70 py-6 text-center">No pending requests.</p>
               )}
               <div className="space-y-3">
                 {nameRequests.map((r) => (
-                  <div key={r.id} className="rounded-lg border border-amber-200 bg-amber-50/40 p-3">
-                    <p className="text-[11px] text-gray-500">{r.requestedBy}</p>
+                  <div key={r.id} className="rounded-lg border border-warning/20 bg-warning/10/40 p-3">
+                    <p className="text-[11px] text-muted-foreground">{r.requestedBy}</p>
                     <div className="flex items-center gap-2 mt-1 text-sm">
-                      <span className="text-red-600 line-through">{r.current}</span>
-                      <ArrowRight className="h-3 w-3 text-gray-400" />
-                      <span className="text-green-700 font-medium">{r.requested}</span>
+                      <span className="text-destructive line-through">{r.current}</span>
+                      <ArrowRight className="h-3 w-3 text-muted-foreground/70" />
+                      <span className="text-success font-medium">{r.requested}</span>
                     </div>
-                    <p className="text-[11px] text-gray-500 mt-1">
+                    <p className="text-[11px] text-muted-foreground mt-1">
                       {r.type} · {r.usersAffected} users · {r.trials} trials affected
                     </p>
                     <Input
@@ -350,10 +350,10 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
                       className="h-8 mt-2 text-sm"
                     />
                     <div className="grid grid-cols-2 gap-2 mt-2">
-                      <Button size="sm" className="h-8 text-xs bg-green-600 hover:bg-green-700" onClick={() => approveName(r)}>
+                      <Button size="sm" className="h-8 text-xs bg-success hover:bg-green-700" onClick={() => approveName(r)}>
                         <Check className="h-3 w-3 mr-1" /> Approve
                       </Button>
-                      <Button size="sm" variant="outline" className="h-8 text-xs text-red-700 border-red-200" onClick={() => rejectName(r)}>
+                      <Button size="sm" variant="outline" className="h-8 text-xs text-destructive border-destructive/20" onClick={() => rejectName(r)}>
                         <X className="h-3 w-3 mr-1" /> Reject
                       </Button>
                     </div>
@@ -368,17 +368,17 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
       {/* Merge confirmation dialog (ADM-03) */}
       {mergeOrg && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 space-y-3">
-            <div className="flex items-center gap-2 text-red-600">
+          <div className="w-full max-w-md rounded-2xl bg-card p-5 space-y-3">
+            <div className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
-              <p className="font-semibold text-gray-800">Confirm merge</p>
+              <p className="font-semibold text-foreground">Confirm merge</p>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {mergeOrg.users} users and {mergeOrg.trials} trials will be re-linked to the master record.
               {" "}{mergeOrg.name} will be archived. This action is irreversible.
             </p>
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">Admin justification (required, logged)</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Admin justification (required, logged)</p>
               <Textarea value={mergeJustification} onChange={(e) => setMergeJustification(e.target.value)} className="min-h-[60px]" />
             </div>
             <div className="flex gap-2 pt-1">
@@ -402,8 +402,8 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
           {selectedOrg && (
             <div className="mt-4 space-y-4">
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-xl bg-[#DBEAFE] flex items-center justify-center">
-                  <Building2 className="h-8 w-8 text-[#1A3872]" />
+                <div className="h-16 w-16 rounded-xl bg-secondary flex items-center justify-center">
+                  <Building2 className="h-8 w-8 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">{selectedOrg.name}</h2>
@@ -414,44 +414,44 @@ export function OrganizationManagementScreen({ onBack }: OrganizationManagementS
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-blue-50 rounded-lg text-center">
-                  <Users className="h-5 w-5 text-[#2563EB] mx-auto mb-1" />
+                <div className="p-3 bg-info/5 rounded-lg text-center">
+                  <Users className="h-5 w-5 text-info mx-auto mb-1" />
                   <div className="text-lg font-semibold">{selectedOrg.users}</div>
-                  <div className="text-xs text-gray-500">Users</div>
+                  <div className="text-xs text-muted-foreground">Users</div>
                 </div>
-                <div className="p-3 bg-teal-50 rounded-lg text-center">
-                  <FileText className="h-5 w-5 text-[#0D9488] mx-auto mb-1" />
+                <div className="p-3 bg-accent/5 rounded-lg text-center">
+                  <FileText className="h-5 w-5 text-accent mx-auto mb-1" />
                   <div className="text-lg font-semibold">{selectedOrg.trials}</div>
-                  <div className="text-xs text-gray-500">Trials</div>
+                  <div className="text-xs text-muted-foreground">Trials</div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <MapPin className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <MapPin className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Address</p>
+                    <p className="text-xs text-muted-foreground">Address</p>
                     <p className="text-sm">{selectedOrg.address}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Phone className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Phone className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Contact</p>
+                    <p className="text-xs text-muted-foreground">Contact</p>
                     <p className="text-sm">{selectedOrg.contact}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Mail className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Email</p>
+                    <p className="text-xs text-muted-foreground">Email</p>
                     <p className="text-sm">{selectedOrg.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Globe className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Globe className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Website</p>
+                    <p className="text-xs text-muted-foreground">Website</p>
                     <p className="text-sm">{selectedOrg.website}</p>
                   </div>
                 </div>

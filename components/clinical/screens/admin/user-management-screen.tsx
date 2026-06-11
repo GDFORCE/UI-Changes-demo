@@ -254,15 +254,15 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Active":
-        return "bg-green-100 text-green-700";
+        return "bg-success/15 text-success";
       case "Pending Verification":
-        return "bg-amber-100 text-amber-700";
+        return "bg-warning/15 text-warning";
       case "Suspended":
-        return "bg-red-100 text-red-700";
+        return "bg-destructive/10 text-destructive";
       case "Locked":
-        return "bg-orange-100 text-orange-700";
+        return "bg-warning/15 text-warning";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
     }
   };
 
@@ -271,8 +271,8 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">All registered users</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-xl font-bold text-primary">All registered users</h1>
+          <p className="text-sm text-muted-foreground">
             Manage accounts, roles, status and entity assignments. Patient records are pseudonymized.
           </p>
         </div>
@@ -280,7 +280,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
           <Button variant="outline" onClick={() => toast.success("Filtered user list exported (CSV)")}>
             <Download className="h-4 w-4 mr-2" /> Export
           </Button>
-          <Button className="bg-[#1A3872] hover:bg-[#15305f]" onClick={() => setAddOpen(true)}>
+          <Button className="bg-primary hover:bg-primary/90" onClick={() => setAddOpen(true)}>
             <UserPlus className="h-4 w-4 mr-2" /> Add user
           </Button>
         </div>
@@ -289,17 +289,17 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
       {/* Summary tiles (ADM-02 Section 2) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl bg-white border border-gray-200 p-4">
-            <div className="text-2xl font-bold text-[#1A3872] leading-none">{t.value}</div>
-            <div className="text-xs text-gray-500 mt-2">{t.label}</div>
+          <div key={t.label} className="rounded-xl bg-card border border-border p-4">
+            <div className="text-2xl font-bold text-primary leading-none">{t.value}</div>
+            <div className="text-xs text-muted-foreground mt-2">{t.label}</div>
           </div>
         ))}
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-3 lg:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
           <Input
             placeholder="Search by name, email, phone, or organization..."
             value={searchQuery}
@@ -337,11 +337,11 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
       </div>
 
       {/* User table (ADM-02 Section 4) */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+              <tr className="bg-surface text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3 font-medium">User</th>
                 <th className="px-4 py-3 font-medium">Email / contact</th>
                 <th className="px-4 py-3 font-medium">Entity</th>
@@ -352,32 +352,32 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
                 <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50/70">
+                <tr key={user.id} className="hover:bg-surface/70">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
                         <AvatarImage src={user.photo || undefined} />
-                        <AvatarFallback className="bg-[#DBEAFE] text-[#1A3872] text-xs">
+                        <AvatarFallback className="bg-secondary text-primary text-xs">
                           {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <div className="font-medium text-gray-900 truncate">{user.name}</div>
-                        <div className="text-xs text-gray-500 truncate">{user.role}</div>
+                        <div className="font-medium text-foreground truncate">{user.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{user.role}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{user.email}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                   <td className="px-4 py-3">
                     <Badge variant="outline" className="text-xs">{user.orgType}</Badge>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {user.orgType === "Patient" ? <span className="text-gray-400">—</span> : user.organization}
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {user.orgType === "Patient" ? <span className="text-muted-foreground/70">—</span> : user.organization}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{user.registrationDate}</td>
-                  <td className="px-4 py-3 text-gray-500">{user.lastLogin}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{user.registrationDate}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{user.lastLogin}</td>
                   <td className="px-4 py-3">
                     <Badge className={`text-xs ${getStatusColor(user.status)}`}>{user.status}</Badge>
                   </td>
@@ -390,7 +390,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8 border-orange-300 text-orange-700 hover:bg-orange-50"
+                          className="h-8 border-orange-300 text-warning hover:bg-warning/10"
                           onClick={() => openUnlock(user)}
                         >
                           <Key className="h-3.5 w-3.5 mr-1" /> Unlock
@@ -407,11 +407,11 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
                             <Eye className="h-4 w-4 mr-2" /> View details
                           </DropdownMenuItem>
                           {user.status === "Active" ? (
-                            <DropdownMenuItem className="text-red-600" onClick={() => suspendUser(user)}>
+                            <DropdownMenuItem className="text-destructive" onClick={() => suspendUser(user)}>
                               <UserX className="h-4 w-4 mr-2" /> Suspend user
                             </DropdownMenuItem>
                           ) : user.status === "Suspended" ? (
-                            <DropdownMenuItem className="text-green-600" onClick={() => activateUser(user)}>
+                            <DropdownMenuItem className="text-success" onClick={() => activateUser(user)}>
                               <UserCheck className="h-4 w-4 mr-2" /> Activate user
                             </DropdownMenuItem>
                           ) : null}
@@ -431,7 +431,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
           </table>
         </div>
         {filteredUsers.length === 0 && (
-          <p className="text-center text-sm text-gray-400 py-10">No users match the current filters.</p>
+          <p className="text-center text-sm text-muted-foreground/70 py-10">No users match the current filters.</p>
         )}
       </div>
 
@@ -445,7 +445,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
             <div className="mt-4 space-y-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarFallback className="bg-[#DBEAFE] text-[#1A3872] text-lg">
+                  <AvatarFallback className="bg-secondary text-primary text-lg">
                     {selectedUser.name
                       .split(" ")
                       .map((n) => n[0])
@@ -455,7 +455,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
                 </Avatar>
                 <div>
                   <h2 className="text-lg font-semibold">{selectedUser.name}</h2>
-                  <p className="text-sm text-gray-500">{selectedUser.role}</p>
+                  <p className="text-sm text-muted-foreground">{selectedUser.role}</p>
                   <Badge className={`mt-1 ${getStatusColor(selectedUser.status)}`}>
                     {selectedUser.status}
                   </Badge>
@@ -463,41 +463,41 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Mail className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Email</p>
+                    <p className="text-xs text-muted-foreground">Email</p>
                     <p className="text-sm">{selectedUser.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Phone className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Phone className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Phone</p>
+                    <p className="text-xs text-muted-foreground">Phone</p>
                     <p className="text-sm">{selectedUser.phone}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Building2 className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Building2 className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Organization</p>
+                    <p className="text-xs text-muted-foreground">Organization</p>
                     <p className="text-sm">{selectedUser.organization}</p>
                     <Badge variant="outline" className="mt-1 text-xs">
                       {selectedUser.orgType}
                     </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Calendar className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Calendar className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Registration Date</p>
+                    <p className="text-xs text-muted-foreground">Registration Date</p>
                     <p className="text-sm">{selectedUser.registrationDate}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Clock className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center gap-3 p-3 bg-surface rounded-lg">
+                  <Clock className="h-5 w-5 text-muted-foreground/70" />
                   <div>
-                    <p className="text-xs text-gray-500">Last Login</p>
+                    <p className="text-xs text-muted-foreground">Last Login</p>
                     <p className="text-sm">{selectedUser.lastLogin}</p>
                   </div>
                 </div>
@@ -524,7 +524,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
                     Suspend
                   </Button>
                 ) : (
-                  <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => activateUser(selectedUser)}>
+                  <Button className="w-full bg-success hover:bg-green-700" onClick={() => activateUser(selectedUser)}>
                     <UserCheck className="h-4 w-4 mr-2" />
                     Activate
                   </Button>
@@ -577,7 +577,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
               <Button variant="outline" className="flex-1" onClick={() => setAddOpen(false)}>
                 Cancel
               </Button>
-              <Button className="flex-1 bg-[#1A3872]" disabled={!canAdd} onClick={handleAddUser}>
+              <Button className="flex-1 bg-primary" disabled={!canAdd} onClick={handleAddUser}>
                 Save
               </Button>
             </div>
@@ -593,21 +593,21 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
           </SheetHeader>
           {unlockUser && (
             <div className="mt-4 space-y-3">
-              <div className="rounded-lg bg-gray-50 p-3 space-y-1 text-xs">
-                <p className="text-sm font-semibold text-[#1A3872]">{unlockUser.name}</p>
-                <p className="text-gray-500">Locked at: {unlockUser.lockInfo?.lockedAt}</p>
-                <p className="text-gray-500">
+              <div className="rounded-lg bg-surface p-3 space-y-1 text-xs">
+                <p className="text-sm font-semibold text-primary">{unlockUser.name}</p>
+                <p className="text-muted-foreground">Locked at: {unlockUser.lockInfo?.lockedAt}</p>
+                <p className="text-muted-foreground">
                   Failed attempts: {unlockUser.lockInfo?.failedAttempts} of 5
                 </p>
-                <p className="text-gray-500">Last IP: {unlockUser.lockInfo?.lastIp}</p>
-                <p className="text-gray-500">Device: {unlockUser.lockInfo?.device}</p>
+                <p className="text-muted-foreground">Last IP: {unlockUser.lockInfo?.lastIp}</p>
+                <p className="text-muted-foreground">Device: {unlockUser.lockInfo?.device}</p>
                 {unlockUser.lockInfo?.repeatedIp && (
-                  <p className="text-red-600 font-medium">⚠ Same IP caused multiple lockouts in 24h</p>
+                  <p className="text-destructive font-medium">⚠ Same IP caused multiple lockouts in 24h</p>
                 )}
               </div>
 
               <div>
-                <p className="text-xs font-medium text-gray-600 mb-2">
+                <p className="text-xs font-medium text-muted-foreground mb-2">
                   Identity verification (at least 2 required)
                 </p>
                 <div className="space-y-2">
@@ -627,7 +627,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
               </div>
 
               <div>
-                <p className="text-xs font-medium text-gray-600 mb-1">
+                <p className="text-xs font-medium text-muted-foreground mb-1">
                   Reason for unlock (min 10 chars, permanently logged)
                 </p>
                 <Textarea value={unlockReason} onChange={(e) => setUnlockReason(e.target.value)} className="min-h-[70px]" />
@@ -643,7 +643,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1 bg-success hover:bg-green-700"
                   disabled={!canUnlock}
                   onClick={handleConfirmUnlock}
                 >
@@ -661,7 +661,7 @@ export function UserManagementScreen({ onBack, initialFilter }: UserManagementSc
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs font-medium text-gray-600 mb-1">{label}</p>
+      <p className="text-xs font-medium text-muted-foreground mb-1">{label}</p>
       {children}
     </div>
   );

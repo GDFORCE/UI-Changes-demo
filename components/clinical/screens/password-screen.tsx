@@ -29,24 +29,24 @@ export function PasswordScreen({ onCreateAccount, onBack }: PasswordScreenProps)
   const passwordsMatch = password === confirmPassword && password.length > 0
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-card">
       <AppBar title="Create Password" showBack onBack={onBack} />
       
       <div className="flex-1 px-6 py-6 space-y-6">
         {/* Password Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Create Password *</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Create Password *</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
@@ -55,24 +55,24 @@ export function PasswordScreen({ onCreateAccount, onBack }: PasswordScreenProps)
         
         {/* Confirm Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password *</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Confirm Password *</label>
           <div className="relative">
             <input
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
             >
               {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
           {passwordsMatch && (
-            <p className="text-[#0D9488] text-sm mt-1 flex items-center gap-1">
+            <p className="text-accent text-sm mt-1 flex items-center gap-1">
               <Check className="w-4 h-4" /> Passwords match
             </p>
           )}
@@ -81,15 +81,15 @@ export function PasswordScreen({ onCreateAccount, onBack }: PasswordScreenProps)
         {/* Strength Bar + Rules — shown below both password fields */}
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#0D9488] transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-info to-accent transition-all"
                 style={{ width: `${strengthPercentage}%` }}
               />
             </div>
             <span className={cn(
               "text-sm font-medium",
-              strengthPercentage >= 80 ? "text-[#0D9488]" : strengthPercentage >= 60 ? "text-[#D97706]" : "text-[#DC2626]"
+              strengthPercentage >= 80 ? "text-accent" : strengthPercentage >= 60 ? "text-warning" : "text-destructive"
             )}>
               {strengthPercentage >= 80 ? "Strong" : strengthPercentage >= 60 ? "Medium" : "Weak"}
             </span>
@@ -100,11 +100,11 @@ export function PasswordScreen({ onCreateAccount, onBack }: PasswordScreenProps)
             {passwordRules.map((rule) => (
               <div key={rule.label} className="flex items-center gap-2">
                 {rule.met ? (
-                  <Check className="w-4 h-4 text-[#0D9488]" />
+                  <Check className="w-4 h-4 text-accent" />
                 ) : (
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-muted-foreground/70" />
                 )}
-                <span className={cn("text-sm", rule.met ? "text-[#0D9488]" : "text-gray-500")}>
+                <span className={cn("text-sm", rule.met ? "text-accent" : "text-muted-foreground")}>
                   {rule.label}
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function PasswordScreen({ onCreateAccount, onBack }: PasswordScreenProps)
       <div className="px-6 py-4">
         <button
           onClick={onCreateAccount}
-          className="w-full py-4 rounded-full font-semibold bg-[#1A3872] text-white"
+          className="w-full py-4 rounded-full font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary-deep active:scale-[0.99]"
         >
           Create Account
         </button>

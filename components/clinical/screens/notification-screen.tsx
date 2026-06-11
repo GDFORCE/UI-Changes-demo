@@ -22,21 +22,21 @@ interface Notification {
 }
 
 const typeConfig: Record<NotifType, { icon: typeof Bell; circleColor: string; iconColor: string; filterGroup: string }> = {
-  "visit-reminder":       { icon: Bell,          circleColor: "bg-blue-100",   iconColor: "text-blue-700",   filterGroup: "visits" },
-  "visit-overdue":        { icon: AlertTriangle, circleColor: "bg-red-100",    iconColor: "text-red-600",    filterGroup: "visits" },
-  "visit-completed":      { icon: CheckCircle,   circleColor: "bg-green-100",  iconColor: "text-green-600",  filterGroup: "visits" },
-  "medication-reminder":  { icon: Pill,          circleColor: "bg-purple-100", iconColor: "text-purple-600", filterGroup: "medication" },
-  "medication-taken":     { icon: CheckCircle,   circleColor: "bg-green-100",  iconColor: "text-green-600",  filterGroup: "medication" },
-  "missed-medication":    { icon: AlertTriangle, circleColor: "bg-red-100",    iconColor: "text-red-600",    filterGroup: "medication" },
-  "trial-update":         { icon: Bell,          circleColor: "bg-amber-100",  iconColor: "text-amber-600",  filterGroup: "trials" },
+  "visit-reminder":       { icon: Bell,          circleColor: "bg-info/10",   iconColor: "text-info",   filterGroup: "visits" },
+  "visit-overdue":        { icon: AlertTriangle, circleColor: "bg-destructive/10",    iconColor: "text-destructive",    filterGroup: "visits" },
+  "visit-completed":      { icon: CheckCircle,   circleColor: "bg-success/15",  iconColor: "text-success",  filterGroup: "visits" },
+  "medication-reminder":  { icon: Pill,          circleColor: "bg-violet/10", iconColor: "text-violet", filterGroup: "medication" },
+  "medication-taken":     { icon: CheckCircle,   circleColor: "bg-success/15",  iconColor: "text-success",  filterGroup: "medication" },
+  "missed-medication":    { icon: AlertTriangle, circleColor: "bg-destructive/10",    iconColor: "text-destructive",    filterGroup: "medication" },
+  "trial-update":         { icon: Bell,          circleColor: "bg-warning/15",  iconColor: "text-warning",  filterGroup: "trials" },
   "message":              { icon: MessageCircle, circleColor: "bg-sky-100",    iconColor: "text-sky-600",    filterGroup: "visits" },
-  "system":               { icon: Settings,      circleColor: "bg-slate-100",  iconColor: "text-slate-500",  filterGroup: "system" },
-  "deviation-window":     { icon: AlertTriangle, circleColor: "bg-orange-100", iconColor: "text-orange-600", filterGroup: "deviations" },
-  "deviation-medication": { icon: AlertTriangle, circleColor: "bg-orange-100", iconColor: "text-orange-600", filterGroup: "deviations" },
-  "status-screen-fail":   { icon: AlertTriangle, circleColor: "bg-red-100",    iconColor: "text-red-600",    filterGroup: "deviations" },
-  "status-dropout":       { icon: AlertTriangle, circleColor: "bg-slate-100",  iconColor: "text-slate-600",  filterGroup: "deviations" },
-  "status-withdrawn":     { icon: AlertTriangle, circleColor: "bg-amber-100",  iconColor: "text-amber-600",  filterGroup: "deviations" },
-  "status-complete":      { icon: CheckCircle,   circleColor: "bg-green-100",  iconColor: "text-green-600",  filterGroup: "deviations" },
+  "system":               { icon: Settings,      circleColor: "bg-muted",  iconColor: "text-muted-foreground",  filterGroup: "system" },
+  "deviation-window":     { icon: AlertTriangle, circleColor: "bg-warning/15", iconColor: "text-warning", filterGroup: "deviations" },
+  "deviation-medication": { icon: AlertTriangle, circleColor: "bg-warning/15", iconColor: "text-warning", filterGroup: "deviations" },
+  "status-screen-fail":   { icon: AlertTriangle, circleColor: "bg-destructive/10",    iconColor: "text-destructive",    filterGroup: "deviations" },
+  "status-dropout":       { icon: AlertTriangle, circleColor: "bg-muted",  iconColor: "text-muted-foreground",  filterGroup: "deviations" },
+  "status-withdrawn":     { icon: AlertTriangle, circleColor: "bg-warning/15",  iconColor: "text-warning",  filterGroup: "deviations" },
+  "status-complete":      { icon: CheckCircle,   circleColor: "bg-success/15",  iconColor: "text-success",  filterGroup: "deviations" },
 }
 
 const initialNotifications: Notification[] = [
@@ -139,12 +139,12 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
     const action = actionButton[selectedNotif.type]
 
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-white border-b border-slate-100 px-4 py-4 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-card border-b border-border px-4 py-4 flex items-center gap-3">
           <button onClick={() => setSelectedNotif(null)} className="p-1">
-            <ChevronLeft className="w-6 h-6 text-[#0D1B3E]" />
+            <ChevronLeft className="w-6 h-6 text-primary-deep" />
           </button>
-          <span className="flex-1 text-center font-bold text-[#0D1B3E] text-[17px]">{notifTypeLabel[selectedNotif.type]}</span>
+          <span className="flex-1 text-center font-bold text-primary-deep text-[17px]">{notifTypeLabel[selectedNotif.type]}</span>
           <div className="w-8" />
         </div>
 
@@ -153,49 +153,49 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
             <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", cfg.circleColor)}>
               <Icon className={cn("w-8 h-8", cfg.iconColor)} />
             </div>
-            <h2 className="text-xl font-bold text-[#0F172A] text-center mt-1">{selectedNotif.title}</h2>
-            <p className="text-sm text-[#94A3B8]">{selectedNotif.time}</p>
+            <h2 className="text-xl font-bold text-foreground text-center mt-1">{selectedNotif.title}</h2>
+            <p className="text-sm text-muted-foreground">{selectedNotif.time}</p>
           </div>
 
-          <div className="h-px bg-slate-100" />
-          <p className="text-[15px] text-[#374151] leading-[1.7]">{selectedNotif.body}</p>
-          <div className="h-px bg-slate-100" />
+          <div className="h-px bg-muted" />
+          <p className="text-[15px] text-foreground/80 leading-[1.7]">{selectedNotif.body}</p>
+          <div className="h-px bg-muted" />
 
           <div>
-            <p className="text-sm font-semibold text-[#0F172A] mb-2">Related Details</p>
-            <div className="bg-white rounded-xl border border-slate-100 p-4 space-y-2">
-              <p className="text-sm text-[#374151]">📋 Protocol-001</p>
-              <p className="text-sm text-[#374151]">🏥 Visit 7 · Follow-Up Visit</p>
-              <p className="text-sm text-[#374151]">📍 AIIMS Delhi, OPD Block 3</p>
-              <p className="text-sm text-[#374151]">📅 24 May 2025, 10:00 AM</p>
-              <p className="text-sm text-[#374151]">⏰ Window: 22–26 May 2025</p>
+            <p className="text-sm font-semibold text-foreground mb-2">Related Details</p>
+            <div className="bg-card rounded-xl border border-border p-4 space-y-2">
+              <p className="text-sm text-foreground/80">📋 Protocol-001</p>
+              <p className="text-sm text-foreground/80">🏥 Visit 7 · Follow-Up Visit</p>
+              <p className="text-sm text-foreground/80">📍 AIIMS Delhi, OPD Block 3</p>
+              <p className="text-sm text-foreground/80">📅 24 May 2025, 10:00 AM</p>
+              <p className="text-sm text-foreground/80">⏰ Window: 22–26 May 2025</p>
             </div>
           </div>
 
           {action && (
             <button onClick={() => onNavigate(action.screen)}
-              className="w-full bg-[#0D1B3E] text-white py-3.5 rounded-xl font-semibold text-sm">
+              className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">
               {action.label}
             </button>
           )}
 
           {/* Visit continuation / stopping for status-type notifications */}
           {["status-screen-fail","status-dropout","status-withdrawn","deviation-window","deviation-medication"].includes(selectedNotif.type) && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-amber-800">Visit Continuation Decision</p>
-              <p className="text-xs text-amber-700">Based on this alert, the PI or Research Team can choose to stop or continue the patient's visit schedule.</p>
+            <div className="bg-warning/10 border border-warning/20 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-warning">Visit Continuation Decision</p>
+              <p className="text-xs text-warning">Based on this alert, the PI or Research Team can choose to stop or continue the patient's visit schedule.</p>
               <div className="flex gap-3">
-                <button className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-xs font-semibold">
+                <button className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-xs font-semibold">
                   Stop Visits
                 </button>
-                <button className="flex-1 py-2.5 rounded-xl bg-green-600 text-white text-xs font-semibold">
+                <button className="flex-1 py-2.5 rounded-xl bg-success text-white text-xs font-semibold">
                   Continue Schedule
                 </button>
               </div>
             </div>
           )}
 
-          <button className="w-full text-center text-[#DC2626] text-sm font-medium py-2">
+          <button className="w-full text-center text-destructive text-sm font-medium py-2">
             🗑 Delete Notification
           </button>
         </div>
@@ -208,8 +208,8 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
     if (items.length === 0) return null
     return (
       <div key={label}>
-        <div className="px-4 py-2 bg-[#F8FAFC]">
-          <span className="text-[11px] text-[#94A3B8] uppercase font-semibold tracking-[0.8px]">{label}</span>
+        <div className="px-4 py-2 bg-surface">
+          <span className="text-[11px] text-muted-foreground uppercase font-semibold tracking-[0.8px]">{label}</span>
         </div>
         {items.map(notif => {
           const cfg = typeConfig[notif.type]
@@ -225,27 +225,27 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
               }}
               onContextMenu={e => { e.preventDefault(); setBulkMode(true); setSelected([notif.id]) }}
               className={cn(
-                "w-full px-4 py-3.5 flex gap-3 text-left border-b border-slate-50",
-                isSelected ? "bg-blue-50" : "bg-white"
+                "w-full px-4 py-3.5 flex gap-3 text-left border-b border-border",
+                isSelected ? "bg-info/5" : "bg-card"
               )}
             >
               <div className="flex items-start pt-0.5">
                 {bulkMode ? (
-                  <div className={cn("w-5 h-5 rounded border-2 flex items-center justify-center mr-2 flex-shrink-0", isSelected ? "border-[#1A3872] bg-[#1A3872]" : "border-slate-300 bg-white")}>
+                  <div className={cn("w-5 h-5 rounded border-2 flex items-center justify-center mr-2 flex-shrink-0", isSelected ? "border-primary bg-primary" : "border-border bg-card")}>
                     {isSelected && <Check className="w-3 h-3 text-white" />}
                   </div>
                 ) : (
-                  !notif.read && <div className="w-1.5 h-1.5 bg-[#2563EB] rounded-full mr-2 mt-1.5 flex-shrink-0" />
+                  !notif.read && <div className="w-1.5 h-1.5 bg-info rounded-full mr-2 mt-1.5 flex-shrink-0" />
                 )}
                 <div className={cn("w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0", cfg.circleColor)}>
                   <Icon className={cn("w-5 h-5", cfg.iconColor)} />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className={cn("text-sm text-[#0F172A]", !notif.read ? "font-bold" : "font-normal")}>{notif.title}</p>
-                <p className="text-[13px] text-[#64748B] line-clamp-2 mt-0.5">{notif.body}</p>
+                <p className={cn("text-sm text-foreground", !notif.read ? "font-bold" : "font-normal")}>{notif.title}</p>
+                <p className="text-[13px] text-muted-foreground line-clamp-2 mt-0.5">{notif.body}</p>
               </div>
-              <span className="text-[12px] text-[#94A3B8] flex-shrink-0 pt-0.5">{notif.time}</span>
+              <span className="text-[12px] text-muted-foreground flex-shrink-0 pt-0.5">{notif.time}</span>
             </button>
           )
         })}
@@ -254,31 +254,31 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC]">
+    <div className="h-full flex flex-col bg-surface">
       {/* App Bar */}
-      <div className="bg-white border-b border-slate-100 px-4 py-4 flex items-center gap-3">
+      <div className="bg-card border-b border-border px-4 py-4 flex items-center gap-3">
         {bulkMode ? (
           <>
-            <span className="flex-1 font-bold text-[#0D1B3E] text-[17px]">{selected.length} selected</span>
-            <button onClick={() => { setBulkMode(false); setSelected([]) }} className="text-[#2563EB] text-sm font-medium">Cancel</button>
+            <span className="flex-1 font-bold text-primary-deep text-[17px]">{selected.length} selected</span>
+            <button onClick={() => { setBulkMode(false); setSelected([]) }} className="text-info text-sm font-medium">Cancel</button>
           </>
         ) : (
           <>
-            <button onClick={onBack} className="p-1"><ChevronLeft className="w-6 h-6 text-[#0D1B3E]" /></button>
-            <span className="flex-1 text-center font-bold text-[#0D1B3E] text-[17px]">Notifications</span>
-            <button onClick={markAllRead} className="text-[#2563EB] text-sm font-medium">Mark All Read</button>
+            <button onClick={onBack} className="p-1"><ChevronLeft className="w-6 h-6 text-primary-deep" /></button>
+            <span className="flex-1 text-center font-bold text-primary-deep text-[17px]">Notifications</span>
+            <button onClick={markAllRead} className="text-info text-sm font-medium">Mark All Read</button>
           </>
         )}
       </div>
 
       {/* Filter Chips */}
-      <div className="px-4 py-3 flex gap-2 overflow-x-auto bg-white border-b border-slate-50 scrollbar-hide">
+      <div className="px-4 py-3 flex gap-2 overflow-x-auto bg-card border-b border-border scrollbar-hide">
         {filters.map(f => (
           <button key={f.id} onClick={() => setActiveFilter(f.id)}
             className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-sm border",
               activeFilter === f.id
-                ? "bg-[#FFF7ED] border-[#1A3872] text-[#1A3872] font-bold"
-                : "bg-white border-[#E2E8F0] text-[#64748B] font-medium"
+                ? "bg-warning/10 border-primary text-primary font-bold"
+                : "bg-card border-border text-muted-foreground font-medium"
             )}>
             {f.label}
           </button>
@@ -290,10 +290,10 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
             <Bell className="w-12 h-12 text-slate-300" />
-            <p className="font-semibold text-slate-500">No notifications here</p>
-            <p className="text-sm text-slate-400">You're all caught up!</p>
+            <p className="font-semibold text-muted-foreground">No notifications here</p>
+            <p className="text-sm text-muted-foreground/70">You're all caught up!</p>
             <button onClick={() => onNavigate("patient-dashboard")}
-              className="mt-2 px-5 py-2.5 rounded-xl border border-[#2563EB] text-[#2563EB] text-sm font-medium">
+              className="mt-2 px-5 py-2.5 rounded-xl border border-info text-info text-sm font-medium">
               Go to Dashboard
             </button>
           </div>
@@ -309,17 +309,17 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
 
       {/* Bulk Action Bar */}
       {bulkMode && (
-        <div className="px-4 py-3 bg-white border-t border-slate-100 shadow-lg flex items-center justify-between">
+        <div className="px-4 py-3 bg-card border-t border-border shadow-lg flex items-center justify-between">
           <button onClick={() => setSelected(filtered.map(n => n.id))}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-[#0F172A]">
+            className="px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground">
             Select All
           </button>
           <div className="flex gap-2">
             <button onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-100 text-[#DC2626] rounded-lg text-sm font-medium flex items-center gap-1">
+              className="px-4 py-2 bg-destructive/10 text-destructive rounded-lg text-sm font-medium flex items-center gap-1">
               <Trash2 className="w-4 h-4" /> Delete
             </button>
-            <button className="px-4 py-2 bg-amber-100 text-[#D97706] rounded-lg text-sm font-medium flex items-center gap-1">
+            <button className="px-4 py-2 bg-warning/15 text-warning rounded-lg text-sm font-medium flex items-center gap-1">
               <BellOff className="w-4 h-4" /> Stop
             </button>
           </div>
@@ -329,12 +329,12 @@ export function NotificationScreen({ onNavigate, onBack }: NotificationScreenPro
       {/* Delete Confirm Dialog */}
       {showDeleteConfirm && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-xl">
-            <h3 className="font-bold text-[#0F172A] text-lg mb-1">Delete {selected.length} notification{selected.length !== 1 ? "s" : ""}?</h3>
-            <p className="text-sm text-[#64748B] mb-5">This cannot be undone.</p>
+          <div className="bg-card rounded-2xl p-6 w-full max-w-xs shadow-xl">
+            <h3 className="font-bold text-foreground text-lg mb-1">Delete {selected.length} notification{selected.length !== 1 ? "s" : ""}?</h3>
+            <p className="text-sm text-muted-foreground mb-5">This cannot be undone.</p>
             <div className="flex gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2.5 rounded-xl border border-slate-300 text-sm font-medium text-[#374151]">Cancel</button>
-              <button onClick={deleteSelected} className="flex-1 py-2.5 rounded-xl bg-[#DC2626] text-white text-sm font-semibold">Delete</button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground/80">Cancel</button>
+              <button onClick={deleteSelected} className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-sm font-semibold">Delete</button>
             </div>
           </div>
         </div>

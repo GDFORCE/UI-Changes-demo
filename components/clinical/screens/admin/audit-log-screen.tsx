@@ -183,16 +183,16 @@ export function AuditLogScreen({ onBack }: AuditLogScreenProps) {
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">Platform activity log</h1>
-          <p className="text-sm text-gray-500">Immutable record of who did what, to which record, and when.</p>
+          <h1 className="text-xl font-bold text-primary">Platform activity log</h1>
+          <p className="text-sm text-muted-foreground">Immutable record of who did what, to which record, and when.</p>
         </div>
-        <Button type="button" className="bg-[#1A3872] hover:bg-[#15305f]" onClick={() => setShowExportSheet(true)}>
+        <Button type="button" className="bg-primary hover:bg-primary/90" onClick={() => setShowExportSheet(true)}>
           <Download className="h-4 w-4 mr-2" /> Export
         </Button>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
+      <div className="bg-card border border-border rounded-xl p-4 space-y-2">
         <div className="flex flex-wrap gap-2">
           <Select value={dateFilter} onValueChange={setDateFilter}>
             <SelectTrigger size="sm" className="flex-1">

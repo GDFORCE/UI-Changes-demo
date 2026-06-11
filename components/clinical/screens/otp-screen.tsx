@@ -109,10 +109,10 @@ function OtpRow({
   return (
     <div className="w-full mb-6">
       <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 text-[#1A3872]" />
-        <span className="text-sm text-gray-600">
+        <Icon className="w-4 h-4 text-primary" />
+        <span className="text-sm text-muted-foreground">
           {channel === "phone" ? "Phone" : "Email"} —{" "}
-          <span className="font-semibold text-gray-900">{destination}</span>
+          <span className="font-semibold text-foreground">{destination}</span>
         </span>
       </div>
       <div className="flex gap-2">
@@ -130,8 +130,8 @@ function OtpRow({
             onFocus={() => setFocusedIndex(index)}
             className={cn(
               "w-11 h-14 text-center text-xl font-semibold rounded-lg border-2 outline-none transition-all",
-              digit ? "border-[#2563EB] bg-blue-50"
-                : focusedIndex === index ? "border-[#1A3872] bg-white" : "border-gray-300 bg-white"
+              digit ? "border-info bg-info/5"
+                : focusedIndex === index ? "border-primary bg-card" : "border-border bg-card"
             )}
           />
         ))}
@@ -182,22 +182,22 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
   const allComplete = isPatient ? phoneComplete : phoneComplete && emailComplete
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-card">
       <AppBar title="Verify OTP" showBack onBack={onBack} />
 
       <div className="flex-1 px-6 py-8 flex flex-col items-center overflow-auto">
-        <div className={cn("w-24 h-24 rounded-full flex items-center justify-center mb-6", isLocked ? "bg-red-100" : "bg-blue-100")}>
-          {isLocked ? <ShieldOff className="w-12 h-12 text-red-500" /> : <Smartphone className="w-12 h-12 text-[#1A3872]" />}
+        <div className={cn("w-24 h-24 rounded-full flex items-center justify-center mb-6", isLocked ? "bg-destructive/10" : "bg-info/10")}>
+          {isLocked ? <ShieldOff className="w-12 h-12 text-destructive" /> : <Smartphone className="w-12 h-12 text-primary" />}
         </div>
 
         {isLocked ? (
           <div className="text-center mb-8">
-            <p className="font-bold text-red-600 text-lg mb-2">Account Temporarily Locked</p>
-            <p className="text-gray-500 text-sm">Too many resend attempts. Please contact support or try again after 30 minutes.</p>
+            <p className="font-bold text-destructive text-lg mb-2">Account Temporarily Locked</p>
+            <p className="text-muted-foreground text-sm">Too many resend attempts. Please contact support or try again after 30 minutes.</p>
           </div>
         ) : (
           <>
-            <p className="text-gray-600 text-center mb-6">
+            <p className="text-muted-foreground text-center mb-6">
               {isPatient
                 ? "We've sent a 6-digit OTP to your phone"
                 : "We've sent a 6-digit OTP to both your phone and email"}
@@ -214,23 +214,23 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
             ))}
 
             {timeLeft > 0 ? (
-              <div className="flex items-center gap-2 text-gray-600 mb-4">
+              <div className="flex items-center gap-2 text-muted-foreground mb-4">
                 <Clock className="w-4 h-4" />
-                <span>Expires in <span className="font-semibold text-[#1A3872]">{formatTime(timeLeft)}</span></span>
+                <span>Expires in <span className="font-semibold text-primary">{formatTime(timeLeft)}</span></span>
               </div>
             ) : (
-              <p className="text-red-500 text-sm mb-4">OTP expired</p>
+              <p className="text-destructive text-sm mb-4">OTP expired</p>
             )}
 
             <div className="flex flex-col items-center gap-1 mb-8">
               <button
                 onClick={handleResend}
                 disabled={timeLeft > 0}
-                className={cn("font-medium", timeLeft > 0 ? "text-slate-400" : "text-[#1A3872]")}
+                className={cn("font-medium", timeLeft > 0 ? "text-muted-foreground/70" : "text-primary")}
               >
                 Resend OTP
               </button>
-              <p className="text-xs text-slate-400">{resendCount}/{MAX_RESEND} resend attempts used</p>
+              <p className="text-xs text-muted-foreground/70">{resendCount}/{MAX_RESEND} resend attempts used</p>
             </div>
           </>
         )}
@@ -240,7 +240,7 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
         <button
           onClick={onVerify}
           disabled={isLocked || !allComplete}
-          className={cn("w-full py-4 rounded-full font-semibold", isLocked || !allComplete ? "bg-slate-200 text-slate-400" : "bg-[#1A3872] text-white")}
+          className={cn("w-full py-4 rounded-full font-semibold", isLocked || !allComplete ? "bg-border text-muted-foreground/70" : "bg-primary text-white")}
         >
           Verify OTP
         </button>

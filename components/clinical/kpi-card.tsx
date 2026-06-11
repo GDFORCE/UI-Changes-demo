@@ -1,4 +1,5 @@
 import * as React from "react"
+import { TrendingDown, TrendingUp } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
@@ -45,6 +46,8 @@ interface KpiCardProps extends React.ComponentProps<"div"> {
   label: string
   hint?: string
   tone?: KpiTone
+  /** Optional trend delta, e.g. "+12%" (direction inferred from leading "-"). */
+  delta?: string
 }
 
 export function KpiCard({
@@ -53,26 +56,48 @@ export function KpiCard({
   label,
   hint,
   tone = "default",
+  delta,
   className,
   ...props
 }: KpiCardProps) {
   const t = toneClasses[tone]
+  const deltaDown = delta?.trimStart().startsWith("-")
+  const DeltaIcon = deltaDown ? TrendingDown : TrendingUp
   return (
     <Card
       className={cn(
-        "shadow-none gap-3 rounded-xl p-4 py-4",
+        "gap-3 rounded-xl p-4 py-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none",
         t.card,
         className,
       )}
       {...props}
     >
-      {Icon && (
-        <div className={cn("flex h-8 w-8 items-center justify-center rounded-md", t.icon)}>
-          <Icon className="h-4 w-4" />
+      {(Icon || delta) && (
+        <div className="flex items-start justify-between">
+          {Icon && (
+            <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", t.icon)}>
+              <Icon className="h-4 w-4" />
+            </div>
+          )}
+          {delta && (
+            <span
+              className={cn(
+                "ml-auto inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                tone === "primary"
+                  ? "bg-primary-foreground/15 text-primary-foreground"
+                  : deltaDown
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-success/10 text-success",
+              )}
+            >
+              <DeltaIcon className="h-3 w-3" />
+              {delta}
+            </span>
+          )}
         </div>
       )}
       <div className="space-y-0.5">
-        <p className={cn("font-heading text-2xl font-semibold leading-none", t.value)}>{value}</p>
+        <p className={cn("font-heading text-2xl font-semibold leading-none tracking-tight", t.value)}>{value}</p>
         <p className={cn("text-xs", t.label)}>{label}</p>
         {hint && <p className={cn("text-xs", t.label, "opacity-80")}>{hint}</p>}
       </div>

@@ -184,16 +184,16 @@ const crcSponsors = [
 ]
 
 const statusStyle: Record<string, { label: string; bg: string; text: string }> = {
-  "on-track": { label: "On Track", bg: "bg-emerald-100", text: "text-emerald-700" },
-  overdue:    { label: "Overdue",  bg: "bg-red-100",     text: "text-red-700" },
-  completed:  { label: "Completed",bg: "bg-blue-100",    text: "text-blue-700" },
-  withdrawn:  { label: "Withdrawn",bg: "bg-slate-100",   text: "text-slate-500" },
+  "on-track": { label: "On Track", bg: "bg-success/15", text: "text-success" },
+  overdue:    { label: "Overdue",  bg: "bg-destructive/10",     text: "text-destructive" },
+  completed:  { label: "Completed",bg: "bg-info/10",    text: "text-info" },
+  withdrawn:  { label: "Withdrawn",bg: "bg-muted",   text: "text-muted-foreground" },
 }
 
 const priorityStyle: Record<string, { dot: string; badge: string; badgeText: string }> = {
-  high:   { dot: "bg-red-500",   badge: "bg-red-100",   badgeText: "text-red-700" },
-  medium: { dot: "bg-amber-400", badge: "bg-amber-100", badgeText: "text-amber-700" },
-  low:    { dot: "bg-teal-400",  badge: "bg-teal-100",  badgeText: "text-teal-700" },
+  high:   { dot: "bg-destructive",   badge: "bg-destructive/10",   badgeText: "text-destructive" },
+  medium: { dot: "bg-warning", badge: "bg-warning/15", badgeText: "text-warning" },
+  low:    { dot: "bg-teal-400",  badge: "bg-accent/10",  badgeText: "text-accent" },
 }
 
 const categoryIcon: Record<string, React.FC<{ className?: string }>> = {
@@ -273,22 +273,22 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
   }
 
   const trialStatusColor: Record<string, string> = {
-    Active: "bg-emerald-100 text-emerald-700",
-    Completed: "bg-blue-100 text-blue-700",
-    Terminated: "bg-red-100 text-red-700",
+    Active: "bg-success/15 text-success",
+    Completed: "bg-info/10 text-info",
+    Terminated: "bg-destructive/10 text-destructive",
   }
 
   // One trial = one clickable panel → Trial Summary
   const TrialPanel = ({ tr }: { tr: typeof crcTrials[0] }) => (
-    <button onClick={() => setSelectedTrial(tr)} className="w-full text-left bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+    <button onClick={() => setSelectedTrial(tr)} className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs">
       <div className="flex items-center justify-between mb-2">
-        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{tr.id}</span>
+        <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{tr.id}</span>
         <div className="flex items-center gap-1.5">
-          <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", trialStatusColor[tr.status] || "bg-slate-100 text-slate-600")}>{tr.status}</span>
-          <ChevronRight className="w-4 h-4 text-slate-400" />
+          <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", trialStatusColor[tr.status] || "bg-muted text-muted-foreground")}>{tr.status}</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
         </div>
       </div>
-      <h4 className="font-semibold text-[#0F172A] text-sm mb-2">{tr.title}</h4>
+      <h4 className="font-semibold text-foreground text-sm mb-2">{tr.title}</h4>
       <div className="grid grid-cols-2 gap-y-1.5 gap-x-3">
         {[
           { label: "Phase", val: tr.phase },
@@ -300,8 +300,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           { label: "Department", val: tr.department },
         ].map(f => (
           <div key={f.label} className={f.label === "Department" ? "col-span-2 text-center" : undefined}>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-            <p className="text-xs font-medium text-[#0F172A]">{f.val}</p>
+            <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+            <p className="text-xs font-medium text-foreground">{f.val}</p>
           </div>
         ))}
       </div>
@@ -309,22 +309,22 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
   )
 
   const SponsorPanel = ({ sponsor }: { sponsor: typeof crcSponsors[0] }) => (
-    <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-          <Building2 className="w-4 h-4 text-[#2563EB]" />
+        <div className="w-9 h-9 rounded-xl bg-info/5 flex items-center justify-center">
+          <Building2 className="w-4 h-4 text-info" />
         </div>
         <div>
-          <p className="text-[10px] text-slate-400 uppercase tracking-wide">Sponsor Name</p>
-          <h4 className="font-semibold text-[#0F172A] text-sm">{sponsor.name}</h4>
+          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sponsor Name</p>
+          <h4 className="font-semibold text-foreground text-sm">{sponsor.name}</h4>
         </div>
       </div>
       <div className="space-y-2">
         {sponsor.trials.map(tr => (
-          <button key={tr.id} onClick={() => setSelectedTrial(tr)} className="w-full text-left rounded-xl border border-slate-100 bg-slate-50 p-3">
+          <button key={tr.id} onClick={() => setSelectedTrial(tr)} className="w-full text-left rounded-xl border border-border bg-surface p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-[#2563EB]">{tr.id}</span>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <span className="text-xs font-bold text-info">{tr.id}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
             </div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
               {[
@@ -342,8 +342,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                 { label: "Completed", val: tr.completed },
               ].map(f => (
                 <div key={f.label}>
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-                  <p className="text-xs font-semibold text-[#0F172A]">{f.val}</p>
+                  <p className="text-[9px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-xs font-semibold text-foreground">{f.val}</p>
                 </div>
               ))}
             </div>
@@ -380,53 +380,53 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     <div className="flex-1 overflow-auto pb-4 space-y-4 pt-4">
       {/* Hero */}
       <div className="px-4">
-        <div className="bg-gradient-to-br from-[#0D1B3E] via-[#1A3872] to-[#2563EB] rounded-2xl p-5 text-white shadow-lg">
+        <div className="hero-glow bg-gradient-to-br from-primary-deep via-primary to-info rounded-2xl p-5 text-white shadow-md">
           <h2 className="text-xl font-bold mb-0.5 font-[family-name:var(--font-heading)]">Good morning, Meera</h2>
-          <p className="text-blue-200 text-sm mb-4">CRC · Protocol-001 · Site 02</p>
+          <p className="text-primary-foreground/75 text-sm mb-4">CRC · Protocol-001 · Site 02</p>
           <div className="h-2 bg-white/20 rounded-full overflow-hidden mb-1.5">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-teal-400 to-teal-300 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-accent to-accent/70 transition-all duration-500"
               style={{ width: `${todayTasksTotal > 0 ? (todayTasksDone / todayTasksTotal) * 100 : 0}%` }}
             />
           </div>
-          <p className="text-xs text-blue-200">{todayTasksDone}/{todayTasksTotal} tasks done today</p>
+          <p className="text-xs text-primary-foreground/75">{todayTasksDone}/{todayTasksTotal} tasks done today</p>
         </div>
       </div>
 
       <div className="px-4 grid grid-cols-2 gap-3">
-        <button onClick={() => setShowAllTrials(true)} className="bg-white rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
-          <FileText className="w-5 h-5 text-[#2563EB] mb-2" />
-          <p className="text-2xl font-bold text-[#0F172A]">{crcTrials.length}</p>
-          <p className="text-xs text-slate-500">Total Trials</p>
+        <button onClick={() => setShowAllTrials(true)} className="bg-card rounded-2xl border border-border p-4 text-left shadow-xs">
+          <FileText className="w-5 h-5 text-info mb-2" />
+          <p className="text-2xl font-bold text-foreground">{crcTrials.length}</p>
+          <p className="text-xs text-muted-foreground">Total Trials</p>
         </button>
-        <button onClick={() => setShowSponsors(true)} className="bg-white rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
-          <Building2 className="w-5 h-5 text-[#0D9488] mb-2" />
-          <p className="text-2xl font-bold text-[#0F172A]">{crcSponsors.length}</p>
-          <p className="text-xs text-slate-500">Sponsors</p>
+        <button onClick={() => setShowSponsors(true)} className="bg-card rounded-2xl border border-border p-4 text-left shadow-xs">
+          <Building2 className="w-5 h-5 text-accent mb-2" />
+          <p className="text-2xl font-bold text-foreground">{crcSponsors.length}</p>
+          <p className="text-xs text-muted-foreground">Sponsors</p>
         </button>
       </div>
 
       {/* Quick Actions */}
       <div className="px-4">
-        <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">Quick Actions</h3>
+        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Quick Actions</h3>
         <div className="grid grid-cols-3 gap-3">
-          <button onClick={() => onNavigate("add-trial")} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm flex flex-col items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <FilePlus2 className="w-5 h-5 text-[#2563EB]" />
+          <button onClick={() => onNavigate("add-trial")} className="bg-card rounded-2xl border border-border p-3 shadow-xs flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-info/5 flex items-center justify-center">
+              <FilePlus2 className="w-5 h-5 text-info" />
             </div>
-            <span className="text-xs font-medium text-[#0F172A] text-center leading-tight">New Trial</span>
+            <span className="text-xs font-medium text-foreground text-center leading-tight">New Trial</span>
           </button>
-          <button onClick={() => onNavigate("add-patient")} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm flex flex-col items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-[#0D9488]" />
+          <button onClick={() => onNavigate("add-patient")} className="bg-card rounded-2xl border border-border p-3 shadow-xs flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+              <UserPlus className="w-5 h-5 text-accent" />
             </div>
-            <span className="text-xs font-medium text-[#0F172A] text-center leading-tight">Add Patient</span>
+            <span className="text-xs font-medium text-foreground text-center leading-tight">Add Patient</span>
           </button>
-          <button onClick={() => onNavigate("invite-patient")} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm flex flex-col items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-              <Send className="w-5 h-5 text-amber-600" />
+          <button onClick={() => onNavigate("invite-patient")} className="bg-card rounded-2xl border border-border p-3 shadow-xs flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center">
+              <Send className="w-5 h-5 text-warning" />
             </div>
-            <span className="text-xs font-medium text-[#0F172A] text-center leading-tight">Invite Patient</span>
+            <span className="text-xs font-medium text-foreground text-center leading-tight">Invite Patient</span>
           </button>
         </div>
       </div>
@@ -434,8 +434,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       {/* Trials Panel */}
       <div className="px-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">My Trials</h3>
-          <button onClick={() => setShowAllTrials(true)} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
+          <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">My Trials</h3>
+          <button onClick={() => setShowAllTrials(true)} className="text-info text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
         </div>
         <div className="space-y-3">
           {crcTrials.slice(0, 2).map(tr => <TrialPanel key={tr.id} tr={tr} />)}
@@ -445,10 +445,10 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       {/* My Tasks Today */}
       <div className="px-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">My Tasks Today</h3>
+          <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">My Tasks Today</h3>
           <button
             onClick={() => setActiveTab("tasks")}
-            className="text-xs text-[#2563EB] font-medium flex items-center gap-0.5"
+            className="text-xs text-info font-medium flex items-center gap-0.5"
           >
             All Tasks <ChevronRight className="w-3.5 h-3.5" />
           </button>
@@ -460,7 +460,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
             return (
               <div
                 key={task.id}
-                className={cn("bg-white rounded-2xl p-3 shadow-sm flex items-center gap-3 transition-opacity", task.done && "opacity-50")}
+                className={cn("bg-card rounded-2xl p-3 shadow-sm flex items-center gap-3 transition-opacity", task.done && "opacity-50")}
               >
                 <button onClick={() => toggleTask(task.id)} className="shrink-0">
                   {task.done
@@ -470,10 +470,10 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                 </button>
                 <div className={cn("w-1 h-8 rounded-full shrink-0", style.dot)} />
                 <div className="flex-1 min-w-0">
-                  <p className={cn("text-sm font-medium text-[#0F172A]", task.done && "line-through text-slate-400")}>
+                  <p className={cn("text-sm font-medium text-foreground", task.done && "line-through text-muted-foreground/70")}>
                     {task.title}
                   </p>
-                  <p className="text-xs text-slate-400">{task.patient}</p>
+                  <p className="text-xs text-muted-foreground/70">{task.patient}</p>
                 </div>
                 <Icon className="w-4 h-4 text-slate-300 shrink-0" />
               </div>
@@ -484,31 +484,31 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
       {/* Today's Visits */}
       <div className="px-4">
-        <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">Today's Visits</h3>
+        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Today's Visits</h3>
         <div className="space-y-2">
           {todayVisits.map((visit) => {
             const done = completedVisits.has(visit.id)
             return (
-              <div key={visit.id} className={cn("bg-white rounded-2xl p-4 shadow-sm border-l-4 transition-all", done ? "border-teal-400" : "border-[#2563EB]")}>
+              <div key={visit.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4 transition-all", done ? "border-teal-400" : "border-info")}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#0F172A] text-sm">{visit.name}</p>
-                    <p className="text-xs text-slate-400">{visit.patient} · {visit.visit}</p>
+                    <p className="font-semibold text-foreground text-sm">{visit.name}</p>
+                    <p className="text-xs text-muted-foreground/70">{visit.patient} · {visit.visit}</p>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {visit.time}
                       </span>
-                      <span className="text-xs text-slate-500">{visit.type}</span>
+                      <span className="text-xs text-muted-foreground">{visit.type}</span>
                     </div>
                   </div>
                   {done ? (
-                    <div className="flex items-center gap-1 text-teal-600 text-xs font-medium">
+                    <div className="flex items-center gap-1 text-accent text-xs font-medium">
                       <CheckCircle className="w-4 h-4" /> Done
                     </div>
                   ) : (
                     <button
                       onClick={() => markVisitDone(visit.id)}
-                      className="bg-[#0D1B3E] text-white px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0"
+                      className="bg-primary-deep text-white px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0"
                     >
                       Mark Done
                     </button>
@@ -523,16 +523,16 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       {/* Overdue */}
       {overduePatients.length > 0 && (
         <div className="px-4">
-          <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">Overdue</h3>
+          <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Overdue</h3>
           {overduePatients.map((p) => (
-            <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-red-400">
+            <div key={p.id} className="bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4 border-red-400">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-[#0F172A] text-sm">{p.name}</p>
-                  <p className="text-xs text-slate-400">{p.id} · {p.visit}</p>
-                  <p className="text-xs text-red-500 mt-1">{p.daysOverdue} days overdue · Last: {p.lastContact}</p>
+                  <p className="font-semibold text-foreground text-sm">{p.name}</p>
+                  <p className="text-xs text-muted-foreground/70">{p.id} · {p.visit}</p>
+                  <p className="text-xs text-destructive mt-1">{p.daysOverdue} days overdue · Last: {p.lastContact}</p>
                 </div>
-                <button className="bg-red-50 border border-red-200 text-red-700 px-3 py-1.5 rounded-xl text-xs font-semibold">
+                <button className="bg-destructive/5 border border-destructive/20 text-destructive px-3 py-1.5 rounded-xl text-xs font-semibold">
                   Review
                 </button>
               </div>
@@ -543,18 +543,18 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
       {/* Pending Submissions */}
       <div className="px-4">
-        <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">Pending Submissions</h3>
+        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Pending Submissions</h3>
         <div className="space-y-2">
           {pendingSubmissions.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl p-3 shadow-sm flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4 text-purple-600" />
+            <div key={item.id} className="bg-card rounded-2xl p-3 shadow-sm flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-violet/10 flex items-center justify-center shrink-0">
+                <FileText className="w-4 h-4 text-violet" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#0F172A]">{item.id}: {item.form}</p>
-                <p className="text-xs text-slate-400">{item.patient} · {item.visit}</p>
+                <p className="text-sm font-medium text-foreground">{item.id}: {item.form}</p>
+                <p className="text-xs text-muted-foreground/70">{item.patient} · {item.visit}</p>
               </div>
-              <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium shrink-0">
+              <span className="text-[10px] bg-warning/15 text-warning px-2 py-1 rounded-full font-medium shrink-0">
                 {item.status}
               </span>
             </div>
@@ -570,13 +570,13 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       <div className="flex gap-2 mb-1">
         <button
           onClick={() => onNavigate("add-patient")}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-[#0D1B3E] text-white py-2.5 rounded-xl text-xs font-semibold"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-primary-deep text-white py-2.5 rounded-xl text-xs font-semibold"
         >
           <UserPlus className="w-4 h-4" /> Add Patient
         </button>
         <button
           onClick={() => onNavigate("invite-patient")}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-white border border-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-card border border-border text-foreground/80 py-2.5 rounded-xl text-xs font-semibold"
         >
           <Send className="w-4 h-4" /> Send Invite
         </button>
@@ -584,39 +584,39 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       {patients.map((p) => {
         const style = statusStyle[p.status]
         return (
-          <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm">
+          <div key={p.id} className="bg-card rounded-2xl border border-border p-4 shadow-xs">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="font-semibold text-[#0F172A]">{p.name}</p>
-                <p className="text-xs text-slate-400">{p.id} · Age {p.age}</p>
+                <p className="font-semibold text-foreground">{p.name}</p>
+                <p className="text-xs text-muted-foreground/70">{p.id} · Age {p.age}</p>
               </div>
               <span className={cn("px-2 py-0.5 rounded-full text-[11px] font-medium", style.bg, style.text)}>
                 {style.label}
               </span>
             </div>
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <p className="text-xs text-slate-500 flex items-center gap-1">
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="w-3 h-3" /> {visitLine(p)}
               </p>
               {p.visitCompleted && (
-                <span className="text-[10px] bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                <span className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" /> Visit completed
                 </span>
               )}
             </div>
             {p.note && (
-              <p className="text-[11px] text-slate-400 mb-3 -mt-1">Remarks: {p.note}</p>
+              <p className="text-[11px] text-muted-foreground/70 mb-3 -mt-1">Remarks: {p.note}</p>
             )}
             <div className="flex gap-2">
               <button
                 onClick={() => openVisitUpdate(p)}
-                className="flex-1 bg-[#0D1B3E] text-white py-2 rounded-xl text-xs font-semibold"
+                className="flex-1 bg-primary-deep text-white py-2 rounded-xl text-xs font-semibold"
               >
                 Update Visit
               </button>
               <button
                 onClick={() => setViewPatient(p)}
-                className="flex-1 bg-slate-50 border border-slate-200 text-slate-700 py-2 rounded-xl text-xs font-semibold"
+                className="flex-1 bg-surface border border-border text-foreground/80 py-2 rounded-xl text-xs font-semibold"
               >
                 View Record
               </button>
@@ -647,8 +647,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
               className={cn(
                 "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors shrink-0",
                 taskFilter === f
-                  ? "bg-[#0D1B3E] text-white"
-                  : "bg-white text-slate-500 border border-slate-200"
+                  ? "bg-primary-deep text-white"
+                  : "bg-card text-muted-foreground border border-border"
               )}
             >
               {labels[f]} {count > 0 && <span className="ml-1 opacity-70">({count})</span>}
@@ -659,7 +659,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
       <div className="px-4 space-y-2">
         {filteredTasks.length === 0 && (
-          <div className="bg-white rounded-2xl p-6 text-center text-slate-400 text-sm shadow-sm">
+          <div className="bg-card rounded-2xl p-6 text-center text-muted-foreground/70 text-sm shadow-sm">
             No tasks in this category
           </div>
         )}
@@ -669,7 +669,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           return (
             <div
               key={task.id}
-              className={cn("bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3", task.done && "opacity-60")}
+              className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs flex items-center gap-3", task.done && "opacity-60")}
             >
               <button onClick={() => toggleTask(task.id)} className="shrink-0">
                 {task.done
@@ -679,16 +679,16 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
               </button>
               <div className={cn("w-1 h-10 rounded-full shrink-0", style.dot)} />
               <div className="flex-1 min-w-0">
-                <p className={cn("text-sm font-medium text-[#0F172A]", task.done && "line-through text-slate-400")}>
+                <p className={cn("text-sm font-medium text-foreground", task.done && "line-through text-muted-foreground/70")}>
                   {task.title}
                 </p>
-                <p className="text-xs text-slate-400">{task.patient}</p>
+                <p className="text-xs text-muted-foreground/70">{task.patient}</p>
               </div>
               <div className="flex flex-col items-end gap-1 shrink-0">
                 <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", style.badge, style.badgeText)}>
                   {task.priority}
                 </span>
-                <span className={cn("text-[10px]", task.due === "Overdue" ? "text-red-500 font-medium" : "text-slate-400")}>
+                <span className={cn("text-[10px]", task.due === "Overdue" ? "text-destructive font-medium" : "text-muted-foreground/70")}>
                   {task.due}
                 </span>
               </div>
@@ -704,7 +704,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     <SiteUserProfile
       user={{
         initials: "MC",
-        avatarColor: "bg-[#0D9488]",
+        avatarColor: "bg-accent",
         name: "Meera CRC",
         designation: "Clinical Research Coordinator",
         phone: "+91 98401 22334",
@@ -733,8 +733,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
   // ── All Trials list ──────────────────────────────────────
   if (showAllTrials) {
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setShowAllTrials(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Total Trials</span>
           <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
@@ -750,8 +750,8 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
   if (showSponsors) {
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setShowSponsors(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Sponsors</span>
         </div>
@@ -767,18 +767,18 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     const p = viewPatient
     const style = statusStyle[p.status]
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setViewPatient(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Patient Record</span>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
           {/* Identity card */}
-          <div className="bg-[#0D1B3E] rounded-2xl p-5 text-white">
+          <div className="bg-primary-deep rounded-2xl p-5 text-white">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h2 className="text-lg font-bold">{p.name}</h2>
-                <p className="text-blue-200 text-sm">{p.id} · Age {p.age}</p>
+                <p className="text-primary-foreground/75 text-sm">{p.id} · Age {p.age}</p>
               </div>
               <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", style.bg, style.text)}>{style.label}</span>
             </div>
@@ -792,7 +792,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                 { label: "Last Updated", val: p.lastUpdated ?? "—" },
               ].map(f => (
                 <div key={f.label}>
-                  <p className="text-[10px] text-blue-200/80 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-[10px] text-primary-foreground/75/80 uppercase tracking-wide">{f.label}</p>
                   <p className="text-sm font-medium">{f.val}</p>
                 </div>
               ))}
@@ -800,33 +800,33 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           </div>
 
           {/* Remarks */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Remarks</p>
-            <p className="text-sm text-[#0F172A]">{p.note?.trim() ? p.note : "No remarks recorded yet."}</p>
+          <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+            <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide mb-1">Remarks</p>
+            <p className="text-sm text-foreground">{p.note?.trim() ? p.note : "No remarks recorded yet."}</p>
           </div>
 
           {/* System-generated visit schedule */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-[#0F172A] text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
-              <span className="text-xs text-slate-400">{PROTOCOL_SCHEDULE.length} visits</span>
+              <h3 className="font-semibold text-foreground text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
+              <span className="text-xs text-muted-foreground/70">{PROTOCOL_SCHEDULE.length} visits</span>
             </div>
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Visit</th>
-                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Visit Name</th>
-                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400 text-right">Window Period</th>
+                  <tr className="bg-surface border-b border-border">
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">Visit</th>
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">Visit Name</th>
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 text-right">Window Period</th>
                   </tr>
                 </thead>
                 <tbody>
                   {buildVisitSchedule(p).map((v, i, arr) => {
                     const sc = {
                       completed: { Icon: CheckCircle, color: "text-teal-500" },
-                      missed:    { Icon: AlertTriangle, color: "text-red-500" },
-                      upcoming:  { Icon: Clock, color: "text-blue-500" },
-                      planned:   { Icon: Calendar, color: "text-slate-400" },
+                      missed:    { Icon: AlertTriangle, color: "text-destructive" },
+                      upcoming:  { Icon: Clock, color: "text-info" },
+                      planned:   { Icon: Calendar, color: "text-muted-foreground/70" },
                     }[v.state]
                     const Icon = sc.Icon
                     const windowLabel = (() => {
@@ -838,15 +838,15 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                       return `${fmt(start)} – ${fmt(end)}`
                     })()
                     return (
-                      <tr key={v.visit} className={cn(i < arr.length - 1 && "border-b border-slate-50")}>
+                      <tr key={v.visit} className={cn(i < arr.length - 1 && "border-b border-border")}>
                         <td className="py-2.5 px-3">
                           <div className="flex items-center gap-1.5">
                             <Icon className={cn("w-3.5 h-3.5 shrink-0", sc.color)} />
-                            <span className="text-sm font-semibold text-[#0F172A] whitespace-nowrap">{v.visit}</span>
+                            <span className="text-sm font-semibold text-foreground whitespace-nowrap">{v.visit}</span>
                           </div>
                         </td>
-                        <td className="py-2.5 px-3 text-xs text-slate-500">{v.type}</td>
-                        <td className="py-2.5 px-3 text-xs text-slate-500 text-right whitespace-nowrap">{windowLabel}</td>
+                        <td className="py-2.5 px-3 text-xs text-muted-foreground">{v.type}</td>
+                        <td className="py-2.5 px-3 text-xs text-muted-foreground text-right whitespace-nowrap">{windowLabel}</td>
                       </tr>
                     )
                   })}
@@ -858,38 +858,38 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           {/* Visit history */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-[#0F172A] text-sm font-[family-name:var(--font-heading)]">Visit History</h3>
-              <span className="text-xs text-slate-400">
+              <h3 className="font-semibold text-foreground text-sm font-[family-name:var(--font-heading)]">Visit History</h3>
+              <span className="text-xs text-muted-foreground/70">
                 {(p.history ?? []).filter(v => v.outcome === "completed").length} completed
               </span>
             </div>
             {(p.history && p.history.length > 0) ? (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
                 <div className="relative pl-6">
                   {/* vertical line */}
-                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-slate-200" />
+                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border" />
                   <div className="space-y-4">
                     {[...p.history].sort((a, b) => b.dateISO.localeCompare(a.dateISO)).map((v, i) => {
                       const oc = {
-                        completed: { Icon: CheckCircle, color: "text-teal-500", label: "Completed", badge: "bg-teal-100 text-teal-700" },
-                        missed:    { Icon: AlertTriangle, color: "text-red-500", label: "Missed", badge: "bg-red-100 text-red-700" },
-                        scheduled: { Icon: Clock, color: "text-blue-500", label: "Scheduled", badge: "bg-blue-100 text-blue-700" },
+                        completed: { Icon: CheckCircle, color: "text-teal-500", label: "Completed", badge: "bg-accent/10 text-accent" },
+                        missed:    { Icon: AlertTriangle, color: "text-destructive", label: "Missed", badge: "bg-destructive/10 text-destructive" },
+                        scheduled: { Icon: Clock, color: "text-info", label: "Scheduled", badge: "bg-info/10 text-info" },
                       }[v.outcome]
                       const Icon = oc.Icon
                       return (
                         <div key={`${v.visit}-${i}`} className="relative">
-                          <div className="absolute -left-6 top-0.5 bg-white">
+                          <div className="absolute -left-6 top-0.5 bg-card">
                             <Icon className={cn("w-3.5 h-3.5", oc.color)} />
                           </div>
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold text-[#0F172A]">{v.visit}</p>
+                            <p className="text-sm font-semibold text-foreground">{v.visit}</p>
                             <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0", oc.badge)}>{oc.label}</span>
                           </div>
-                          <p className="text-xs text-slate-500">{v.type}</p>
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-xs text-muted-foreground">{v.type}</p>
+                          <p className="text-[11px] text-muted-foreground/70">
                             {v.dateISO ? new Date(v.dateISO + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
                           </p>
-                          {v.note && <p className="text-[11px] text-slate-500 mt-0.5 italic">“{v.note}”</p>}
+                          {v.note && <p className="text-[11px] text-muted-foreground mt-0.5 italic">“{v.note}”</p>}
                         </div>
                       )
                     })}
@@ -897,7 +897,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 text-center text-sm text-slate-400">
+              <div className="bg-card rounded-2xl border border-border shadow-xs p-4 text-center text-sm text-muted-foreground/70">
                 No visits recorded yet.
               </div>
             )}
@@ -905,7 +905,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
           <button
             onClick={() => { setViewPatient(null); openVisitUpdate(p) }}
-            className="w-full bg-[#0D1B3E] text-white py-3 rounded-xl text-sm font-semibold"
+            className="w-full bg-primary-deep text-white py-3 rounded-xl text-sm font-semibold"
           >
             Update Visit
           </button>
@@ -915,7 +915,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC] relative">
+    <div className="h-full flex flex-col bg-surface relative">
       <AppBar
         title="Research Team"
         subtitle="Meera · CRC · Protocol-001"
@@ -928,7 +928,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       {activeTab === "dashboard" && renderDashboard()}
       {activeTab === "patients" && renderPatients()}
       {activeTab === "notifs" && (
-        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+        <div className="flex-1 flex items-center justify-center text-muted-foreground/70 text-sm">
           Notifications coming soon
         </div>
       )}
@@ -950,30 +950,30 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
         <div className="absolute inset-0 z-30 flex items-end" onClick={() => setEditPatient(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="relative w-full bg-white rounded-t-3xl p-5 max-h-[85%] overflow-auto shadow-2xl"
+            className="relative w-full bg-card rounded-t-3xl p-5 max-h-[85%] overflow-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-bold text-[#0F172A] text-base font-[family-name:var(--font-heading)]">Update Visit</h3>
-                <p className="text-xs text-slate-400">{editPatient.name} · {editPatient.id}</p>
+                <h3 className="font-bold text-foreground text-base font-[family-name:var(--font-heading)]">Update Visit</h3>
+                <p className="text-xs text-muted-foreground/70">{editPatient.name} · {editPatient.id}</p>
               </div>
-              <button onClick={() => setEditPatient(null)} className="p-1 text-slate-400">
+              <button onClick={() => setEditPatient(null)} className="p-1 text-muted-foreground/70">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4">
               {/* Trial context (read-only) */}
-              <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 border border-slate-100 p-3">
+              <div className="grid grid-cols-3 gap-2 rounded-xl bg-surface border border-border p-3">
                 {[
                   { label: "Protocol ID", val: crcTrials[0].id },
                   { label: "Phase", val: crcTrials[0].phase },
                   { label: "Indication", val: crcTrials[0].disease },
                 ].map((f) => (
                   <div key={f.label}>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-                    <p className="text-xs font-semibold text-[#0F172A]">{f.val}</p>
+                    <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+                    <p className="text-xs font-semibold text-foreground">{f.val}</p>
                   </div>
                 ))}
               </div>
@@ -981,22 +981,22 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
               {/* Visit + Date */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit</label>
                   <input
                     type="text"
                     value={form.visit}
                     onChange={(e) => setForm({ ...form, visit: e.target.value })}
                     placeholder="e.g. Visit 7"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-info"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Date</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit Date</label>
                   <input
                     type="date"
                     value={form.dateISO}
                     onChange={(e) => setForm({ ...form, dateISO: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-info"
                   />
                 </div>
               </div>
@@ -1004,21 +1004,21 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
               {/* Visit Name + Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Name</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit Name</label>
                   <input
                     type="text"
                     value={form.visitName}
                     onChange={(e) => setForm({ ...form, visitName: e.target.value })}
                     placeholder="e.g. Efficacy Assessment"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-info"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Type</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit Type</label>
                   <select
                     value={form.visitType}
                     onChange={(e) => setForm({ ...form, visitType: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] bg-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:border-info"
                   >
                     {["Hospital", "Phone", "Remote", "Home"].map((o) => (
                       <option key={o} value={o}>{o}</option>
@@ -1029,7 +1029,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
               {/* Status */}
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Status</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["on-track", "overdue", "completed", "withdrawn"] as PatientStatus[]).map((s) => {
                     const st = statusStyle[s]
@@ -1041,7 +1041,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                         onClick={() => setForm({ ...form, status: s })}
                         className={cn(
                           "py-2 rounded-xl text-xs font-semibold border transition-colors",
-                          active ? cn(st.bg, st.text, "border-transparent") : "bg-white text-slate-500 border-slate-200",
+                          active ? cn(st.bg, st.text, "border-transparent") : "bg-card text-muted-foreground border-border",
                         )}
                       >
                         {st.label}
@@ -1053,26 +1053,26 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
               {/* Remarks */}
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1 block">Remarks</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Remarks</label>
                 <textarea
                   value={form.note}
                   onChange={(e) => setForm({ ...form, note: e.target.value })}
                   rows={3}
                   placeholder="Add any notes about the patient or this visit…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] resize-none focus:outline-none focus:border-[#2563EB]"
+                  className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground resize-none focus:outline-none focus:border-info"
                 />
               </div>
 
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={() => setEditPatient(null)}
-                  className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold"
+                  className="flex-1 py-3 rounded-xl border border-border text-muted-foreground text-sm font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveVisitUpdate}
-                  className="flex-1 py-3 rounded-xl bg-[#0D1B3E] text-white text-sm font-semibold"
+                  className="flex-1 py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold"
                 >
                   Save Update
                 </button>
@@ -1084,7 +1084,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
       {/* ── Saved toast ───────────────────────────────────────── */}
       {savedToast && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 bg-[#0F172A] text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2">
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 bg-foreground text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2">
           <CheckCircle className="w-4 h-4 text-teal-400" />
           {savedToast}
         </div>

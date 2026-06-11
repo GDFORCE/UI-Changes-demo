@@ -49,14 +49,14 @@ export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsS
   const allComplete = questions.every((q) => q) && answers.every((a) => a.trim().length > 0)
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-card">
       <AppBar title="Account Security" showBack onBack={onBack} />
 
       <div className="flex-1 px-5 py-5 overflow-auto">
         {/* Intro */}
         <div className="flex items-start gap-2.5 mb-5">
-          <ShieldCheck className="w-5 h-5 text-[#1A3872] flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <ShieldCheck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-muted-foreground leading-relaxed">
             Set up {NUM_QUESTIONS} security questions. We&apos;ll use these to verify it&apos;s you and to
             recover your account if it gets locked. Choose answers only you would know.
           </p>
@@ -67,38 +67,38 @@ export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsS
             <div key={i} className="space-y-3">
               {/* Question */}
               <div>
-                <label className="block text-sm text-slate-600 mb-1.5">
+                <label className="block text-sm text-muted-foreground mb-1.5">
                   Security Question {i + 1}:
                 </label>
                 <select
                   value={selected}
                   onChange={(e) => setQuestion(i, e.target.value)}
                   className={cn(
-                    "w-full px-3.5 py-3 rounded-lg border border-slate-300 text-sm outline-none bg-white focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100",
-                    selected ? "text-[#0F172A]" : "text-slate-400"
+                    "w-full px-3.5 py-3 rounded-lg border border-border text-sm outline-none bg-card focus:border-primary focus:ring-2 focus:ring-info/15",
+                    selected ? "text-foreground" : "text-muted-foreground/70"
                   )}
                 >
                   <option value="" disabled>{PLACEHOLDER}</option>
                   {QUESTION_POOLS[i].map((q) => (
-                    <option key={q} value={q} className="text-[#0F172A]">{q}</option>
+                    <option key={q} value={q} className="text-foreground">{q}</option>
                   ))}
                 </select>
               </div>
 
               {/* Answer */}
               <div>
-                <label className="block text-sm text-slate-600 mb-1.5">Answer:</label>
+                <label className="block text-sm text-muted-foreground mb-1.5">Answer:</label>
                 <div className="relative">
                   <input
                     type={revealed[i] ? "text" : "password"}
                     value={answers[i]}
                     onChange={(e) => setAnswer(i, e.target.value)}
-                    className="w-full px-3.5 pr-10 py-3 rounded-lg border border-slate-300 outline-none text-sm text-[#0F172A] focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100"
+                    className="w-full px-3.5 pr-10 py-3 rounded-lg border border-border outline-none text-sm text-foreground focus:border-primary focus:ring-2 focus:ring-info/15"
                   />
                   <button
                     type="button"
                     onClick={() => toggleReveal(i)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground"
                     aria-label={revealed[i] ? "Hide answer" : "Show answer"}
                   >
                     {revealed[i] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -111,13 +111,13 @@ export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsS
       </div>
 
       {/* Submit */}
-      <div className="px-5 py-4 border-t border-slate-100">
+      <div className="px-5 py-4 border-t border-border">
         <button
           onClick={onSubmit}
           disabled={!allComplete}
           className={cn(
             "w-full py-3.5 rounded-xl font-semibold text-sm transition-all",
-            allComplete ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400"
+            allComplete ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70"
           )}
         >
           Continue →

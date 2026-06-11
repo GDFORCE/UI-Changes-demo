@@ -91,7 +91,7 @@ export function BottomNav({ activeTab, onTabChange, role = "investigator", notif
     investigatorTabs
   
   return (
-    <div className="flex items-center justify-around h-16 bg-white border-t border-slate-100">
+    <div className="flex items-center justify-around h-16 bg-card/95 backdrop-blur-sm border-t border-border pb-[env(safe-area-inset-bottom)]">
       {tabs.map((tab) => {
         const Icon = tab.icon
         const isActive = activeTab === tab.id
@@ -99,25 +99,29 @@ export function BottomNav({ activeTab, onTabChange, role = "investigator", notif
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
-              "relative flex flex-col items-center gap-1 px-3 py-2 transition-colors",
-              isActive ? "text-[#0D1B3E]" : "text-slate-400"
+              "relative flex h-full min-w-14 flex-col items-center justify-center gap-1 px-3 transition-colors duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:rounded-lg",
+              isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
           >
             {/* Active indicator line */}
-            {isActive && (
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#0D1B3E] rounded-full" />
-            )}
+            <div
+              className={cn(
+                "absolute top-0 left-1/2 -translate-x-1/2 h-0.5 rounded-full bg-primary transition-all duration-200",
+                isActive ? "w-8 opacity-100" : "w-0 opacity-0"
+              )}
+            />
             <div className="relative">
-              <Icon className={cn("w-5 h-5", isActive && "stroke-[2.5px]")} />
+              <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive && "stroke-[2.5px] -translate-y-px")} />
               {/* Notification badge */}
               {tab.id === "notifs" && notificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center bg-destructive text-white text-[10px] font-bold rounded-full ring-2 ring-card">
                   {notificationCount > 9 ? "9+" : notificationCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-medium">{navLabelKeys[tab.label] ? t(navLabelKeys[tab.label]) : tab.label}</span>
+            <span className={cn("text-[10px]", isActive ? "font-semibold" : "font-medium")}>{navLabelKeys[tab.label] ? t(navLabelKeys[tab.label]) : tab.label}</span>
           </button>
         )
       })}

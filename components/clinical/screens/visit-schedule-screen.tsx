@@ -113,7 +113,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
   }
 
   return (
-    <div className="relative h-full flex flex-col bg-gray-50">
+    <div className="relative h-full flex flex-col bg-surface">
       <AppBar
         title="Visit Schedule"
         showBack
@@ -133,24 +133,24 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
       />
 
       {/* Summary banner */}
-      <div className="px-4 py-3 bg-white border-b border-slate-100 flex items-center justify-between">
+      <div className="px-4 py-3 bg-card border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#1A3872] bg-blue-50 px-2 py-0.5 rounded-full">AI Extracted</span>
-          <span className="text-sm text-gray-500">{visits.length} visits</span>
+          <span className="text-xs font-semibold text-primary bg-info/5 px-2 py-0.5 rounded-full">AI Extracted</span>
+          <span className="text-sm text-muted-foreground">{visits.length} visits</span>
         </div>
         {counts.pending > 0 && (
-          <div className="flex items-center gap-1 px-2 py-1 bg-amber-100 rounded-full">
-            <AlertTriangle className="w-3.5 h-3.5 text-[#D97706]" />
-            <span className="text-xs text-[#D97706] font-medium">{counts.pending} need review</span>
+          <div className="flex items-center gap-1 px-2 py-1 bg-warning/15 rounded-full">
+            <AlertTriangle className="w-3.5 h-3.5 text-warning" />
+            <span className="text-xs text-warning font-medium">{counts.pending} need review</span>
           </div>
         )}
       </div>
 
       {/* Edit-mode hint */}
       {isEditing && (
-        <div className="px-4 py-2 bg-blue-50 border-b border-blue-100 flex items-center gap-2">
-          <Pencil className="w-3.5 h-3.5 text-[#1A3872]" />
-          <span className="text-xs text-[#1A3872] font-medium">Editing — tap a visit to edit, drag <GripVertical className="inline w-3 h-3 -mt-0.5" /> to reorder, or remove it.</span>
+        <div className="px-4 py-2 bg-info/5 border-b border-info/20 flex items-center gap-2">
+          <Pencil className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs text-primary font-medium">Editing — tap a visit to edit, drag <GripVertical className="inline w-3 h-3 -mt-0.5" /> to reorder, or remove it.</span>
         </div>
       )}
 
@@ -162,14 +162,14 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
             onClick={() => setActiveFilter(filter.id)}
             className={cn(
               "px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 transition-colors",
-              activeFilter === filter.id ? "bg-[#1A3872] text-white" : "bg-white border border-slate-200 text-gray-600"
+              activeFilter === filter.id ? "bg-primary text-white" : "bg-card border border-border text-muted-foreground"
             )}
           >
             {activeFilter === filter.id && <Check className="w-3.5 h-3.5" />}
             {filter.label}
             <span className={cn(
               "rounded-full px-1.5 text-[11px] font-bold",
-              activeFilter === filter.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+              activeFilter === filter.id ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"
             )}>
               {filter.count}
             </span>
@@ -179,10 +179,10 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
 
       {/* Extracted template table — tap a row to open details */}
       <div className="flex-1 overflow-auto px-4 pb-4">
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+        <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border">
           {/* Table header */}
           <div className={cn(
-            "grid gap-2 px-4 py-2.5 bg-gray-50 border-b text-xs font-semibold text-gray-500",
+            "grid gap-2 px-4 py-2.5 bg-surface border-b text-xs font-semibold text-muted-foreground",
             isEditing ? "grid-cols-[1.25rem_2rem_1fr_3rem_3rem_2rem]" : "grid-cols-[2rem_1fr_3rem_3rem]"
           )}>
             {isEditing && <span />}
@@ -210,29 +210,29 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
               }}
               onDragEnd={() => { setDragIndex(null); setOverIndex(null) }}
               className={cn(
-                "grid gap-2 px-4 py-3 text-sm border-b last:border-b-0 items-center cursor-pointer transition-colors hover:bg-slate-50",
+                "grid gap-2 px-4 py-3 text-sm border-b last:border-b-0 items-center cursor-pointer transition-colors hover:bg-surface",
                 isEditing ? "grid-cols-[1.25rem_2rem_1fr_3rem_3rem_2rem]" : "grid-cols-[2rem_1fr_3rem_3rem]",
-                visit.warning ? "bg-amber-50/40" : "bg-white",
+                visit.warning ? "bg-warning/10/40" : "bg-card",
                 dragIndex === index && "opacity-40",
-                overIndex === index && dragIndex !== null && dragIndex !== index && "ring-2 ring-inset ring-[#1A3872]"
+                overIndex === index && dragIndex !== null && dragIndex !== index && "ring-2 ring-inset ring-primary"
               )}
               onClick={() => setOpenIndex(index)}
             >
               {isEditing && (
                 <span
                   onClick={(e) => e.stopPropagation()}
-                  className={cn("flex items-center justify-center text-slate-300", draggable ? "cursor-grab active:cursor-grabbing hover:text-slate-500" : "opacity-30")}
+                  className={cn("flex items-center justify-center text-slate-300", draggable ? "cursor-grab active:cursor-grabbing hover:text-muted-foreground" : "opacity-30")}
                   aria-label="Drag to reorder"
                 >
                   <GripVertical className="w-4 h-4" />
                 </span>
               )}
-              <span className={cn("font-semibold flex items-center", visit.warning ? "text-[#D97706]" : "text-gray-900")}>
+              <span className={cn("font-semibold flex items-center", visit.warning ? "text-warning" : "text-foreground")}>
                 {visit.warning ? <AlertTriangle className="w-3.5 h-3.5" /> : visit.num}
               </span>
-              <span className="text-gray-800 font-medium truncate">{visit.name}</span>
-              <span className="text-gray-600">{formatDay(visit.day)}</span>
-              <span className="text-gray-500">{visit.window}</span>
+              <span className="text-foreground font-medium truncate">{visit.name}</span>
+              <span className="text-muted-foreground">{formatDay(visit.day)}</span>
+              <span className="text-muted-foreground">{visit.window}</span>
               {isEditing && (
                 <button
                   onClick={(e) => { e.stopPropagation(); removeVisit(index) }}
@@ -247,24 +247,24 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
           })}
 
           {visibleVisits.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-slate-400">No visits in this filter.</div>
+            <div className="px-4 py-8 text-center text-sm text-muted-foreground/70">No visits in this filter.</div>
           )}
         </div>
 
         {/* Add visit */}
         <button
           onClick={addVisit}
-          className="mt-3 w-full py-3 border-2 border-dashed border-slate-300 rounded-2xl text-sm text-slate-500 font-medium flex items-center justify-center gap-1.5 hover:border-[#1A3872] hover:text-[#1A3872] transition-colors"
+          className="mt-3 w-full py-3 border-2 border-dashed border-border rounded-2xl text-sm text-muted-foreground font-medium flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-colors"
         >
           <Plus className="w-4 h-4" /> Add Visit
         </button>
       </div>
 
       {/* Save bar */}
-      <div className="px-4 py-3 bg-white border-t border-slate-100">
+      <div className="px-4 py-3 bg-card border-t border-border">
         <button
           onClick={handleSaveTemplate}
-          className="w-full py-3.5 bg-[#1A3872] text-white rounded-xl font-semibold text-sm"
+          className="w-full py-3.5 bg-primary text-white rounded-xl font-semibold text-sm"
         >
           Save Template
         </button>
@@ -278,18 +278,18 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
             onClick={() => setOpenIndex(null)}
           />
 
-          <div className="relative bg-white rounded-t-3xl max-h-[88%] flex flex-col animate-in slide-in-from-bottom duration-300">
+          <div className="relative bg-card rounded-t-3xl max-h-[88%] flex flex-col animate-in slide-in-from-bottom duration-300">
             {/* Grab handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1.5 bg-slate-200 rounded-full" />
+              <div className="w-10 h-1.5 bg-border rounded-full" />
             </div>
 
             {/* Header */}
-            <div className="px-5 pb-3 pt-1 flex items-start justify-between border-b border-slate-100">
+            <div className="px-5 pb-3 pt-1 flex items-start justify-between border-b border-border">
               <div className="flex items-center gap-3 min-w-0">
                 <div className={cn(
                   "w-11 h-11 rounded-2xl flex items-center justify-center font-bold flex-shrink-0",
-                  openVisit.warning ? "bg-amber-100 text-[#D97706]" : "bg-blue-50 text-[#1A3872]"
+                  openVisit.warning ? "bg-warning/15 text-warning" : "bg-info/5 text-primary"
                 )}>
                   {openVisit.warning ? <AlertTriangle className="w-5 h-5" /> : openVisit.num}
                 </div>
@@ -298,15 +298,15 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
                     <input
                       value={openVisit.name}
                       onChange={(e) => updateVisit(openIndex, { name: e.target.value })}
-                      className="w-full font-bold text-gray-900 text-base border-b border-slate-300 focus:border-[#1A3872] outline-none pb-0.5"
+                      className="w-full font-bold text-foreground text-base border-b border-border focus:border-primary outline-none pb-0.5"
                     />
                   ) : (
-                    <h4 className="font-bold text-gray-900 text-base leading-tight truncate">
+                    <h4 className="font-bold text-foreground text-base leading-tight truncate">
                       Visit {openVisit.num} · {openVisit.name}
                     </h4>
                   )}
                   {!isEditing && (
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />Day {formatDay(openVisit.day)}</span>
                       <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Window {openVisit.window} days</span>
                     </div>
@@ -315,7 +315,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
               </div>
               <button
                 onClick={() => setOpenIndex(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0 ml-2"
+                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground flex-shrink-0 ml-2"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -328,37 +328,37 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
               {isEditing && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Day</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Day</label>
                     <input
                       type="number"
                       value={openVisit.day}
                       onChange={(e) => updateVisit(openIndex, { day: Number(e.target.value) })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100"
+                      className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-primary focus:ring-2 focus:ring-info/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Window</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Window</label>
                     <input
                       value={openVisit.window}
                       onChange={(e) => updateVisit(openIndex, { window: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100"
+                      className="w-full px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-primary focus:ring-2 focus:ring-info/15"
                     />
                   </div>
                 </div>
               )}
 
               {!isEditing && openVisit.warning && (
-                <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
-                  <AlertTriangle className="w-4 h-4 text-[#D97706] flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-700">This visit was flagged by AI extraction and needs manual review.</p>
+                <div className="flex items-start gap-2 bg-warning/10 border border-warning/20 rounded-xl px-3 py-2.5">
+                  <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-warning">This visit was flagged by AI extraction and needs manual review.</p>
                 </div>
               )}
 
               {/* Clinical tasks */}
               <TaskSection
                 title="Clinical Tasks"
-                icon={<Stethoscope className="w-4 h-4 text-[#1A3872]" />}
-                dotClass="bg-[#2563EB]"
+                icon={<Stethoscope className="w-4 h-4 text-primary" />}
+                dotClass="bg-info"
                 tasks={openVisit.clinicalTasks}
                 isEditing={isEditing}
                 onChange={(ti, val) => updateTask(openIndex, "clinicalTasks", ti, val)}
@@ -369,8 +369,8 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
               {/* Admin tasks */}
               <TaskSection
                 title="Admin Tasks"
-                icon={<ClipboardList className="w-4 h-4 text-[#1A3872]" />}
-                dotClass="bg-emerald-500"
+                icon={<ClipboardList className="w-4 h-4 text-primary" />}
+                dotClass="bg-success"
                 tasks={openVisit.adminTasks}
                 isEditing={isEditing}
                 onChange={(ti, val) => updateTask(openIndex, "adminTasks", ti, val)}
@@ -380,17 +380,17 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
 
               {/* Comments */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Comments</label>
+                <label className="block text-sm font-medium text-foreground/80 mb-1.5">Comments</label>
                 <textarea
                   rows={2}
                   placeholder="Add comments..."
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:border-primary focus:ring-2 focus:ring-info/15 outline-none resize-none"
                 />
               </div>
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3 border-t border-slate-100 flex gap-3">
+            <div className="px-5 py-3 border-t border-border flex gap-3">
               {isEditing ? (
                 <>
                   <button
@@ -401,7 +401,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
                   </button>
                   <button
                     onClick={() => setOpenIndex(null)}
-                    className="flex-1 py-3 bg-[#1A3872] text-white rounded-xl font-semibold text-sm"
+                    className="flex-1 py-3 bg-primary text-white rounded-xl font-semibold text-sm"
                   >
                     Done
                   </button>
@@ -409,7 +409,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
               ) : (
                 <button
                   onClick={() => setOpenIndex(null)}
-                  className="flex-1 py-3 bg-[#1A3872] text-white rounded-xl font-semibold text-sm"
+                  className="flex-1 py-3 bg-primary text-white rounded-xl font-semibold text-sm"
                 >
                   Close
                 </button>
@@ -439,7 +439,7 @@ function TaskSection({
     <div>
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <h5 className="text-sm font-semibold text-gray-800">{title}</h5>
+        <h5 className="text-sm font-semibold text-foreground">{title}</h5>
       </div>
       <div className="space-y-1.5">
         {tasks.map((t, ti) =>
@@ -449,24 +449,24 @@ function TaskSection({
                 value={t}
                 onChange={(e) => onChange(ti, e.target.value)}
                 placeholder="Task name"
-                className="flex-1 px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100"
+                className="flex-1 px-3 py-2 rounded-lg border border-border text-sm outline-none focus:border-primary focus:ring-2 focus:ring-info/15"
               />
               <button onClick={() => onRemove(ti)} className="text-rose-400 hover:text-rose-600" aria-label="Remove task">
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <div key={ti} className="flex items-center gap-2 text-sm text-gray-600">
+            <div key={ti} className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", dotClass)} />
               {t}
             </div>
           )
         )}
         {!isEditing && tasks.length === 0 && (
-          <p className="text-xs text-slate-400 italic">No tasks</p>
+          <p className="text-xs text-muted-foreground/70 italic">No tasks</p>
         )}
         {isEditing && (
-          <button onClick={onAdd} className="text-xs font-medium text-[#1A3872] flex items-center gap-1 mt-1">
+          <button onClick={onAdd} className="text-xs font-medium text-primary flex items-center gap-1 mt-1">
             <Plus className="w-3.5 h-3.5" /> Add task
           </button>
         )}

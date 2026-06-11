@@ -139,29 +139,29 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* Header row */}
       <div>
-        <h1 className="text-xl font-bold text-[#1A3872]">Others Specify approvals</h1>
-        <p className="text-sm text-gray-500">Review custom dropdown values submitted by users across all modules.</p>
+        <h1 className="text-xl font-bold text-primary">Others Specify approvals</h1>
+        <p className="text-sm text-muted-foreground">Review custom dropdown values submitted by users across all modules.</p>
       </div>
 
       {/* Summary tiles (ADM-05 Section 1) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Pending", value: values.filter((v) => v.status === "pending").length, color: "text-amber-600" },
-          { label: "Approved (global)", value: values.filter((v) => v.status === "approved").length, color: "text-green-600" },
-          { label: "Rejected", value: values.filter((v) => v.status === "rejected").length, color: "text-red-600" },
-          { label: "Total submissions", value: values.length, color: "text-[#1A3872]" },
+          { label: "Pending", value: values.filter((v) => v.status === "pending").length, color: "text-warning" },
+          { label: "Approved (global)", value: values.filter((v) => v.status === "approved").length, color: "text-success" },
+          { label: "Rejected", value: values.filter((v) => v.status === "rejected").length, color: "text-destructive" },
+          { label: "Total submissions", value: values.length, color: "text-primary" },
         ].map((t) => (
-          <div key={t.label} className="rounded-xl bg-white border border-gray-200 p-4">
+          <div key={t.label} className="rounded-xl bg-card border border-border p-4">
             <div className={`text-2xl font-bold leading-none ${t.color}`}>{t.value}</div>
-            <div className="text-xs text-gray-500 mt-2">{t.label}</div>
+            <div className="text-xs text-muted-foreground mt-2">{t.label}</div>
           </div>
         ))}
       </div>
 
       {/* Info Banner */}
-      <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-[#2563EB] mt-0.5 flex-shrink-0" />
-        <p className="text-sm text-[#1A3872]">
+      <div className="p-3 bg-info/5 rounded-xl border border-info/20 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-info mt-0.5 flex-shrink-0" />
+        <p className="text-sm text-primary">
           Approved values are added to the global dropdown list visible to all users. Rejected values remain private to the submitting user.
         </p>
       </div>
@@ -169,7 +169,7 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
       {/* Filter */}
       <div>
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-full sm:w-[240px] h-10 bg-white rounded-lg border-gray-200">
+          <SelectTrigger className="w-full sm:w-[240px] h-10 bg-card rounded-lg border-border">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -186,20 +186,20 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
         {filteredValues.map((item) => (
           <div
             key={item.id}
-            className="bg-white rounded-xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
+            className="bg-card rounded-xl p-4 shadow-md"
           >
             {/* Field Type Badge */}
             <div className="flex items-center justify-between mb-2">
-              <span className="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+              <span className="px-2.5 py-1 text-xs font-medium bg-muted text-muted-foreground rounded-full">
                 {item.fieldType}
               </span>
               <span
                 className={`px-2.5 py-1 text-xs font-medium rounded-full ${
                   item.status === "pending"
-                    ? "bg-amber-100 text-amber-700"
+                    ? "bg-warning/15 text-warning"
                     : item.status === "approved"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-red-100 text-red-700"
+                    ? "bg-success/15 text-success"
+                    : "bg-destructive/10 text-destructive"
                 }`}
               >
                 {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
@@ -209,7 +209,7 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
             {/* Value */}
             {editingId === item.id ? (
               <div className="mb-3">
-                <Label className="text-xs text-gray-500">Edit Value</Label>
+                <Label className="text-xs text-muted-foreground">Edit Value</Label>
                 <Textarea
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
@@ -220,16 +220,16 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
             ) : (
               <div className="mb-3">
                 <div className="flex items-start gap-2">
-                  <FileText className="w-4 h-4 text-gray-400 mt-0.5" />
-                  <p className="text-sm font-medium text-[#0D1B3E]">{item.value}</p>
+                  <FileText className="w-4 h-4 text-muted-foreground/70 mt-0.5" />
+                  <p className="text-sm font-medium text-primary-deep">{item.value}</p>
                 </div>
               </div>
             )}
 
             {/* Submitted By */}
-            <div className="text-xs text-gray-500 mb-3">
+            <div className="text-xs text-muted-foreground mb-3">
               <p>
-                Submitted by: <span className="text-gray-700">{item.submittedBy}</span> &middot;{" "}
+                Submitted by: <span className="text-foreground/80">{item.submittedBy}</span> &middot;{" "}
                 {item.organization}
               </p>
               <p>Date: {item.dateSubmitted}</p>
@@ -239,15 +239,15 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
             {item.status !== "pending" && (
               <div
                 className={`text-xs p-2 rounded-lg mb-3 ${
-                  item.status === "approved" ? "bg-emerald-50" : "bg-red-50"
+                  item.status === "approved" ? "bg-success/10" : "bg-destructive/5"
                 }`}
               >
-                <p className={item.status === "approved" ? "text-emerald-700" : "text-red-700"}>
+                <p className={item.status === "approved" ? "text-success" : "text-destructive"}>
                   {item.status === "approved" ? "Approved" : "Rejected"} by {item.actionBy} on{" "}
                   {item.actionDate}
                 </p>
                 {item.rejectReason && (
-                  <p className="text-red-600 mt-1">Reason: {item.rejectReason}</p>
+                  <p className="text-destructive mt-1">Reason: {item.rejectReason}</p>
                 )}
               </div>
             )}
@@ -258,7 +258,7 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
                 <Button
                   size="sm"
                   onClick={() => handleApprove(item.id)}
-                  className="flex-1 h-9 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs"
+                  className="flex-1 h-9 bg-success hover:bg-success text-white rounded-lg text-xs"
                 >
                   <Check className="w-3.5 h-3.5 mr-1" />
                   Approve
@@ -267,7 +267,7 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
                   size="sm"
                   variant="outline"
                   onClick={() => handleEditApprove(item.id)}
-                  className="flex-1 h-9 border-[#2563EB] text-[#2563EB] hover:bg-blue-50 rounded-lg text-xs"
+                  className="flex-1 h-9 border-info text-info hover:bg-info/5 rounded-lg text-xs"
                 >
                   {editingId === item.id ? "Save Edit" : "Edit & Approve"}
                 </Button>
@@ -275,7 +275,7 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
                   size="sm"
                   variant="outline"
                   onClick={() => handleReject(item.id)}
-                  className="flex-1 h-9 border-red-500 text-red-500 hover:bg-red-50 rounded-lg text-xs"
+                  className="flex-1 h-9 border-red-500 text-destructive hover:bg-destructive/5 rounded-lg text-xs"
                 >
                   <X className="w-3.5 h-3.5 mr-1" />
                   Reject
@@ -286,7 +286,7 @@ export function MasterDataScreen({ onBack }: MasterDataScreenProps) {
         ))}
 
         {filteredValues.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
             <FileText className="w-12 h-12 mb-3" />
             <p>No custom values found</p>
           </div>

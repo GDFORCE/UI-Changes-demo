@@ -59,9 +59,9 @@ const initialStaff: Staff[] = [
 ];
 
 const statusColor: Record<Status, string> = {
-  Active: "bg-green-100 text-green-700",
-  "Pending acceptance": "bg-amber-100 text-amber-700",
-  Suspended: "bg-red-100 text-red-700",
+  Active: "bg-success/15 text-success",
+  "Pending acceptance": "bg-warning/15 text-warning",
+  Suspended: "bg-destructive/10 text-destructive",
 };
 
 export function DelegationScreen({ onBack }: DelegationScreenProps) {
@@ -138,10 +138,10 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">Scoped admin tasks for staff</h1>
-          <p className="text-sm text-gray-500">Assign specific tasks to registered users designated as Admin Staff.</p>
+          <h1 className="text-xl font-bold text-primary">Scoped admin tasks for staff</h1>
+          <p className="text-sm text-muted-foreground">Assign specific tasks to registered users designated as Admin Staff.</p>
         </div>
-        <Button className="bg-[#1A3872] hover:bg-[#15305f]" onClick={openAdd}>
+        <Button className="bg-primary hover:bg-primary/90" onClick={openAdd}>
           Add admin staff
         </Button>
       </div>
@@ -149,24 +149,24 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
       <div className="space-y-6">
         {/* Summary tiles */}
         <div className="grid grid-cols-3 gap-4 max-w-2xl">
-          <Tile value={activeStaff} label="Active staff" color="text-green-600" />
-          <Tile value={tasksDelegated} label="Tasks delegated" color="text-blue-600" />
-          <Tile value={pending} label="Pending acceptance" color="text-amber-600" />
+          <Tile value={activeStaff} label="Active staff" color="text-success" />
+          <Tile value={tasksDelegated} label="Tasks delegated" color="text-info" />
+          <Tile value={pending} label="Pending acceptance" color="text-warning" />
         </div>
 
         {/* Staff list */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {staff.map((s) => (
-          <Card key={s.id} className="border border-gray-200 shadow-sm">
+          <Card key={s.id} className="border border-border shadow-sm">
             <CardContent className="p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="h-9 w-9 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                    <Users className="h-4 w-4 text-[#1A3872]" />
+                  <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                    <Users className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold truncate">{s.name}</p>
-                    <p className="text-[10px] text-gray-500 truncate">{s.email}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{s.email}</p>
                   </div>
                 </div>
                 <Badge className={`${statusColor[s.status]} text-[10px] shrink-0`}>{s.status}</Badge>
@@ -180,7 +180,7 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
                 ))}
               </div>
 
-              <p className="text-[10px] text-gray-400 mt-2">
+              <p className="text-[10px] text-muted-foreground/70 mt-2">
                 Delegated {s.delegatedDate} · last active {s.lastActive}
               </p>
 
@@ -191,7 +191,7 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 text-xs text-amber-700 border-amber-200"
+                  className="h-8 text-xs text-warning border-warning/20"
                   onClick={() => handleSuspend(s)}
                 >
                   <PauseCircle className="h-3 w-3 mr-1" /> Suspend
@@ -199,7 +199,7 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 text-xs text-red-700 border-red-200"
+                  className="h-8 text-xs text-destructive border-destructive/20"
                   onClick={() => handleRevoke(s)}
                 >
                   <Ban className="h-3 w-3 mr-1" /> Revoke
@@ -219,12 +219,12 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
           </SheetHeader>
           <div className="mt-4 space-y-4">
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">Staff name or email</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Staff name or email</p>
               <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Search registered users…" />
             </div>
 
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-2">Delegated tasks</p>
+              <p className="text-xs font-medium text-muted-foreground mb-2">Delegated tasks</p>
               <div className="space-y-2">
                 {TASK_CATEGORIES.map((t) => (
                   <label key={t} className="flex items-center gap-2 text-sm">
@@ -236,7 +236,7 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
             </div>
 
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">Reason for delegation (min 20 chars, logged)</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Reason for delegation (min 20 chars, logged)</p>
               <Textarea value={formReason} onChange={(e) => setFormReason(e.target.value)} className="min-h-[70px]" />
             </div>
 
@@ -244,7 +244,7 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
               <Button variant="outline" className="flex-1" onClick={() => setOverlayOpen(false)}>
                 Cancel
               </Button>
-              <Button className="flex-1 bg-[#1A3872]" disabled={!canSave} onClick={handleSave}>
+              <Button className="flex-1 bg-primary" disabled={!canSave} onClick={handleSave}>
                 Save delegation
               </Button>
             </div>
@@ -257,9 +257,9 @@ export function DelegationScreen({ onBack }: DelegationScreenProps) {
 
 function Tile({ value, label, color }: { value: number; label: string; color: string }) {
   return (
-    <div className="rounded-xl p-3 border border-gray-200 bg-white text-center">
+    <div className="rounded-xl p-3 border border-border bg-card text-center">
       <div className={`text-2xl font-bold ${color} leading-none`}>{value}</div>
-      <div className="text-[10px] text-gray-600 mt-1">{label}</div>
+      <div className="text-[10px] text-muted-foreground mt-1">{label}</div>
     </div>
   );
 }

@@ -73,17 +73,17 @@ function getDayStatus(visits: TeamVisit[]): TeamVisitStatus | null {
 
 function getDayBgClass(status: TeamVisitStatus) {
   switch (status) {
-    case "completed": return "bg-teal-100"
-    case "overdue": return "bg-red-100"
-    default: return "bg-orange-100"
+    case "completed": return "bg-accent/10"
+    case "overdue": return "bg-destructive/10"
+    default: return "bg-warning/15"
   }
 }
 
 function getDayTextClass(status: TeamVisitStatus) {
   switch (status) {
-    case "completed": return "text-[#0D9488]"
-    case "overdue": return "text-red-600"
-    default: return "text-orange-600"
+    case "completed": return "text-accent"
+    case "overdue": return "text-destructive"
+    default: return "text-warning"
   }
 }
 
@@ -200,46 +200,46 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
       <div
         key={i}
         className={cn(
-          "bg-white rounded-xl p-4 border-l-4 shadow-sm",
-          color === "teal" && "border-[#0D9488]",
+          "bg-card rounded-xl p-4 border-l-4 shadow-sm",
+          color === "teal" && "border-accent",
           color === "red" && "border-red-500",
           color === "orange" && "border-orange-500"
         )}
       >
         <div className="flex items-center justify-between mb-1">
-          <span className="font-bold text-sm text-[#0F172A]">{v.time}</span>
+          <span className="font-bold text-sm text-foreground">{v.time}</span>
           <span className={cn(
             "px-2 py-0.5 rounded-full text-xs font-semibold",
-            color === "teal" && "bg-teal-100 text-[#0D9488]",
-            color === "red" && "bg-red-100 text-red-600",
-            color === "orange" && "bg-orange-100 text-orange-600"
+            color === "teal" && "bg-accent/10 text-accent",
+            color === "red" && "bg-destructive/10 text-destructive",
+            color === "orange" && "bg-warning/15 text-warning"
           )}>
             {getStatusLabel(v.status)}
           </span>
         </div>
-        <p className="font-semibold text-[#0F172A] text-sm">{initials(v.name)} · {v.subj}</p>
-        <p className="text-xs text-slate-500">{v.protocolId} · {v.indication}</p>
-        <p className="text-xs text-slate-500">{v.visit} · {v.visitName}</p>
-        <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Tag className="w-3.5 h-3.5 text-slate-400" /> Visit type: <span className="font-medium text-slate-600">{v.visitType}</span></p>
+        <p className="font-semibold text-foreground text-sm">{initials(v.name)} · {v.subj}</p>
+        <p className="text-xs text-muted-foreground">{v.protocolId} · {v.indication}</p>
+        <p className="text-xs text-muted-foreground">{v.visit} · {v.visitName}</p>
+        <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Tag className="w-3.5 h-3.5 text-muted-foreground/70" /> Visit type: <span className="font-medium text-muted-foreground">{v.visitType}</span></p>
         {/* On the CRC view, surface which PI is attending the patient for this visit. */}
-        {role === "crc" && <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Stethoscope className="w-3.5 h-3.5 text-slate-400" /> PI: <span className="font-medium text-slate-600">{v.pi}</span></p>}
-        {v.location && <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Building2 className="w-3.5 h-3.5 text-slate-400" /> {v.location}</p>}
-        {v.visitType === "Telephonic" && <p className="flex items-center gap-1 text-xs text-slate-500 mt-1"><Phone className="w-3.5 h-3.5 text-slate-400" /> Telephonic visit</p>}
+        {role === "crc" && <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Stethoscope className="w-3.5 h-3.5 text-muted-foreground/70" /> PI: <span className="font-medium text-muted-foreground">{v.pi}</span></p>}
+        {v.location && <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Building2 className="w-3.5 h-3.5 text-muted-foreground/70" /> {v.location}</p>}
+        {v.visitType === "Telephonic" && <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Phone className="w-3.5 h-3.5 text-muted-foreground/70" /> Telephonic visit</p>}
       </div>
     )
   }
 
   const emptyState = (
-    <div className="flex flex-col items-center py-8 text-slate-400">
+    <div className="flex flex-col items-center py-8 text-muted-foreground/70">
       <Calendar className="w-8 h-8 mb-2" />
       <p className="text-sm">No visits on this day</p>
     </div>
   )
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC]">
+    <div className="h-full flex flex-col bg-surface">
       {/* App Bar */}
-      <div className="bg-[#0D1B3E] text-white px-4 py-3">
+      <div className="bg-primary-deep text-white px-4 py-3">
         <div className="flex items-center justify-between">
           <button onClick={onBack} className="p-1">
             <ChevronLeft className="w-5 h-5" />
@@ -284,21 +284,21 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             </button>
           </div>
         </div>
-        <p className="text-center text-[11px] text-blue-200 mt-1">
+        <p className="text-center text-[11px] text-primary-foreground/75 mt-1">
           {role === "pi" ? "PI · Site 02 · All patients" : "CRC · Site 02 · All patients"}
         </p>
         {syncStatus === "syncing" && (
           <p className="text-center text-xs text-blue-300 mt-1">Syncing...</p>
         )}
         {syncStatus === "done" && (
-          <p className="text-center text-xs text-[#0D9488] mt-1">Updated just now</p>
+          <p className="text-center text-xs text-accent mt-1">Updated just now</p>
         )}
       </div>
 
       <div className="flex-1 overflow-auto pb-4">
         {/* View Mode Tabs */}
-        <div className="px-4 py-3 bg-white border-b border-slate-100">
-          <div className="flex rounded-xl border border-[#0D1B3E] overflow-hidden">
+        <div className="px-4 py-3 bg-card border-b border-border">
+          <div className="flex rounded-xl border border-primary-deep overflow-hidden">
             {(["day", "week", "month"] as const).map((mode) => (
               <button
                 key={mode}
@@ -308,7 +308,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
                 }}
                 className={cn(
                   "flex-1 py-2 text-sm font-medium capitalize transition-colors",
-                  viewMode === mode ? "bg-[#0D1B3E] text-white" : "text-[#0D1B3E] bg-white"
+                  viewMode === mode ? "bg-primary-deep text-white" : "text-primary-deep bg-card"
                 )}
               >
                 {mode}
@@ -318,19 +318,19 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
         </div>
 
         {/* Status legend */}
-        <div className="flex justify-center gap-4 py-2 bg-white border-b border-slate-100">
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" /><span className="text-[11px] text-slate-500">Completed</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-orange-500" /><span className="text-[11px] text-slate-500">Upcoming</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-[11px] text-slate-500">Overdue</span></div>
+        <div className="flex justify-center gap-4 py-2 bg-card border-b border-border">
+          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-accent" /><span className="text-[11px] text-muted-foreground">Completed</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning" /><span className="text-[11px] text-muted-foreground">Upcoming</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-destructive" /><span className="text-[11px] text-muted-foreground">Overdue</span></div>
         </div>
 
         {/* MONTH VIEW */}
         {viewMode === "month" && (
           <>
-            <div className="px-4 py-4 bg-white">
+            <div className="px-4 py-4 bg-card">
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {daysOfWeek.map((d, i) => (
-                  <div key={i} className="text-center text-xs font-semibold text-slate-500 py-1">{d}</div>
+                  <div key={i} className="text-center text-xs font-semibold text-muted-foreground py-1">{d}</div>
                 ))}
               </div>
               {weeks.map((week, wi) => (
@@ -348,15 +348,15 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
                         disabled={!day}
                         className={cn(
                           "aspect-square flex items-center justify-center rounded-full",
-                          isSelected && "bg-[#0D1B3E]",
-                          !isSelected && isToday && "ring-1 ring-inset ring-[#2563EB]",
+                          isSelected && "bg-primary-deep",
+                          !isSelected && isToday && "ring-1 ring-inset ring-info",
                           !isSelected && !isToday && dayStatus && getDayBgClass(dayStatus),
                           !day && "invisible"
                         )}
                       >
                         <span className={cn(
                           "text-sm font-medium",
-                          isSelected ? "text-white" : dayStatus ? getDayTextClass(dayStatus) : "text-slate-800"
+                          isSelected ? "text-white" : dayStatus ? getDayTextClass(dayStatus) : "text-foreground"
                         )}>{day}</span>
                       </button>
                     )
@@ -368,9 +368,9 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             {/* Selected day visits */}
             <div className="px-4 py-3">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-[#0F172A] text-base">{formatDay(selectedDate)}</h3>
+                <h3 className="font-semibold text-foreground text-base">{formatDay(selectedDate)}</h3>
                 {visitsForSelected.length > 0 && (
-                  <span className="text-xs text-slate-400">{visitsForSelected.length} visit{visitsForSelected.length > 1 ? "s" : ""}</span>
+                  <span className="text-xs text-muted-foreground/70">{visitsForSelected.length} visit{visitsForSelected.length > 1 ? "s" : ""}</span>
                 )}
               </div>
               {visitsForSelected.length === 0 ? emptyState : (
@@ -384,7 +384,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
         {viewMode === "week" && (
           <>
             {/* 7-day header row */}
-            <div className="bg-white border-b border-slate-100 px-4 py-3">
+            <div className="bg-card border-b border-border px-4 py-3">
               <div className="grid grid-cols-7 gap-1">
                 {weekDays.map((d, i) => {
                   const dayVisits = getVisitsForDate(d)
@@ -397,13 +397,13 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
                       onClick={() => setSelectedWeekDay(d)}
                       className="flex flex-col items-center gap-1"
                     >
-                      <span className="text-[11px] text-slate-400">{weekDayNames[d.getDay()]}</span>
+                      <span className="text-[11px] text-muted-foreground/70">{weekDayNames[d.getDay()]}</span>
                       <div className={cn(
                         "w-8 h-8 flex items-center justify-center rounded-full",
-                        isSelected && "bg-[#0D1B3E] text-white",
-                        !isSelected && isToday && "ring-1 ring-inset ring-[#2563EB]",
+                        isSelected && "bg-primary-deep text-white",
+                        !isSelected && isToday && "ring-1 ring-inset ring-info",
                         !isSelected && dayStatus && cn(getDayBgClass(dayStatus), getDayTextClass(dayStatus)),
-                        !isSelected && !dayStatus && "text-slate-800"
+                        !isSelected && !dayStatus && "text-foreground"
                       )}>
                         <span className="text-sm font-semibold">{d.getDate()}</span>
                       </div>
@@ -414,8 +414,8 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             </div>
 
             {/* Week overview strip */}
-            <div className="px-4 py-2 bg-slate-50">
-              <p className="text-xs text-slate-500 text-center">
+            <div className="px-4 py-2 bg-surface">
+              <p className="text-xs text-muted-foreground text-center">
                 This week: {weekVisitCount} visit{weekVisitCount !== 1 ? "s" : ""}
                 {overdueThisWeek > 0 && ` · ${overdueThisWeek} overdue`}
               </p>
@@ -423,7 +423,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
 
             {/* Visits for selected week day */}
             <div className="px-4 py-3">
-              <h3 className="font-semibold text-[#0F172A] mb-3 text-base">{formatDay(selectedWeekDay)}</h3>
+              <h3 className="font-semibold text-foreground mb-3 text-base">{formatDay(selectedWeekDay)}</h3>
               {visitsForWeekDay.length === 0 ? emptyState : (
                 <div className="space-y-3">{visitsForWeekDay.map(renderVisitCard)}</div>
               )}
@@ -434,7 +434,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
         {/* DAY VIEW */}
         {viewMode === "day" && (
           <div className="px-4 py-4">
-            <h3 className="font-semibold text-[#0F172A] mb-3">{formatDay(selectedDate)}</h3>
+            <h3 className="font-semibold text-foreground mb-3">{formatDay(selectedDate)}</h3>
             {visitsForSelected.length === 0 ? emptyState : (
               <div className="space-y-3">{visitsForSelected.map(renderVisitCard)}</div>
             )}

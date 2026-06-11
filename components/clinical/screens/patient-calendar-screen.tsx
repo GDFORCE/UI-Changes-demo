@@ -44,19 +44,19 @@ function getDayStatus(visits: { status: string }[]): string | null {
 
 function getDayBgClass(status: string) {
   switch (status) {
-    case "completed": return "bg-teal-100"
-    case "upcoming": return "bg-orange-100"
-    case "missed": return "bg-red-100"
-    default: return "bg-blue-100"
+    case "completed": return "bg-accent/10"
+    case "upcoming": return "bg-warning/15"
+    case "missed": return "bg-destructive/10"
+    default: return "bg-info/10"
   }
 }
 
 function getDayTextClass(status: string) {
   switch (status) {
-    case "completed": return "text-[#0D9488]"
-    case "upcoming": return "text-orange-600"
-    case "missed": return "text-red-600"
-    default: return "text-[#2563EB]"
+    case "completed": return "text-accent"
+    case "upcoming": return "text-warning"
+    case "missed": return "text-destructive"
+    default: return "text-info"
   }
 }
 
@@ -159,9 +159,9 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
   const weekLabel = `${weekDays[0].getDate()}–${weekDays[6].getDate()} ${weekDays[6].toLocaleString("en-US", { month: "long", year: "numeric" })}`
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC]">
+    <div className="h-full flex flex-col bg-surface">
       {/* App Bar */}
-      <div className="bg-[#0D1B3E] text-white px-4 py-3">
+      <div className="bg-primary-deep text-white px-4 py-3">
         <div className="flex items-center justify-between">
           <button onClick={onBack} className="p-1">
             <ChevronLeft className="w-5 h-5" />
@@ -212,14 +212,14 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
           <p className="text-center text-xs text-blue-300 mt-1">Syncing...</p>
         )}
         {syncStatus === "done" && (
-          <p className="text-center text-xs text-[#0D9488] mt-1">✓ Updated just now</p>
+          <p className="text-center text-xs text-accent mt-1">✓ Updated just now</p>
         )}
       </div>
 
       <div className="flex-1 overflow-auto pb-4">
         {/* View Mode Tabs */}
-        <div className="px-4 py-3 bg-white border-b border-slate-100">
-          <div className="flex rounded-xl border border-[#0D1B3E] overflow-hidden">
+        <div className="px-4 py-3 bg-card border-b border-border">
+          <div className="flex rounded-xl border border-primary-deep overflow-hidden">
             {(["day", "week", "month"] as const).map((mode) => (
               <button
                 key={mode}
@@ -230,8 +230,8 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                 className={cn(
                   "flex-1 py-2 text-sm font-medium capitalize transition-colors",
                   viewMode === mode
-                    ? "bg-[#0D1B3E] text-white"
-                    : "text-[#0D1B3E] bg-white"
+                    ? "bg-primary-deep text-white"
+                    : "text-primary-deep bg-card"
                 )}
               >
                 {mode}
@@ -241,19 +241,19 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
         </div>
 
         {/* Status legend */}
-        <div className="flex justify-center gap-4 py-2 bg-white border-b border-slate-100">
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" /><span className="text-[11px] text-slate-500">Completed</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-orange-500" /><span className="text-[11px] text-slate-500">Upcoming</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" /><span className="text-[11px] text-slate-500">Scheduled</span></div>
+        <div className="flex justify-center gap-4 py-2 bg-card border-b border-border">
+          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-accent" /><span className="text-[11px] text-muted-foreground">Completed</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning" /><span className="text-[11px] text-muted-foreground">Upcoming</span></div>
+          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-info" /><span className="text-[11px] text-muted-foreground">Scheduled</span></div>
         </div>
 
         {/* MONTH VIEW */}
         {viewMode === "month" && (
           <>
-            <div className="px-4 py-4 bg-white">
+            <div className="px-4 py-4 bg-card">
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {daysOfWeek.map((d, i) => (
-                  <div key={i} className="text-center text-xs font-semibold text-slate-500 py-1">{d}</div>
+                  <div key={i} className="text-center text-xs font-semibold text-muted-foreground py-1">{d}</div>
                 ))}
               </div>
               {weeks.map((week, wi) => (
@@ -271,15 +271,15 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                         disabled={!day}
                         className={cn(
                           "aspect-square flex items-center justify-center rounded-full",
-                          isSelected && "bg-[#0D1B3E]",
-                          !isSelected && isToday && "ring-1 ring-inset ring-[#2563EB]",
+                          isSelected && "bg-primary-deep",
+                          !isSelected && isToday && "ring-1 ring-inset ring-info",
                           !isSelected && !isToday && dayStatus && getDayBgClass(dayStatus),
                           !day && "invisible"
                         )}
                       >
                         <span className={cn(
                           "text-sm font-medium",
-                          isSelected ? "text-white" : dayStatus ? getDayTextClass(dayStatus) : "text-slate-800"
+                          isSelected ? "text-white" : dayStatus ? getDayTextClass(dayStatus) : "text-foreground"
                         )}>{day}</span>
                       </button>
                     )
@@ -290,9 +290,9 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
 
             {/* Selected day visits */}
             <div className="px-4 py-3">
-              <h3 className="font-semibold text-[#0F172A] mb-3 text-base">{formatDay(selectedDate)}</h3>
+              <h3 className="font-semibold text-foreground mb-3 text-base">{formatDay(selectedDate)}</h3>
               {visitsForSelected.length === 0 ? (
-                <div className="flex flex-col items-center py-8 text-slate-400">
+                <div className="flex flex-col items-center py-8 text-muted-foreground/70">
                   <span className="text-3xl mb-2">📅</span>
                   <p className="text-sm">No visits on this day</p>
                 </div>
@@ -304,46 +304,46 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                       <div
                         key={i}
                         className={cn(
-                          "bg-white rounded-xl p-4 border-l-4 shadow-sm",
-                          color === "teal" && "border-[#0D9488]",
+                          "bg-card rounded-xl p-4 border-l-4 shadow-sm",
+                          color === "teal" && "border-accent",
                           color === "orange" && "border-orange-500",
                           color === "red" && "border-red-500",
-                          color === "blue" && "border-[#2563EB]"
+                          color === "blue" && "border-info"
                         )}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-sm text-[#0F172A]">10:00 AM</span>
+                          <span className="font-bold text-sm text-foreground">10:00 AM</span>
                           <span className={cn(
                             "px-2 py-0.5 rounded-full text-xs font-semibold",
-                            color === "teal" && "bg-teal-100 text-[#0D9488]",
-                            color === "orange" && "bg-orange-100 text-orange-600",
-                            color === "red" && "bg-red-100 text-red-600",
-                            color === "blue" && "bg-blue-100 text-[#2563EB]"
+                            color === "teal" && "bg-accent/10 text-accent",
+                            color === "orange" && "bg-warning/15 text-warning",
+                            color === "red" && "bg-destructive/10 text-destructive",
+                            color === "blue" && "bg-info/10 text-info"
                           )}>
                             {v.status === "completed" ? "Completed ✓" : v.status === "upcoming" ? "Upcoming" : v.status === "missed" ? "Missed ⚠" : "Scheduled"}
                           </span>
                         </div>
-                        <p className="font-medium text-[#0F172A] text-sm">{v.name} · {v.visit}</p>
+                        <p className="font-medium text-foreground text-sm">{v.name} · {v.visit}</p>
                         {v.location && (
-                          <p className="text-xs text-slate-500 mt-1">🏥 {v.location}</p>
+                          <p className="text-xs text-muted-foreground mt-1">🏥 {v.location}</p>
                         )}
                         {v.type === "Telephonic" && (
-                          <p className="text-xs text-slate-500 mt-1">📞 Telephonic visit</p>
+                          <p className="text-xs text-muted-foreground mt-1">📞 Telephonic visit</p>
                         )}
-                        <p className="text-xs text-slate-500">{v.doctor}</p>
+                        <p className="text-xs text-muted-foreground">{v.doctor}</p>
                         {v.status === "completed" && (
-                          <p className="text-xs text-[#0D9488] mt-1">✓ Completed on {v.date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                          <p className="text-xs text-accent mt-1">✓ Completed on {v.date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
                         )}
                         {v.status === "missed" && (
                           <div className="mt-2">
-                            <p className="text-xs text-red-500">⚠ Was due · Contact team</p>
-                            <button className="text-xs text-[#2563EB] mt-1 font-medium">Contact PI →</button>
+                            <p className="text-xs text-destructive">⚠ Was due · Contact team</p>
+                            <button className="text-xs text-info mt-1 font-medium">Contact PI →</button>
                           </div>
                         )}
                         {(v.status === "upcoming" || v.status === "scheduled") && (
                           <button
                             onClick={() => onNavigate("my-visits")}
-                            className="text-xs text-[#2563EB] font-medium mt-2"
+                            className="text-xs text-info font-medium mt-2"
                           >
                             View Details →
                           </button>
@@ -361,7 +361,7 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
         {viewMode === "week" && (
           <>
             {/* 7-day header row */}
-            <div className="bg-white border-b border-slate-100 px-4 py-3">
+            <div className="bg-card border-b border-border px-4 py-3">
               <div className="grid grid-cols-7 gap-1">
                 {weekDays.map((d, i) => {
                   const dayVisits = getVisitsForDate(d)
@@ -374,13 +374,13 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                       onClick={() => setSelectedWeekDay(d)}
                       className="flex flex-col items-center gap-1"
                     >
-                      <span className="text-[11px] text-slate-400">{weekDayNames[d.getDay()]}</span>
+                      <span className="text-[11px] text-muted-foreground/70">{weekDayNames[d.getDay()]}</span>
                       <div className={cn(
                         "w-8 h-8 flex items-center justify-center rounded-full",
-                        isSelected && "bg-[#0D1B3E] text-white",
-                        !isSelected && isToday && "ring-1 ring-inset ring-[#2563EB]",
+                        isSelected && "bg-primary-deep text-white",
+                        !isSelected && isToday && "ring-1 ring-inset ring-info",
                         !isSelected && dayStatus && cn(getDayBgClass(dayStatus), getDayTextClass(dayStatus)),
-                        !isSelected && !dayStatus && "text-slate-800"
+                        !isSelected && !dayStatus && "text-foreground"
                       )}>
                         <span className="text-sm font-semibold">{d.getDate()}</span>
                       </div>
@@ -391,17 +391,17 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
             </div>
 
             {/* Week overview strip */}
-            <div className="px-4 py-2 bg-slate-50">
-              <p className="text-xs text-slate-500 text-center">
+            <div className="px-4 py-2 bg-surface">
+              <p className="text-xs text-muted-foreground text-center">
                 This week: {completedThisWeek > 0 && `${completedThisWeek} completed · `}{upcomingThisWeek > 0 && `${upcomingThisWeek} upcoming · `}{freeDays} free days
               </p>
             </div>
 
             {/* Visits for selected week day */}
             <div className="px-4 py-3">
-              <h3 className="font-semibold text-[#0F172A] mb-3 text-base">{formatDay(selectedWeekDay)}</h3>
+              <h3 className="font-semibold text-foreground mb-3 text-base">{formatDay(selectedWeekDay)}</h3>
               {visitsForWeekDay.length === 0 ? (
-                <div className="flex flex-col items-center py-8 text-slate-400">
+                <div className="flex flex-col items-center py-8 text-muted-foreground/70">
                   <span className="text-3xl mb-2">📅</span>
                   <p className="text-sm">No visits on this day</p>
                 </div>
@@ -413,27 +413,27 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                       <div
                         key={i}
                         className={cn(
-                          "bg-white rounded-xl p-4 border-l-4 shadow-sm",
-                          color === "teal" && "border-[#0D9488]",
+                          "bg-card rounded-xl p-4 border-l-4 shadow-sm",
+                          color === "teal" && "border-accent",
                           color === "orange" && "border-orange-500",
-                          color === "blue" && "border-[#2563EB]"
+                          color === "blue" && "border-info"
                         )}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-bold text-sm text-[#0F172A]">10:00 AM</span>
+                          <span className="font-bold text-sm text-foreground">10:00 AM</span>
                           <span className={cn(
                             "px-2 py-0.5 rounded-full text-xs font-semibold",
-                            color === "teal" && "bg-teal-100 text-[#0D9488]",
-                            color === "orange" && "bg-orange-100 text-orange-600",
-                            color === "blue" && "bg-blue-100 text-[#2563EB]"
+                            color === "teal" && "bg-accent/10 text-accent",
+                            color === "orange" && "bg-warning/15 text-warning",
+                            color === "blue" && "bg-info/10 text-info"
                           )}>
                             {v.status === "completed" ? "Completed ✓" : v.status === "upcoming" ? "Upcoming" : "Scheduled"}
                           </span>
                         </div>
-                        <p className="font-medium text-[#0F172A] text-sm">{v.name} · {v.visit}</p>
-                        {v.location && <p className="text-xs text-slate-500 mt-1">🏥 {v.location}</p>}
+                        <p className="font-medium text-foreground text-sm">{v.name} · {v.visit}</p>
+                        {v.location && <p className="text-xs text-muted-foreground mt-1">🏥 {v.location}</p>}
                         {v.status === "completed" && (
-                          <p className="text-xs text-[#0D9488] mt-1">✓ Completed {v.date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+                          <p className="text-xs text-accent mt-1">✓ Completed {v.date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
                         )}
                       </div>
                     )
@@ -447,9 +447,9 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
         {/* DAY VIEW */}
         {viewMode === "day" && (
           <div className="px-4 py-4">
-            <h3 className="font-semibold text-[#0F172A] mb-3">{formatDay(selectedDate)}</h3>
+            <h3 className="font-semibold text-foreground mb-3">{formatDay(selectedDate)}</h3>
             {visitsForSelected.length === 0 ? (
-              <div className="flex flex-col items-center py-8 text-slate-400">
+              <div className="flex flex-col items-center py-8 text-muted-foreground/70">
                 <span className="text-3xl mb-2">📅</span>
                 <p className="text-sm">No visits scheduled today</p>
               </div>
@@ -461,25 +461,25 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
                     <div
                       key={i}
                       className={cn(
-                        "bg-white rounded-xl p-4 border-l-4 shadow-sm",
-                        color === "teal" && "border-[#0D9488]",
+                        "bg-card rounded-xl p-4 border-l-4 shadow-sm",
+                        color === "teal" && "border-accent",
                         color === "orange" && "border-amber-400",
-                        color === "blue" && "border-[#2563EB]"
+                        color === "blue" && "border-info"
                       )}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-bold text-sm">10:00 AM</span>
                         <span className={cn(
                           "px-2 py-0.5 rounded-full text-xs font-semibold",
-                          color === "teal" && "bg-teal-100 text-[#0D9488]",
-                          color === "orange" && "bg-orange-100 text-orange-600",
-                          color === "blue" && "bg-blue-100 text-[#2563EB]"
+                          color === "teal" && "bg-accent/10 text-accent",
+                          color === "orange" && "bg-warning/15 text-warning",
+                          color === "blue" && "bg-info/10 text-info"
                         )}>
                           {v.status === "completed" ? "Completed ✓" : v.status === "upcoming" ? "Upcoming" : "Scheduled"}
                         </span>
                       </div>
-                      <p className="font-medium text-[#0F172A] text-sm">{v.name} · {v.visit}</p>
-                      {v.location && <p className="text-xs text-slate-500 mt-1">🏥 {v.location}</p>}
+                      <p className="font-medium text-foreground text-sm">{v.name} · {v.visit}</p>
+                      {v.location && <p className="text-xs text-muted-foreground mt-1">🏥 {v.location}</p>}
                     </div>
                   )
                 })}

@@ -17,11 +17,11 @@ interface MessagesScreenProps {
 }
 
 const messageTypes = [
-  { value: "general", label: "General announcement", badge: "bg-gray-100 text-gray-700" },
-  { value: "compliance", label: "Compliance notice", badge: "bg-amber-100 text-amber-700" },
-  { value: "system", label: "System alert", badge: "bg-red-100 text-red-700" },
-  { value: "targeted", label: "Targeted message", badge: "bg-blue-100 text-blue-700" },
-  { value: "urgent", label: "Urgent notice", badge: "bg-red-100 text-red-700" },
+  { value: "general", label: "General announcement", badge: "bg-muted text-foreground/80" },
+  { value: "compliance", label: "Compliance notice", badge: "bg-warning/15 text-warning" },
+  { value: "system", label: "System alert", badge: "bg-destructive/10 text-destructive" },
+  { value: "targeted", label: "Targeted message", badge: "bg-info/10 text-info" },
+  { value: "urgent", label: "Urgent notice", badge: "bg-destructive/10 text-destructive" },
 ];
 
 const sentMessages = [
@@ -36,9 +36,9 @@ const initialReplies = [
 ];
 
 const statusColor: Record<string, string> = {
-  Delivered: "bg-green-100 text-green-700",
-  "Partial failure": "bg-amber-100 text-amber-700",
-  Failed: "bg-red-100 text-red-700",
+  Delivered: "bg-success/15 text-success",
+  "Partial failure": "bg-warning/15 text-warning",
+  Failed: "bg-destructive/10 text-destructive",
 };
 
 export function MessagesScreen({ onBack }: MessagesScreenProps) {
@@ -76,14 +76,14 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
     toast.success("Thread marked resolved");
   };
 
-  const typeBadge = (t: string) => messageTypes.find((m) => m.value === t)?.badge ?? "bg-gray-100 text-gray-700";
+  const typeBadge = (t: string) => messageTypes.find((m) => m.value === t)?.badge ?? "bg-muted text-foreground/80";
 
   return (
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* Header row */}
       <div>
-        <h1 className="text-xl font-bold text-[#1A3872]">Announcements &amp; admin chat</h1>
-        <p className="text-sm text-gray-500">Broadcast platform messages and respond to user replies.</p>
+        <h1 className="text-xl font-bold text-primary">Announcements &amp; admin chat</h1>
+        <p className="text-sm text-muted-foreground">Broadcast platform messages and respond to user replies.</p>
       </div>
 
       <Tabs defaultValue="compose" className="space-y-4">
@@ -93,7 +93,7 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
           <TabsTrigger value="replies">
             Replies
             {replies.some((r) => !r.resolved) && (
-              <span className="ml-1 h-4 min-w-4 px-1 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">
+              <span className="ml-1 h-4 min-w-4 px-1 rounded-full bg-destructive text-white text-[9px] flex items-center justify-center">
                 {replies.filter((r) => !r.resolved).length}
               </span>
             )}
@@ -101,9 +101,9 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
         </TabsList>
 
         {/* Compose */}
-        <TabsContent value="compose" className="max-w-2xl space-y-4 mt-0 bg-white border border-gray-200 rounded-xl p-5">
+        <TabsContent value="compose" className="max-w-2xl space-y-4 mt-0 bg-card border border-border rounded-xl p-5">
           <div>
-            <p className="text-xs font-medium text-gray-600 mb-1">Message type</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">Message type</p>
             <Select value={msgType} onValueChange={setMsgType}>
               <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -115,19 +115,19 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
           </div>
 
           <div>
-            <p className="text-xs font-medium text-gray-600 mb-1">Subject / title</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">Subject / title</p>
             <Input value={subject} onChange={(e) => setSubject(e.target.value.slice(0, 120))} placeholder="Short headline" />
-            <p className="text-[10px] text-gray-400 mt-0.5 text-right">{subject.length}/120</p>
+            <p className="text-[10px] text-muted-foreground/70 mt-0.5 text-right">{subject.length}/120</p>
           </div>
 
           <div>
-            <p className="text-xs font-medium text-gray-600 mb-1">Message body</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">Message body</p>
             <Textarea value={body} onChange={(e) => setBody(e.target.value.slice(0, 2000))} className="min-h-[120px]" placeholder="Full message content…" />
-            <p className="text-[10px] text-gray-400 mt-0.5 text-right">{body.length}/2000</p>
+            <p className="text-[10px] text-muted-foreground/70 mt-0.5 text-right">{body.length}/2000</p>
           </div>
 
           <div>
-            <p className="text-xs font-medium text-gray-600 mb-1">Recipients — target level</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">Recipients — target level</p>
             <Select value={target} onValueChange={setTarget}>
               <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -140,7 +140,7 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
                 <SelectItem value="individual">Individual user</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-[11px] text-blue-700 mt-1">This message will be sent to {recipientCount} users.</p>
+            <p className="text-[11px] text-info mt-1">This message will be sent to {recipientCount} users.</p>
           </div>
 
           <label className="flex items-center gap-2 text-sm">
@@ -160,7 +160,7 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
             <Button variant="outline" className="h-9 text-xs" onClick={() => toast.success("Saved to drafts")}>
               <Save className="h-3 w-3 mr-1" /> Draft
             </Button>
-            <Button className="h-9 text-xs bg-[#1A3872]" disabled={!canSend} onClick={() => setConfirmOpen(true)}>
+            <Button className="h-9 text-xs bg-primary" disabled={!canSend} onClick={() => setConfirmOpen(true)}>
               <Send className="h-3 w-3 mr-1" /> Send
             </Button>
           </div>
@@ -169,7 +169,7 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
         {/* Sent */}
         <TabsContent value="sent" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-0">
           {sentMessages.map((m) => (
-            <Card key={m.id} className="border border-gray-200 shadow-sm">
+            <Card key={m.id} className="border border-border shadow-sm">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Badge className={`${typeBadge(m.type)} text-[10px]`}>
@@ -177,11 +177,11 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
                   </Badge>
                   <Badge className={`${statusColor[m.status]} text-[10px]`}>{m.status}</Badge>
                 </div>
-                <p className="text-sm font-semibold text-gray-800 mt-1">{m.subject}</p>
-                <p className="text-[10px] text-gray-500 mt-0.5">{m.recipients} · {m.sentAt}</p>
-                <div className="flex items-center justify-between mt-2 text-[10px] text-gray-500">
+                <p className="text-sm font-semibold text-foreground mt-1">{m.subject}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{m.recipients} · {m.sentAt}</p>
+                <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
                   <span>Read {m.read}</span>
-                  {m.replies > 0 && <span className="text-blue-600 font-medium">{m.replies} replies</span>}
+                  {m.replies > 0 && <span className="text-info font-medium">{m.replies} replies</span>}
                 </div>
               </CardContent>
             </Card>
@@ -191,16 +191,16 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
         {/* Replies */}
         <TabsContent value="replies" className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-0">
           {replies.map((r) => (
-            <Card key={r.id} className="border border-gray-200 shadow-sm">
+            <Card key={r.id} className="border border-border shadow-sm">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-800">{r.from}</span>
-                  {!r.resolved && <span className="h-2 w-2 rounded-full bg-blue-500" />}
+                  <span className="text-xs font-semibold text-foreground">{r.from}</span>
+                  {!r.resolved && <span className="h-2 w-2 rounded-full bg-info" />}
                 </div>
-                <p className="text-[10px] text-gray-400">re: {r.original} · {r.at}</p>
-                <p className="text-xs text-gray-700 mt-1.5 bg-gray-50 rounded-lg p-2">{r.message}</p>
+                <p className="text-[10px] text-muted-foreground/70">re: {r.original} · {r.at}</p>
+                <p className="text-xs text-foreground/80 mt-1.5 bg-surface rounded-lg p-2">{r.message}</p>
                 {r.resolved ? (
-                  <Badge className="bg-green-100 text-green-700 text-[10px] mt-2">Resolved</Badge>
+                  <Badge className="bg-success/15 text-success text-[10px] mt-2">Resolved</Badge>
                 ) : (
                   <div className="mt-2 space-y-2">
                     <Textarea
@@ -212,7 +212,7 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
                     <div className="grid grid-cols-2 gap-2">
                       <Button
                         size="sm"
-                        className="h-8 text-xs bg-[#1A3872]"
+                        className="h-8 text-xs bg-primary"
                         disabled={!(replyDrafts[r.id] ?? "").trim()}
                         onClick={() => sendReply(r.id)}
                       >
@@ -233,12 +233,12 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
       {/* Send confirmation dialog */}
       {confirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 space-y-3">
-            <div className="flex items-center gap-2 text-amber-600">
+          <div className="w-full max-w-md rounded-2xl bg-card p-5 space-y-3">
+            <div className="flex items-center gap-2 text-warning">
               <AlertTriangle className="h-5 w-5" />
-              <p className="font-semibold text-gray-800">Confirm send</p>
+              <p className="font-semibold text-foreground">Confirm send</p>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               You are about to send a {messageTypes.find((m) => m.value === msgType)?.label} to {recipientCount} users.
               This action cannot be undone.
             </p>
@@ -246,7 +246,7 @@ export function MessagesScreen({ onBack }: MessagesScreenProps) {
               <Button variant="outline" className="flex-1" onClick={() => setConfirmOpen(false)}>
                 Cancel
               </Button>
-              <Button className="flex-1 bg-[#1A3872]" onClick={doSend}>
+              <Button className="flex-1 bg-primary" onClick={doSend}>
                 Confirm send
               </Button>
             </div>

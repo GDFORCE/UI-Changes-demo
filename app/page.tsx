@@ -517,21 +517,21 @@ export default function PatientVisitScheduleApp() {
 
   return (
     <LanguageProvider>
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Patient Visit Schedule</h1>
-          <p className="text-gray-600">Clinical Trial Visit Management App UI</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Patient Visit Schedule</h1>
+          <p className="text-muted-foreground">Clinical Trial Visit Management App UI</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
           {/* Screen Navigator */}
-          <div className="w-full lg:w-72 bg-white rounded-2xl shadow-lg p-4 order-2 lg:order-1 max-h-[80vh] overflow-y-auto">
-            <h2 className="font-semibold text-gray-900 mb-4">Navigate Screens</h2>
+          <div className="w-full lg:w-72 bg-card rounded-2xl shadow-lg p-4 order-2 lg:order-1 max-h-[80vh] overflow-y-auto">
+            <h2 className="font-semibold text-foreground mb-4">Navigate Screens</h2>
             {screenCategories.map((category) => (
               <div key={category.name} className="mb-4">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                   {category.name}
                 </h3>
                 <div className="space-y-1">
@@ -542,8 +542,8 @@ export default function PatientVisitScheduleApp() {
                       className={cn(
                         "w-full text-left px-3 py-2 rounded-lg text-sm transition-all",
                         currentScreen === screen.id
-                          ? "bg-[#1A3872] text-white"
-                          : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-primary text-white"
+                          : "text-foreground/80 hover:bg-muted"
                       )}
                     >
                       {screen.label}
@@ -582,15 +582,15 @@ export default function PatientVisitScheduleApp() {
           </div>
 
           {/* Quick Actions */}
-          <div className="w-full lg:w-72 bg-white rounded-2xl shadow-lg p-4 order-3 max-h-[80vh] overflow-y-auto">
-            <h2 className="font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="w-full lg:w-72 bg-card rounded-2xl shadow-lg p-4 order-3 max-h-[80vh] overflow-y-auto">
+            <h2 className="font-semibold text-foreground mb-4">Quick Actions</h2>
             <div className="space-y-2">
               <button
                 onClick={() => {
                   setSelectedEntity("sponsor")
                   navigate("sponsor-dashboard")
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-blue-50 text-[#1A3872] hover:bg-blue-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-info/5 text-primary hover:bg-info/10"
               >
                 Login as Sponsor
               </button>
@@ -599,7 +599,7 @@ export default function PatientVisitScheduleApp() {
                   setSelectedEntity("site")
                   navigate("pi-dashboard")
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-teal-50 text-[#0D9488] hover:bg-teal-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
               >
                 Login as PI (Oversight)
               </button>
@@ -608,7 +608,7 @@ export default function PatientVisitScheduleApp() {
                   setSelectedEntity("site")
                   navigate("research-team-dashboard")
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-success/10 text-success hover:bg-success/15"
               >
                 Login as CRC / Research Team
               </button>
@@ -617,30 +617,30 @@ export default function PatientVisitScheduleApp() {
                   setSelectedEntity("patient")
                   navigate("patient-dashboard")
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-purple-50 text-purple-700 hover:bg-purple-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-violet/5 text-violet hover:bg-violet/10"
               >
                 Login as Patient
               </button>
 
-              <div className="h-px bg-gray-200 my-3" />
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <div className="h-px bg-border my-3" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 Patient Features
               </p>
               <button
                 onClick={() => navigate("my-trial")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-teal-50 text-teal-700 hover:bg-teal-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
               >
                 My Trial Hub
               </button>
               <button
                 onClick={() => navigate("patient-calendar")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-blue-50 text-blue-700 hover:bg-blue-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-info/5 text-info hover:bg-info/10"
               >
                 Patient Calendar
               </button>
               <button
                 onClick={() => navigate("my-visits")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-violet/5 text-violet hover:bg-violet/10"
               >
                 My Visits
               </button>
@@ -658,42 +658,42 @@ export default function PatientVisitScheduleApp() {
               </button>
               <button
                 onClick={() => navigate("about-trial")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-amber-50 text-amber-700 hover:bg-amber-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-warning/10 text-warning hover:bg-warning/15"
               >
                 About Trial
               </button>
               <button
                 onClick={() => navigate("profile-settings")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-gray-50 text-gray-700 hover:bg-gray-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-surface text-foreground/80 hover:bg-muted"
               >
                 Profile & Settings
               </button>
 
-              <div className="h-px bg-gray-200 my-3" />
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <div className="h-px bg-border my-3" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 Trial Actions
               </p>
               <button
                 onClick={() => navigate("add-trial")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-amber-50 text-[#D97706] hover:bg-amber-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-warning/10 text-warning hover:bg-warning/15"
               >
                 Add New Trial
               </button>
               <button
                 onClick={() => navigate("add-patient")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-green-50 text-green-700 hover:bg-green-100"
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-success/10 text-success hover:bg-success/15"
               >
                 Add New Patient
               </button>
             </div>
 
             <div className="mt-6 pt-4 border-t">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                 Current Path
               </h3>
               <div className="flex flex-wrap gap-1">
                 {history.map((screen, i) => (
-                  <span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                  <span key={i} className="text-xs bg-muted px-2 py-1 rounded">
                     {screen}
                   </span>
                 ))}

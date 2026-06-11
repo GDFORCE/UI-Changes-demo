@@ -19,7 +19,7 @@ function TabBadge({ n, tone }: { n: number; tone: "red" | "amber" }) {
   return (
     <span
       className={`ml-1.5 h-4 min-w-4 px-1 rounded-full text-[10px] font-semibold flex items-center justify-center ${
-        tone === "red" ? "bg-red-500 text-white" : "bg-amber-500 text-white"
+        tone === "red" ? "bg-destructive text-white" : "bg-warning text-white"
       }`}
     >
       {n}
@@ -37,12 +37,12 @@ export function ActionCenterScreen({ defaultTab = "approvals" }: ActionCenterScr
     <Tabs defaultValue={defaultTab} className="w-full">
       <div className="px-6 lg:px-8 pt-6 max-w-[1400px] mx-auto">
         <div className="mb-3">
-          <h1 className="text-xl font-bold text-[#1A3872]">Action Center</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-xl font-bold text-primary">Action Center</h1>
+          <p className="text-sm text-muted-foreground">
             Everything that needs admin attention — approvals, issues, alerts and notification failures — in one place.
           </p>
         </div>
-        <TabsList className="bg-white border border-gray-200 rounded-lg h-auto p-1 flex-wrap">
+        <TabsList className="bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
           <TabsTrigger value="approvals" className="text-sm gap-1">
             <CheckSquare className="h-4 w-4" /> Pending Approvals <TabBadge n={counts.approvals} tone="amber" />
           </TabsTrigger>

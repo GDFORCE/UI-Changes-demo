@@ -99,17 +99,17 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-card">
       {/* Header */}
       {step < 4 && (
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
           <button
             onClick={() => (step === 1 ? onBack?.() : setStep((step - 1) as 1 | 2 | 3))}
-            className="p-2 -ml-2 rounded-full hover:bg-gray-100"
+            className="p-2 -ml-2 rounded-full hover:bg-muted"
           >
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
+            <ArrowLeft className="w-5 h-5 text-foreground/80" />
           </button>
-          <h1 className="text-lg font-semibold text-[#0D1B3E] font-[family-name:var(--font-heading)]">
+          <h1 className="text-lg font-semibold text-primary-deep font-[family-name:var(--font-heading)]">
             {step === 1 && "Forgot Password"}
             {step === 2 && "Verify OTP"}
             {step === 3 && "Reset Password"}
@@ -121,16 +121,16 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
       {step === 1 && (
         <div className="flex-1 p-6">
           <div className="flex justify-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
-              <Mail className="w-10 h-10 text-[#2563EB]" />
+            <div className="w-20 h-20 rounded-full bg-info/10 flex items-center justify-center">
+              <Mail className="w-10 h-10 text-info" />
             </div>
           </div>
-          <p className="text-center text-gray-600 mb-8">
-            Enter the email or phone number <span className="font-medium text-gray-800">registered with your account</span> and we&apos;ll send you a verification code to reset your password.
+          <p className="text-center text-muted-foreground mb-8">
+            Enter the email or phone number <span className="font-medium text-foreground">registered with your account</span> and we&apos;ll send you a verification code to reset your password.
           </p>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm text-gray-600">Email or Phone Number</Label>
+              <Label className="text-sm text-muted-foreground">Email or Phone Number</Label>
               <Input
                 type="text"
                 placeholder="Enter email or phone"
@@ -140,25 +140,25 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
                   if (accountError) setAccountError("")
                 }}
                 className={`mt-1.5 h-12 rounded-lg ${
-                  accountError ? "border-red-500 focus-visible:ring-red-500" : "border-gray-200"
+                  accountError ? "border-red-500 focus-visible:ring-red-500" : "border-border"
                 }`}
               />
               {accountError && (
-                <p className="text-xs text-red-500 mt-1.5">{accountError}</p>
+                <p className="text-xs text-destructive mt-1.5">{accountError}</p>
               )}
             </div>
           </div>
           <Button
             onClick={handleSendResetLink}
             disabled={!emailOrPhone}
-            className="w-full mt-8 h-12 bg-[#2563EB] hover:bg-[#1A3872] text-white rounded-xl font-medium"
+            className="w-full mt-8 h-12 bg-info hover:bg-primary text-white rounded-xl font-medium"
           >
             Send Reset Link
           </Button>
 
           <button
             type="button"
-            className="w-full mt-6 flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-[#2563EB]"
+            className="w-full mt-6 flex items-center justify-center gap-1.5 text-sm text-muted-foreground hover:text-info"
           >
             <HelpCircle className="w-4 h-4" />
             Need help? Contact Support
@@ -170,13 +170,13 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
       {step === 2 && (
         <div className="flex-1 p-6">
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
-              <Phone className="w-10 h-10 text-[#2563EB]" />
+            <div className="w-20 h-20 rounded-full bg-info/10 flex items-center justify-center">
+              <Phone className="w-10 h-10 text-info" />
             </div>
           </div>
-          <p className="text-center text-gray-600 mb-6">
+          <p className="text-center text-muted-foreground mb-6">
             We&apos;ve sent a 6-digit OTP to{" "}
-            <span className="font-medium text-gray-800">{emailOrPhone || "+91 98XXXXXXXX"}</span>
+            <span className="font-medium text-foreground">{emailOrPhone || "+91 98XXXXXXXX"}</span>
           </p>
           <div className="flex justify-center gap-2 mb-4">
             {otp.map((digit, index) => (
@@ -190,25 +190,25 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 className={`w-11 h-14 text-center text-xl font-semibold rounded-lg border-2 focus:outline-none transition-colors ${
                   digit
-                    ? "border-[#2563EB] bg-blue-50 text-[#0D1B3E]"
-                    : "border-gray-200 bg-white text-gray-400"
-                } focus:border-[#0D1B3E]`}
+                    ? "border-info bg-info/5 text-primary-deep"
+                    : "border-border bg-card text-muted-foreground/70"
+                } focus:border-primary-deep`}
               />
             ))}
           </div>
-          <p className="text-center text-gray-500 text-sm mb-6">
-            Code expires in <span className="font-medium text-[#2563EB]">{formatTime(timer)}</span>
+          <p className="text-center text-muted-foreground text-sm mb-6">
+            Code expires in <span className="font-medium text-info">{formatTime(timer)}</span>
           </p>
           <button
             onClick={() => setTimer(120)}
-            className="w-full text-center text-[#2563EB] font-medium text-sm mb-6"
+            className="w-full text-center text-info font-medium text-sm mb-6"
           >
             Resend OTP
           </button>
           <Button
             onClick={handleVerifyOtp}
             disabled={otp.some((d) => !d)}
-            className="w-full h-12 bg-[#2563EB] hover:bg-[#1A3872] text-white rounded-xl font-medium"
+            className="w-full h-12 bg-info hover:bg-primary text-white rounded-xl font-medium"
           >
             Verify OTP
           </Button>
@@ -221,19 +221,19 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
           <div className="space-y-5">
             {/* New Password */}
             <div>
-              <Label className="text-sm text-gray-600">New Password</Label>
+              <Label className="text-sm text-muted-foreground">New Password</Label>
               <div className="relative mt-1.5">
                 <Input
                   type={showNewPassword ? "text" : "password"}
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="h-12 pr-10 rounded-lg border-gray-200"
+                  className="h-12 pr-10 rounded-lg border-border"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70"
                 >
                   {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -249,11 +249,11 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
                     className={`h-1.5 flex-1 rounded-full transition-colors ${
                       i <= metRulesCount
                         ? metRulesCount <= 2
-                          ? "bg-red-500"
+                          ? "bg-destructive"
                           : metRulesCount <= 4
-                          ? "bg-amber-500"
-                          : "bg-emerald-500"
-                        : "bg-gray-200"
+                          ? "bg-warning"
+                          : "bg-success"
+                        : "bg-border"
                     }`}
                   />
                 ))}
@@ -261,10 +261,10 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
               <p
                 className={`text-xs font-medium ${
                   metRulesCount <= 2
-                    ? "text-red-500"
+                    ? "text-destructive"
                     : metRulesCount <= 4
-                    ? "text-amber-500"
-                    : "text-emerald-500"
+                    ? "text-warning"
+                    : "text-success"
                 }`}
               >
                 {passwordStrength}
@@ -276,36 +276,36 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
               {passwordRules.map((rule, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
                   {rule.met ? (
-                    <Check className="w-4 h-4 text-emerald-500" />
+                    <Check className="w-4 h-4 text-success" />
                   ) : (
-                    <X className="w-4 h-4 text-red-400" />
+                    <X className="w-4 h-4 text-destructive" />
                   )}
-                  <span className={rule.met ? "text-emerald-600" : "text-gray-500"}>{rule.label}</span>
+                  <span className={rule.met ? "text-success" : "text-muted-foreground"}>{rule.label}</span>
                 </div>
               ))}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <Label className="text-sm text-gray-600">Confirm Password</Label>
+              <Label className="text-sm text-muted-foreground">Confirm Password</Label>
               <div className="relative mt-1.5">
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="h-12 pr-10 rounded-lg border-gray-200"
+                  className="h-12 pr-10 rounded-lg border-border"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               {confirmPassword && (
-                <p className={`text-xs mt-1 ${passwordsMatch ? "text-emerald-500" : "text-red-500"}`}>
+                <p className={`text-xs mt-1 ${passwordsMatch ? "text-success" : "text-destructive"}`}>
                   {passwordsMatch ? "Passwords match" : "Passwords don't match"}
                 </p>
               )}
@@ -315,7 +315,7 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
           <Button
             onClick={handleResetPassword}
             disabled={metRulesCount < 5 || !passwordsMatch}
-            className="w-full mt-8 h-12 bg-[#2563EB] hover:bg-[#1A3872] text-white rounded-xl font-medium disabled:bg-gray-300"
+            className="w-full mt-8 h-12 bg-info hover:bg-primary text-white rounded-xl font-medium disabled:bg-gray-300"
           >
             Reset Password
           </Button>
@@ -325,18 +325,18 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
       {/* Step 4: Success */}
       {step === 4 && (
         <div className="flex-1 flex flex-col items-center justify-center p-6">
-          <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-6">
-            <CheckCircle className="w-12 h-12 text-emerald-500" />
+          <div className="w-20 h-20 rounded-full bg-success/15 flex items-center justify-center mb-6">
+            <CheckCircle className="w-12 h-12 text-success" />
           </div>
-          <h2 className="text-2xl font-bold text-[#0D1B3E] mb-2 font-[family-name:var(--font-heading)]">
+          <h2 className="text-2xl font-bold text-primary-deep mb-2 font-[family-name:var(--font-heading)]">
             Password Reset Successful!
           </h2>
-          <p className="text-gray-500 text-center mb-8">
+          <p className="text-muted-foreground text-center mb-8">
             Your password has been successfully reset. You can now sign in with your new password.
           </p>
           <Button
             onClick={handleBackToSignIn}
-            className="w-full h-12 bg-[#2563EB] hover:bg-[#1A3872] text-white rounded-xl font-medium"
+            className="w-full h-12 bg-info hover:bg-primary text-white rounded-xl font-medium"
           >
             Back to Sign In
           </Button>

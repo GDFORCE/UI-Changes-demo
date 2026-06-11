@@ -57,11 +57,11 @@ const pendingActions: { label: string; sub: string; count: number; urgency: Urge
 
 // ── ADM-01 §4 User distribution ──────────────────────────────────────
 const distribution: { label: string; count: number; color: string }[] = [
-  { label: "Sponsor", count: 642, color: "#1A3872" },
-  { label: "CRO", count: 488, color: "#2563EB" },
-  { label: "SMO", count: 213, color: "#0D9488" },
-  { label: "Site", count: 904, color: "#7C3AED" },
-  { label: "Patient", count: 600, color: "#D97706" },
+  { label: "Sponsor", count: 642, color: "var(--primary)" },
+  { label: "CRO", count: 488, color: "var(--info)" },
+  { label: "SMO", count: 213, color: "var(--accent)" },
+  { label: "Site", count: 904, color: "var(--violet)" },
+  { label: "Patient", count: 600, color: "var(--warning)" },
 ];
 
 const activityFeed: { dot: Urgency; title: string; sub: string; time: string; dest: string }[] = [
@@ -81,24 +81,24 @@ const quickAccess: { dest: string; label: string; icon: typeof Users }[] = [
 ];
 
 const dotClass: Record<Urgency, string> = {
-  red: "bg-red-500",
-  amber: "bg-amber-500",
-  green: "bg-green-500",
-  blue: "bg-blue-500",
+  red: "bg-destructive",
+  amber: "bg-warning",
+  green: "bg-success",
+  blue: "bg-info",
 };
 
 const tileAccent: Record<Urgency, string> = {
-  red: "text-red-600",
-  amber: "text-amber-600",
-  green: "text-green-600",
-  blue: "text-[#2563EB]",
+  red: "text-destructive",
+  amber: "text-warning",
+  green: "text-success",
+  blue: "text-info",
 };
 
 const countBadge: Record<Urgency, string> = {
-  red: "bg-red-100 text-red-700",
-  amber: "bg-amber-100 text-amber-700",
-  green: "bg-green-100 text-green-700",
-  blue: "bg-blue-100 text-blue-700",
+  red: "bg-destructive/10 text-destructive",
+  amber: "bg-warning/15 text-warning",
+  green: "bg-success/15 text-success",
+  blue: "bg-info/10 text-info",
 };
 
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
@@ -159,24 +159,24 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* ── Header row: subtitle + actions (ADM-01 §1 / §7) ─────────── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">Platform overview</h1>
-          <p className="text-sm text-gray-500">Real-time snapshot of users, trials, approvals and system health.</p>
+          <h1 className="text-xl font-bold text-primary">Platform overview</h1>
+          <p className="text-sm text-muted-foreground">Real-time snapshot of users, trials, approvals and system health.</p>
         </div>
         <div className="flex items-center gap-2">
           {navMessage && (
-            <span className="text-xs font-medium text-[#1A3872] bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5 flex items-center gap-1">
+            <span className="text-xs font-medium text-primary bg-info/5 border border-info/20 rounded-lg px-3 py-1.5 flex items-center gap-1">
               <ArrowRight className="h-3 w-3" /> {navMessage}
             </span>
           )}
           <button
             onClick={() => doRefresh(true)}
-            className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-2 hover:bg-gray-50"
+            className="flex items-center gap-2 text-sm font-medium text-foreground/80 bg-card border border-border rounded-lg px-3 py-2 hover:bg-surface"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> Refresh
           </button>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-[#1A3872] rounded-lg px-3 py-2 hover:bg-[#15305f]"
+            className="flex items-center gap-2 text-sm font-medium text-white bg-primary rounded-lg px-3 py-2 hover:bg-primary/90"
           >
             <Download className="h-4 w-4" /> Export PDF
           </button>
@@ -189,15 +189,15 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <button
             key={t.key}
             onClick={() => go(t.dest, `tile-${t.key}`)}
-            className="text-left bg-white border border-gray-200 rounded-xl p-4 hover:border-[#2563EB] hover:shadow-sm transition-all"
+            className="text-left bg-card border border-border rounded-xl p-4 hover:border-info hover:shadow-sm transition-all"
           >
             <div className="flex items-center justify-between">
               <t.icon className={`h-5 w-5 ${tileAccent[t.urgency]}`} />
               <ChevronRight className="h-4 w-4 text-gray-300" />
             </div>
-            <div className="text-2xl font-bold text-[#1A3872] mt-2">{t.count}</div>
-            <div className="text-xs font-medium text-gray-700 mt-1">{t.label}</div>
-            <div className="text-[11px] text-gray-500 mt-1 leading-tight">{t.sub}</div>
+            <div className="text-2xl font-bold text-primary mt-2">{t.count}</div>
+            <div className="text-xs font-medium text-foreground/80 mt-1">{t.label}</div>
+            <div className="text-[11px] text-muted-foreground mt-1 leading-tight">{t.sub}</div>
             <div className={`text-[11px] font-semibold mt-1.5 ${tileAccent[t.urgency]}`}>{t.trend}</div>
           </button>
         ))}
@@ -209,10 +209,10 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <button
             key={dest}
             onClick={() => go(dest, "quick-access")}
-            className="flex flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white hover:bg-blue-50 hover:border-[#2563EB] transition-colors py-4"
+            className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card hover:bg-info/5 hover:border-info transition-colors py-4"
           >
-            <Icon className="h-5 w-5 text-[#2563EB]" />
-            <span className="text-xs font-medium text-gray-700">{label}</span>
+            <Icon className="h-5 w-5 text-info" />
+            <span className="text-xs font-medium text-foreground/80">{label}</span>
           </button>
         ))}
       </div>
@@ -222,11 +222,11 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         {/* Left: distribution + activity */}
         <div className="lg:col-span-2 space-y-6">
           {/* §4 User distribution */}
-          <Card className="border border-gray-200 shadow-sm">
+          <Card className="border border-border shadow-sm">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-[#1A3872]">User distribution by entity</h3>
-                <span className="text-xs text-gray-400">{totalUsers.toLocaleString()} total</span>
+                <h3 className="text-sm font-semibold text-primary">User distribution by entity</h3>
+                <span className="text-xs text-muted-foreground/70">{totalUsers.toLocaleString()} total</span>
               </div>
               <div className="flex h-3 w-full rounded-full overflow-hidden">
                 {distribution.map((d) => (
@@ -242,11 +242,11 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   <div key={d.label}>
                     <div className="flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                      <span className="text-xs text-gray-600">{d.label}</span>
+                      <span className="text-xs text-muted-foreground">{d.label}</span>
                     </div>
-                    <div className="text-sm font-semibold text-[#1A3872] mt-0.5">
+                    <div className="text-sm font-semibold text-primary mt-0.5">
                       {d.count}
-                      <span className="text-[10px] font-normal text-gray-400 ml-1">
+                      <span className="text-[10px] font-normal text-muted-foreground/70 ml-1">
                         {Math.round((d.count / totalUsers) * 100)}%
                       </span>
                     </div>
@@ -257,25 +257,25 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </Card>
 
           {/* Recent platform activity */}
-          <Card className="border border-gray-200 shadow-sm">
+          <Card className="border border-border shadow-sm">
             <CardContent className="p-0">
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
-                <Clock className="h-4 w-4 text-[#2563EB]" />
-                <span className="text-sm font-semibold text-[#1A3872] flex-1">Recent platform activity</span>
-                <span className="text-[11px] text-gray-400">Last 6 events</span>
+              <div className="flex items-center gap-2 px-5 py-3 border-b border-border">
+                <Clock className="h-4 w-4 text-info" />
+                <span className="text-sm font-semibold text-primary flex-1">Recent platform activity</span>
+                <span className="text-[11px] text-muted-foreground/70">Last 6 events</span>
               </div>
               {activityFeed.map((ev, i) => (
                 <button
                   key={i}
                   onClick={() => go(ev.dest, "activity-feed")}
-                  className="w-full text-left flex items-center gap-3 px-5 py-3 border-b border-gray-50 last:border-b-0 hover:bg-gray-50"
+                  className="w-full text-left flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0 hover:bg-surface"
                 >
                   <span className={`h-2 w-2 rounded-full shrink-0 ${dotClass[ev.dot]}`} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-gray-800 truncate">{ev.title}</div>
-                    <div className="text-xs text-gray-500 truncate">{ev.sub}</div>
+                    <div className="text-sm font-medium text-foreground truncate">{ev.title}</div>
+                    <div className="text-xs text-muted-foreground truncate">{ev.sub}</div>
                   </div>
-                  <span className="text-xs text-gray-400 shrink-0">{ev.time}</span>
+                  <span className="text-xs text-muted-foreground/70 shrink-0">{ev.time}</span>
                 </button>
               ))}
             </CardContent>
@@ -285,25 +285,25 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
         {/* Right: §3 Pending admin actions */}
         <div className="lg:col-span-1">
-          <Card className="border border-gray-200 shadow-sm">
+          <Card className="border border-border shadow-sm">
             <CardContent className="p-0">
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-semibold text-[#1A3872] flex-1">Pending admin actions</span>
+              <div className="flex items-center gap-2 px-5 py-3 border-b border-border">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+                <span className="text-sm font-semibold text-primary flex-1">Pending admin actions</span>
               </div>
               {pendingActions.map((a) => (
                 <div
                   key={a.label}
-                  className="flex items-center gap-3 px-5 py-3 border-b border-gray-50 last:border-b-0"
+                  className="flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-gray-800">{a.label}</div>
-                    <div className="text-xs text-gray-500 truncate">{a.sub}</div>
+                    <div className="text-sm font-medium text-foreground">{a.label}</div>
+                    <div className="text-xs text-muted-foreground truncate">{a.sub}</div>
                   </div>
                   <Badge className={`${countBadge[a.urgency]} hover:opacity-100 text-[11px] shrink-0`}>{a.count}</Badge>
                   <button
                     onClick={() => go(a.dest, `pending-${a.label}`)}
-                    className="text-xs font-semibold text-[#2563EB] hover:underline shrink-0"
+                    className="text-xs font-semibold text-info hover:underline shrink-0"
                   >
                     Action
                   </button>
@@ -314,7 +314,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
       </div>
 
-      <p className="text-center text-[11px] text-gray-400">
+      <p className="text-center text-[11px] text-muted-foreground/70">
         Auto-refreshes every 60s · last updated {lastRefresh.toLocaleTimeString()}
       </p>
     </div>

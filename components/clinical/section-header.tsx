@@ -44,7 +44,7 @@ export function SectionHeader({
             className={cn("h-4 w-4 shrink-0 text-muted-foreground", iconClassName)}
           />
         )}
-        <h2 className="font-heading text-base font-semibold text-foreground truncate">
+        <h2 className="font-heading text-base font-semibold tracking-tight text-foreground truncate">
           {title}
         </h2>
         {count !== undefined && count > 0 && (
@@ -60,7 +60,7 @@ export function SectionHeader({
         <button
           type="button"
           onClick={action.onClick}
-          className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          className="flex items-center gap-1 rounded-md text-sm font-medium text-primary transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         >
           {action.label}
           <ChevronRight className="h-4 w-4" />

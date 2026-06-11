@@ -159,7 +159,7 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
         }`}
         title={`${code} · ${label}`}
       >
-        <span className={`w-1 h-5 rounded-full -ml-2 ${active ? "bg-white" : "bg-transparent"}`} />
+        <span className={`w-1 h-5 rounded-full -ml-2 ${active ? "bg-card" : "bg-transparent"}`} />
         <Icon className="h-[18px] w-[18px] shrink-0" />
         <span className="truncate">{label}</span>
       </button>
@@ -167,12 +167,12 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
   };
 
   return (
-    <div className="min-h-screen flex bg-[#F8FAFC] text-gray-900">
+    <div className="min-h-screen flex bg-surface text-foreground">
       {/* ── Left sidebar (14 spec items + More) ───────────────────── */}
-      <aside className="w-60 shrink-0 bg-[#1A3872] text-white flex flex-col h-screen sticky top-0">
+      <aside className="w-60 shrink-0 bg-primary text-white flex flex-col h-screen sticky top-0">
         <div className="px-4 py-4 border-b border-white/10">
           <h1 className="text-base font-semibold leading-tight">TrialSync</h1>
-          <p className="text-[11px] text-blue-200">Platform Admin Portal</p>
+          <p className="text-[11px] text-primary-foreground/75">Platform Admin Portal</p>
         </div>
         <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
           {primaryNav.map(renderNavItem)}
@@ -193,15 +193,15 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
       {/* ── Main column ───────────────────────────────────────────── */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
+        <header className="sticky top-0 z-20 bg-card border-b border-border">
           <div className="flex items-center justify-between px-6 h-16">
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-[#1A3872] leading-tight truncate">{title}</h2>
-              <p className="text-xs text-gray-500">{today}</p>
+              <h2 className="text-lg font-semibold text-primary leading-tight truncate">{title}</h2>
+              <p className="text-xs text-muted-foreground">{today}</p>
             </div>
             <div className="flex items-center gap-1 relative">
               <button
-                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                className="p-2 rounded-lg text-muted-foreground hover:bg-muted"
                 onClick={() => { closeMenus(); setSearchOpen(true); }}
                 aria-label="Global search"
               >
@@ -209,21 +209,21 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
               </button>
               <div className="relative">
                 <button
-                  className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 relative"
+                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted relative"
                   onClick={() => { setSettingsOpen(false); setBellOpen((v) => !v); }}
                   aria-label="Notifications"
                 >
                   <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-semibold rounded-full min-w-[15px] h-[15px] px-1 flex items-center justify-center">
+                  <span className="absolute top-1 right-1 bg-destructive text-white text-[9px] font-semibold rounded-full min-w-[15px] h-[15px] px-1 flex items-center justify-center">
                     {notifications.length}
                   </span>
                 </button>
                 {bellOpen && (
-                  <div className="absolute right-0 top-12 z-30 w-[320px] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-                    <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                      <span className="text-sm font-semibold text-[#1A3872]">Notifications</span>
+                  <div className="absolute right-0 top-12 z-30 w-[320px] bg-card rounded-xl shadow-xl border border-border overflow-hidden">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                      <span className="text-sm font-semibold text-primary">Notifications</span>
                       <button onClick={() => setBellOpen(false)} aria-label="Close">
-                        <X className="h-4 w-4 text-gray-500" />
+                        <X className="h-4 w-4 text-muted-foreground" />
                       </button>
                     </div>
                     <div className="max-h-[320px] overflow-y-auto">
@@ -231,12 +231,12 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
                         <button
                           key={n.id}
                           onClick={() => { setBellOpen(false); onNavigate(n.dest); }}
-                          className="w-full text-left flex items-start gap-2 px-3 py-2 border-b border-gray-50 last:border-b-0 hover:bg-gray-50"
+                          className="w-full text-left flex items-start gap-2 px-3 py-2 border-b border-border last:border-b-0 hover:bg-surface"
                         >
-                          <span className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${n.critical ? "bg-red-500" : "bg-blue-500"}`} />
+                          <span className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${n.critical ? "bg-destructive" : "bg-info"}`} />
                           <div className="min-w-0 flex-1">
-                            <div className="text-xs font-semibold text-gray-800 truncate">{n.title}</div>
-                            <div className="text-[10px] text-gray-500 truncate">{n.id} · {n.sub}</div>
+                            <div className="text-xs font-semibold text-foreground truncate">{n.title}</div>
+                            <div className="text-[10px] text-muted-foreground truncate">{n.id} · {n.sub}</div>
                           </div>
                         </button>
                       ))}
@@ -246,15 +246,15 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
               </div>
               <div className="relative">
                 <button
-                  className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted"
                   onClick={() => { setBellOpen(false); setSettingsOpen((v) => !v); }}
                   aria-label="Platform settings"
                 >
                   <Settings className="h-5 w-5" />
                 </button>
                 {settingsOpen && (
-                  <div className="absolute right-0 top-12 z-30 w-[240px] bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-                    <div className="px-3 py-2 border-b border-gray-100 text-sm font-semibold text-[#1A3872]">
+                  <div className="absolute right-0 top-12 z-30 w-[240px] bg-card rounded-xl shadow-xl border border-border overflow-hidden">
+                    <div className="px-3 py-2 border-b border-border text-sm font-semibold text-primary">
                       Platform settings
                     </div>
                     {[
@@ -266,27 +266,27 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
                       <button
                         key={s.label}
                         onClick={() => { setSettingsOpen(false); onNavigate(s.dest); }}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="w-full text-left px-3 py-2 text-sm text-foreground/80 hover:bg-surface"
                       >
                         {s.label}
                       </button>
                     ))}
                     <button
                       onClick={() => { setSettingsOpen(false); onNavigate("welcome"); }}
-                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100"
+                      className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/5 border-t border-border"
                     >
                       Sign out
                     </button>
                   </div>
                 )}
               </div>
-              <div className="ml-2 flex items-center gap-2 pl-2 border-l border-gray-200">
-                <div className="h-8 w-8 rounded-full bg-[#1A3872] text-white flex items-center justify-center text-xs font-semibold">
+              <div className="ml-2 flex items-center gap-2 pl-2 border-l border-border">
+                <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold">
                   PA
                 </div>
                 <div className="hidden lg:block leading-tight">
-                  <div className="text-xs font-semibold text-gray-800">Platform Admin</div>
-                  <div className="text-[10px] text-gray-500">drdineshyellamelli@…</div>
+                  <div className="text-xs font-semibold text-foreground">Platform Admin</div>
+                  <div className="text-[10px] text-muted-foreground">drdineshyellamelli@…</div>
                 </div>
               </div>
             </div>
@@ -300,9 +300,9 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
       {/* ── Global search overlay ─────────────────────────────────── */}
       {searchOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center pt-24 px-4" onClick={() => { setSearchOpen(false); setSearchQuery(""); }}>
-          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
-              <Search className="h-5 w-5 text-gray-400 shrink-0" />
+          <div className="w-full max-w-2xl bg-card rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+              <Search className="h-5 w-5 text-muted-foreground/70 shrink-0" />
               <Input
                 autoFocus
                 value={searchQuery}
@@ -311,35 +311,35 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
                 className="border-0 shadow-none focus-visible:ring-0 text-sm"
               />
               <button onClick={() => { setSearchOpen(false); setSearchQuery(""); }} aria-label="Close search">
-                <X className="h-5 w-5 text-gray-400" />
+                <X className="h-5 w-5 text-muted-foreground/70" />
               </button>
             </div>
             <div className="max-h-[60vh] overflow-y-auto p-3 space-y-3">
               {!searchQuery.trim() && (
-                <p className="text-xs text-gray-400 text-center py-6">
+                <p className="text-xs text-muted-foreground/70 text-center py-6">
                   Search across users, trials, organizations and tickets.
                 </p>
               )}
               {searchQuery.trim() && searchResults.length === 0 && (
-                <p className="text-xs text-gray-400 text-center py-6">No results for “{searchQuery}”.</p>
+                <p className="text-xs text-muted-foreground/70 text-center py-6">No results for “{searchQuery}”.</p>
               )}
               {searchResults.map((group) => (
                 <div key={group.category}>
-                  <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1 px-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 mb-1 px-1">
                     {group.category}
                   </div>
-                  <div className="rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="rounded-lg border border-border overflow-hidden">
                     {group.items.map((it, i) => (
                       <button
                         key={i}
                         onClick={() => { setSearchOpen(false); setSearchQuery(""); onNavigate(group.dest); }}
-                        className="w-full text-left flex items-center gap-2 px-3 py-2 border-b border-gray-50 last:border-b-0 hover:bg-gray-50"
+                        className="w-full text-left flex items-center gap-2 px-3 py-2 border-b border-border last:border-b-0 hover:bg-surface"
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium text-gray-800 truncate">{it.label}</div>
-                          <div className="text-xs text-gray-500 truncate">{it.sub}</div>
+                          <div className="text-sm font-medium text-foreground truncate">{it.label}</div>
+                          <div className="text-xs text-muted-foreground truncate">{it.sub}</div>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-gray-400 shrink-0" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/70 shrink-0" />
                       </button>
                     ))}
                   </div>

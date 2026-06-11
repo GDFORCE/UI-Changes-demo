@@ -124,13 +124,13 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Sent":
-        return <Clock className="h-4 w-4 text-blue-500" />;
+        return <Clock className="h-4 w-4 text-info" />;
       case "Accepted":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case "Expired":
-        return <Clock className="h-4 w-4 text-gray-400" />;
+        return <Clock className="h-4 w-4 text-muted-foreground/70" />;
       case "Cancelled":
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       default:
         return null;
     }
@@ -139,15 +139,15 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Sent":
-        return "bg-blue-100 text-blue-700";
+        return "bg-info/10 text-info";
       case "Accepted":
-        return "bg-green-100 text-green-700";
+        return "bg-success/15 text-success";
       case "Expired":
-        return "bg-gray-100 text-gray-500";
+        return "bg-muted text-muted-foreground";
       case "Cancelled":
-        return "bg-red-100 text-red-700";
+        return "bg-destructive/10 text-destructive";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
     }
   };
 
@@ -157,14 +157,14 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* Header row */}
       <div>
-        <h1 className="text-xl font-bold text-[#1A3872]">User invitations</h1>
-        <p className="text-sm text-gray-500">{pendingCount} pending · track sent, accepted, expired and cancelled invites.</p>
+        <h1 className="text-xl font-bold text-primary">User invitations</h1>
+        <p className="text-sm text-muted-foreground">{pendingCount} pending · track sent, accepted, expired and cancelled invites.</p>
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col lg:flex-row gap-3 lg:items-center">
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-3 lg:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
           <Input
             placeholder="Search by name, email, or organization..."
             value={searchQuery}
@@ -203,7 +203,7 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
       {/* Invitation List */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         {filteredInvitations.map((inv) => (
-          <Card key={inv.id} className="border border-gray-200 shadow-sm">
+          <Card key={inv.id} className="border border-border shadow-sm">
             <CardContent className="p-3">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -229,7 +229,7 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
                     )}
                     {inv.status === "Sent" && (
                       <DropdownMenuItem
-                        className="text-red-600"
+                        className="text-destructive"
                         onClick={() => toast.success(`Invitation to ${inv.email} cancelled`)}
                       >
                         <XCircle className="h-4 w-4 mr-2" />
@@ -241,19 +241,19 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-[#DBEAFE] flex items-center justify-center">
-                  <User className="h-5 w-5 text-[#1A3872]" />
+                <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-sm">{inv.name}</h3>
-                  <p className="text-xs text-gray-500">{inv.designation}</p>
+                  <p className="text-xs text-muted-foreground">{inv.designation}</p>
                   <Badge variant="outline" className="text-xs mt-1">
                     {inv.role}
                   </Badge>
                 </div>
               </div>
 
-              <div className="mt-3 space-y-1.5 text-xs text-gray-500">
+              <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Mail className="h-3 w-3" />
                   <span>{inv.email}</span>
@@ -271,16 +271,16 @@ export function InvitationManagementScreen({ onBack }: InvitationManagementScree
                 </div>
               </div>
 
-              <div className="mt-3 pt-2 border-t flex items-center justify-between text-xs text-gray-400">
+              <div className="mt-3 pt-2 border-t flex items-center justify-between text-xs text-muted-foreground/70">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   <span>Sent: {inv.sentAt}</span>
                 </div>
                 {inv.status === "Sent" && inv.expiresAt && (
-                  <span className="text-amber-500">Expires: {inv.expiresAt.split(" ")[0]}</span>
+                  <span className="text-warning">Expires: {inv.expiresAt.split(" ")[0]}</span>
                 )}
                 {inv.status === "Accepted" && inv.acceptedAt && (
-                  <span className="text-green-600">Accepted: {inv.acceptedAt}</span>
+                  <span className="text-success">Accepted: {inv.acceptedAt}</span>
                 )}
               </div>
             </CardContent>

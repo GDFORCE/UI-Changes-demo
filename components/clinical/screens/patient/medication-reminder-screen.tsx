@@ -160,17 +160,17 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
   const getStatusColor = (status: string) => {
     switch (status) {
       case "taken":
-        return "bg-emerald-100 text-emerald-700";
+        return "bg-success/15 text-success";
       case "not_taken":
-        return "bg-red-100 text-red-700";
+        return "bg-destructive/10 text-destructive";
       case "skipped":
-        return "bg-amber-100 text-amber-700";
+        return "bg-warning/15 text-warning";
       case "pending":
-        return "bg-blue-100 text-blue-700";
+        return "bg-info/10 text-info";
       case "remind_later":
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-muted text-foreground/80";
     }
   };
 
@@ -195,9 +195,9 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
   const takenCount = logs.filter((l) => l.status === "taken").length;
 
   return (
-    <div className="flex flex-col h-full bg-[#F8FAFC]">
+    <div className="flex flex-col h-full bg-surface">
       {/* Header */}
-      <div className="bg-[#1A3872] text-white px-4 py-4">
+      <div className="bg-primary text-white px-4 py-4">
         <div className="flex items-center gap-3">
           {onBack && (
             <button onClick={onBack} className="p-1">
@@ -209,12 +209,12 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
       </div>
 
       {/* Summary Card */}
-      <div className="bg-white mx-4 mt-4 rounded-xl shadow-sm p-4">
+      <div className="bg-card mx-4 mt-4 rounded-xl shadow-sm p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">Today&apos;s Progress</p>
-            <p className="text-2xl font-bold text-[#1A3872]">{takenCount}/{logs.length}</p>
-            <p className="text-xs text-gray-500">medications taken</p>
+            <p className="text-sm text-muted-foreground">Today&apos;s Progress</p>
+            <p className="text-2xl font-bold text-primary">{takenCount}/{logs.length}</p>
+            <p className="text-xs text-muted-foreground">medications taken</p>
           </div>
           <div className="relative w-16 h-16">
             <svg className="w-16 h-16 transform -rotate-90">
@@ -222,7 +222,7 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
                 cx="32"
                 cy="32"
                 r="28"
-                stroke="#E5E7EB"
+                stroke="var(--border)"
                 strokeWidth="6"
                 fill="none"
               />
@@ -230,7 +230,7 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
                 cx="32"
                 cy="32"
                 r="28"
-                stroke="#0D9488"
+                stroke="var(--accent)"
                 strokeWidth="6"
                 fill="none"
                 strokeDasharray={`${(takenCount / logs.length) * 175.9} 175.9`}
@@ -238,22 +238,22 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-semibold text-[#0D9488]">
+              <span className="text-sm font-semibold text-accent">
                 {Math.round((takenCount / logs.length) * 100)}%
               </span>
             </div>
           </div>
         </div>
         {pendingCount > 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-amber-500" />
-            <p className="text-sm text-amber-600">{pendingCount} medication{pendingCount > 1 ? "s" : ""} pending</p>
+          <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-warning" />
+            <p className="text-sm text-warning">{pendingCount} medication{pendingCount > 1 ? "s" : ""} pending</p>
           </div>
         )}
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white mx-4 mt-4 rounded-xl p-1 shadow-sm">
+      <div className="flex bg-card mx-4 mt-4 rounded-xl p-1 shadow-sm">
         {(["today", "schedule", "history"] as Tab[]).map((tab) => (
           <button
             key={tab}
@@ -261,8 +261,8 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
             className={cn(
               "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors capitalize",
               activeTab === tab
-                ? "bg-[#1A3872] text-white"
-                : "text-gray-600 hover:bg-gray-50"
+                ? "bg-primary text-white"
+                : "text-muted-foreground hover:bg-surface"
             )}
           >
             {tab}
@@ -277,30 +277,30 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
             {logs.map((log) => (
               <div
                 key={log.id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden"
+                className="bg-card rounded-xl border border-border shadow-xs overflow-hidden"
               >
                 <div className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center",
-                        log.status === "pending" ? "bg-blue-100" : log.status === "taken" ? "bg-emerald-100" : "bg-gray-100"
+                        log.status === "pending" ? "bg-info/10" : log.status === "taken" ? "bg-success/15" : "bg-muted"
                       )}>
                         <Pill className={cn(
                           "h-5 w-5",
-                          log.status === "pending" ? "text-blue-600" : log.status === "taken" ? "text-emerald-600" : "text-gray-600"
+                          log.status === "pending" ? "text-info" : log.status === "taken" ? "text-success" : "text-muted-foreground"
                         )} />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">{log.medicationName}</h3>
-                        <p className="text-sm text-gray-500">{log.dosage}</p>
+                        <h3 className="font-medium text-foreground">{log.medicationName}</h3>
+                        <p className="text-sm text-muted-foreground">{log.dosage}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Clock className="h-3 w-3 text-gray-400" />
-                          <span className="text-xs text-gray-500">{log.scheduledTime}</span>
+                          <Clock className="h-3 w-3 text-muted-foreground/70" />
+                          <span className="text-xs text-muted-foreground">{log.scheduledTime}</span>
                           {log.actualTime && (
                             <>
-                              <span className="text-xs text-gray-400">|</span>
-                              <span className="text-xs text-emerald-600">Taken at {log.actualTime}</span>
+                              <span className="text-xs text-muted-foreground/70">|</span>
+                              <span className="text-xs text-success">Taken at {log.actualTime}</span>
                             </>
                           )}
                         </div>
@@ -316,17 +316,17 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
                   </div>
 
                   {log.status === "pending" && (
-                    <div className="mt-4 pt-3 border-t border-gray-100 flex gap-2">
+                    <div className="mt-4 pt-3 border-t border-border flex gap-2">
                       <button
                         onClick={() => updateMedicationStatus(log.id, "taken")}
-                        className="flex-1 py-2 bg-emerald-500 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-1"
+                        className="flex-1 py-2 bg-success text-white rounded-lg text-sm font-medium flex items-center justify-center gap-1"
                       >
                         <Check className="h-4 w-4" />
                         Taken
                       </button>
                       <button
                         onClick={() => setShowActionSheet(log.id)}
-                        className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium"
+                        className="flex-1 py-2 bg-muted text-foreground/80 rounded-lg text-sm font-medium"
                       >
                         Other
                       </button>
@@ -336,23 +336,23 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
 
                 {/* Action Sheet */}
                 {showActionSheet === log.id && (
-                  <div className="border-t border-gray-100 bg-gray-50 p-3">
+                  <div className="border-t border-border bg-surface p-3">
                     <div className="grid grid-cols-3 gap-2">
                       <button
                         onClick={() => updateMedicationStatus(log.id, "not_taken")}
-                        className="py-2 px-3 bg-white border border-gray-200 rounded-lg text-xs text-red-600"
+                        className="py-2 px-3 bg-card border border-border rounded-lg text-xs text-destructive"
                       >
                         Not Taken
                       </button>
                       <button
                         onClick={() => updateMedicationStatus(log.id, "skipped")}
-                        className="py-2 px-3 bg-white border border-gray-200 rounded-lg text-xs text-amber-600"
+                        className="py-2 px-3 bg-card border border-border rounded-lg text-xs text-warning"
                       >
                         Skipped
                       </button>
                       <button
                         onClick={() => updateMedicationStatus(log.id, "remind_later")}
-                        className="py-2 px-3 bg-white border border-gray-200 rounded-lg text-xs text-gray-600"
+                        className="py-2 px-3 bg-card border border-border rounded-lg text-xs text-muted-foreground"
                       >
                         Remind Later
                       </button>
@@ -367,32 +367,32 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
         {activeTab === "schedule" && (
           <div className="space-y-3">
             {medications.map((med) => (
-              <div key={med.id} className="bg-white rounded-xl shadow-sm p-4">
+              <div key={med.id} className="bg-card rounded-xl border border-border shadow-xs p-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">{med.name}</h3>
-                    <p className="text-sm text-gray-500">{med.dosage} - {med.route}</p>
+                    <h3 className="font-medium text-foreground">{med.name}</h3>
+                    <p className="text-sm text-muted-foreground">{med.dosage} - {med.route}</p>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                  <ChevronRight className="h-5 w-5 text-muted-foreground/70" />
                 </div>
                 
-                <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 gap-3 text-sm">
+                <div className="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <p className="text-gray-500 text-xs">Frequency</p>
-                    <p className="text-gray-900">{med.frequency}</p>
+                    <p className="text-muted-foreground text-xs">Frequency</p>
+                    <p className="text-foreground">{med.frequency}</p>
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs">Scheduled Times</p>
-                    <p className="text-gray-900">{med.scheduledTimes.join(", ")}</p>
+                    <p className="text-muted-foreground text-xs">Scheduled Times</p>
+                    <p className="text-foreground">{med.scheduledTimes.join(", ")}</p>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-gray-500 text-xs mb-1">Instructions</p>
-                  <p className="text-sm text-gray-700">{med.instructions}</p>
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-muted-foreground text-xs mb-1">Instructions</p>
+                  <p className="text-sm text-foreground/80">{med.instructions}</p>
                 </div>
 
-                <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
                   <span>{med.startDate} - {med.endDate}</span>
                 </div>
@@ -406,12 +406,12 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
             {/* Group by date */}
             {["2024-02-19", "2024-02-18"].map((date) => (
               <div key={date}>
-                <p className="text-sm font-medium text-gray-500 mb-2">{date}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-2">{date}</p>
                 <div className="space-y-2">
                   {historyLogs
                     .filter((log) => log.date === date)
                     .map((log) => (
-                      <div key={log.id} className="bg-white rounded-xl shadow-sm p-3">
+                      <div key={log.id} className="bg-card rounded-xl border border-border shadow-xs p-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className={cn(
@@ -421,8 +421,8 @@ export function MedicationReminderScreen({ onBack }: MedicationReminderScreenPro
                               {getStatusIcon(log.status)}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 text-sm">{log.medicationName}</p>
-                              <p className="text-xs text-gray-500">{log.dosage} - {log.scheduledTime}</p>
+                              <p className="font-medium text-foreground text-sm">{log.medicationName}</p>
+                              <p className="text-xs text-muted-foreground">{log.dosage} - {log.scheduledTime}</p>
                             </div>
                           </div>
                           <span className={cn(

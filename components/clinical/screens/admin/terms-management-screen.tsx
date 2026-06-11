@@ -160,17 +160,17 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
       {/* Header row */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-bold text-[#1A3872]">Terms &amp; Conditions management</h1>
-          <p className="text-sm text-gray-500">Publish new versions, track acceptance, and manage version history.</p>
+          <h1 className="text-xl font-bold text-primary">Terms &amp; Conditions management</h1>
+          <p className="text-sm text-muted-foreground">Publish new versions, track acceptance, and manage version history.</p>
         </div>
-        <Button className="bg-[#1A3872] hover:bg-[#15305f]" onClick={openPublish}>
+        <Button className="bg-primary hover:bg-primary/90" onClick={openPublish}>
           Publish new version
         </Button>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-white border border-gray-200 rounded-lg h-auto p-1">
+        <TabsList className="bg-card border border-border rounded-lg h-auto p-1">
           <TabsTrigger value="versions" className="text-sm">Versions</TabsTrigger>
           <TabsTrigger value="history" className="text-sm">Acceptance history</TabsTrigger>
         </TabsList>
@@ -178,31 +178,31 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
         <TabsContent value="versions" className="space-y-5 mt-0">
           {/* Active Documents */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-500">Active Documents</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Active Documents</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {termsVersions
               .filter((v) => v.status === "Active")
               .map((version) => (
-                <Card key={version.id} className="border border-gray-200 shadow-sm">
+                <Card key={version.id} className="border border-border shadow-sm">
                   <CardContent className="p-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {version.type === "Terms of Service" ? (
-                          <FileText className="h-5 w-5 text-[#2563EB]" />
+                          <FileText className="h-5 w-5 text-info" />
                         ) : (
-                          <Shield className="h-5 w-5 text-[#0D9488]" />
+                          <Shield className="h-5 w-5 text-accent" />
                         )}
                         <div>
                           <h3 className="font-medium text-sm">{version.type}</h3>
-                          <p className="text-xs text-gray-500">Version {version.version}</p>
+                          <p className="text-xs text-muted-foreground">Version {version.version}</p>
                         </div>
                       </div>
-                      <Badge className="bg-green-100 text-green-700">
+                      <Badge className="bg-success/15 text-success">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Active
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         Activated: {version.activatedAt}
@@ -240,34 +240,34 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
 
           {/* Previous Versions */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-500">Previous Versions</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Previous Versions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {termsVersions
               .filter((v) => v.status === "Inactive")
               .map((version) => (
-                <Card key={version.id} className="border border-gray-200 shadow-sm bg-gray-50">
+                <Card key={version.id} className="border border-border shadow-sm bg-surface">
                   <CardContent className="p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-gray-400" />
+                        <FileText className="h-5 w-5 text-muted-foreground/70" />
                         <div>
-                          <h3 className="font-medium text-sm text-gray-600">{version.type}</h3>
-                          <p className="text-xs text-gray-400">Version {version.version}</p>
+                          <h3 className="font-medium text-sm text-muted-foreground">{version.type}</h3>
+                          <p className="text-xs text-muted-foreground/70">Version {version.version}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-gray-500">
+                      <Badge variant="outline" className="text-muted-foreground">
                         <Clock className="h-3 w-3 mr-1" />
                         Inactive
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground/70">
                       <span>Deactivated: {version.deactivatedAt}</span>
                       <span>{version.acceptedBy} accepted</span>
                     </div>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="w-full mt-2 h-7 text-xs text-gray-500"
+                      className="w-full mt-2 h-7 text-xs text-muted-foreground"
                       onClick={() => handleView(version)}
                     >
                       <Eye className="h-3 w-3 mr-1" />
@@ -281,26 +281,26 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-2 mt-0">
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             Users who accepted terms during login
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {acceptanceHistory.map((record, idx) => (
-            <Card key={idx} className="border border-gray-200 shadow-sm">
+            <Card key={idx} className="border border-border shadow-sm">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-[#DBEAFE] flex items-center justify-center">
-                      <Users className="h-4 w-4 text-[#1A3872]" />
+                    <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center">
+                      <Users className="h-4 w-4 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">{record.user}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {record.type} v{record.version}
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-400">{record.date}</span>
+                  <span className="text-xs text-muted-foreground/70">{record.date}</span>
                 </div>
               </CardContent>
             </Card>
@@ -318,7 +318,7 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
                 {selectedVersion?.type} v{selectedVersion?.version}
               </span>
               {selectedVersion?.status === "Active" && (
-                <Badge className="bg-green-100 text-green-700">Active</Badge>
+                <Badge className="bg-success/15 text-success">Active</Badge>
               )}
             </SheetTitle>
           </SheetHeader>
@@ -340,7 +340,7 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
                       Cancel
                     </Button>
                     <Button
-                      className="flex-1 bg-[#1A3872]"
+                      className="flex-1 bg-primary"
                       onClick={() => {
                         setIsEditing(false);
                         toast.success("Changes saved");
@@ -355,14 +355,14 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
                 <>
                   <div className="flex-1 overflow-y-auto">
                     <div className="prose prose-sm max-w-none">
-                      <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg">
+                      <pre className="whitespace-pre-wrap text-sm bg-surface p-4 rounded-lg">
                         {selectedVersion.content}
                       </pre>
                     </div>
                   </div>
                   {selectedVersion.status === "Active" && (
                     <Button
-                      className="w-full mt-4 bg-[#1A3872]"
+                      className="w-full mt-4 bg-primary"
                       onClick={() => {
                         setEditContent(selectedVersion.content);
                         setIsEditing(true);
@@ -387,21 +387,21 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
           </SheetHeader>
           <div className="mt-4 space-y-3">
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">New version number (higher than v3.0)</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">New version number (higher than v3.0)</p>
               <Input value={newVersion} onChange={(e) => setNewVersion(e.target.value)} placeholder="v3.1" />
               {newVersion && !versionValid && (
-                <p className="text-[10px] text-red-600 mt-1">Must be higher than the current v3.0.</p>
+                <p className="text-[10px] text-destructive mt-1">Must be higher than the current v3.0.</p>
               )}
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">Effective date</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Effective date</p>
               <Input type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-600 mb-1">Change summary (shown to users on accept)</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Change summary (shown to users on accept)</p>
               <Textarea value={changeSummary} onChange={(e) => setChangeSummary(e.target.value)} className="min-h-[70px]" />
             </div>
-            <div className="rounded-lg border border-dashed border-gray-300 p-3 text-center text-xs text-gray-500">
+            <div className="rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
               Upload T&amp;C document (PDF / DOCX) — optional
             </div>
             <label className="flex items-center gap-2 text-sm">
@@ -415,7 +415,7 @@ export function TermsManagementScreen({ onBack }: TermsManagementScreenProps) {
               <Button variant="outline" className="h-9 text-xs" onClick={() => setPublishOpen(false)}>
                 Cancel
               </Button>
-              <Button className="h-9 text-xs bg-[#1A3872]" disabled={!canPublish} onClick={handlePublish}>
+              <Button className="h-9 text-xs bg-primary" disabled={!canPublish} onClick={handlePublish}>
                 Publish
               </Button>
             </div>

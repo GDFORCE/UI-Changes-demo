@@ -37,38 +37,38 @@ const statusTheme = (status: string) => {
   switch (status) {
     case "completed":
       return {
-        card: "bg-green-50 border-green-300",
+        card: "bg-success/10 border-green-300",
         title: "text-green-900",
-        meta: "text-green-800",
-        icon: "text-green-600",
-        badge: "bg-green-100 text-green-700",
+        meta: "text-success",
+        icon: "text-success",
+        badge: "bg-success/15 text-success",
         label: "Completed",
       }
     case "scheduled":
       return {
-        card: "bg-blue-50 border-blue-300",
+        card: "bg-info/5 border-blue-300",
         title: "text-blue-900",
         meta: "text-blue-800",
-        icon: "text-blue-600",
-        badge: "bg-blue-100 text-blue-700",
+        icon: "text-info",
+        badge: "bg-info/10 text-info",
         label: "Scheduled",
       }
     case "missed":
       return {
-        card: "bg-red-50 border-red-300",
+        card: "bg-destructive/5 border-red-300",
         title: "text-red-900",
         meta: "text-red-800",
-        icon: "text-red-600",
-        badge: "bg-red-100 text-red-700",
+        icon: "text-destructive",
+        badge: "bg-destructive/10 text-destructive",
         label: "Missed",
       }
     default:
       return {
-        card: "bg-amber-50 border-amber-300",
+        card: "bg-warning/10 border-amber-300",
         title: "text-amber-900",
-        meta: "text-amber-800",
-        icon: "text-amber-600",
-        badge: "bg-amber-100 text-amber-700",
+        meta: "text-warning",
+        icon: "text-warning",
+        badge: "bg-warning/15 text-warning",
         label: "Upcoming",
       }
   }
@@ -99,7 +99,7 @@ function PatientVisitDetail({ onBack, visit, onContact }: { onBack: () => void; 
   const visitedDate = visit.status === "completed" ? formatVisitDate(visit.scheduledDate) : "—"
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-surface">
       <AppBar title="Visit Detail" showBack onBack={onBack} />
 
       <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
@@ -136,19 +136,19 @@ function PatientVisitDetail({ onBack, visit, onContact }: { onBack: () => void; 
             <DetailItem label="Indication" value={trial.diseaseIndication} />
             <DetailItem label="Visit Type" value={visit.visitType} />
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
+          <div className="mt-4 pt-4 border-t border-border space-y-3">
             <div className="flex items-start gap-3">
-              <MapPin className="w-4 h-4 text-[#1A3872] mt-0.5 shrink-0" />
+              <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-gray-900">{visit.hospitalName}</p>
-                <p className="text-xs text-gray-500">Site</p>
+                <p className="text-sm font-medium text-foreground">{visit.hospitalName}</p>
+                <p className="text-xs text-muted-foreground">Site</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <User className="w-4 h-4 text-[#1A3872] mt-0.5 shrink-0" />
+              <User className="w-4 h-4 text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-gray-900">{visit.piName}</p>
-                <p className="text-xs text-gray-500">Principal Investigator</p>
+                <p className="text-sm font-medium text-foreground">{visit.piName}</p>
+                <p className="text-xs text-muted-foreground">Principal Investigator</p>
               </div>
             </div>
           </div>
@@ -159,12 +159,12 @@ function PatientVisitDetail({ onBack, visit, onContact }: { onBack: () => void; 
           <div className="space-y-3">
             {procedures.map((p) => (
               <div key={p.label} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center shrink-0">
-                  <p.icon className="w-4 h-4 text-[#0D9488]" />
+                <div className="w-8 h-8 rounded-full bg-accent/5 flex items-center justify-center shrink-0">
+                  <p.icon className="w-4 h-4 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{p.label}</p>
-                  <p className="text-xs text-gray-500">{p.desc}</p>
+                  <p className="text-sm font-medium text-foreground">{p.label}</p>
+                  <p className="text-xs text-muted-foreground">{p.desc}</p>
                 </div>
               </div>
             ))}
@@ -176,26 +176,26 @@ function PatientVisitDetail({ onBack, visit, onContact }: { onBack: () => void; 
           <div className="grid grid-cols-2 gap-x-3 gap-y-3">
             <DetailItem label="Visited Date" value={visitedDate} />
             <div>
-              <p className="text-[11px] text-gray-400">Status</p>
+              <p className="text-[11px] text-muted-foreground/70">Status</p>
               <span className={cn("inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize", theme.badge)}>
                 {theme.label}
               </span>
             </div>
           </div>
-          <p className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+          <p className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
             Visit status is updated by your study team (PI/CRC) and shown here for your reference.
           </p>
         </Section>
 
         {/* Help */}
-        <div className="bg-blue-50 rounded-2xl border border-blue-100 p-4">
-          <p className="text-sm font-medium text-gray-900 mb-1">Need to reschedule or have a question?</p>
-          <p className="text-xs text-gray-600 mb-3">
+        <div className="bg-info/5 rounded-2xl border border-info/20 p-4">
+          <p className="text-sm font-medium text-foreground mb-1">Need to reschedule or have a question?</p>
+          <p className="text-xs text-muted-foreground mb-3">
             Contact your study coordinator before the visit window closes.
           </p>
           <button
             onClick={onContact}
-            className="w-full py-3 rounded-xl font-medium bg-white border border-[#1A3872] text-[#1A3872] flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl font-medium bg-card border border-primary text-primary flex items-center justify-center gap-2"
           >
             <Phone className="w-4 h-4" />
             Contact
@@ -216,10 +216,10 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm">
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
       <div className="flex items-center gap-2 mb-3">
-        <Icon className="w-4 h-4 text-[#1A3872]" />
-        <h4 className="font-semibold text-gray-900 text-sm">{title}</h4>
+        <Icon className="w-4 h-4 text-primary" />
+        <h4 className="font-semibold text-foreground text-sm">{title}</h4>
       </div>
       {children}
     </div>
@@ -229,8 +229,8 @@ function Section({
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] text-gray-400">{label}</p>
-      <p className="text-sm font-medium text-gray-900">{value}</p>
+      <p className="text-[11px] text-muted-foreground/70">{label}</p>
+      <p className="text-sm font-medium text-foreground">{value}</p>
     </div>
   )
 }
@@ -254,48 +254,48 @@ function ClinicalVisitDetail({ onUpdate, onBack }: { onUpdate: () => void; onBac
   })
 
   const statuses = [
-    { id: "completed", label: "Completed", color: "border-[#2563EB] bg-blue-50" },
-    { id: "scheduled", label: "Scheduled", color: "border-gray-300" },
-    { id: "screen-pass", label: "Screen Pass", color: "border-gray-300" },
-    { id: "screen-fail", label: "Screen Fail", color: "border-[#DC2626]" },
-    { id: "withdrawn", label: "Withdrawn", color: "border-gray-300" },
-    { id: "drop-out", label: "Drop Out", color: "border-gray-300" },
+    { id: "completed", label: "Completed", color: "border-info bg-info/5" },
+    { id: "scheduled", label: "Scheduled", color: "border-border" },
+    { id: "screen-pass", label: "Screen Pass", color: "border-border" },
+    { id: "screen-fail", label: "Screen Fail", color: "border-destructive" },
+    { id: "withdrawn", label: "Withdrawn", color: "border-border" },
+    { id: "drop-out", label: "Drop Out", color: "border-border" },
   ]
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-surface">
       <AppBar title="Visit Detail" showBack onBack={onBack} />
 
       <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
         {/* Info Card */}
-        <div className="bg-blue-50 rounded-2xl border border-blue-200 p-4">
-          <h3 className="font-semibold text-gray-900 mb-2">Follow-Up Visit</h3>
+        <div className="bg-info/5 rounded-2xl border border-info/20 p-4">
+          <h3 className="font-semibold text-foreground mb-2">Follow-Up Visit</h3>
           <div className="space-y-1 text-sm">
-            <div className="flex items-center gap-2 text-gray-700">
-              <Calendar className="w-4 h-4 text-[#1A3872]" />
+            <div className="flex items-center gap-2 text-foreground/80">
+              <Calendar className="w-4 h-4 text-primary" />
               <span>23 May 2025</span>
             </div>
-            <p className="text-gray-600">Window: 20 May – 26 May</p>
-            <p className="text-gray-600">Protocol-001</p>
-            <p className="text-gray-600">Apollo Hospital • Dr. Sharma</p>
+            <p className="text-muted-foreground">Window: 20 May – 26 May</p>
+            <p className="text-muted-foreground">Protocol-001</p>
+            <p className="text-muted-foreground">Apollo Hospital • Dr. Sharma</p>
           </div>
         </div>
 
         {/* Visited Date — auto-calculated, editable by PI/CRC */}
         <div>
-          <label className="block font-medium text-gray-900 mb-1.5">Visited Date</label>
+          <label className="block font-medium text-foreground mb-1.5">Visited Date</label>
           <input
             type="date"
             value={visitedDate}
             onChange={(e) => setVisitedDate(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none bg-white text-gray-900"
+            className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none bg-card text-foreground"
           />
-          <p className="text-xs text-gray-500 mt-1">Auto-filled from the scheduled date. Edit if the actual visit date differs.</p>
+          <p className="text-xs text-muted-foreground mt-1">Auto-filled from the scheduled date. Edit if the actual visit date differs.</p>
         </div>
 
         {/* Status Selector */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Status</h4>
+          <h4 className="font-medium text-foreground mb-3">Status</h4>
           <div className="grid grid-cols-3 gap-2">
             {statuses.map((status) => (
               <button
@@ -304,12 +304,12 @@ function ClinicalVisitDetail({ onUpdate, onBack }: { onUpdate: () => void; onBac
                 className={cn(
                   "py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all relative",
                   selectedStatus === status.id
-                    ? status.color + " text-gray-900"
-                    : "border-gray-200 text-gray-600 bg-white"
+                    ? status.color + " text-foreground"
+                    : "border-border text-muted-foreground bg-card"
                 )}
               >
                 {selectedStatus === status.id && (
-                  <Check className="absolute top-1 right-1 w-4 h-4 text-[#2563EB]" />
+                  <Check className="absolute top-1 right-1 w-4 h-4 text-info" />
                 )}
                 {status.label}
               </button>
@@ -319,17 +319,17 @@ function ClinicalVisitDetail({ onUpdate, onBack }: { onUpdate: () => void; onBac
 
         {/* Clinical Tasks */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3">Clinical Tasks</h4>
-          <div className="bg-white rounded-2xl p-4 space-y-3">
+          <h4 className="font-medium text-foreground mb-3">Clinical Tasks</h4>
+          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3">
             {Object.entries(clinicalTasks).map(([key, checked]) => (
               <label key={key} className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={(e) => setClinicalTasks({ ...clinicalTasks, [key]: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-[#0D9488] focus:ring-[#0D9488]"
+                  className="w-5 h-5 rounded border-border text-accent focus:ring-accent"
                 />
-                <span className={cn("text-gray-700", checked && "text-[#0D9488]")}>
+                <span className={cn("text-foreground/80", checked && "text-accent")}>
                   {key === "vitals" && "Vital signs"}
                   {key === "blood" && "Blood draw"}
                   {key === "ecg" && "ECG"}
@@ -342,18 +342,18 @@ function ClinicalVisitDetail({ onUpdate, onBack }: { onUpdate: () => void; onBac
 
         {/* Admin Tasks */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-1">Admin Tasks</h4>
-          <p className="text-xs text-gray-500 mb-3">PI/CRC only</p>
-          <div className="bg-white rounded-2xl p-4 space-y-3">
+          <h4 className="font-medium text-foreground mb-1">Admin Tasks</h4>
+          <p className="text-xs text-muted-foreground mb-3">PI/CRC only</p>
+          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3">
             {Object.entries(adminTasks).map(([key, checked]) => (
               <label key={key} className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={(e) => setAdminTasks({ ...adminTasks, [key]: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-[#0D9488] focus:ring-[#0D9488]"
+                  className="w-5 h-5 rounded border-border text-accent focus:ring-accent"
                 />
-                <span className={cn("text-gray-700", checked && "text-[#0D9488]")}>
+                <span className={cn("text-foreground/80", checked && "text-accent")}>
                   {key === "ecrf" && "eCRF entry"}
                   {key === "consent" && "Informed consent"}
                 </span>
@@ -364,18 +364,18 @@ function ClinicalVisitDetail({ onUpdate, onBack }: { onUpdate: () => void; onBac
 
         {/* Comments */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Comments</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Comments</label>
           <textarea
             rows={3}
             placeholder="Add notes about this visit..."
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 outline-none resize-none bg-white"
+            className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none resize-none bg-card"
           />
         </div>
 
         {/* Update Button — part of the form, scrolls with the content */}
         <button
           onClick={onUpdate}
-          className="w-full py-4 rounded-full font-semibold bg-[#1A3872] text-white"
+          className="w-full py-4 rounded-full font-semibold bg-primary text-white"
         >
           Update Visit Status
         </button>

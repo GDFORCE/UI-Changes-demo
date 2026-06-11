@@ -218,10 +218,10 @@ const weekDays = [
 ]
 
 const statusStyle: Record<string, { label: string; bg: string; text: string }> = {
-  "on-track": { label: "On Track", bg: "bg-emerald-100", text: "text-emerald-700" },
-  overdue:    { label: "Overdue",  bg: "bg-red-100",     text: "text-red-700" },
-  completed:  { label: "Completed",bg: "bg-blue-100",    text: "text-blue-700" },
-  withdrawn:  { label: "Withdrawn",bg: "bg-slate-100",   text: "text-slate-500" },
+  "on-track": { label: "On Track", bg: "bg-success/15", text: "text-success" },
+  overdue:    { label: "Overdue",  bg: "bg-destructive/10",     text: "text-destructive" },
+  completed:  { label: "Completed",bg: "bg-info/10",    text: "text-info" },
+  withdrawn:  { label: "Withdrawn",bg: "bg-muted",   text: "text-muted-foreground" },
 }
 
 export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrialId }: PIDashboardProps) {
@@ -305,19 +305,19 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   }
 
   const trialStatusColor: Record<string, string> = {
-    Active: "bg-emerald-100 text-emerald-700",
-    Completed: "bg-blue-100 text-blue-700",
-    Terminated: "bg-red-100 text-red-700",
+    Active: "bg-success/15 text-success",
+    Completed: "bg-info/10 text-info",
+    Terminated: "bg-destructive/10 text-destructive",
   }
 
   // One trial = one clickable panel → Trial Summary
   const TrialPanel = ({ tr }: { tr: typeof piTrials[0] }) => (
-    <button onClick={() => setSelectedTrial(tr)} className="w-full text-left bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+    <button onClick={() => setSelectedTrial(tr)} className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs">
       <div className="flex items-center justify-between mb-2">
-        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{tr.id}</span>
+        <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{tr.id}</span>
         <div className="flex items-center gap-1.5">
-          <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", trialStatusColor[tr.status] || "bg-slate-100 text-slate-600")}>{tr.status}</span>
-          <ChevronRight className="w-4 h-4 text-slate-400" />
+          <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", trialStatusColor[tr.status] || "bg-muted text-muted-foreground")}>{tr.status}</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-y-1.5 gap-x-3">
@@ -331,8 +331,8 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
           { label: "Department", val: tr.department },
         ].map(f => (
           <div key={f.label} className={f.label === "Department" ? "col-span-2 text-center" : undefined}>
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-            <p className="text-xs font-medium text-[#0F172A]">{f.val}</p>
+            <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+            <p className="text-xs font-medium text-foreground">{f.val}</p>
           </div>
         ))}
       </div>
@@ -340,22 +340,22 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   )
 
   const SponsorPanel = ({ sponsor }: { sponsor: typeof piSponsors[0] }) => (
-    <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-          <Building2 className="w-4 h-4 text-[#2563EB]" />
+        <div className="w-9 h-9 rounded-xl bg-info/5 flex items-center justify-center">
+          <Building2 className="w-4 h-4 text-info" />
         </div>
         <div>
-          <p className="text-[10px] text-slate-400 uppercase tracking-wide">Sponsor Name</p>
-          <h4 className="font-semibold text-[#0F172A] text-sm">{sponsor.name}</h4>
+          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sponsor Name</p>
+          <h4 className="font-semibold text-foreground text-sm">{sponsor.name}</h4>
         </div>
       </div>
       <div className="space-y-2">
         {sponsor.trials.map(tr => (
-          <button key={tr.id} onClick={() => setSelectedTrial(tr)} className="w-full text-left rounded-xl border border-slate-100 bg-slate-50 p-3">
+          <button key={tr.id} onClick={() => setSelectedTrial(tr)} className="w-full text-left rounded-xl border border-border bg-surface p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-[#2563EB]">{tr.id}</span>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <span className="text-xs font-bold text-info">{tr.id}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
             </div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
               {[
@@ -373,8 +373,8 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                 { label: "Completed", val: tr.completed },
               ].map(f => (
                 <div key={f.label}>
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-                  <p className="text-xs font-semibold text-[#0F172A]">{f.val}</p>
+                  <p className="text-[9px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-xs font-semibold text-foreground">{f.val}</p>
                 </div>
               ))}
             </div>
@@ -394,44 +394,44 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     <div className="flex-1 overflow-auto pb-4 space-y-4 pt-4">
       {/* Summary stats */}
       <div className="px-4 grid grid-cols-3 gap-3">
-        <button onClick={() => setShowAllTrials(true)} className="bg-blue-50 rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
-          <FileText className="w-5 h-5 text-[#2563EB] mb-2" />
-          <p className="text-2xl font-bold text-[#0F172A]">{piTrials.length}</p>
-          <p className="text-xs text-slate-500">Total Trials</p>
+        <button onClick={() => setShowAllTrials(true)} className="bg-info/5 rounded-2xl border border-border p-4 text-left shadow-sm">
+          <FileText className="w-5 h-5 text-info mb-2" />
+          <p className="text-2xl font-bold text-foreground">{piTrials.length}</p>
+          <p className="text-xs text-muted-foreground">Total Trials</p>
         </button>
-        <button onClick={() => setShowSponsors(true)} className="bg-teal-50 rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
-          <Building2 className="w-5 h-5 text-[#0D9488] mb-2" />
-          <p className="text-2xl font-bold text-[#0F172A]">{piSponsors.length}</p>
-          <p className="text-xs text-slate-500">Sponsors</p>
+        <button onClick={() => setShowSponsors(true)} className="bg-accent/5 rounded-2xl border border-border p-4 text-left shadow-sm">
+          <Building2 className="w-5 h-5 text-accent mb-2" />
+          <p className="text-2xl font-bold text-foreground">{piSponsors.length}</p>
+          <p className="text-xs text-muted-foreground">Sponsors</p>
         </button>
-        <button onClick={() => setActiveTab("patients")} className="bg-purple-50 rounded-2xl border border-slate-100 p-4 text-left shadow-sm">
-          <Users className="w-5 h-5 text-[#7C3AED] mb-2" />
-          <p className="text-2xl font-bold text-[#0F172A]">{patients.length}</p>
-          <p className="text-xs text-slate-500">Total Patients</p>
+        <button onClick={() => setActiveTab("patients")} className="bg-violet/5 rounded-2xl border border-border p-4 text-left shadow-sm">
+          <Users className="w-5 h-5 text-violet mb-2" />
+          <p className="text-2xl font-bold text-foreground">{patients.length}</p>
+          <p className="text-xs text-muted-foreground">Total Patients</p>
         </button>
       </div>
 
       {/* Quick Actions */}
       <div className="px-4">
-        <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">Quick Actions</h3>
+        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Quick Actions</h3>
         <div className="grid grid-cols-3 gap-3">
-          <button onClick={() => onNavigate("add-trial")} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm flex flex-col items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <FilePlus2 className="w-5 h-5 text-[#2563EB]" />
+          <button onClick={() => onNavigate("add-trial")} className="bg-card rounded-2xl border border-border p-3 shadow-xs flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-info/5 flex items-center justify-center">
+              <FilePlus2 className="w-5 h-5 text-info" />
             </div>
-            <span className="text-xs font-medium text-[#0F172A] text-center leading-tight">New Trial</span>
+            <span className="text-xs font-medium text-foreground text-center leading-tight">New Trial</span>
           </button>
-          <button onClick={() => onNavigate("add-patient")} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm flex flex-col items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-[#0D9488]" />
+          <button onClick={() => onNavigate("add-patient")} className="bg-card rounded-2xl border border-border p-3 shadow-xs flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+              <UserPlus className="w-5 h-5 text-accent" />
             </div>
-            <span className="text-xs font-medium text-[#0F172A] text-center leading-tight">Add Patient</span>
+            <span className="text-xs font-medium text-foreground text-center leading-tight">Add Patient</span>
           </button>
-          <button onClick={() => onNavigate("invite-patient")} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm flex flex-col items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-              <Send className="w-5 h-5 text-amber-600" />
+          <button onClick={() => onNavigate("invite-patient")} className="bg-card rounded-2xl border border-border p-3 shadow-xs flex flex-col items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-warning/10 flex items-center justify-center">
+              <Send className="w-5 h-5 text-warning" />
             </div>
-            <span className="text-xs font-medium text-[#0F172A] text-center leading-tight">Invite Patient</span>
+            <span className="text-xs font-medium text-foreground text-center leading-tight">Invite Patient</span>
           </button>
         </div>
       </div>
@@ -439,27 +439,27 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
       {/* This Week */}
       <div className="px-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">This Week's Schedule</h3>
-          <button onClick={() => onNavigate("pi-calendar-week")} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">View Week <ChevronRight className="w-4 h-4" /></button>
+          <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">This Week's Schedule</h3>
+          <button onClick={() => onNavigate("pi-calendar-week")} className="text-info text-sm font-medium flex items-center gap-1">View Week <ChevronRight className="w-4 h-4" /></button>
         </div>
         <button
           onClick={() => onNavigate("pi-calendar-week")}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm flex justify-between text-left hover:bg-slate-50 transition-colors"
+          className="w-full bg-card rounded-2xl border border-border p-4 shadow-xs flex justify-between text-left hover:bg-surface transition-colors"
         >
           {weekDays.map((d) => (
             <div key={d.day} className="flex flex-col items-center gap-1.5">
-              <span className="text-[10px] text-slate-400 font-medium">{d.day}</span>
-              <span className="text-sm font-semibold text-[#0F172A]">{d.date}</span>
+              <span className="text-[10px] text-muted-foreground/70 font-medium">{d.day}</span>
+              <span className="text-sm font-semibold text-foreground">{d.date}</span>
               <div className="flex flex-col gap-0.5">
                 {d.visits.length > 0 ? (
                   d.visits.map((_, i) => (
-                    <div key={i} className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                    <div key={i} className="w-2 h-2 rounded-full bg-info" />
                   ))
                 ) : (
-                  <div className="w-2 h-2 rounded-full bg-slate-100" />
+                  <div className="w-2 h-2 rounded-full bg-muted" />
                 )}
               </div>
-              <span className="text-[10px] text-slate-400">{d.visits.length > 0 ? `${d.visits.length}v` : "—"}</span>
+              <span className="text-[10px] text-muted-foreground/70">{d.visits.length > 0 ? `${d.visits.length}v` : "—"}</span>
             </div>
           ))}
         </button>
@@ -468,8 +468,8 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
       {/* Trials Panel */}
       <div className="px-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">My Trials</h3>
-          <button onClick={() => setShowAllTrials(true)} className="text-[#2563EB] text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
+          <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">My Trials</h3>
+          <button onClick={() => setShowAllTrials(true)} className="text-info text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
         </div>
         <div className="space-y-3">
           {piTrials.slice(0, 2).map(tr => <TrialPanel key={tr.id} tr={tr} />)}
@@ -479,35 +479,35 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
       {/* Needs Your Attention */}
       {pendingApprovalsCount > 0 && (
         <div className="px-4">
-          <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">
+          <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">
             Needs Your Attention
           </h3>
           <div className="space-y-2">
             {deviations.filter(d => !signedDeviations.has(d.id)).slice(0, 1).map(d => (
-              <div key={d.id} className="bg-white rounded-2xl p-3 shadow-sm border-l-4 border-amber-400 flex items-start gap-3">
-                <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+              <div key={d.id} className="bg-card rounded-2xl p-3 shadow-sm border-l-4 border-amber-400 flex items-start gap-3">
+                <AlertTriangle className="w-4 h-4 text-warning mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#0F172A]">{d.patient}: {d.desc}</p>
-                  <p className="text-xs text-slate-400">Protocol Deviation · {d.severity} · {d.submitted}</p>
+                  <p className="text-sm font-medium text-foreground">{d.patient}: {d.desc}</p>
+                  <p className="text-xs text-muted-foreground/70">Protocol Deviation · {d.severity} · {d.submitted}</p>
                 </div>
                 <button
                   onClick={() => setActiveTab("approvals")}
-                  className="text-[#2563EB] text-xs font-medium shrink-0"
+                  className="text-info text-xs font-medium shrink-0"
                 >
                   Review
                 </button>
               </div>
             ))}
             {ecrfItems.filter(e => !signedEcrf.has(e.id)).slice(0, 1).map(e => (
-              <div key={e.id} className="bg-white rounded-2xl p-3 shadow-sm border-l-4 border-purple-400 flex items-start gap-3">
+              <div key={e.id} className="bg-card rounded-2xl p-3 shadow-sm border-l-4 border-purple-400 flex items-start gap-3">
                 <FileText className="w-4 h-4 text-purple-500 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#0F172A]">{e.patient}: {e.form}</p>
-                  <p className="text-xs text-slate-400">eCRF Sign-off · {e.visit} · by {e.by}</p>
+                  <p className="text-sm font-medium text-foreground">{e.patient}: {e.form}</p>
+                  <p className="text-xs text-muted-foreground/70">eCRF Sign-off · {e.visit} · by {e.by}</p>
                 </div>
                 <button
                   onClick={() => { setActiveTab("approvals"); setApprovalTab("ecrf") }}
-                  className="text-[#2563EB] text-xs font-medium shrink-0"
+                  className="text-info text-xs font-medium shrink-0"
                 >
                   Sign
                 </button>
@@ -519,25 +519,25 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
       {/* Team Activity */}
       <div className="px-4">
-        <h3 className="font-semibold text-[#0F172A] mb-2 font-[family-name:var(--font-heading)]">Team Activity</h3>
-        <div className="bg-white rounded-2xl divide-y divide-slate-50 shadow-sm">
+        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Team Activity</h3>
+        <div className="bg-card rounded-2xl divide-y divide-border/60 shadow-sm">
           {teamActivity.map((item, i) => (
             <div key={i} className="p-3 flex items-start gap-3">
               <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                item.type === "deviation" ? "bg-amber-100" :
-                item.type === "ecrf" ? "bg-purple-100" :
-                item.type === "visit" ? "bg-teal-100" : "bg-blue-100"
+                item.type === "deviation" ? "bg-warning/15" :
+                item.type === "ecrf" ? "bg-violet/10" :
+                item.type === "visit" ? "bg-accent/10" : "bg-info/10"
               )}>
-                {item.type === "deviation" ? <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> :
-                 item.type === "ecrf" ? <FileText className="w-3.5 h-3.5 text-purple-600" /> :
-                 item.type === "visit" ? <CheckCircle className="w-3.5 h-3.5 text-teal-600" /> :
-                 <Users className="w-3.5 h-3.5 text-blue-600" />}
+                {item.type === "deviation" ? <AlertTriangle className="w-3.5 h-3.5 text-warning" /> :
+                 item.type === "ecrf" ? <FileText className="w-3.5 h-3.5 text-violet" /> :
+                 item.type === "visit" ? <CheckCircle className="w-3.5 h-3.5 text-accent" /> :
+                 <Users className="w-3.5 h-3.5 text-info" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-[#0F172A]">
+                <p className="text-sm text-foreground">
                   <span className="font-medium">{item.actor}</span> {item.action}
                 </p>
-                <p className="text-xs text-slate-400">{item.time}</p>
+                <p className="text-xs text-muted-foreground/70">{item.time}</p>
               </div>
             </div>
           ))}
@@ -549,16 +549,16 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   // ── Patients tab (operational) ───────────────────────────────────────────
   const renderPatients = () => (
     <div className="flex-1 overflow-auto pb-4 pt-4 px-4 space-y-2">
-      <div className="flex gap-2.5 pb-3 mb-1 border-b border-slate-200">
+      <div className="flex gap-2.5 pb-3 mb-1 border-b border-border">
         <button
           onClick={() => onNavigate("add-patient")}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-[#0D1B3E] text-white py-2.5 rounded-xl text-xs font-semibold shadow-sm active:scale-[0.98] transition-transform"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-primary-deep text-white py-2.5 rounded-xl text-xs font-semibold shadow-sm active:scale-[0.98] transition-transform"
         >
           <UserPlus className="w-4 h-4" /> Add Patient
         </button>
         <button
           onClick={() => onNavigate("invite-patient")}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-blue-50 border-2 border-[#0D1B3E] text-[#0D1B3E] py-2.5 rounded-xl text-xs font-semibold active:scale-[0.98] transition-transform"
+          className="flex-1 flex items-center justify-center gap-1.5 bg-info/5 border-2 border-primary-deep text-primary-deep py-2.5 rounded-xl text-xs font-semibold active:scale-[0.98] transition-transform"
         >
           <Send className="w-4 h-4" /> Send Invite
         </button>
@@ -568,14 +568,14 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         const trialInfo = piTrials[0]
         const completedVisits = p.history?.filter(h => h.outcome === "completed").length ?? 0
         return (
-          <div key={p.id} className="bg-white rounded-2xl p-4 shadow-sm">
+          <div key={p.id} className="bg-card rounded-2xl border border-border p-4 shadow-xs">
             {/* Subject ID + initials + visit status */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-[#1A3872] text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">{patientInitials(p.name)}</div>
+                <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">{patientInitials(p.name)}</div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-[#0F172A] leading-tight">{p.id}</p>
-                  <p className="text-[11px] text-slate-400">{patientInitials(p.name)}</p>
+                  <p className="font-semibold text-foreground leading-tight">{p.id}</p>
+                  <p className="text-[11px] text-muted-foreground/70">{patientInitials(p.name)}</p>
                 </div>
               </div>
               <span className={cn("px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0", style.bg, style.text)}>
@@ -585,38 +585,38 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
             {/* Trial meta */}
             <div className="grid grid-cols-3 gap-2 mb-3">
-              <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Protocol ID</p><p className="text-xs font-medium text-[#0F172A]">{trialInfo.id}</p></div>
-              <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-[#0F172A]">{trialInfo.phase}</p></div>
-              <div><p className="text-[10px] text-slate-400 uppercase tracking-wide">Indication</p><p className="text-xs font-medium text-[#0F172A]">{trialInfo.disease}</p></div>
+              <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Protocol ID</p><p className="text-xs font-medium text-foreground">{trialInfo.id}</p></div>
+              <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{trialInfo.phase}</p></div>
+              <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Indication</p><p className="text-xs font-medium text-foreground">{trialInfo.disease}</p></div>
             </div>
 
             {/* Next visit */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 mb-3">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Next Visit</p>
+            <div className="rounded-xl border border-border bg-surface p-2.5 mb-3">
+              <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1.5">Next Visit</p>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                <div><p className="text-[10px] text-slate-400">Visit No.</p><p className="text-xs font-medium text-[#0F172A]">{visitNumber(p.visit)}</p></div>
-                <div><p className="text-[10px] text-slate-400">Visit Name</p><p className="text-xs font-medium text-[#0F172A]">{p.visitName ?? "—"}</p></div>
-                <div><p className="text-[10px] text-slate-400">Visit Type</p><p className="text-xs font-medium text-[#0F172A]">{p.visitType ?? "—"}</p></div>
-                <div><p className="text-[10px] text-slate-400">Visit Date</p><p className="text-xs font-medium text-[#0F172A]">{visitDateLabel(p)}</p></div>
+                <div><p className="text-[10px] text-muted-foreground/70">Visit No.</p><p className="text-xs font-medium text-foreground">{visitNumber(p.visit)}</p></div>
+                <div><p className="text-[10px] text-muted-foreground/70">Visit Name</p><p className="text-xs font-medium text-foreground">{p.visitName ?? "—"}</p></div>
+                <div><p className="text-[10px] text-muted-foreground/70">Visit Type</p><p className="text-xs font-medium text-foreground">{p.visitType ?? "—"}</p></div>
+                <div><p className="text-[10px] text-muted-foreground/70">Visit Date</p><p className="text-xs font-medium text-foreground">{visitDateLabel(p)}</p></div>
               </div>
             </div>
 
             {/* Visits completed */}
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wide">Visits Completed</span>
-              <span className="text-xs font-semibold text-[#0F172A]">{completedVisits} of {PROTOCOL_TOTAL_VISITS}</span>
+              <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Visits Completed</span>
+              <span className="text-xs font-semibold text-foreground">{completedVisits} of {PROTOCOL_TOTAL_VISITS}</span>
             </div>
 
             <div className="flex gap-2">
               <button
                 onClick={() => openVisitUpdate(p)}
-                className="flex-1 bg-[#0D1B3E] text-white py-2 rounded-xl text-xs font-semibold"
+                className="flex-1 bg-primary-deep text-white py-2 rounded-xl text-xs font-semibold"
               >
                 Update Visit
               </button>
               <button
                 onClick={() => setViewPatient(p)}
-                className="flex-1 bg-slate-50 border border-slate-200 text-slate-700 py-2 rounded-xl text-xs font-semibold"
+                className="flex-1 bg-surface border border-border text-foreground/80 py-2 rounded-xl text-xs font-semibold"
               >
                 View Record
               </button>
@@ -632,7 +632,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     <div className="flex-1 overflow-auto pb-4 pt-4">
       {/* Sub-tabs */}
       <div className="px-4 mb-4">
-        <div className="bg-slate-100 rounded-xl p-1 flex gap-1">
+        <div className="bg-muted rounded-xl p-1 flex gap-1">
           {(["deviations", "ecrf", "enrolments"] as const).map((t) => {
             const labels: Record<ApprovalSubTab, string> = { deviations: "Deviations", ecrf: "eCRF", enrolments: "Enrolments" }
             return (
@@ -641,7 +641,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                 onClick={() => setApprovalTab(t)}
                 className={cn(
                   "flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                  approvalTab === t ? "bg-white text-[#0D1B3E] shadow-sm" : "text-slate-500"
+                  approvalTab === t ? "bg-card text-primary-deep shadow-sm" : "text-muted-foreground"
                 )}
               >
                 {labels[t]}
@@ -655,27 +655,27 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         {approvalTab === "deviations" && deviations.map((d) => {
           const signed = signedDeviations.has(d.id)
           return (
-            <div key={d.id} className={cn("bg-white rounded-2xl p-4 shadow-sm border-l-4", signed ? "border-teal-400" : "border-amber-400")}>
+            <div key={d.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4", signed ? "border-teal-400" : "border-amber-400")}>
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0 pr-2">
-                  <p className="font-medium text-[#0F172A] text-sm">{d.patient}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{d.desc}</p>
+                  <p className="font-medium text-foreground text-sm">{d.patient}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{d.desc}</p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium",
-                      d.severity === "Major" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
+                      d.severity === "Major" ? "bg-destructive/10 text-destructive" : "bg-warning/15 text-warning"
                     )}>{d.severity}</span>
-                    <span className="text-[10px] text-slate-400">Submitted {d.submitted}</span>
+                    <span className="text-[10px] text-muted-foreground/70">Submitted {d.submitted}</span>
                   </div>
                 </div>
                 {signed ? (
-                  <div className="flex items-center gap-1 text-teal-600">
+                  <div className="flex items-center gap-1 text-accent">
                     <CheckCircle className="w-4 h-4" />
                     <span className="text-xs font-medium">Signed</span>
                   </div>
                 ) : (
                   <button
                     onClick={() => setSignedDeviations(prev => new Set([...prev, d.id]))}
-                    className="flex items-center gap-1 bg-[#0D1B3E] text-white px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
+                    className="flex items-center gap-1 bg-primary-deep text-white px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
                   >
                     <PenLine className="w-3 h-3" /> Sign Off
                   </button>
@@ -688,22 +688,22 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         {approvalTab === "ecrf" && ecrfItems.map((e) => {
           const signed = signedEcrf.has(e.id)
           return (
-            <div key={e.id} className={cn("bg-white rounded-2xl p-4 shadow-sm border-l-4", signed ? "border-teal-400" : "border-purple-400")}>
+            <div key={e.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4", signed ? "border-teal-400" : "border-purple-400")}>
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0 pr-2">
-                  <p className="font-medium text-[#0F172A] text-sm">{e.id}: {e.form}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{e.patient} · {e.visit}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Submitted by {e.by} on {e.date}</p>
+                  <p className="font-medium text-foreground text-sm">{e.id}: {e.form}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{e.patient} · {e.visit}</p>
+                  <p className="text-xs text-muted-foreground/70 mt-0.5">Submitted by {e.by} on {e.date}</p>
                 </div>
                 {signed ? (
-                  <div className="flex items-center gap-1 text-teal-600">
+                  <div className="flex items-center gap-1 text-accent">
                     <CheckCircle className="w-4 h-4" />
                     <span className="text-xs font-medium">Signed</span>
                   </div>
                 ) : (
                   <button
                     onClick={() => setSignedEcrf(prev => new Set([...prev, e.id]))}
-                    className="flex items-center gap-1 bg-[#7C3AED] text-white px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
+                    className="flex items-center gap-1 bg-violet text-white px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
                   >
                     <PenLine className="w-3 h-3" /> Sign
                   </button>
@@ -717,20 +717,20 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
           const approved = approvedEnrolments.has(e.id)
           const rejected = rejectedEnrolments.has(e.id)
           return (
-            <div key={e.id} className={cn("bg-white rounded-2xl p-4 shadow-sm border-l-4",
+            <div key={e.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4",
               approved ? "border-teal-400" : rejected ? "border-red-400" : "border-blue-400"
             )}>
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="font-medium text-[#0F172A] text-sm">{e.name}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{e.screenId} · Age {e.age} · Screened {e.screened}</p>
+                  <p className="font-medium text-foreground text-sm">{e.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{e.screenId} · Age {e.age} · Screened {e.screened}</p>
                   <span className={cn("inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium",
-                    e.eligible ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                    e.eligible ? "bg-success/15 text-success" : "bg-destructive/10 text-destructive"
                   )}>{e.eligible ? "Eligible" : "Failed Eligibility"}</span>
                 </div>
               </div>
               {(approved || rejected) ? (
-                <div className={cn("flex items-center gap-1 text-sm font-medium", approved ? "text-teal-600" : "text-red-500")}>
+                <div className={cn("flex items-center gap-1 text-sm font-medium", approved ? "text-accent" : "text-destructive")}>
                   <CheckCircle className="w-4 h-4" />
                   {approved ? "Approved for Enrolment" : "Rejected"}
                 </div>
@@ -738,13 +738,13 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                 <div className="flex gap-2">
                   <button
                     onClick={() => setApprovedEnrolments(prev => new Set([...prev, e.id]))}
-                    className="flex-1 bg-[#0D9488] text-white py-2 rounded-xl text-xs font-semibold"
+                    className="flex-1 bg-accent text-white py-2 rounded-xl text-xs font-semibold"
                   >
                     Approve
                   </button>
                   <button
                     onClick={() => setRejectedEnrolments(prev => new Set([...prev, e.id]))}
-                    className="flex-1 bg-white border border-red-300 text-red-600 py-2 rounded-xl text-xs font-semibold"
+                    className="flex-1 bg-card border border-red-300 text-destructive py-2 rounded-xl text-xs font-semibold"
                   >
                     Reject
                   </button>
@@ -759,10 +759,10 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
   // ── My Trials tab ────────────────────────────────────────────────────────
   const renderMyTrials = () => (
-    <div className="flex-1 overflow-auto bg-[#F8FAFC]">
+    <div className="flex-1 overflow-auto bg-surface">
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h3 className="font-semibold text-[#0F172A] text-lg font-[family-name:var(--font-heading)]">My Trials</h3>
-        <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-[#2563EB] text-white rounded-full px-3 py-1.5 text-xs font-semibold">
+        <h3 className="font-semibold text-foreground text-lg font-[family-name:var(--font-heading)]">My Trials</h3>
+        <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-info text-white rounded-full px-3 py-1.5 text-xs font-semibold">
           Add Trial
         </button>
       </div>
@@ -777,7 +777,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     <SiteUserProfile
       user={{
         initials: "DS",
-        avatarColor: "bg-[#1A3872]",
+        avatarColor: "bg-primary",
         name: "Dr. Sharma",
         designation: "Principal Investigator",
         phone: "+91 98100 12345",
@@ -808,8 +808,8 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   // ── All Trials list ──────────────────────────────────────
   if (showAllTrials) {
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setShowAllTrials(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Total Trials</span>
           <button onClick={() => onNavigate("add-trial")} className="flex items-center gap-1 bg-white/10 rounded-full px-3 py-1.5 text-xs font-semibold">
@@ -825,8 +825,8 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
   if (showSponsors) {
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setShowSponsors(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Sponsors</span>
         </div>
@@ -842,18 +842,18 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     const p = viewPatient
     const style = statusStyle[p.status]
     return (
-      <div className="h-full flex flex-col bg-[#F8FAFC]">
-        <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setViewPatient(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Patient Record</span>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
           {/* Identity card */}
-          <div className="bg-[#0D1B3E] rounded-2xl p-5 text-white">
+          <div className="bg-primary-deep rounded-2xl p-5 text-white">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h2 className="text-lg font-bold">{p.name}</h2>
-                <p className="text-blue-200 text-sm">{p.id} · Age {p.age}</p>
+                <p className="text-primary-foreground/75 text-sm">{p.id} · Age {p.age}</p>
               </div>
               <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", style.bg, style.text)}>{style.label}</span>
             </div>
@@ -867,7 +867,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                 { label: "Last Updated", val: p.lastUpdated ?? "—" },
               ].map(f => (
                 <div key={f.label}>
-                  <p className="text-[10px] text-blue-200/80 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-[10px] text-primary-foreground/75/80 uppercase tracking-wide">{f.label}</p>
                   <p className="text-sm font-medium">{f.val}</p>
                 </div>
               ))}
@@ -875,33 +875,33 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
           </div>
 
           {/* Remarks */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Remarks</p>
-            <p className="text-sm text-[#0F172A]">{p.note?.trim() ? p.note : "No remarks recorded yet."}</p>
+          <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+            <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide mb-1">Remarks</p>
+            <p className="text-sm text-foreground">{p.note?.trim() ? p.note : "No remarks recorded yet."}</p>
           </div>
 
           {/* System-generated visit schedule */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-[#0F172A] text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
-              <span className="text-xs text-slate-400">{PROTOCOL_SCHEDULE.length} visits</span>
+              <h3 className="font-semibold text-foreground text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
+              <span className="text-xs text-muted-foreground/70">{PROTOCOL_SCHEDULE.length} visits</span>
             </div>
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Visit</th>
-                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Visit Name</th>
-                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400 text-right">Window Period</th>
+                  <tr className="bg-surface border-b border-border">
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">Visit</th>
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">Visit Name</th>
+                    <th className="py-2 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 text-right">Window Period</th>
                   </tr>
                 </thead>
                 <tbody>
                   {buildVisitSchedule(p).map((v, i, arr) => {
                     const sc = {
                       completed: { Icon: CheckCircle, color: "text-teal-500" },
-                      missed:    { Icon: AlertTriangle, color: "text-red-500" },
-                      upcoming:  { Icon: Clock, color: "text-blue-500" },
-                      planned:   { Icon: Calendar, color: "text-slate-400" },
+                      missed:    { Icon: AlertTriangle, color: "text-destructive" },
+                      upcoming:  { Icon: Clock, color: "text-info" },
+                      planned:   { Icon: Calendar, color: "text-muted-foreground/70" },
                     }[v.state]
                     const Icon = sc.Icon
                     const windowLabel = (() => {
@@ -913,15 +913,15 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                       return `${fmt(start)} – ${fmt(end)}`
                     })()
                     return (
-                      <tr key={v.visit} className={cn(i < arr.length - 1 && "border-b border-slate-50")}>
+                      <tr key={v.visit} className={cn(i < arr.length - 1 && "border-b border-border")}>
                         <td className="py-2.5 px-3">
                           <div className="flex items-center gap-1.5">
                             <Icon className={cn("w-3.5 h-3.5 shrink-0", sc.color)} />
-                            <span className="text-sm font-semibold text-[#0F172A] whitespace-nowrap">{v.visit}</span>
+                            <span className="text-sm font-semibold text-foreground whitespace-nowrap">{v.visit}</span>
                           </div>
                         </td>
-                        <td className="py-2.5 px-3 text-xs text-slate-500">{v.type}</td>
-                        <td className="py-2.5 px-3 text-xs text-slate-500 text-right whitespace-nowrap">{windowLabel}</td>
+                        <td className="py-2.5 px-3 text-xs text-muted-foreground">{v.type}</td>
+                        <td className="py-2.5 px-3 text-xs text-muted-foreground text-right whitespace-nowrap">{windowLabel}</td>
                       </tr>
                     )
                   })}
@@ -933,38 +933,38 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
           {/* Visit history */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-[#0F172A] text-sm font-[family-name:var(--font-heading)]">Visit History</h3>
-              <span className="text-xs text-slate-400">
+              <h3 className="font-semibold text-foreground text-sm font-[family-name:var(--font-heading)]">Visit History</h3>
+              <span className="text-xs text-muted-foreground/70">
                 {(p.history ?? []).filter(v => v.outcome === "completed").length} completed
               </span>
             </div>
             {(p.history && p.history.length > 0) ? (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
                 <div className="relative pl-6">
                   {/* vertical line */}
-                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-slate-200" />
+                  <div className="absolute left-[7px] top-1 bottom-1 w-px bg-border" />
                   <div className="space-y-4">
                     {[...p.history].sort((a, b) => b.dateISO.localeCompare(a.dateISO)).map((v, i) => {
                       const oc = {
-                        completed: { Icon: CheckCircle, color: "text-teal-500", label: "Completed", badge: "bg-teal-100 text-teal-700" },
-                        missed:    { Icon: AlertTriangle, color: "text-red-500", label: "Missed", badge: "bg-red-100 text-red-700" },
-                        scheduled: { Icon: Clock, color: "text-blue-500", label: "Scheduled", badge: "bg-blue-100 text-blue-700" },
+                        completed: { Icon: CheckCircle, color: "text-teal-500", label: "Completed", badge: "bg-accent/10 text-accent" },
+                        missed:    { Icon: AlertTriangle, color: "text-destructive", label: "Missed", badge: "bg-destructive/10 text-destructive" },
+                        scheduled: { Icon: Clock, color: "text-info", label: "Scheduled", badge: "bg-info/10 text-info" },
                       }[v.outcome]
                       const Icon = oc.Icon
                       return (
                         <div key={`${v.visit}-${i}`} className="relative">
-                          <div className="absolute -left-6 top-0.5 bg-white">
+                          <div className="absolute -left-6 top-0.5 bg-card">
                             <Icon className={cn("w-3.5 h-3.5", oc.color)} />
                           </div>
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold text-[#0F172A]">{v.visit}</p>
+                            <p className="text-sm font-semibold text-foreground">{v.visit}</p>
                             <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0", oc.badge)}>{oc.label}</span>
                           </div>
-                          <p className="text-xs text-slate-500">{v.type}</p>
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-xs text-muted-foreground">{v.type}</p>
+                          <p className="text-[11px] text-muted-foreground/70">
                             {v.dateISO ? new Date(v.dateISO + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
                           </p>
-                          {v.note && <p className="text-[11px] text-slate-500 mt-0.5 italic">“{v.note}”</p>}
+                          {v.note && <p className="text-[11px] text-muted-foreground mt-0.5 italic">“{v.note}”</p>}
                         </div>
                       )
                     })}
@@ -972,7 +972,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 text-center text-sm text-slate-400">
+              <div className="bg-card rounded-2xl border border-border shadow-xs p-4 text-center text-sm text-muted-foreground/70">
                 No visits recorded yet.
               </div>
             )}
@@ -980,7 +980,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
           <button
             onClick={() => { setViewPatient(null); openVisitUpdate(p) }}
-            className="w-full bg-[#0D1B3E] text-white py-3 rounded-xl text-sm font-semibold"
+            className="w-full bg-primary-deep text-white py-3 rounded-xl text-sm font-semibold"
           >
             Update Visit
           </button>
@@ -990,7 +990,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC] relative">
+    <div className="h-full flex flex-col bg-surface relative">
       <AppBar
         title="PI Dashboard"
         subtitle="Dr. Sharma · Protocol-001"
@@ -1010,7 +1010,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         </div>
       )}
       {activeTab === "notifs" && (
-        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+        <div className="flex-1 flex items-center justify-center text-muted-foreground/70 text-sm">
           Notifications coming soon
         </div>
       )}
@@ -1032,30 +1032,30 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         <div className="absolute inset-0 z-30 flex items-end" onClick={() => setEditPatient(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="relative w-full bg-white rounded-t-3xl p-5 max-h-[85%] overflow-auto shadow-2xl"
+            className="relative w-full bg-card rounded-t-3xl p-5 max-h-[85%] overflow-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-bold text-[#0F172A] text-base font-[family-name:var(--font-heading)]">Update Visit</h3>
-                <p className="text-xs text-slate-400">{patientInitials(editPatient.name)} · {editPatient.id}</p>
+                <h3 className="font-bold text-foreground text-base font-[family-name:var(--font-heading)]">Update Visit</h3>
+                <p className="text-xs text-muted-foreground/70">{patientInitials(editPatient.name)} · {editPatient.id}</p>
               </div>
-              <button onClick={() => setEditPatient(null)} className="p-1 text-slate-400">
+              <button onClick={() => setEditPatient(null)} className="p-1 text-muted-foreground/70">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4">
               {/* Trial context (read-only) */}
-              <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 border border-slate-100 p-3">
+              <div className="grid grid-cols-3 gap-2 rounded-xl bg-surface border border-border p-3">
                 {[
                   { label: "Protocol ID", val: piTrials[0].id },
                   { label: "Phase", val: piTrials[0].phase },
                   { label: "Indication", val: piTrials[0].disease },
                 ].map((f) => (
                   <div key={f.label}>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">{f.label}</p>
-                    <p className="text-xs font-semibold text-[#0F172A]">{f.val}</p>
+                    <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+                    <p className="text-xs font-semibold text-foreground">{f.val}</p>
                   </div>
                 ))}
               </div>
@@ -1063,22 +1063,22 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
               {/* Visit + Date */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit</label>
                   <input
                     type="text"
                     value={form.visit}
                     onChange={(e) => setForm({ ...form, visit: e.target.value })}
                     placeholder="e.g. Visit 7"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-info"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Date</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit Date</label>
                   <input
                     type="date"
                     value={form.dateISO}
                     onChange={(e) => setForm({ ...form, dateISO: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-info"
                   />
                 </div>
               </div>
@@ -1086,21 +1086,21 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
               {/* Visit Name + Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Name</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit Name</label>
                   <input
                     type="text"
                     value={form.visitName}
                     onChange={(e) => setForm({ ...form, visitName: e.target.value })}
                     placeholder="e.g. Efficacy Assessment"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-info"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500 mb-1 block">Visit Type</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Visit Type</label>
                   <select
                     value={form.visitType}
                     onChange={(e) => setForm({ ...form, visitType: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] bg-white focus:outline-none focus:border-[#2563EB]"
+                    className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:border-info"
                   >
                     {["Hospital", "Phone", "Remote", "Home"].map((o) => (
                       <option key={o} value={o}>{o}</option>
@@ -1111,7 +1111,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
               {/* Status */}
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Status</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["on-track", "overdue", "completed", "withdrawn"] as PatientStatus[]).map((s) => {
                     const st = statusStyle[s]
@@ -1123,7 +1123,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                         onClick={() => setForm({ ...form, status: s })}
                         className={cn(
                           "py-2 rounded-xl text-xs font-semibold border transition-colors",
-                          active ? cn(st.bg, st.text, "border-transparent") : "bg-white text-slate-500 border-slate-200",
+                          active ? cn(st.bg, st.text, "border-transparent") : "bg-card text-muted-foreground border-border",
                         )}
                       >
                         {st.label}
@@ -1135,26 +1135,26 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
               {/* Remarks */}
               <div>
-                <label className="text-xs font-medium text-slate-500 mb-1 block">Remarks</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Remarks</label>
                 <textarea
                   value={form.note}
                   onChange={(e) => setForm({ ...form, note: e.target.value })}
                   rows={3}
                   placeholder="Add any notes about the patient or this visit…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-[#0F172A] resize-none focus:outline-none focus:border-[#2563EB]"
+                  className="w-full rounded-xl border border-border px-3 py-2 text-sm text-foreground resize-none focus:outline-none focus:border-info"
                 />
               </div>
 
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={() => setEditPatient(null)}
-                  className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold"
+                  className="flex-1 py-3 rounded-xl border border-border text-muted-foreground text-sm font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveVisitUpdate}
-                  className="flex-1 py-3 rounded-xl bg-[#0D1B3E] text-white text-sm font-semibold"
+                  className="flex-1 py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold"
                 >
                   Save Update
                 </button>
@@ -1166,7 +1166,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
       {/* ── Saved toast ───────────────────────────────────────── */}
       {savedToast && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 bg-[#0F172A] text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2">
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 bg-foreground text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2">
           <CheckCircle className="w-4 h-4 text-teal-400" />
           {savedToast}
         </div>

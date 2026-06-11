@@ -156,116 +156,116 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       case "overview":
         return (
           <div className="space-y-4">
-            <div className="bg-white rounded-xl shadow-sm p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">{trialInfo.title}</h3>
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+              <h3 className="font-semibold text-foreground mb-3">{trialInfo.title}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Protocol ID</span>
-                  <span className="font-medium text-[#2563EB]">{trialInfo.protocolId}</span>
+                  <span className="text-muted-foreground">Protocol ID</span>
+                  <span className="font-medium text-info">{trialInfo.protocolId}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Sponsor</span>
-                  <span className="text-gray-900">{trialInfo.sponsor}</span>
+                  <span className="text-muted-foreground">Sponsor</span>
+                  <span className="text-foreground">{trialInfo.sponsor}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Duration</span>
-                  <span className="text-gray-900">{trialInfo.duration}</span>
+                  <span className="text-muted-foreground">Duration</span>
+                  <span className="text-foreground">{trialInfo.duration}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Total Visits</span>
-                  <span className="text-gray-900">{trialInfo.totalVisits}</span>
+                  <span className="text-muted-foreground">Total Visits</span>
+                  <span className="text-foreground">{trialInfo.totalVisits}</span>
                 </div>
                 {trialInfo.phase && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Phase</span>
-                    <span className="text-gray-900">{trialInfo.phase}</span>
+                    <span className="text-muted-foreground">Phase</span>
+                    <span className="text-foreground">{trialInfo.phase}</span>
                   </div>
                 )}
                 {trialInfo.disease && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Disease</span>
-                    <span className="text-gray-900">{trialInfo.disease}</span>
+                    <span className="text-muted-foreground">Disease</span>
+                    <span className="text-foreground">{trialInfo.disease}</span>
                   </div>
                 )}
                 {trialInfo.drug && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Drug</span>
-                    <span className="text-gray-900">{trialInfo.drug}</span>
+                    <span className="text-muted-foreground">Drug</span>
+                    <span className="text-foreground">{trialInfo.drug}</span>
                   </div>
                 )}
                 {trialInfo.site && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Site</span>
-                    <span className="text-gray-900">{trialInfo.site}</span>
+                    <span className="text-muted-foreground">Site</span>
+                    <span className="text-foreground">{trialInfo.site}</span>
                   </div>
                 )}
                 {trialInfo.pi && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Principal Investigator</span>
-                    <span className="text-gray-900">{trialInfo.pi}</span>
+                    <span className="text-muted-foreground">Principal Investigator</span>
+                    <span className="text-foreground">{trialInfo.pi}</span>
                   </div>
                 )}
                 {trialInfo.department && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Department</span>
-                    <span className="text-gray-900">{trialInfo.department}</span>
+                    <span className="text-muted-foreground">Department</span>
+                    <span className="text-foreground">{trialInfo.department}</span>
                   </div>
                 )}
                 {trialInfo.status && (
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-500">Status</span>
-                    <span className="font-medium text-emerald-600">{trialInfo.status}</span>
+                    <span className="text-muted-foreground">Status</span>
+                    <span className="font-medium text-success">{trialInfo.status}</span>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-4">
-              <h4 className="font-medium text-gray-900 mb-2">Study Summary</h4>
-              <p className="text-sm text-gray-600 leading-relaxed">{trialInfo.summary}</p>
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+              <h4 className="font-medium text-foreground mb-2">Study Summary</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">{trialInfo.summary}</p>
             </div>
 
-            <button className="w-full bg-white rounded-xl shadow-sm p-4 flex items-center justify-between">
+            <button className="w-full bg-card rounded-xl border border-border shadow-xs p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-red-600" />
+                <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-destructive" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-gray-900">Patient Information Sheet</p>
-                  <p className="text-xs text-gray-500">Full document (PDF)</p>
+                  <p className="font-medium text-foreground">Patient Information Sheet</p>
+                  <p className="text-xs text-muted-foreground">Full document (PDF)</p>
                 </div>
               </div>
-              <Download className="h-5 w-5 text-gray-400" />
+              <Download className="h-5 w-5 text-muted-foreground/70" />
             </button>
           </div>
         );
 
       case "purpose":
         return (
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Why This Study Is Being Conducted</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{trialInfo.purpose}</p>
+          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+            <h3 className="font-semibold text-foreground mb-3">Why This Study Is Being Conducted</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{trialInfo.purpose}</p>
           </div>
         );
 
       case "schedule":
         return (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="bg-[#DBEAFE] px-4 py-2">
-              <h3 className="font-semibold text-[#1A3872]">Visit Schedule Overview</h3>
+          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+            <div className="bg-secondary px-4 py-2">
+              <h3 className="font-semibold text-primary">Visit Schedule Overview</h3>
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border">
               {trialInfo.visitSchedule.map((visit, index) => (
                 <div key={index} className="p-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">{visit.visit}</p>
-                    <p className="text-xs text-gray-500">{visit.timepoint}</p>
+                    <p className="font-medium text-foreground text-sm">{visit.visit}</p>
+                    <p className="text-xs text-muted-foreground">{visit.timepoint}</p>
                   </div>
                   <span className={cn(
                     "text-xs px-2 py-1 rounded-full",
-                    visit.type === "Hospital" ? "bg-blue-100 text-blue-700" :
-                    visit.type === "Telephonic" ? "bg-emerald-100 text-emerald-700" :
-                    "bg-amber-100 text-amber-700"
+                    visit.type === "Hospital" ? "bg-info/10 text-info" :
+                    visit.type === "Telephonic" ? "bg-success/15 text-success" :
+                    "bg-warning/15 text-warning"
                   )}>
                     {visit.type}
                   </span>
@@ -277,15 +277,15 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
 
       case "responsibilities":
         return (
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Your Responsibilities</h3>
+          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+            <h3 className="font-semibold text-foreground mb-3">Your Responsibilities</h3>
             <ul className="space-y-3">
               {trialInfo.responsibilities.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#DBEAFE] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-medium text-[#1A3872]">{index + 1}</span>
+                  <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-medium text-primary">{index + 1}</span>
                   </div>
-                  <p className="text-sm text-gray-700">{item}</p>
+                  <p className="text-sm text-foreground/80">{item}</p>
                 </li>
               ))}
             </ul>
@@ -295,18 +295,18 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       case "medication":
         return (
           <div className="space-y-4">
-            <div className="bg-white rounded-xl shadow-sm p-4">
-              <h3 className="font-semibold text-gray-900 mb-2">{trialInfo.medication.name}</h3>
-              <p className="text-sm text-gray-600">{trialInfo.medication.description}</p>
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+              <h3 className="font-semibold text-foreground mb-2">{trialInfo.medication.name}</h3>
+              <p className="text-sm text-muted-foreground">{trialInfo.medication.description}</p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-4">
-              <h4 className="font-medium text-gray-900 mb-3">Dosing Instructions</h4>
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+              <h4 className="font-medium text-foreground mb-3">Dosing Instructions</h4>
               <ul className="space-y-2">
                 {trialInfo.medication.instructions.map((instruction, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB] mt-2" />
-                    <p className="text-sm text-gray-700">{instruction}</p>
+                    <div className="w-1.5 h-1.5 rounded-full bg-info mt-2" />
+                    <p className="text-sm text-foreground/80">{instruction}</p>
                   </li>
                 ))}
               </ul>
@@ -317,26 +317,26 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       case "risks":
         return (
           <div className="space-y-4">
-            <div className="bg-amber-50 rounded-xl p-4 flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0" />
-              <p className="text-sm text-amber-800">
+            <div className="bg-warning/10 rounded-xl p-4 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" />
+              <p className="text-sm text-warning">
                 Please report any side effects to your study team immediately. Contact emergency services if you experience severe symptoms.
               </p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="bg-red-50 px-4 py-2">
+            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
+              <div className="bg-destructive/5 px-4 py-2">
                 <h3 className="font-semibold text-red-800">Possible Side Effects</h3>
               </div>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-border">
                 {trialInfo.risks.map((item, index) => (
                   <div key={index} className="p-3 flex items-center justify-between">
-                    <p className="text-sm text-gray-900">{item.risk}</p>
+                    <p className="text-sm text-foreground">{item.risk}</p>
                     <span className={cn(
                       "text-xs px-2 py-1 rounded-full",
-                      item.frequency.includes("Common") ? "bg-amber-100 text-amber-700" :
-                      item.frequency.includes("Uncommon") ? "bg-blue-100 text-blue-700" :
-                      "bg-gray-100 text-gray-700"
+                      item.frequency.includes("Common") ? "bg-warning/15 text-warning" :
+                      item.frequency.includes("Uncommon") ? "bg-info/10 text-info" :
+                      "bg-muted text-foreground/80"
                     )}>
                       {item.frequency}
                     </span>
@@ -349,15 +349,15 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
 
       case "benefits":
         return (
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Potential Benefits</h3>
+          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+            <h3 className="font-semibold text-foreground mb-3">Potential Benefits</h3>
             <ul className="space-y-3">
               {trialInfo.benefits.map((benefit, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <div className="w-5 h-5 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-success" />
                   </div>
-                  <p className="text-sm text-gray-700">{benefit}</p>
+                  <p className="text-sm text-foreground/80">{benefit}</p>
                 </li>
               ))}
             </ul>
@@ -368,80 +368,80 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
         return (
           <div className="space-y-4">
             {/* PI Contact */}
-            <div className="bg-white rounded-xl shadow-sm p-4">
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center">
-                  <User className="h-5 w-5 text-[#1A3872]" />
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{trialInfo.contacts.pi.name}</p>
-                  <p className="text-xs text-gray-500">{trialInfo.contacts.pi.role}</p>
+                  <p className="font-medium text-foreground">{trialInfo.contacts.pi.name}</p>
+                  <p className="text-xs text-muted-foreground">{trialInfo.contacts.pi.role}</p>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{trialInfo.contacts.pi.phone}</span>
+                  <Phone className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-foreground/80">{trialInfo.contacts.pi.phone}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{trialInfo.contacts.pi.email}</span>
+                  <Mail className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-foreground/80">{trialInfo.contacts.pi.email}</span>
                 </div>
               </div>
             </div>
 
             {/* Coordinator Contact */}
-            <div className="bg-white rounded-xl shadow-sm p-4">
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <User className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center">
+                  <User className="h-5 w-5 text-success" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{trialInfo.contacts.coordinator.name}</p>
-                  <p className="text-xs text-gray-500">{trialInfo.contacts.coordinator.role}</p>
+                  <p className="font-medium text-foreground">{trialInfo.contacts.coordinator.name}</p>
+                  <p className="text-xs text-muted-foreground">{trialInfo.contacts.coordinator.role}</p>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{trialInfo.contacts.coordinator.phone}</span>
+                  <Phone className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-foreground/80">{trialInfo.contacts.coordinator.phone}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{trialInfo.contacts.coordinator.email}</span>
+                  <Mail className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-foreground/80">{trialInfo.contacts.coordinator.email}</span>
                 </div>
               </div>
             </div>
 
             {/* Site Info */}
-            <div className="bg-white rounded-xl shadow-sm p-4">
+            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <MapPin className="h-5 w-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-full bg-info/10 flex items-center justify-center">
+                  <MapPin className="h-5 w-5 text-info" />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{trialInfo.contacts.site.name}</p>
-                  <p className="text-xs text-gray-500">Study Site</p>
+                  <p className="font-medium text-foreground">{trialInfo.contacts.site.name}</p>
+                  <p className="text-xs text-muted-foreground">Study Site</p>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
-                <p className="text-gray-700">{trialInfo.contacts.site.address}</p>
+                <p className="text-foreground/80">{trialInfo.contacts.site.address}</p>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{trialInfo.contacts.site.phone}</span>
+                  <Phone className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-foreground/80">{trialInfo.contacts.site.phone}</span>
                 </div>
               </div>
             </div>
 
             {/* Emergency Contact */}
-            <div className="bg-red-50 rounded-xl p-4">
+            <div className="bg-destructive/5 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <Phone className="h-5 w-5 text-red-600" />
+                <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <Phone className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
                   <p className="font-medium text-red-800">24/7 Emergency Line</p>
-                  <p className="text-lg font-bold text-red-600">{trialInfo.contacts.emergency.phone}</p>
+                  <p className="text-lg font-bold text-destructive">{trialInfo.contacts.emergency.phone}</p>
                 </div>
               </div>
             </div>
@@ -450,9 +450,9 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
 
       case "withdrawal":
         return (
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Withdrawal Information</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{trialInfo.withdrawal}</p>
+          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
+            <h3 className="font-semibold text-foreground mb-3">Withdrawal Information</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{trialInfo.withdrawal}</p>
           </div>
         );
 
@@ -462,9 +462,9 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#F8FAFC]">
+    <div className="flex flex-col h-full bg-surface">
       {/* Header */}
-      <div className="bg-[#1A3872] text-white px-4 py-4">
+      <div className="bg-primary text-white px-4 py-4">
         <div className="flex items-center gap-3">
           {onBack && (
             <button onClick={onBack} className="p-1">
@@ -476,7 +476,7 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       </div>
 
       {/* Section Navigation */}
-      <div className="bg-white border-b border-gray-200 px-4 py-2 overflow-x-auto scrollbar-hide">
+      <div className="bg-card border-b border-border px-4 py-2 overflow-x-auto scrollbar-hide">
         <div className="flex gap-2">
           {sections.map((section) => (
             <button
@@ -485,8 +485,8 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
                 activeSection === section.id
-                  ? "bg-[#1A3872] text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-primary text-white"
+                  : "bg-muted text-muted-foreground hover:bg-border"
               )}
             >
               {section.icon}
@@ -502,8 +502,8 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       </div>
 
       {/* Language Selector */}
-      <div className="bg-white border-t border-gray-200 p-3">
-        <button className="w-full flex items-center justify-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-t border-border p-3">
+        <button className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Globe className="h-4 w-4" />
           <span>Change Language</span>
           <ChevronRight className="h-4 w-4" />

@@ -142,7 +142,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
   const updateHospital = (i: number, patch: Partial<SiteHospital>) =>
     setHospitals(p => p.map((h, idx) => (idx === i ? { ...h, ...patch } : h)))
 
-  const avatarColor = user.avatarColor ?? "bg-[#1A3872]"
+  const avatarColor = user.avatarColor ?? "bg-primary"
 
   /* ─────────────── Profile body ─────────────── */
   const profileBody = (
@@ -153,16 +153,16 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           <div className={cn("w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold", avatarColor)}>
             {user.initials}
           </div>
-          <div className="absolute bottom-0 right-0 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center">
-            <Camera className="w-3 h-3 text-slate-500" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center">
+            <Camera className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
-        <h2 className="text-lg font-bold text-[#0F172A]">{user.name}</h2>
-        <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-semibold mt-1">{user.designation}</span>
+        <h2 className="text-lg font-bold text-foreground">{user.name}</h2>
+        <span className="px-3 py-1 bg-info/10 text-info text-xs rounded-full font-semibold mt-1">{user.designation}</span>
       </div>
 
       {/* 4–8. Info card in required order */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-4 mb-3">
+      <div className="bg-card rounded-2xl border border-border p-4 mb-3">
         {[
           { label: "Phone Number", val: user.phone, verify: true },
           { label: "Email ID", val: user.email, verify: true },
@@ -174,12 +174,12 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           // 10. Department (only for PI)
           ...(user.role === "PI" ? [{ label: "Department", val: user.department || "—" }] : []),
         ].map(r => (
-          <div key={r.label} className="py-2 border-b border-slate-100 last:border-0">
-            <p className="text-xs text-slate-400 flex items-center gap-1">
+          <div key={r.label} className="py-2 border-b border-border last:border-0">
+            <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
               {r.label}
-              {r.verify && <ShieldCheck className="w-3 h-3 text-amber-500" />}
+              {r.verify && <ShieldCheck className="w-3 h-3 text-warning" />}
             </p>
-            <p className="text-sm text-[#0F172A] font-medium mt-0.5">{r.val}</p>
+            <p className="text-sm text-foreground font-medium mt-0.5">{r.val}</p>
           </div>
         ))}
       </div>
@@ -187,22 +187,22 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
       {/* SMO: hospitals managed by this user */}
       {isSMO && (
         <div className="mb-3">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Hospitals</p>
+          <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Hospitals</p>
           <div className="space-y-2">
             {hospitals.length === 0 && (
-              <p className="text-sm text-slate-400 bg-white rounded-2xl border border-slate-100 p-4 text-center">No hospitals added yet.</p>
+              <p className="text-sm text-muted-foreground/70 bg-card rounded-2xl border border-border p-4 text-center">No hospitals added yet.</p>
             )}
             {hospitals.map((h, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 p-4">
+              <div key={i} className="bg-card rounded-2xl border border-border p-4">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <Building2 className="w-4 h-4 text-[#1A3872] flex-shrink-0" />
-                  <p className="text-sm font-semibold text-[#0F172A]">{h.name || "Unnamed Hospital"}</p>
+                  <Building2 className="w-4 h-4 text-primary flex-shrink-0" />
+                  <p className="text-sm font-semibold text-foreground">{h.name || "Unnamed Hospital"}</p>
                 </div>
-                <p className="text-xs text-slate-500 mb-2">{h.address || "No address"}</p>
+                <p className="text-xs text-muted-foreground mb-2">{h.address || "No address"}</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-semibold bg-blue-50 text-[#1A3872] px-2 py-0.5 rounded-full">{h.role}</span>
+                  <span className="text-[10px] font-semibold bg-info/5 text-primary px-2 py-0.5 rounded-full">{h.role}</span>
                   {h.role === "PI" && h.department && (
-                    <span className="text-[10px] font-medium text-slate-500">{h.department}</span>
+                    <span className="text-[10px] font-medium text-muted-foreground">{h.department}</span>
                   )}
                 </div>
               </div>
@@ -212,8 +212,8 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
       )}
 
       {/* ACCOUNT menu */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Account</p>
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-6">
+      <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Account</p>
+      <div className="bg-card rounded-2xl border border-border overflow-hidden mb-6">
         {[
           { icon: UserPen, label: "Edit Profile", onClick: () => setSection("edit-profile") },
           { icon: Building2, label: "Entity Change", onClick: () => setSection("entity-change") },
@@ -222,9 +222,9 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         ].map(item => {
           const Icon = item.icon
           return (
-            <button key={item.label} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50">
-              <Icon className="w-4 h-4 text-slate-400" />
-              <span className="flex-1 text-sm text-[#0F172A] text-left">{item.label}</span>
+            <button key={item.label} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-surface">
+              <Icon className="w-4 h-4 text-muted-foreground/70" />
+              <span className="flex-1 text-sm text-foreground text-left">{item.label}</span>
               <ChevronRight className="w-4 h-4 text-slate-300" />
             </button>
           )
@@ -232,17 +232,17 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
       </div>
 
       {/* TRIAL MANAGEMENT */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Trial Management</p>
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-6">
+      <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Trial Management</p>
+      <div className="bg-card rounded-2xl border border-border overflow-hidden mb-6">
         {[
           { icon: FlaskConical, label: "My Trials", onClick: onOpenTrials ?? (() => setSection("my-trials")) },
           { icon: Users, label: "Team Members", onClick: () => setSection("team-members") },
         ].map(item => {
           const Icon = item.icon
           return (
-            <button key={item.label} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50">
-              <Icon className="w-4 h-4 text-slate-400" />
-              <span className="flex-1 text-sm text-[#0F172A] text-left">{item.label}</span>
+            <button key={item.label} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-surface">
+              <Icon className="w-4 h-4 text-muted-foreground/70" />
+              <span className="flex-1 text-sm text-foreground text-left">{item.label}</span>
               <ChevronRight className="w-4 h-4 text-slate-300" />
             </button>
           )
@@ -250,8 +250,8 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
       </div>
 
       {/* REPORTS */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Reports</p>
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-6">
+      <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Reports</p>
+      <div className="bg-card rounded-2xl border border-border overflow-hidden mb-6">
         {[
           { icon: BarChart2, label: "Reports", onClick: () => setSection("reports") },
           { icon: FileText, label: "T&C", onClick: () => setSection("tnc") },
@@ -259,16 +259,16 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         ].map(item => {
           const Icon = item.icon
           return (
-            <button key={item.label} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50">
-              <Icon className="w-4 h-4 text-slate-400" />
-              <span className="flex-1 text-sm text-[#0F172A] text-left">{item.label}</span>
+            <button key={item.label} onClick={item.onClick} className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-surface">
+              <Icon className="w-4 h-4 text-muted-foreground/70" />
+              <span className="flex-1 text-sm text-foreground text-left">{item.label}</span>
               <ChevronRight className="w-4 h-4 text-slate-300" />
             </button>
           )
         })}
       </div>
 
-      <button onClick={onSignOut} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-200 text-red-600 text-sm font-semibold">
+      <button onClick={onSignOut} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-destructive/20 text-destructive text-sm font-semibold">
         <LogOut className="w-4 h-4" /> Sign Out
       </button>
     </div>
@@ -276,21 +276,21 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── My Trials ─────────────── */
   const myTrials = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">My Trials</span>
-        <span className="text-xs text-blue-200">{trials.length} total</span>
+        <span className="text-xs text-primary-foreground/75">{trials.length} total</span>
       </div>
       <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
         {trials.map(t => (
-          <div key={t.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <FlaskConical className="w-5 h-5 text-[#1A3872]" />
+          <div key={t.id} className="bg-card rounded-2xl border border-border shadow-xs p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-info/5 flex items-center justify-center flex-shrink-0">
+              <FlaskConical className="w-5 h-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-sm text-[#0F172A] truncate">{t.name}</p>
-              <p className="text-xs text-slate-500">{t.id}</p>
+              <p className="font-semibold text-sm text-foreground truncate">{t.name}</p>
+              <p className="text-xs text-muted-foreground">{t.id}</p>
             </div>
           </div>
         ))}
@@ -300,60 +300,60 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Team Members ─────────────── */
   const teamMembersScreen = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Team Members</span>
-        <span className="text-xs text-blue-200">{teamMembers.length} total</span>
+        <span className="text-xs text-primary-foreground/75">{teamMembers.length} total</span>
       </div>
       <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
         {teamMembers.map(m => {
           const expanded = expandedMemberId === m.id
           return (
-            <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div key={m.id} className="bg-card rounded-2xl border border-border shadow-xs p-4">
               {/* Name + designation + role */}
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center text-sm font-bold text-[#1A3872] flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
                   {m.name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm text-[#0F172A] truncate">{m.name}</p>
-                  <p className="text-xs text-slate-500 truncate">{m.designation}</p>
+                  <p className="font-semibold text-sm text-foreground truncate">{m.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{m.designation}</p>
                 </div>
-                <span className="text-[10px] font-semibold bg-blue-50 text-[#1A3872] px-2 py-0.5 rounded-full flex-shrink-0">{m.role}</span>
+                <span className="text-[10px] font-semibold bg-info/5 text-primary px-2 py-0.5 rounded-full flex-shrink-0">{m.role}</span>
               </div>
               {/* Contact + role/dept */}
-              <div className="space-y-1.5 pt-3 border-t border-slate-100">
-                <div className="flex items-center gap-2 text-xs text-slate-600">
-                  <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              <div className="space-y-1.5 pt-3 border-t border-border">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Phone className="w-3.5 h-3.5 text-muted-foreground/70 flex-shrink-0" />
                   <span className="font-mono">{maskPhone(m.phone)}</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-600">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Mail className="w-3.5 h-3.5 text-muted-foreground/70 flex-shrink-0" />
                   <span className="truncate">{m.email}</span>
                 </div>
                 {m.role === "PI" && m.department && (
-                  <div className="flex items-center gap-2 text-xs text-slate-600">
-                    <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Building2 className="w-3.5 h-3.5 text-muted-foreground/70 flex-shrink-0" />
                     <span>{m.department}</span>
                   </div>
                 )}
               </div>
               {/* Trials involved — clickable */}
               <button onClick={() => setExpandedMemberId(expanded ? null : m.id)}
-                className="mt-3 w-full flex items-center justify-between bg-blue-50 rounded-xl px-3 py-2 text-left">
-                <span className="flex items-center gap-2 text-xs font-medium text-[#1A3872]">
+                className="mt-3 w-full flex items-center justify-between bg-info/5 rounded-xl px-3 py-2 text-left">
+                <span className="flex items-center gap-2 text-xs font-medium text-primary">
                   <FlaskConical className="w-3.5 h-3.5" />
                   {m.trials.length} {m.trials.length === 1 ? "trial" : "trials"} involved
                 </span>
-                <ChevronDown className={cn("w-4 h-4 text-[#1A3872] transition-transform", expanded && "rotate-180")} />
+                <ChevronDown className={cn("w-4 h-4 text-primary transition-transform", expanded && "rotate-180")} />
               </button>
               {expanded && (
                 <div className="mt-2 space-y-1.5">
                   {m.trials.map(tid => (
-                    <div key={tid} className="flex items-center gap-2 text-xs text-slate-600 px-3">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] flex-shrink-0" />
-                      <span className="font-medium text-[#0F172A]">{tid}</span> — {trialName(tid)}
+                    <div key={tid} className="flex items-center gap-2 text-xs text-muted-foreground px-3">
+                      <span className="w-1.5 h-1.5 rounded-full bg-info flex-shrink-0" />
+                      <span className="font-medium text-foreground">{tid}</span> — {trialName(tid)}
                     </div>
                   ))}
                 </div>
@@ -362,9 +362,9 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           )
         })}
       </div>
-      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+      <div className="px-5 py-4 border-t border-border bg-card">
         <button onClick={() => setSection("invite-member")}
-          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white flex items-center justify-center gap-2">
+          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white flex items-center justify-center gap-2">
           <UserCheck className="w-4 h-4" /> Invite Members
         </button>
       </div>
@@ -373,8 +373,8 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Invite Member ─────────────── */
   const inviteMember = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection("team-members")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Invite Member</span>
       </div>
@@ -382,21 +382,21 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         <Field label="Full Name *" value={inviteForm.name} onChange={v => setInviteForm(p => ({ ...p, name: v }))} placeholder="Enter member's name" />
         <Field label="Designation" value={inviteForm.designation} onChange={v => setInviteForm(p => ({ ...p, designation: v }))} placeholder="e.g. Research Associate" />
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Phone Number</label>
           <div className="flex gap-2">
-            <div className="px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-600 text-sm">+91</div>
+            <div className="px-4 py-3 rounded-xl border border-border bg-surface text-muted-foreground text-sm">+91</div>
             <input value={inviteForm.phone} onChange={e => setInviteForm(p => ({ ...p, phone: e.target.value }))} placeholder="Enter phone number" type="tel"
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white" />
+              className="flex-1 px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card" />
           </div>
         </div>
         <Field label="Email ID *" value={inviteForm.email} onChange={v => setInviteForm(p => ({ ...p, email: v }))} placeholder="member@example.com" />
         {/* Role */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-          <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Role</label>
+          <div className="flex rounded-xl border border-border overflow-hidden">
             {(["PI", "Research Team"] as SiteRole[]).map(r => (
               <button key={r} onClick={() => setInviteForm(p => ({ ...p, role: r }))}
-                className={cn("flex-1 py-2.5 text-sm font-medium", inviteForm.role === r ? "bg-[#1A3872] text-white" : "bg-white text-gray-600")}>
+                className={cn("flex-1 py-2.5 text-sm font-medium", inviteForm.role === r ? "bg-primary text-white" : "bg-card text-muted-foreground")}>
                 {r}
               </button>
             ))}
@@ -407,36 +407,36 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         )}
         {/* Trials involved */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Trials Involved</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Trials Involved</label>
           <div className="space-y-2">
             {trials.map(t => {
               const checked = inviteForm.trials.includes(t.id)
               return (
                 <button key={t.id} onClick={() => toggleInviteTrial(t.id)}
                   className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border text-left transition-colors",
-                    checked ? "border-[#1A3872] bg-blue-50" : "border-gray-200 bg-white")}>
+                    checked ? "border-primary bg-info/5" : "border-border bg-card")}>
                   <span className={cn("w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0",
-                    checked ? "border-[#1A3872] bg-[#1A3872]" : "border-slate-300")}>
+                    checked ? "border-primary bg-primary" : "border-border")}>
                     {checked && <Check className="w-3 h-3 text-white" />}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium text-[#0F172A] truncate">{t.id}</span>
-                    <span className="block text-xs text-slate-500 truncate">{t.name}</span>
+                    <span className="block text-sm font-medium text-foreground truncate">{t.id}</span>
+                    <span className="block text-xs text-muted-foreground truncate">{t.name}</span>
                   </span>
                 </button>
               )
             })}
           </div>
         </div>
-        <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl p-3">
-          <Mail className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-          <p className="text-xs text-blue-700">An invitation email will be sent. The member joins once they accept and verify their identity.</p>
+        <div className="flex items-start gap-2 bg-info/5 border border-info/20 rounded-xl p-3">
+          <Mail className="w-4 h-4 text-info mt-0.5 shrink-0" />
+          <p className="text-xs text-info">An invitation email will be sent. The member joins once they accept and verify their identity.</p>
         </div>
       </div>
-      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+      <div className="px-5 py-4 border-t border-border bg-card">
         <button onClick={handleSendInvite} disabled={!inviteForm.name || !inviteForm.email}
           className={cn("w-full py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all",
-            inviteForm.name && inviteForm.email ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}>
+            inviteForm.name && inviteForm.email ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}>
           <Mail className="w-4 h-4" /> Send Invite
         </button>
       </div>
@@ -445,8 +445,8 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Reports ─────────────── */
   const reports = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Reports</span>
       </div>
@@ -457,13 +457,13 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           { label: "Protocol Deviations", desc: "Logged deviations by trial" },
           { label: "Patient Status", desc: "Active, completed & dropouts" },
         ].map(r => (
-          <button key={r.label} className="w-full bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-center gap-3 text-left">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <BarChart2 className="w-5 h-5 text-[#1A3872]" />
+          <button key={r.label} className="w-full bg-card rounded-2xl border border-border shadow-xs p-4 flex items-center gap-3 text-left">
+            <div className="w-10 h-10 rounded-xl bg-info/5 flex items-center justify-center flex-shrink-0">
+              <BarChart2 className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm text-[#0F172A]">{r.label}</p>
-              <p className="text-xs text-slate-500">{r.desc}</p>
+              <p className="font-semibold text-sm text-foreground">{r.label}</p>
+              <p className="text-xs text-muted-foreground">{r.desc}</p>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-300" />
           </button>
@@ -474,12 +474,12 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── T&C ─────────────── */
   const tnc = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Terms &amp; Conditions</span>
       </div>
-      <div className="flex-1 overflow-auto px-5 py-4 text-sm text-slate-600 leading-relaxed space-y-4">
+      <div className="flex-1 overflow-auto px-5 py-4 text-sm text-muted-foreground leading-relaxed space-y-4">
         {[
           { t: "1. Acceptance of Terms", d: "By using this platform you agree to be bound by these Terms and our Privacy Policy." },
           { t: "2. Data Privacy & Compliance", d: "All personal and clinical data is handled per applicable data protection laws and used solely for clinical trial management." },
@@ -489,7 +489,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           { t: "6. Contact", d: "For questions about these terms, contact support@mtb-pvs.com." },
         ].map(s => (
           <div key={s.t} className="space-y-1">
-            <p className="font-bold text-slate-800">{s.t}</p>
+            <p className="font-bold text-foreground">{s.t}</p>
             <p>{s.d}</p>
           </div>
         ))}
@@ -499,31 +499,31 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Help & Support ─────────────── */
   const help = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Help &amp; Support</span>
       </div>
       <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
-            <Mail className="w-4 h-4 text-[#1A3872]" />
+        <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+          <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-border">
+            <Mail className="w-4 h-4 text-primary" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[#0F172A]">Email Support</p>
-              <p className="text-xs text-slate-500">support@mtb-pvs.com</p>
+              <p className="text-sm font-medium text-foreground">Email Support</p>
+              <p className="text-xs text-muted-foreground">support@mtb-pvs.com</p>
             </div>
           </a>
           <a href="tel:+918000000000" className="flex items-center gap-3 px-4 py-3">
-            <Phone className="w-4 h-4 text-[#1A3872]" />
+            <Phone className="w-4 h-4 text-primary" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[#0F172A]">Call Helpline</p>
-              <p className="text-xs text-slate-500">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
+              <p className="text-sm font-medium text-foreground">Call Helpline</p>
+              <p className="text-xs text-muted-foreground">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
             </div>
           </a>
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">FAQ</p>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50">
+          <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">FAQ</p>
+          <div className="bg-card rounded-2xl border border-border shadow-xs divide-y divide-border/60">
             {[
               { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
               { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite. They'll receive an email to join." },
@@ -534,11 +534,11 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
               return (
                 <div key={item.q}>
                   <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full flex items-center gap-2 px-4 py-3 text-left">
-                    <HelpCircle className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="text-sm text-[#0F172A] flex-1">{item.q}</span>
+                    <HelpCircle className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
+                    <span className="text-sm text-foreground flex-1">{item.q}</span>
                     <ChevronDown className={cn("w-4 h-4 text-slate-300 transition-transform", open && "rotate-180")} />
                   </button>
-                  {open && <p className="px-4 pb-3 pl-10 text-xs text-slate-500 leading-relaxed">{item.a}</p>}
+                  {open && <p className="px-4 pb-3 pl-10 text-xs text-muted-foreground leading-relaxed">{item.a}</p>}
                 </div>
               )
             })}
@@ -550,8 +550,8 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Edit Profile ─────────────── */
   const editProfile = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Edit Profile</span>
       </div>
@@ -569,10 +569,10 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
         {/* Entity type — fixed */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Entity Type</label>
-          <div className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-slate-50 text-sm flex items-center justify-between">
-            <span className="font-medium text-[#0F172A]">{user.entityType}</span>
-            <span className="flex items-center gap-1 text-[10px] font-medium text-slate-400"><Lock className="w-3 h-3" /> Auto</span>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Entity Type</label>
+          <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm flex items-center justify-between">
+            <span className="font-medium text-foreground">{user.entityType}</span>
+            <span className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground/70"><Lock className="w-3 h-3" /> Auto</span>
           </div>
         </div>
 
@@ -581,11 +581,11 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
         {/* Role */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-          <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Role</label>
+          <div className="flex rounded-xl border border-border overflow-hidden">
             {(["PI", "Research Team"] as SiteRole[]).map(r => (
               <button key={r} onClick={() => setForm(p => ({ ...p, role: r }))}
-                className={cn("flex-1 py-2.5 text-sm font-medium", form.role === r ? "bg-[#1A3872] text-white" : "bg-white text-gray-600")}>
+                className={cn("flex-1 py-2.5 text-sm font-medium", form.role === r ? "bg-primary text-white" : "bg-card text-muted-foreground")}>
                 {r}
               </button>
             ))}
@@ -600,24 +600,24 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         {/* SMO: hospitals editor */}
         {isSMO && (
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 pt-2 border-t border-slate-100">Hospitals</p>
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2 pt-2 border-t border-border">Hospitals</p>
             <div className="space-y-3">
               {hospitals.map((h, i) => (
-                <div key={i} className="bg-white rounded-xl border border-slate-200 p-3 space-y-2">
+                <div key={i} className="bg-card rounded-xl border border-border p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500">Hospital {i + 1}</span>
+                    <span className="text-xs font-semibold text-muted-foreground">Hospital {i + 1}</span>
                     <button onClick={() => removeHospital(i)} className="text-rose-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
                   </div>
                   <input value={h.name} onChange={e => updateHospital(i, { name: e.target.value })} placeholder="Hospital Name *"
-                    className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                    className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary" />
                   <input value={h.address} onChange={e => updateHospital(i, { address: e.target.value })} placeholder="Hospital Address"
-                    className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                    className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary" />
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Role</label>
-                    <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Role</label>
+                    <div className="flex rounded-lg border border-border overflow-hidden">
                       {(["PI", "Research Team"] as SiteRole[]).map(r => (
                         <button key={r} onClick={() => updateHospital(i, { role: r })}
-                          className={cn("flex-1 py-2 text-sm font-medium", h.role === r ? "bg-[#1A3872] text-white" : "bg-white text-gray-600")}>
+                          className={cn("flex-1 py-2 text-sm font-medium", h.role === r ? "bg-primary text-white" : "bg-card text-muted-foreground")}>
                           {r}
                         </button>
                       ))}
@@ -625,26 +625,26 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
                   </div>
                   {h.role === "PI" && (
                     <input value={h.department ?? ""} onChange={e => updateHospital(i, { department: e.target.value })} placeholder="Department"
-                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                      className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary" />
                   )}
                 </div>
               ))}
               <button onClick={addHospital}
-                className="w-full py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-sm text-slate-500 font-medium flex items-center justify-center gap-1.5 hover:border-[#1A3872] hover:text-[#1A3872] transition-colors">
+                className="w-full py-2.5 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground font-medium flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-colors">
                 <Plus className="w-4 h-4" /> Add Hospital
               </button>
             </div>
           </div>
         )}
 
-        <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl p-3">
-          <ShieldCheck className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-          <p className="text-xs text-amber-800 leading-relaxed">Changing your phone or email requires OTP verification.</p>
+        <div className="flex items-start gap-2 bg-warning/10 border border-warning/20 rounded-xl p-3">
+          <ShieldCheck className="w-4 h-4 text-warning mt-0.5 shrink-0" />
+          <p className="text-xs text-warning leading-relaxed">Changing your phone or email requires OTP verification.</p>
         </div>
       </div>
-      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+      <div className="px-5 py-4 border-t border-border bg-card">
         <button onClick={() => { toast.success("Profile updated"); setSection(null) }}
-          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white">
+          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white">
           Save Changes
         </button>
       </div>
@@ -653,21 +653,21 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Entity Change ─────────────── */
   const entityChange = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => { setSection(null); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityDoc(null) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Entity Change</span>
       </div>
       <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
-        <p className="text-sm text-slate-500">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
+        <p className="text-sm text-muted-foreground">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
 
         {/* What are you changing */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">What are you changing?</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">What are you changing?</label>
           <select
             value={entityForm.field}
             onChange={e => setEntityForm({ field: e.target.value, newValue: "" })}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+            className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
           >
             {["Entity Type", "Organization Name", "Organization Address"].map(o => <option key={o} value={o}>{o}</option>)}
           </select>
@@ -675,20 +675,20 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
         {/* Current value */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Current Value</label>
-          <div className="w-full px-4 py-3 rounded-xl border border-slate-100 bg-slate-50 text-sm text-slate-500">
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Current Value</label>
+          <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-muted-foreground">
             {entityForm.field === "Entity Type" ? user.entityType : entityForm.field === "Organization Name" ? user.orgName : user.orgAddress}
           </div>
         </div>
 
         {/* Change to */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Change To</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Change To</label>
           {entityForm.field === "Entity Type" ? (
             <select
               value={entityForm.newValue}
               onChange={e => setEntityForm(c => ({ ...c, newValue: e.target.value }))}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+              className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
             >
               <option value="">Select entity type</option>
               {["Site / Hospital", "SMO"].map(o => <option key={o} value={o}>{o}</option>)}
@@ -698,7 +698,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
               value={entityForm.newValue}
               onChange={e => setEntityForm(c => ({ ...c, newValue: e.target.value }))}
               placeholder={`Enter new ${entityForm.field.toLowerCase()}`}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+              className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
             />
           )}
         </div>
@@ -706,24 +706,24 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         {/* SMO → add hospitals */}
         {entityChangingToSMO && (
           <div className="pt-1">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Hospitals</p>
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">Hospitals</p>
             <div className="space-y-3">
               {hospitals.map((h, i) => (
-                <div key={i} className="bg-white rounded-xl border border-slate-200 p-3 space-y-2">
+                <div key={i} className="bg-card rounded-xl border border-border p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-500">Hospital {i + 1}</span>
+                    <span className="text-xs font-semibold text-muted-foreground">Hospital {i + 1}</span>
                     <button onClick={() => removeHospital(i)} className="text-rose-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
                   </div>
                   <input value={h.name} onChange={e => updateHospital(i, { name: e.target.value })} placeholder="Hospital Name *"
-                    className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                    className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary" />
                   <input value={h.address} onChange={e => updateHospital(i, { address: e.target.value })} placeholder="Hospital Address"
-                    className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                    className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary" />
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-1">Role</label>
-                    <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Role</label>
+                    <div className="flex rounded-lg border border-border overflow-hidden">
                       {(["PI", "Research Team"] as SiteRole[]).map(r => (
                         <button key={r} onClick={() => updateHospital(i, { role: r })}
-                          className={cn("flex-1 py-2 text-sm font-medium", h.role === r ? "bg-[#1A3872] text-white" : "bg-white text-gray-600")}>
+                          className={cn("flex-1 py-2 text-sm font-medium", h.role === r ? "bg-primary text-white" : "bg-card text-muted-foreground")}>
                           {r}
                         </button>
                       ))}
@@ -731,12 +731,12 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
                   </div>
                   {h.role === "PI" && (
                     <input value={h.department ?? ""} onChange={e => updateHospital(i, { department: e.target.value })} placeholder="Department"
-                      className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1A3872]" />
+                      className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary" />
                   )}
                 </div>
               ))}
               <button onClick={addHospital}
-                className="w-full py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-sm text-slate-500 font-medium flex items-center justify-center gap-1.5 hover:border-[#1A3872] hover:text-[#1A3872] transition-colors">
+                className="w-full py-2.5 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground font-medium flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-colors">
                 <Plus className="w-4 h-4" /> Add Hospital
               </button>
             </div>
@@ -745,29 +745,29 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
         {/* Supporting document */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Supporting Document</label>
+          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Supporting Document</label>
           {entityDoc ? (
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-              <FileText className="w-4 h-4 text-[#2563EB] shrink-0" />
-              <span className="flex-1 text-sm text-[#0F172A] truncate">{entityDoc}</span>
-              <button onClick={() => setEntityDoc(null)} className="text-slate-400"><X className="w-4 h-4" /></button>
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
+              <FileText className="w-4 h-4 text-info shrink-0" />
+              <span className="flex-1 text-sm text-foreground truncate">{entityDoc}</span>
+              <button onClick={() => setEntityDoc(null)} className="text-muted-foreground/70"><X className="w-4 h-4" /></button>
             </div>
           ) : (
-            <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-slate-300 px-4 py-6 text-center cursor-pointer hover:border-[#1A3872]">
-              <Upload className="w-5 h-5 text-slate-400" />
-              <span className="text-sm font-medium text-slate-500">Upload document</span>
-              <span className="text-xs text-slate-400">PDF, JPG or PNG supporting your change</span>
+            <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border px-4 py-6 text-center cursor-pointer hover:border-primary">
+              <Upload className="w-5 h-5 text-muted-foreground/70" />
+              <span className="text-sm font-medium text-muted-foreground">Upload document</span>
+              <span className="text-xs text-muted-foreground/70">PDF, JPG or PNG supporting your change</span>
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEntityDoc(f.name) }} />
             </label>
           )}
         </div>
       </div>
 
-      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+      <div className="px-5 py-4 border-t border-border bg-card">
         <button
           disabled={!entityCanSubmit}
           onClick={() => setEntitySubmitted(true)}
-          className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityCanSubmit ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+          className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityCanSubmit ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}
         >
           Submit Request
         </button>
@@ -776,15 +776,15 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
       {/* Confirmation popup */}
       {entitySubmitted && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 px-8">
-          <div className="bg-white rounded-2xl p-6 text-center w-full max-w-xs shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
-              <Check className="w-6 h-6 text-teal-600" />
+          <div className="bg-card rounded-2xl p-6 text-center w-full max-w-xs shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-3">
+              <Check className="w-6 h-6 text-accent" />
             </div>
-            <p className="font-semibold text-[#0F172A] mb-1">Request submitted</p>
-            <p className="text-sm text-slate-500 mb-4">We'll verify your request and update your entity details within 24 hours.</p>
+            <p className="font-semibold text-foreground mb-1">Request submitted</p>
+            <p className="text-sm text-muted-foreground mb-4">We'll verify your request and update your entity details within 24 hours.</p>
             <button
               onClick={() => { setEntitySubmitted(false); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityDoc(null); setSection(null) }}
-              className="w-full py-3 rounded-xl bg-[#0D1B3E] text-white text-sm font-semibold"
+              className="w-full py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold"
             >
               Done
             </button>
@@ -816,39 +816,39 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
   ] as const
 
   const changePassword = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Change Password</span>
       </div>
       <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
         {pwdFields.map(f => (
           <div key={f.key}>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{f.label}</label>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">{f.label}</label>
             <div className="relative">
               <input
                 type={showPwd[f.key] ? "text" : "password"}
                 value={passwordForm[f.key]}
                 onChange={e => setPasswordForm(p => ({ ...p, [f.key]: e.target.value }))}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 pr-11 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+                className="w-full px-4 py-3 pr-11 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
               />
               <button type="button" onClick={() => setShowPwd(s => ({ ...s, [f.key]: !s[f.key] }))}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground">
                 {showPwd[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
         ))}
 
-        {passwordsMatch && <p className="text-[#0D9488] text-sm flex items-center gap-1"><Check className="w-4 h-4" /> Passwords match</p>}
-        {mismatch && <p className="text-red-500 text-sm flex items-center gap-1"><X className="w-4 h-4" /> Passwords do not match</p>}
+        {passwordsMatch && <p className="text-accent text-sm flex items-center gap-1"><Check className="w-4 h-4" /> Passwords match</p>}
+        {mismatch && <p className="text-destructive text-sm flex items-center gap-1"><X className="w-4 h-4" /> Passwords do not match</p>}
 
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#0D9488] transition-all" style={{ width: `${strengthPercentage}%` }} />
+          <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-info to-accent transition-all" style={{ width: `${strengthPercentage}%` }} />
           </div>
-          <span className={cn("text-sm font-medium", strengthPercentage >= 80 ? "text-[#0D9488]" : strengthPercentage >= 60 ? "text-[#D97706]" : "text-[#DC2626]")}>
+          <span className={cn("text-sm font-medium", strengthPercentage >= 80 ? "text-accent" : strengthPercentage >= 60 ? "text-warning" : "text-destructive")}>
             {strengthPercentage >= 80 ? "Strong" : strengthPercentage >= 60 ? "Medium" : "Weak"}
           </span>
         </div>
@@ -856,17 +856,17 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
         <div className="space-y-1.5">
           {passwordRules.map(rule => (
             <div key={rule.label} className="flex items-center gap-2">
-              {rule.met ? <Check className="w-4 h-4 text-[#0D9488]" /> : <X className="w-4 h-4 text-gray-400" />}
-              <span className={cn("text-sm", rule.met ? "text-[#0D9488]" : "text-gray-500")}>{rule.label}</span>
+              {rule.met ? <Check className="w-4 h-4 text-accent" /> : <X className="w-4 h-4 text-muted-foreground/70" />}
+              <span className={cn("text-sm", rule.met ? "text-accent" : "text-muted-foreground")}>{rule.label}</span>
             </div>
           ))}
         </div>
       </div>
-      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+      <div className="px-5 py-4 border-t border-border bg-card">
         <button
           onClick={() => { toast.success("Password changed"); setPasswordForm({ current: "", next: "", confirm: "" }); setSection(null) }}
           disabled={!canSavePwd}
-          className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", canSavePwd ? "bg-[#0D1B3E] text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed")}
+          className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", canSavePwd ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}
         >
           Update Password
         </button>
@@ -876,8 +876,8 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   /* ─────────────── Notification Preferences ─────────────── */
   const notifications = (
-    <div className="absolute inset-0 z-50 bg-[#F8FAFC] flex flex-col">
-      <div className="bg-[#0D1B3E] text-white px-4 py-3 flex items-center gap-3">
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Notification Preferences</span>
       </div>
@@ -900,19 +900,19 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           },
         ].map(group => (
           <div key={group.title}>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{group.title}</p>
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">{group.title}</p>
+            <div className="bg-card rounded-2xl border border-border overflow-hidden">
               {group.items.map(item => {
                 const on = notifPrefs[item.key as keyof typeof notifPrefs]
                 return (
                   <button key={item.key} onClick={() => setNotifPrefs(p => ({ ...p, [item.key]: !p[item.key as keyof typeof notifPrefs] }))}
-                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-100 last:border-0 text-left">
+                    className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 text-left">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#0F172A]">{item.label}</p>
-                      <p className="text-xs text-slate-400">{item.desc}</p>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground/70">{item.desc}</p>
                     </div>
-                    <span className={cn("w-11 h-6 rounded-full p-0.5 flex-shrink-0 transition-colors", on ? "bg-[#1A3872]" : "bg-slate-300")}>
-                      <span className={cn("block w-5 h-5 bg-white rounded-full shadow-sm transition-transform", on ? "translate-x-5" : "translate-x-0")} />
+                    <span className={cn("w-11 h-6 rounded-full p-0.5 flex-shrink-0 transition-colors", on ? "bg-primary" : "bg-slate-300")}>
+                      <span className={cn("block w-5 h-5 bg-card rounded-full shadow-sm transition-transform", on ? "translate-x-5" : "translate-x-0")} />
                     </span>
                   </button>
                 )
@@ -921,9 +921,9 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           </div>
         ))}
       </div>
-      <div className="px-5 py-4 border-t border-slate-100 bg-white">
+      <div className="px-5 py-4 border-t border-border bg-card">
         <button onClick={() => { toast.success("Preferences saved"); setSection(null) }}
-          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-[#0D1B3E] text-white">
+          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white">
           Save Preferences
         </button>
       </div>
@@ -951,12 +951,12 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-foreground/80 mb-1.5">{label}</label>
       <input
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm focus:border-[#1A3872] focus:ring-2 focus:ring-blue-100 bg-white"
+        className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
       />
     </div>
   )

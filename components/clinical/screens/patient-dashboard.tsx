@@ -39,8 +39,8 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
     {
       id: "1",
       icon: Bell,
-      bg: "bg-blue-100",
-      color: "text-blue-700",
+      bg: "bg-info/10",
+      color: "text-info",
       title: "Visit 7 Tomorrow",
       body: "Follow-Up Visit at AIIMS Delhi · 23 May 2025",
       time: "2h ago",
@@ -61,7 +61,7 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
   ]
 
   return (
-    <div className="h-full flex flex-col bg-[#F8FAFC]">
+    <div className="h-full flex flex-col bg-surface">
       <AppBar
         title={t("myTrialJourney")}
         notificationCount={2}
@@ -73,56 +73,56 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
       <div className="flex-1 overflow-auto pb-4">
         {/* Hero Card */}
         <div className="px-4 py-4">
-          <div className="bg-gradient-to-br from-[#0D1B3E] via-[#1A3872] to-[#2563EB] rounded-2xl p-5 text-white shadow-lg">
+          <div className="hero-glow bg-gradient-to-br from-primary-deep via-primary to-info rounded-2xl p-5 text-white shadow-md">
             <h2 className="text-xl font-bold mb-1 font-[family-name:var(--font-heading)]">{t("hello")} Priya</h2>
-            <p className="text-blue-200 text-sm mb-4">Protocol-001 · Dr. Sharma</p>
+            <p className="text-primary-foreground/75 text-sm mb-4">Protocol-001 · Dr. Sharma</p>
 
             <div className="mb-2">
-              <span className="text-sm text-blue-200">{t("yourProgress")}</span>
+              <span className="text-sm text-primary-foreground/75">{t("yourProgress")}</span>
             </div>
             <div className="h-3 bg-white/20 rounded-full overflow-hidden mb-2">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#2563EB] to-[#0D9488] transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-info to-accent transition-all duration-500"
                 style={{ width: "60%" }}
               />
             </div>
-            <span className="text-sm text-blue-200">{t("visitOfCompleted", { a: 6, b: 10 })}</span>
+            <span className="text-sm text-primary-foreground/75">{t("visitOfCompleted", { a: 6, b: 10 })}</span>
           </div>
         </div>
         
         {/* Next Visit Card */}
         <div className="px-4 mb-4">
-          <h3 className="font-semibold text-[#0F172A] mb-3 font-[family-name:var(--font-heading)]">{t("nextVisit")}</h3>
-          <div className="bg-white rounded-2xl border-l-4 border-[#2563EB] p-4 shadow-sm">
+          <h3 className="font-semibold text-foreground mb-3 font-[family-name:var(--font-heading)]">{t("nextVisit")}</h3>
+          <div className="bg-card rounded-2xl border-l-4 border-info p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-[#0F172A]">Visit 7</span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+              <span className="font-semibold text-foreground">Visit 7</span>
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-warning/15 text-warning">
                 {t("upcoming")}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-3">
               <div>
-                <p className="text-[11px] text-[#94A3B8]">{t("protocolId")}</p>
-                <p className="text-sm text-[#0F172A] font-medium">Protocol-001</p>
+                <p className="text-[11px] text-muted-foreground">{t("protocolId")}</p>
+                <p className="text-sm text-foreground font-medium">Protocol-001</p>
               </div>
               <div>
-                <p className="text-[11px] text-[#94A3B8]">{t("phase")}</p>
-                <p className="text-sm text-[#0F172A] font-medium">Phase II</p>
+                <p className="text-[11px] text-muted-foreground">{t("phase")}</p>
+                <p className="text-sm text-foreground font-medium">Phase II</p>
               </div>
               <div>
-                <p className="text-[11px] text-[#94A3B8]">{t("indication")}</p>
-                <p className="text-sm text-[#0F172A] font-medium">Diabetes</p>
+                <p className="text-[11px] text-muted-foreground">{t("indication")}</p>
+                <p className="text-sm text-foreground font-medium">Diabetes</p>
               </div>
               <div>
-                <p className="text-[11px] text-[#94A3B8]">{t("visitType")}</p>
-                <p className="text-sm text-[#0F172A] font-medium">{t("followUpVisit")}</p>
+                <p className="text-[11px] text-muted-foreground">{t("visitType")}</p>
+                <p className="text-sm text-foreground font-medium">{t("followUpVisit")}</p>
               </div>
             </div>
-            <p className="text-sm text-[#0D1B3E] font-medium mb-1">23 May 2025</p>
-            <p className="text-xs text-[#94A3B8] mb-3">{t("window")} 20 May – 26 May</p>
+            <p className="text-sm text-primary-deep font-medium mb-1">23 May 2025</p>
+            <p className="text-xs text-muted-foreground mb-3">{t("window")} 20 May – 26 May</p>
             <button
               onClick={() => onNavigate("my-visits")}
-              className="text-[#2563EB] font-medium text-sm flex items-center gap-1 hover:underline"
+              className="text-info font-medium text-sm flex items-center gap-1 hover:underline"
             >
               {t("viewDetails")} <ChevronRight className="w-4 h-4" />
             </button>
@@ -133,26 +133,26 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
         <div className="px-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#0D1B3E]" />
-              <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">{t("calendar")}</h3>
+              <Calendar className="w-5 h-5 text-primary-deep" />
+              <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">{t("calendar")}</h3>
             </div>
             <button
               onClick={() => onNavigate("patient-calendar")}
-              className="text-[#2563EB] font-medium text-sm flex items-center gap-1 hover:underline"
+              className="text-info font-medium text-sm flex items-center gap-1 hover:underline"
             >
               {t("openCalendar")} <ChevronRight className="w-4 h-4" />
             </button>
           </div>
           <button
             onClick={() => onNavigate("patient-calendar")}
-            className="w-full text-left bg-white rounded-2xl p-4 shadow-sm"
+            className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs"
           >
-            <p className="text-center font-semibold text-[#0F172A] mb-3">
+            <p className="text-center font-semibold text-foreground mb-3">
               {calendarMonth.toLocaleString("en-US", { month: "long", year: "numeric" })}
             </p>
             <div className="grid grid-cols-7 gap-1 mb-1">
               {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                <div key={i} className="text-center text-[11px] font-semibold text-slate-400 py-1">{d}</div>
+                <div key={i} className="text-center text-[11px] font-semibold text-muted-foreground/70 py-1">{d}</div>
               ))}
             </div>
             <div className="grid grid-cols-7 gap-1">
@@ -165,11 +165,11 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                     className={cn(
                       "aspect-square flex items-center justify-center rounded-full text-xs font-medium",
                       !day && "invisible",
-                      status === "completed" && "bg-teal-100 text-[#0D9488]",
-                      status === "upcoming" && "bg-orange-100 text-orange-600",
-                      status === "scheduled" && "bg-blue-100 text-[#2563EB]",
-                      !status && isToday && "ring-1 ring-inset ring-[#2563EB] text-[#2563EB]",
-                      !status && !isToday && "text-slate-700"
+                      status === "completed" && "bg-accent/10 text-accent",
+                      status === "upcoming" && "bg-warning/15 text-warning",
+                      status === "scheduled" && "bg-info/10 text-info",
+                      !status && isToday && "ring-1 ring-inset ring-info text-info",
+                      !status && !isToday && "text-foreground/80"
                     )}
                   >
                     {day}
@@ -177,10 +177,10 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                 )
               })}
             </div>
-            <div className="flex justify-center gap-4 mt-3 pt-3 border-t border-slate-100">
-              <span className="flex items-center gap-1.5 text-[11px] text-slate-500"><span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" />{t("completed")}</span>
-              <span className="flex items-center gap-1.5 text-[11px] text-slate-500"><span className="w-2.5 h-2.5 rounded-full bg-orange-500" />{t("upcoming")}</span>
-              <span className="flex items-center gap-1.5 text-[11px] text-slate-500"><span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />{t("scheduled")}</span>
+            <div className="flex justify-center gap-4 mt-3 pt-3 border-t border-border">
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-accent" />{t("completed")}</span>
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-warning" />{t("upcoming")}</span>
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-info" />{t("scheduled")}</span>
             </div>
           </button>
         </div>
@@ -189,12 +189,12 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
         <div className="px-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-[#0D1B3E]" />
-              <h3 className="font-semibold text-[#0F172A] font-[family-name:var(--font-heading)]">{t("notifications")}</h3>
+              <Bell className="w-5 h-5 text-primary-deep" />
+              <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">{t("notifications")}</h3>
             </div>
             <button
               onClick={() => onNavigate("notifications")}
-              className="text-[#2563EB] font-medium text-sm hover:underline"
+              className="text-info font-medium text-sm hover:underline"
             >
               {t("seeAll")}
             </button>
@@ -205,8 +205,8 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                 key={n.id}
                 onClick={() => onNavigate(n.screen)}
                 className={cn(
-                  "w-full text-left bg-white rounded-2xl p-4 shadow-sm flex items-start gap-3",
-                  n.unread && "border-l-4 border-[#2563EB]"
+                  "w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs flex items-start gap-3",
+                  n.unread && "border-l-4 border-info"
                 )}
               >
                 <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", n.bg)}>
@@ -214,13 +214,13 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium text-[#0F172A] text-[15px] truncate">{n.title}</p>
-                    {n.unread && <span className="w-2 h-2 rounded-full bg-[#2563EB] shrink-0" />}
+                    <p className="font-medium text-foreground text-[15px] truncate">{n.title}</p>
+                    {n.unread && <span className="w-2 h-2 rounded-full bg-info shrink-0" />}
                   </div>
-                  <p className="text-sm text-[#64748B] line-clamp-2">{n.body}</p>
-                  <p className="text-xs text-[#94A3B8] mt-1">{n.time}</p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#CBD5E1] shrink-0 mt-1" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0 mt-1" />
               </button>
             ))}
           </div>
@@ -228,20 +228,20 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
 
         {/* Recent Activity */}
         <div className="px-4">
-          <h3 className="font-semibold text-[#0F172A] mb-3 font-[family-name:var(--font-heading)]">{t("recentActivity")}</h3>
-          <div className="bg-white rounded-2xl divide-y divide-slate-100 shadow-sm">
+          <h3 className="font-semibold text-foreground mb-3 font-[family-name:var(--font-heading)]">{t("recentActivity")}</h3>
+          <div className="bg-card rounded-2xl border border-border divide-y divide-border shadow-xs">
             {recentActivity.map((activity) => (
               <div key={activity.visit} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                    <Check className="w-4 h-4 text-[#0D9488]" />
+                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
+                    <Check className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <p className="font-medium text-[#0F172A]">{activity.visit}</p>
-                    <p className="text-sm text-[#64748B]">{activity.date}</p>
+                    <p className="font-medium text-foreground">{activity.visit}</p>
+                    <p className="text-sm text-muted-foreground">{activity.date}</p>
                   </div>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-success/15 text-success">
                   {activity.status === "Done" ? t("done") : activity.status}
                 </span>
               </div>
