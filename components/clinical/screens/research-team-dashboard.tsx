@@ -4,9 +4,9 @@ import { useState } from "react"
 import { AppBar } from "../app-bar"
 import { BottomNav } from "../bottom-nav"
 import {
-  CheckCircle, Clock, AlertTriangle, ChevronRight, CheckSquare,
+  CheckCircle, Clock, AlertTriangle, ChevronRight, ChevronDown, CheckSquare,
   Square, Users, FileText, Circle, ClipboardList, Calendar, Pill, Building2, X,
-  UserPlus, Send, FilePlus2
+  UserPlus, Send, FilePlus2, Stethoscope
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TrialSummaryScreen } from "@/components/clinical/screens/trial-summary-screen"
@@ -51,12 +51,7 @@ const overduePatients = [
   { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", daysOverdue: 3, lastContact: "19 May" },
 ]
 
-const pendingSubmissions = [
-  { id: "eCRF-014", form: "Vital Signs", patient: "SUBJ-001", visit: "Visit 6", status: "Awaiting PI Review" },
-  { id: "DEV-001", form: "Deviation Report", patient: "SUBJ-002", visit: "Visit 3", status: "Awaiting PI Sign-off" },
-]
-
-type PatientStatus = "on-track" | "overdue" | "completed" | "withdrawn"
+type PatientStatus = "on-track" | "overdue" | "completed" | "withdrawn" | "screen-failure" | "dropout"
 type VisitOutcome = "completed" | "missed" | "scheduled"
 type VisitRecord = {
   visit: string
@@ -127,6 +122,10 @@ const initialPatients: Patient[] = [
 
 const TODAY_ISO = "2026-06-08"
 
+function patientInitials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() ?? "").join("")
+}
+
 // System-generated visit plan — created when the trial schedule is uploaded and the
 // patient is enrolled. Planned dates are projected from the patient's Visit 1 anchor.
 const PROTOCOL_SCHEDULE: { visit: string; type: string }[] = [
@@ -183,11 +182,27 @@ const crcSponsors = [
   { name: "NovaCure Bio", trials: [crcTrials[2]] },
 ]
 
+// PIs the CRC works with, grouped from the trial roster. A PI conducting
+// trials in several departments lists each department once.
+const crcPIs = Object.values(
+  crcTrials.reduce<Record<string, { name: string; departments: string[]; trials: typeof crcTrials }>>(
+    (acc, tr) => {
+      const entry = (acc[tr.pi] ??= { name: tr.pi, departments: [], trials: [] })
+      if (!entry.departments.includes(tr.department)) entry.departments.push(tr.department)
+      entry.trials.push(tr)
+      return acc
+    },
+    {},
+  ),
+)
+
 const statusStyle: Record<string, { label: string; bg: string; text: string }> = {
   "on-track": { label: "On Track", bg: "bg-success/15", text: "text-success" },
   overdue:    { label: "Overdue",  bg: "bg-destructive/10",     text: "text-destructive" },
   completed:  { label: "Completed",bg: "bg-info/10",    text: "text-info" },
   withdrawn:  { label: "Withdrawn",bg: "bg-muted",   text: "text-muted-foreground" },
+  "screen-failure": { label: "Screen Failure", bg: "bg-destructive/10", text: "text-destructive" },
+  dropout:    { label: "Dropout",  bg: "bg-warning/15", text: "text-warning" },
 }
 
 const priorityStyle: Record<string, { dot: string; badge: string; badgeText: string }> = {
@@ -210,10 +225,12 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
   const [selectedTrial, setSelectedTrial] = useState<typeof crcTrials[0] | null>(null)
   const [showAllTrials, setShowAllTrials] = useState(false)
   const [showSponsors, setShowSponsors] = useState(false)
+  const [showPIs, setShowPIs] = useState(false)
   // Patient visit updates
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [editPatient, setEditPatient] = useState<Patient | null>(null)
   const [viewPatient, setViewPatient] = useState<Patient | null>(null)
+  const [recordScheduleOpen, setRecordScheduleOpen] = useState(false)
   const [form, setForm] = useState<{ visit: string; visitName: string; visitType: string; dateISO: string; status: PatientStatus; note: string }>({
     visit: "", visitName: "", visitType: "Hospital", dateISO: "", status: "on-track", note: "",
   })
@@ -352,16 +369,55 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
       </div>
     </div>
   )
-  const [completedVisits, setCompletedVisits] = useState<Set<string>>(new Set(
+
+  // One PI per panel: name + department, then each trial under that PI as a
+  // clickable sub-panel opening the CRC/PI Trial Summary page.
+  const PIPanel = ({ pi }: { pi: typeof crcPIs[0] }) => (
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-9 h-9 rounded-xl bg-violet/10 flex items-center justify-center">
+          <Stethoscope className="w-4 h-4 text-violet" />
+        </div>
+        <div>
+          <p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">PI Name</p>
+          <h4 className="font-semibold text-foreground text-sm">{pi.name}</h4>
+          <p className="text-xs text-muted-foreground">{pi.departments.join(" · ")}</p>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {pi.trials.map(tr => (
+          <button key={tr.id} onClick={() => setSelectedTrial(tr)} className="w-full text-left rounded-xl border border-border bg-surface p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-info">{tr.id}</span>
+              <div className="flex items-center gap-1.5">
+                <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", trialStatusColor[tr.status] || "bg-muted text-muted-foreground")}>{tr.status}</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+              {[
+                { label: "Phase", val: tr.phase },
+                { label: "Disease", val: tr.disease },
+                { label: "Drug", val: tr.drug },
+                { label: "Status of Trial", val: tr.status },
+              ].map(f => (
+                <div key={f.label}>
+                  <p className="text-[9px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-xs font-semibold text-foreground">{f.val}</p>
+                </div>
+              ))}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+  const [completedVisits] = useState<Set<string>>(new Set(
     todayVisits.filter(v => v.done).map(v => v.id)
   ))
 
   const toggleTask = (id: string) => {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
-  }
-
-  const markVisitDone = (id: string) => {
-    setCompletedVisits(prev => new Set([...prev, id]))
   }
 
   const filteredTasks = tasks.filter(t => {
@@ -372,37 +428,24 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     return true
   })
 
-  const todayTasksDone = tasks.filter(t => t.due === "Today" && t.done).length
-  const todayTasksTotal = tasks.filter(t => t.due === "Today").length
-
   // ── Dashboard tab ────────────────────────────────────────────────────────
   const renderDashboard = () => (
     <div className="flex-1 overflow-auto pb-4 space-y-4 pt-4">
-      {/* Hero */}
-      <div className="px-4">
-        <div className="hero-glow bg-gradient-to-br from-primary-deep via-primary to-info rounded-2xl p-5 text-white shadow-md">
-          <h2 className="text-xl font-bold mb-0.5 font-[family-name:var(--font-heading)]">Good morning, Meera</h2>
-          <p className="text-primary-foreground/75 text-sm mb-4">CRC · Protocol-001 · Site 02</p>
-          <div className="h-2 bg-white/20 rounded-full overflow-hidden mb-1.5">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-accent to-accent/70 transition-all duration-500"
-              style={{ width: `${todayTasksTotal > 0 ? (todayTasksDone / todayTasksTotal) * 100 : 0}%` }}
-            />
-          </div>
-          <p className="text-xs text-primary-foreground/75">{todayTasksDone}/{todayTasksTotal} tasks done today</p>
-        </div>
-      </div>
-
-      <div className="px-4 grid grid-cols-2 gap-3">
-        <button onClick={() => setShowAllTrials(true)} className="bg-card rounded-2xl border border-border p-4 text-left shadow-xs">
+      <div className="px-4 grid grid-cols-3 gap-3">
+        <button onClick={() => setShowAllTrials(true)} className="bg-card rounded-2xl border border-border p-3 text-left shadow-xs">
           <FileText className="w-5 h-5 text-info mb-2" />
           <p className="text-2xl font-bold text-foreground">{crcTrials.length}</p>
           <p className="text-xs text-muted-foreground">Total Trials</p>
         </button>
-        <button onClick={() => setShowSponsors(true)} className="bg-card rounded-2xl border border-border p-4 text-left shadow-xs">
+        <button onClick={() => setShowSponsors(true)} className="bg-card rounded-2xl border border-border p-3 text-left shadow-xs">
           <Building2 className="w-5 h-5 text-accent mb-2" />
           <p className="text-2xl font-bold text-foreground">{crcSponsors.length}</p>
           <p className="text-xs text-muted-foreground">Sponsors</p>
+        </button>
+        <button onClick={() => setShowPIs(true)} className="bg-card rounded-2xl border border-border p-3 text-left shadow-xs">
+          <Stethoscope className="w-5 h-5 text-violet mb-2" />
+          <p className="text-2xl font-bold text-foreground">{crcPIs.length}</p>
+          <p className="text-xs text-muted-foreground">PI&apos;s</p>
         </button>
       </div>
 
@@ -507,10 +550,10 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                     </div>
                   ) : (
                     <button
-                      onClick={() => markVisitDone(visit.id)}
+                      onClick={() => { const p = patients.find(pt => pt.id === visit.patient); if (p) openVisitUpdate(p) }}
                       className="bg-primary-deep text-white px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0"
                     >
-                      Mark Done
+                      Update
                     </button>
                   )}
                 </div>
@@ -540,27 +583,6 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           ))}
         </div>
       )}
-
-      {/* Pending Submissions */}
-      <div className="px-4">
-        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Pending Submissions</h3>
-        <div className="space-y-2">
-          {pendingSubmissions.map((item) => (
-            <div key={item.id} className="bg-card rounded-2xl p-3 shadow-sm flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-violet/10 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4 text-violet" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">{item.id}: {item.form}</p>
-                <p className="text-xs text-muted-foreground/70">{item.patient} · {item.visit}</p>
-              </div>
-              <span className="text-[10px] bg-warning/15 text-warning px-2 py-1 rounded-full font-medium shrink-0">
-                {item.status}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   )
 
@@ -762,6 +784,21 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     )
   }
 
+  // ── PI list (from the PI's summary tile) ─────────────────
+  if (showPIs) {
+    return (
+      <div className="h-full flex flex-col bg-surface">
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setShowPIs(false)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+          <span className="font-semibold flex-1">PI&apos;s</span>
+        </div>
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+          {crcPIs.map(pi => <PIPanel key={pi.name} pi={pi} />)}
+        </div>
+      </div>
+    )
+  }
+
   // ── Patient Record (read-only) ───────────────────────────
   if (viewPatient) {
     const p = viewPatient
@@ -769,7 +806,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     return (
       <div className="h-full flex flex-col bg-surface">
         <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setViewPatient(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+          <button onClick={() => { setViewPatient(null); setRecordScheduleOpen(false) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Patient Record</span>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
@@ -777,7 +814,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
           <div className="bg-primary-deep rounded-2xl p-5 text-white">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h2 className="text-lg font-bold">{p.name}</h2>
+                <h2 className="text-lg font-bold">{patientInitials(p.name)}</h2>
                 <p className="text-primary-foreground/75 text-sm">{p.id} · Age {p.age}</p>
               </div>
               <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", style.bg, style.text)}>{style.label}</span>
@@ -807,10 +844,14 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
 
           {/* System-generated visit schedule */}
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <button onClick={() => setRecordScheduleOpen(open => !open)} className="w-full flex items-center justify-between mb-2">
               <h3 className="font-semibold text-foreground text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
-              <span className="text-xs text-muted-foreground/70">{PROTOCOL_SCHEDULE.length} visits</span>
-            </div>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+                {PROTOCOL_SCHEDULE.length} visits
+                <ChevronDown className={cn("w-4 h-4 text-primary transition-transform", recordScheduleOpen && "rotate-180")} />
+              </span>
+            </button>
+            {recordScheduleOpen && (
             <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -853,6 +894,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                 </tbody>
               </table>
             </div>
+            )}
           </div>
 
           {/* Visit history */}
@@ -918,7 +960,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
     <div className="h-full flex flex-col bg-surface relative">
       <AppBar
         title="Research Team"
-        subtitle="Meera · CRC · Protocol-001"
+        subtitle="Meera · CRC"
         notificationCount={2}
         onNotificationClick={() => onNavigate("notifications")}
         avatar="MC"
@@ -956,7 +998,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="font-bold text-foreground text-base font-[family-name:var(--font-heading)]">Update Visit</h3>
-                <p className="text-xs text-muted-foreground/70">{editPatient.name} · {editPatient.id}</p>
+                <p className="text-xs text-muted-foreground/70">{patientInitials(editPatient.name)} · {editPatient.id}</p>
               </div>
               <button onClick={() => setEditPatient(null)} className="p-1 text-muted-foreground/70">
                 <X className="w-5 h-5" />
@@ -1031,7 +1073,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["on-track", "overdue", "completed", "withdrawn"] as PatientStatus[]).map((s) => {
+                  {(["screen-failure", "dropout", "withdrawn", "completed"] as PatientStatus[]).map((s) => {
                     const st = statusStyle[s]
                     const active = form.status === s
                     return (

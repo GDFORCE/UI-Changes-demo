@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Camera, ShieldCheck, UserPen, Lock, Bell, ChevronRight, ChevronDown, Eye, EyeOff, Check, X, LogOut, Mail, Phone, Plus, Trash2, Building2, FlaskConical, FileText, HelpCircle, BarChart2, Users, UserCheck, Upload } from "lucide-react"
+import { Camera, ShieldCheck, UserPen, Lock, Bell, ChevronRight, ChevronDown, Eye, EyeOff, Check, X, LogOut, Mail, Phone, Plus, Trash2, Building2, FlaskConical, FileText, HelpCircle, BarChart2, Users, UserCheck, AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -117,11 +117,11 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
 
   // Entity Change request flow
   const [entityForm, setEntityForm] = useState<{ field: string; newValue: string }>({ field: "Entity Type", newValue: "" })
-  const [entityDoc, setEntityDoc] = useState<string | null>(null)
   const [entitySubmitted, setEntitySubmitted] = useState(false)
+  const [entityWarning, setEntityWarning] = useState(false)
   const entityChangingToSMO = entityForm.field === "Entity Type" && entityForm.newValue.toUpperCase() === "SMO"
   const entityCanSubmit =
-    !!entityForm.newValue.trim() && !!entityDoc && (!entityChangingToSMO || hospitals.some(h => h.name.trim()))
+    !!entityForm.newValue.trim() && (!entityChangingToSMO || hospitals.some(h => h.name.trim()))
 
   const [passwordForm, setPasswordForm] = useState({ current: "", next: "", confirm: "" })
   const [showPwd, setShowPwd] = useState({ current: false, next: false, confirm: false })
@@ -655,11 +655,11 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
   const entityChange = (
     <div className="absolute inset-0 z-50 bg-surface flex flex-col">
       <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
-        <button onClick={() => { setSection(null); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityDoc(null) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+        <button onClick={() => { setSection(null); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityWarning(false) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Entity Change</span>
       </div>
       <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
-        <p className="text-sm text-muted-foreground">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
+        <p className="text-sm text-muted-foreground">Request a change to your registered entity details.</p>
 
         {/* What are you changing */}
         <div>
@@ -669,7 +669,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
             onChange={e => setEntityForm({ field: e.target.value, newValue: "" })}
             className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
           >
-            {["Entity Type", "Organization Name", "Organization Address"].map(o => <option key={o} value={o}>{o}</option>)}
+            {["Entity Type", "Organization Name"].map(o => <option key={o} value={o}>{o}</option>)}
           </select>
         </div>
 
@@ -743,35 +743,40 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           </div>
         )}
 
-        {/* Supporting document */}
-        <div>
-          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Supporting Document</label>
-          {entityDoc ? (
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
-              <FileText className="w-4 h-4 text-info shrink-0" />
-              <span className="flex-1 text-sm text-foreground truncate">{entityDoc}</span>
-              <button onClick={() => setEntityDoc(null)} className="text-muted-foreground/70"><X className="w-4 h-4" /></button>
-            </div>
-          ) : (
-            <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border px-4 py-6 text-center cursor-pointer hover:border-primary">
-              <Upload className="w-5 h-5 text-muted-foreground/70" />
-              <span className="text-sm font-medium text-muted-foreground">Upload document</span>
-              <span className="text-xs text-muted-foreground/70">PDF, JPG or PNG supporting your change</span>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEntityDoc(f.name) }} />
-            </label>
-          )}
-        </div>
       </div>
 
       <div className="px-5 py-4 border-t border-border bg-card">
         <button
           disabled={!entityCanSubmit}
-          onClick={() => setEntitySubmitted(true)}
+          onClick={() => setEntityWarning(true)}
           className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityCanSubmit ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed")}
         >
           Submit Request
         </button>
       </div>
+
+      {/* Warning popup — shown on submit, before the request is sent */}
+      {entityWarning && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 px-8">
+          <div className="bg-card rounded-2xl p-6 w-full max-w-xs shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center mx-auto mb-3">
+              <AlertTriangle className="w-6 h-6 text-warning" />
+            </div>
+            <p className="font-semibold text-foreground text-center mb-1">
+              {entityForm.field === "Entity Type" ? "Change entity type?" : "Submit change request?"}
+            </p>
+            <p className="text-sm text-muted-foreground text-center mb-4">
+              {entityForm.field === "Entity Type"
+                ? `Changing your entity type to ${entityForm.newValue || "the selected type"} will permanently erase all data linked to your current originator, and your access type will be changed accordingly. This cannot be undone.`
+                : `Submit a request to change your ${entityForm.field.toLowerCase()} to "${entityForm.newValue}"?`}
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setEntityWarning(false)} className="flex-1 py-3 rounded-xl border border-border text-foreground/80 text-sm font-semibold">Cancel</button>
+              <button onClick={() => { setEntityWarning(false); setEntitySubmitted(true) }} className="flex-1 py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold">Confirm</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation popup */}
       {entitySubmitted && (
@@ -783,7 +788,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
             <p className="font-semibold text-foreground mb-1">Request submitted</p>
             <p className="text-sm text-muted-foreground mb-4">We'll verify your request and update your entity details within 24 hours.</p>
             <button
-              onClick={() => { setEntitySubmitted(false); setEntityForm({ field: "Entity Type", newValue: "" }); setEntityDoc(null); setSection(null) }}
+              onClick={() => { setEntitySubmitted(false); setEntityForm({ field: "Entity Type", newValue: "" }); setSection(null) }}
               className="w-full py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold"
             >
               Done

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ChevronLeft, ChevronRight, ChevronDown, Camera, User, Lock, Globe, Bell, FileText, Shield, HelpCircle, LogOut, AlertTriangle, Eye, EyeOff, Check, X, MessageCircle, Mail, Phone, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
+import { toast } from "sonner"
 
 interface ProfileSettingsScreenProps {
   onBack?: () => void
@@ -71,6 +72,11 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   const [contactForm, setContactForm] = useState({ category: "Login Issue", subject: "", description: "" })
   const [ticketSubmitted, setTicketSubmitted] = useState(false)
 
+  const saveProfile = () => {
+    toast.success("Profile updated")
+    setSection("main")
+  }
+
   // ── HELPERS ──────────────────────────────────────────────
   const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
     <button onClick={onToggle} className={cn("relative w-11 h-6 rounded-full transition-colors flex-shrink-0", on ? "bg-accent" : "bg-border")}>
@@ -95,7 +101,7 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   if (section === "edit-profile") {
     return (
       <div className="h-full flex flex-col bg-surface">
-        <SubBar title="Edit Profile" onPress={() => setSection("main")} rightLabel="Save" />
+        <SubBar title="Edit Profile" onPress={() => setSection("main")} rightLabel="Save" rightAction={saveProfile} />
         <div className="flex-1 overflow-auto px-4 py-5 space-y-4">
           <div className="flex justify-center mb-2">
             <div className="relative">
@@ -146,7 +152,7 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
               <p className="text-xs text-warning">Changing this will notify your research team and require OTP verification</p>
             </div>
           </div>
-          <button className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">Save Changes</button>
+          <button onClick={saveProfile} className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">Save Changes</button>
         </div>
       </div>
     )

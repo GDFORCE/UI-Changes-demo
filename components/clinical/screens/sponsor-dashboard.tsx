@@ -7,10 +7,11 @@ import {
   BarChart2, ShieldCheck, Users, Download, Phone, Mail,
   X, Check, AlertTriangle, Info, SlidersHorizontal,
   FileText, UserPen, Lock, LogOut, Camera,
-  UserCheck, Eye, EyeOff, HelpCircle, Building2, Upload
+  UserCheck, Eye, EyeOff, HelpCircle, Building2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { TrialActionsMenu } from "@/components/clinical/trial-actions-menu"
 import { StatusBadge as SharedStatusBadge } from "@/components/clinical/status-badge"
 
 interface SponsorDashboardProps {
@@ -106,8 +107,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   const [meSection, setMeSection] = useState<string | null>(null)
   // Entity Change request (full-screen flow off the profile menu).
   const [entityChange, setEntityChange] = useState<{ field: string; newValue: string }>({ field: "Entity Type", newValue: "" })
-  const [entityDoc, setEntityDoc] = useState<string | null>(null)
   const [entitySubmitted, setEntitySubmitted] = useState(false)
+  const [entityWarning, setEntityWarning] = useState(false)
   const [sites, setSites] = useState(mockData.sites)
   const [showAddSite, setShowAddSite] = useState(false)
   const [siteEntryMode, setSiteEntryMode] = useState<"single" | "upload">("single")
@@ -383,9 +384,14 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
           <button onClick={() => setSelectedTrial(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">{t.id}</span>
-          <Download className="w-5 h-5" />
+          <TrialActionsMenu
+            triggerClassName="text-white"
+            onEdit={() => openEditTrial(t)}
+            onDownload={() => toast.success(`${t.id} protocol downloaded`)}
+            onShare={() => setShowShareTrial(true)}
+          />
         </div>
-        <div className="flex-1 overflow-auto pb-40 px-4 py-4 space-y-4">
+        <div className="flex-1 overflow-auto pb-24 px-4 py-4 space-y-4">
 
           {/* PANEL 1 — Trial Details */}
           <div className="bg-primary-deep rounded-2xl p-5 text-white">
@@ -539,12 +545,6 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             />
             <button onClick={() => docInputRef.current?.click()} className="w-full mt-2 border border-info text-info rounded-xl py-2 text-sm font-semibold">+ Upload Document</button>
           </div>
-        </div>
-
-        {/* Action bar — Edit + Share Trial (sits just above the consistent bottom nav) */}
-        <div className="absolute bottom-16 left-0 right-0 px-4 pb-3 pt-3 bg-card border-t border-border flex gap-3">
-          <button onClick={() => openEditTrial(t)} className="flex-1 border border-border text-foreground/80 rounded-xl py-3 text-sm font-semibold">Edit</button>
-          <button onClick={() => setShowShareTrial(true)} className="flex-1 bg-info text-white rounded-xl py-3 text-sm font-semibold">Share Trial ›</button>
         </div>
 
         {/* Consistent bottom navigation */}
@@ -709,7 +709,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 {[
                   { icon: FlaskConical, val: totalTrials, label: "Total Trials", iconColor: "text-info", bg: "bg-info/5", tab: "trials" },
                   { icon: MapPin, val: totalSites, label: "Total Sites", iconColor: "text-accent", bg: "bg-accent/5", tab: "sites" },
-                  { icon: Users, val: totalPatients, label: "Total Patients", iconColor: "text-violet", bg: "bg-violet/5", tab: "patients" },
+                  { icon: Users, val: totalPatients, label: "Patient Stats", iconColor: "text-violet", bg: "bg-violet/5", tab: "patients" },
                 ].map(c => {
                   const Icon = c.icon
                   return (
@@ -907,17 +907,6 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         {/* ── SITES TAB ── */}
         {activeTab === "sites" && (
           <div className="px-4 pt-4">
-            {/* Summary */}
-            <div className="flex gap-3 mb-4">
-              <div className="bg-surface rounded-xl p-3 flex items-center gap-3 flex-1">
-                <MapPin className="w-5 h-5 text-accent" />
-                <div><p className="text-lg font-bold text-primary-deep">{sites.length}</p><p className="text-xs text-muted-foreground">Total Sites</p></div>
-              </div>
-              <div className="bg-success/10 rounded-xl p-3 flex items-center gap-3 flex-1">
-                <div className="w-2 h-2 rounded-full bg-success mt-0.5" />
-                <div><p className="text-lg font-bold text-success">{sites.filter(s => s.status === "Active").length}</p><p className="text-xs text-muted-foreground">Active</p></div>
-              </div>
-            </div>
             <div className="flex items-center gap-2 mb-3">
               <div className="flex-1 min-w-0 flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2">
                 <Search className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
@@ -1356,11 +1345,11 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
       {meSection === "entity-change" && (
         <div className="absolute inset-0 z-50 bg-surface flex flex-col">
           <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
-            <button onClick={() => { setMeSection(null); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityDoc(null) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <button onClick={() => { setMeSection(null); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityWarning(false) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Entity Change</span>
           </div>
           <div className="flex-1 overflow-auto px-5 py-5 space-y-4">
-            <p className="text-sm text-muted-foreground">Request a change to your registered entity details. Our team reviews each request along with the supporting document before applying it.</p>
+            <p className="text-sm text-muted-foreground">Request a change to your registered entity details. Changes to entity type can affect your current data and access type.</p>
 
             {/* What are you changing */}
             <div>
@@ -1370,7 +1359,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 onChange={e => setEntityChange(c => ({ ...c, field: e.target.value }))}
                 className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
               >
-                {["Entity Type", "Organization Name", "Organization Address"].map(o => <option key={o} value={o}>{o}</option>)}
+                {["Entity Type", "Organization Name"].map(o => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
 
@@ -1378,7 +1367,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             <div>
               <label className="block text-sm font-medium text-foreground/80 mb-1.5">Current Value</label>
               <div className="w-full px-4 py-3 rounded-xl border border-border bg-surface text-sm text-muted-foreground">
-                {entityChange.field === "Entity Type" ? "Sponsor" : entityChange.field === "Organization Name" ? mockData.user.org : mockData.user.orgAddress}
+                {entityChange.field === "Entity Type" ? "Sponsor" : mockData.user.org}
               </div>
             </div>
 
@@ -1393,35 +1382,36 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               />
             </div>
 
-            {/* Supporting document */}
-            <div>
-              <label className="block text-sm font-medium text-foreground/80 mb-1.5">Supporting Document</label>
-              {entityDoc ? (
-                <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
-                  <FileText className="w-4 h-4 text-info shrink-0" />
-                  <span className="flex-1 text-sm text-foreground truncate">{entityDoc}</span>
-                  <button onClick={() => setEntityDoc(null)} className="text-muted-foreground/70"><X className="w-4 h-4" /></button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-border px-4 py-6 text-center cursor-pointer hover:border-primary">
-                  <Upload className="w-5 h-5 text-muted-foreground/70" />
-                  <span className="text-sm font-medium text-muted-foreground">Upload document</span>
-                  <span className="text-xs text-muted-foreground/70">PDF, JPG or PNG supporting your change</span>
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) setEntityDoc(f.name) }} />
-                </label>
-              )}
-            </div>
           </div>
 
           <div className="px-5 py-4 border-t border-border bg-card">
             <button
-              disabled={!entityChange.newValue.trim() || !entityDoc}
-              onClick={() => setEntitySubmitted(true)}
-              className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityChange.newValue.trim() && entityDoc ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70")}
+              disabled={!entityChange.newValue.trim()}
+              onClick={() => entityChange.field === "Entity Type" ? setEntityWarning(true) : setEntitySubmitted(true)}
+              className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", entityChange.newValue.trim() ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70")}
             >
               Submit Request
             </button>
           </div>
+
+          {/* Warning popup - shown on entity type submit before the request is sent */}
+          {entityWarning && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 px-8">
+              <div className="bg-card rounded-2xl p-6 w-full max-w-xs shadow-2xl">
+                <div className="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center mx-auto mb-3">
+                  <AlertTriangle className="w-6 h-6 text-warning" />
+                </div>
+                <p className="font-semibold text-foreground text-center mb-1">Change entity type?</p>
+                <p className="text-sm text-muted-foreground text-center mb-4">
+                  Changing your entity type to {entityChange.newValue || "the selected type"} will permanently erase all data linked to your current originator, and your access type will be changed accordingly. This cannot be undone.
+                </p>
+                <div className="flex gap-2">
+                  <button onClick={() => setEntityWarning(false)} className="flex-1 py-3 rounded-xl border border-border text-foreground/80 text-sm font-semibold">Cancel</button>
+                  <button onClick={() => { setEntityWarning(false); setEntitySubmitted(true) }} className="flex-1 py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold">Confirm</button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Confirmation popup */}
           {entitySubmitted && (
@@ -1433,7 +1423,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 <p className="font-semibold text-foreground mb-1">Request submitted</p>
                 <p className="text-sm text-muted-foreground mb-4">We'll verify your request and update your entity details within 24 hours.</p>
                 <button
-                  onClick={() => { setEntitySubmitted(false); setEntityChange({ field: "Entity Type", newValue: "" }); setEntityDoc(null); setMeSection(null) }}
+                  onClick={() => { setEntitySubmitted(false); setEntityChange({ field: "Entity Type", newValue: "" }); setMeSection(null) }}
                   className="w-full py-3 rounded-xl bg-primary-deep text-white text-sm font-semibold"
                 >
                   Done

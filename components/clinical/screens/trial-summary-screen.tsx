@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronLeft, Building2, MapPin, User, Stethoscope, FileText, Clock, CalendarDays, History, Share2, X, Check, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { TrialActionsMenu } from "@/components/clinical/trial-actions-menu"
 
 // Shape of a trial passed into the summary page. Matches the trial objects
 // used by the PI and CRC dashboards.
@@ -103,39 +104,60 @@ const emptyShareForm = {
 }
 
 export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: TrialSummaryScreenProps) {
+  const [data, setData] = useState<TrialSummary>(trial)
+  useEffect(() => setData(trial), [trial])
   const [showShare, setShowShare] = useState(false)
-  const [shareForm, setShareForm] = useState({ ...emptyShareForm, orgName: trial.sponsor })
+  const [shareForm, setShareForm] = useState({ ...emptyShareForm, orgName: data.sponsor })
   const [toast, setToast] = useState<string | null>(null)
+  const [showEdit, setShowEdit] = useState(false)
+  const [editDraft, setEditDraft] = useState({ title: data.title, phase: data.phase, disease: data.disease, drug: data.drug, status: data.status, recruitment: data.recruitment })
 
   const openShare = () => {
-    setShareForm({ ...emptyShareForm, orgName: trial.sponsor })
+    setShareForm({ ...emptyShareForm, orgName: data.sponsor })
     setShowShare(true)
   }
 
   const submitShare = () => {
     const name = shareForm.fullName.trim() || "member"
     setShowShare(false)
-    setToast(`${trial.id} shared with ${name} (${shareForm.accessType})`)
+    setToast(`${data.id} shared with ${name} (${shareForm.accessType})`)
     setTimeout(() => setToast(null), 2600)
   }
 
   const shareValid = shareForm.fullName.trim() !== "" && shareForm.email.trim() !== ""
 
+  const openEdit = () => {
+    setEditDraft({ title: data.title, phase: data.phase, disease: data.disease, drug: data.drug, status: data.status, recruitment: data.recruitment })
+    setShowEdit(true)
+  }
+
+  const saveEdit = () => {
+    setData(d => ({ ...d, ...editDraft }))
+    setShowEdit(false)
+    setToast(`${data.id} updated`)
+    setTimeout(() => setToast(null), 2600)
+  }
+
+  const downloadTrial = () => {
+    setToast(`${data.id} protocol downloaded`)
+    setTimeout(() => setToast(null), 2600)
+  }
+
   const counters: { label: string; value: number; cls: string }[] = [
-    { label: "Total Screened", value: trial.screened, cls: "bg-info/5 text-info" },
-    { label: "Screen Failures", value: trial.screenFail, cls: "bg-warning/10 text-warning" },
-    { label: "Randomized", value: trial.randomized, cls: "bg-violet/5 text-violet" },
-    { label: "Follow Up", value: trial.followUp, cls: "bg-accent/5 text-accent" },
-    { label: "Completed", value: trial.completed, cls: "bg-success/10 text-success" },
-    { label: "Withdrawn", value: trial.withdrawn, cls: "bg-muted text-muted-foreground" },
-    { label: "Dropout", value: trial.dropout, cls: "bg-rose-50 text-rose-700" },
+    { label: "Total Screened", value: data.screened, cls: "bg-info/5 text-info" },
+    { label: "Screen Failures", value: data.screenFail, cls: "bg-warning/10 text-warning" },
+    { label: "Randomized", value: data.randomized, cls: "bg-violet/5 text-violet" },
+    { label: "Follow Up", value: data.followUp, cls: "bg-accent/5 text-accent" },
+    { label: "Completed", value: data.completed, cls: "bg-success/10 text-success" },
+    { label: "Withdrawn", value: data.withdrawn, cls: "bg-muted text-muted-foreground" },
+    { label: "Dropout", value: data.dropout, cls: "bg-rose-50 text-rose-700" },
   ]
 
   const documents = [
-    { label: "Uploaded Protocol", value: `${trial.id}_Protocol_v2.1.pdf` },
-    { label: "Uploaded by", value: trial.pi },
+    { label: "Uploaded Protocol", value: `${data.id}_Protocol_v2.1.pdf` },
+    { label: "Uploaded by", value: data.pi },
     { label: "Date & Time of Upload", value: "12 May 2026, 10:30 AM" },
-    { label: "Schedule Template", value: `${trial.id}_VisitSchedule_v1.0.xlsx` },
+    { label: "Schedule Template", value: `${data.id}_VisitSchedule_v1.0.xlsx` },
   ]
 
   const versionHistory = [
@@ -151,14 +173,14 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
         <button onClick={onBack} className="p-1"><ChevronLeft className="w-5 h-5" /></button>
         <div className="flex-1 min-w-0">
           <p className="font-semibold leading-tight truncate">Trial Summary</p>
-          <p className="text-xs text-primary-foreground/75 truncate">{trial.id} · {trial.title}</p>
+          <p className="text-xs text-primary-foreground/75 truncate">{data.id} · {data.title}</p>
         </div>
-        <button
-          onClick={openShare}
-          className="flex-shrink-0 flex items-center gap-1.5 bg-white/15 rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap"
-        >
-          <Share2 className="w-3.5 h-3.5" /> Share Trial
-        </button>
+        <TrialActionsMenu
+          triggerClassName="text-white"
+          onEdit={openEdit}
+          onDownload={downloadTrial}
+          onShare={openShare}
+        />
       </div>
 
       <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
@@ -166,12 +188,12 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
         <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
           <PanelTitle>Trial Details</PanelTitle>
           <div className="grid grid-cols-2 gap-y-3 gap-x-3">
-            <DetailRow label="Protocol ID" value={trial.id} />
-            <DetailRow label="CTRI No." value={ctriNo(trial.id)} />
-            <div className="col-span-2"><DetailRow label="Study Title" value={trial.title} /></div>
-            <DetailRow label="Phase" value={trial.phase} />
-            <DetailRow label="Indication" value={trial.disease} />
-            <DetailRow label="Drug Name" value={trial.drug} />
+            <DetailRow label="Protocol ID" value={data.id} />
+            <DetailRow label="CTRI No." value={ctriNo(data.id)} />
+            <div className="col-span-2"><DetailRow label="Study Title" value={data.title} /></div>
+            <DetailRow label="Phase" value={data.phase} />
+            <DetailRow label="Indication" value={data.disease} />
+            <DetailRow label="Drug Name" value={data.drug} />
           </div>
         </div>
 
@@ -180,19 +202,19 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
           <div className="grid grid-cols-2 gap-y-3 gap-x-3">
             <div className="flex items-start gap-2">
               <Building2 className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
-              <DetailRow label="Sponsor Name" value={trial.sponsor} />
+              <DetailRow label="Sponsor Name" value={data.sponsor} />
             </div>
             <div className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
-              <DetailRow label="Site Name" value={trial.site} />
+              <DetailRow label="Site Name" value={data.site} />
             </div>
             <div className="flex items-start gap-2">
               <User className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
-              <DetailRow label="PI Name" value={trial.pi} />
+              <DetailRow label="PI Name" value={data.pi} />
             </div>
             <div className="flex items-start gap-2">
               <Stethoscope className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
-              <DetailRow label="Department" value={trial.department} />
+              <DetailRow label="Department" value={data.department} />
             </div>
           </div>
         </div>
@@ -293,6 +315,90 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
         </div>
       </div>
 
+      {/* Edit Trial modal */}
+      {showEdit && (
+        <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40" onClick={() => setShowEdit(false)}>
+          <div onClick={e => e.stopPropagation()} className="bg-card rounded-t-3xl max-h-[88%] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <div className="min-w-0">
+                <p className="font-semibold text-foreground">Edit Trial</p>
+                <p className="text-xs text-muted-foreground truncate">{data.id}</p>
+              </div>
+              <button onClick={() => setShowEdit(false)} className="p-1 rounded-full hover:bg-muted">
+                <X className="w-5 h-5 text-muted-foreground" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Study Title</label>
+                <textarea
+                  value={editDraft.title}
+                  onChange={e => setEditDraft(f => ({ ...f, title: e.target.value }))}
+                  rows={2}
+                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none focus:border-info"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Phase</label>
+                  <input
+                    value={editDraft.phase}
+                    onChange={e => setEditDraft(f => ({ ...f, phase: e.target.value }))}
+                    className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Indication</label>
+                  <input
+                    value={editDraft.disease}
+                    onChange={e => setEditDraft(f => ({ ...f, disease: e.target.value }))}
+                    className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Drug Name</label>
+                <input
+                  value={editDraft.drug}
+                  onChange={e => setEditDraft(f => ({ ...f, drug: e.target.value }))}
+                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Status</label>
+                <div className="mt-1 flex gap-2">
+                  {(["Active", "Completed", "Terminated"] as const).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setEditDraft(f => ({ ...f, status: s }))}
+                      className={cn("flex-1 rounded-xl border px-2 py-2 text-xs font-medium",
+                        editDraft.status === s ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Recruitment Status</label>
+                <input
+                  value={editDraft.recruitment}
+                  onChange={e => setEditDraft(f => ({ ...f, recruitment: e.target.value }))}
+                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 py-3 border-t border-border">
+              <button onClick={saveEdit} className="w-full rounded-xl py-3 text-sm font-semibold text-white bg-info">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Share Trial modal */}
       {showShare && (
         <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40" onClick={() => setShowShare(false)}>
@@ -301,7 +407,7 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <div className="min-w-0">
                 <p className="font-semibold text-foreground">Share Trial</p>
-                <p className="text-xs text-muted-foreground truncate">Share {trial.id} with an organization member</p>
+                <p className="text-xs text-muted-foreground truncate">Share {data.id} with an organization member</p>
               </div>
               <button onClick={() => setShowShare(false)} className="p-1 rounded-full hover:bg-muted">
                 <X className="w-5 h-5 text-muted-foreground" />
@@ -403,8 +509,7 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
             <Check className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-white">Trial shared</p>
-            <p className="text-xs text-primary-foreground/75 leading-snug">{toast}</p>
+            <p className="text-sm font-semibold text-white leading-snug">{toast}</p>
           </div>
         </div>
       )}

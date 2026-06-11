@@ -5,8 +5,8 @@ import { AppBar } from "../app-bar"
 import { BottomNav } from "../bottom-nav"
 import {
   CheckCircle, Clock, AlertTriangle, FileText, ChevronRight,
-  PenLine, Users, Activity, Shield, Calendar, TrendingUp, Info
-  , Building2, UserPlus, Send, FilePlus2, X
+  PenLine, Users, Activity, Shield, Calendar, TrendingUp, Info,
+  Building2, UserPlus, Send, FilePlus2, X, ChevronDown
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TrialSummaryScreen } from "@/components/clinical/screens/trial-summary-screen"
@@ -23,7 +23,7 @@ type PiTab = "dashboard" | "my-trials" | "patients" | "approvals" | "chat" | "no
 type ApprovalSubTab = "deviations" | "ecrf" | "enrolments"
 type WeekVisit = { time: string; subj: string; name: string; visit: string; status: string }
 
-type PatientStatus = "on-track" | "overdue" | "completed" | "withdrawn"
+type PatientStatus = "on-track" | "overdue" | "completed" | "withdrawn" | "screen-failure" | "dropout"
 type VisitOutcome = "completed" | "missed" | "scheduled"
 type VisitRecord = {
   visit: string
@@ -185,11 +185,14 @@ const piSponsors = [
   { name: "NovaCure Bio", trials: [piTrials[2]] },
 ]
 
-const teamActivity = [
-  { actor: "CRC Meera", action: "logged Visit 6 for SUBJ-001", time: "2h ago", type: "visit" },
-  { actor: "RA Suresh", action: "submitted eCRF-015 for SUBJ-003", time: "3h ago", type: "ecrf" },
-  { actor: "CRC Meera", action: "flagged deviation DEV-002", time: "5h ago", type: "deviation" },
-  { actor: "RA Suresh", action: "screened SCR-020 (failed eligibility)", time: "Yesterday", type: "screen" },
+const todayVisits = [
+  { id: "V1", patient: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 6", time: "9:00 AM", type: "Efficacy Assessment", done: false },
+  { id: "V2", patient: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", time: "11:30 AM", type: "Safety Follow-up", done: false },
+  { id: "V3", patient: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", time: "2:00 PM", type: "Lab & Vitals", done: true },
+]
+
+const overduePatients = [
+  { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", daysOverdue: 3, lastContact: "19 May" },
 ]
 
 const weekDays = [
@@ -222,6 +225,8 @@ const statusStyle: Record<string, { label: string; bg: string; text: string }> =
   overdue:    { label: "Overdue",  bg: "bg-destructive/10",     text: "text-destructive" },
   completed:  { label: "Completed",bg: "bg-info/10",    text: "text-info" },
   withdrawn:  { label: "Withdrawn",bg: "bg-muted",   text: "text-muted-foreground" },
+  "screen-failure": { label: "Screen Failure", bg: "bg-destructive/10", text: "text-destructive" },
+  dropout:    { label: "Dropout",  bg: "bg-warning/15", text: "text-warning" },
 }
 
 export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrialId }: PIDashboardProps) {
@@ -238,10 +243,15 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   const [patients, setPatients] = useState<Patient[]>(initialPatients)
   const [editPatient, setEditPatient] = useState<Patient | null>(null)
   const [viewPatient, setViewPatient] = useState<Patient | null>(null)
+  const [recordScheduleOpen, setRecordScheduleOpen] = useState(false)
   const [form, setForm] = useState<{ visit: string; visitName: string; visitType: string; dateISO: string; status: PatientStatus; note: string }>({
     visit: "", visitName: "", visitType: "Hospital", dateISO: "", status: "on-track", note: "",
   })
+  
   const [savedToast, setSavedToast] = useState<string | null>(null)
+  const [completedVisits] = useState<Set<string>>(new Set(
+    todayVisits.filter(v => v.done).map(v => v.id)
+  ))
 
   // Open straight to a trial's summary when requested (e.g. after a new trial is saved).
   useEffect(() => {
@@ -384,11 +394,6 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     </div>
   )
 
-  const pendingApprovalsCount =
-    deviations.filter(d => !signedDeviations.has(d.id)).length +
-    ecrfItems.filter(e => !signedEcrf.has(e.id)).length +
-    enrolments.filter(e => !approvedEnrolments.has(e.id) && !rejectedEnrolments.has(e.id)).length
-
   // ── Dashboard tab ────────────────────────────────────────────────────────
   const renderDashboard = () => (
     <div className="flex-1 overflow-auto pb-4 space-y-4 pt-4">
@@ -476,73 +481,64 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         </div>
       </div>
 
-      {/* Needs Your Attention */}
-      {pendingApprovalsCount > 0 && (
-        <div className="px-4">
-          <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">
-            Needs Your Attention
-          </h3>
-          <div className="space-y-2">
-            {deviations.filter(d => !signedDeviations.has(d.id)).slice(0, 1).map(d => (
-              <div key={d.id} className="bg-card rounded-2xl p-3 shadow-sm border-l-4 border-amber-400 flex items-start gap-3">
-                <AlertTriangle className="w-4 h-4 text-warning mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{d.patient}: {d.desc}</p>
-                  <p className="text-xs text-muted-foreground/70">Protocol Deviation · {d.severity} · {d.submitted}</p>
+      {/* Today's Visits */}
+      <div className="px-4">
+        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Today's Visits</h3>
+        <div className="space-y-2">
+          {todayVisits.map((visit) => {
+            const done = completedVisits.has(visit.id)
+            return (
+              <div key={visit.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4 transition-all", done ? "border-teal-400" : "border-info")}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-sm">{visit.name}</p>
+                    <p className="text-xs text-muted-foreground/70">{visit.patient} · {visit.visit}</p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {visit.time}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{visit.type}</span>
+                    </div>
+                  </div>
+                  {done ? (
+                    <div className="flex items-center gap-1 text-accent text-xs font-medium">
+                      <CheckCircle className="w-4 h-4" /> Done
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { const p = patients.find(pt => pt.id === visit.patient); if (p) openVisitUpdate(p) }}
+                      className="bg-primary-deep text-white px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0"
+                    >
+                      Update
+                    </button>
+                  )}
                 </div>
-                <button
-                  onClick={() => setActiveTab("approvals")}
-                  className="text-info text-xs font-medium shrink-0"
-                >
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Overdue */}
+      {overduePatients.length > 0 && (
+        <div className="px-4">
+          <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Overdue</h3>
+          {overduePatients.map((p) => (
+            <div key={p.id} className="bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4 border-red-400">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{p.name}</p>
+                  <p className="text-xs text-muted-foreground/70">{p.id} · {p.visit}</p>
+                  <p className="text-xs text-destructive mt-1">{p.daysOverdue} days overdue · Last: {p.lastContact}</p>
+                </div>
+                <button className="bg-destructive/5 border border-destructive/20 text-destructive px-3 py-1.5 rounded-xl text-xs font-semibold">
                   Review
                 </button>
-              </div>
-            ))}
-            {ecrfItems.filter(e => !signedEcrf.has(e.id)).slice(0, 1).map(e => (
-              <div key={e.id} className="bg-card rounded-2xl p-3 shadow-sm border-l-4 border-purple-400 flex items-start gap-3">
-                <FileText className="w-4 h-4 text-purple-500 mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{e.patient}: {e.form}</p>
-                  <p className="text-xs text-muted-foreground/70">eCRF Sign-off · {e.visit} · by {e.by}</p>
-                </div>
-                <button
-                  onClick={() => { setActiveTab("approvals"); setApprovalTab("ecrf") }}
-                  className="text-info text-xs font-medium shrink-0"
-                >
-                  Sign
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Team Activity */}
-      <div className="px-4">
-        <h3 className="font-semibold text-foreground mb-2 font-[family-name:var(--font-heading)]">Team Activity</h3>
-        <div className="bg-card rounded-2xl divide-y divide-border/60 shadow-sm">
-          {teamActivity.map((item, i) => (
-            <div key={i} className="p-3 flex items-start gap-3">
-              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                item.type === "deviation" ? "bg-warning/15" :
-                item.type === "ecrf" ? "bg-violet/10" :
-                item.type === "visit" ? "bg-accent/10" : "bg-info/10"
-              )}>
-                {item.type === "deviation" ? <AlertTriangle className="w-3.5 h-3.5 text-warning" /> :
-                 item.type === "ecrf" ? <FileText className="w-3.5 h-3.5 text-violet" /> :
-                 item.type === "visit" ? <CheckCircle className="w-3.5 h-3.5 text-accent" /> :
-                 <Users className="w-3.5 h-3.5 text-info" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-foreground">
-                  <span className="font-medium">{item.actor}</span> {item.action}
-                </p>
-                <p className="text-xs text-muted-foreground/70">{item.time}</p>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   )
 
@@ -844,7 +840,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     return (
       <div className="h-full flex flex-col bg-surface">
         <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setViewPatient(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+          <button onClick={() => { setViewPatient(null); setRecordScheduleOpen(false) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
           <span className="font-semibold flex-1">Patient Record</span>
         </div>
         <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
@@ -852,7 +848,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
           <div className="bg-primary-deep rounded-2xl p-5 text-white">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h2 className="text-lg font-bold">{p.name}</h2>
+                <h2 className="text-lg font-bold">{patientInitials(p.name)}</h2>
                 <p className="text-primary-foreground/75 text-sm">{p.id} · Age {p.age}</p>
               </div>
               <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", style.bg, style.text)}>{style.label}</span>
@@ -882,10 +878,14 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
           {/* System-generated visit schedule */}
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <button onClick={() => setRecordScheduleOpen(open => !open)} className="w-full flex items-center justify-between mb-2">
               <h3 className="font-semibold text-foreground text-sm font-[family-name:var(--font-heading)]">Visit Schedule</h3>
-              <span className="text-xs text-muted-foreground/70">{PROTOCOL_SCHEDULE.length} visits</span>
-            </div>
+              <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+                {PROTOCOL_SCHEDULE.length} visits
+                <ChevronDown className={cn("w-4 h-4 text-primary transition-transform", recordScheduleOpen && "rotate-180")} />
+              </span>
+            </button>
+            {recordScheduleOpen && (
             <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -928,6 +928,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                 </tbody>
               </table>
             </div>
+            )}
           </div>
 
           {/* Visit history */}
@@ -1113,7 +1114,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Status</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["on-track", "overdue", "completed", "withdrawn"] as PatientStatus[]).map((s) => {
+                  {(["screen-failure", "dropout", "withdrawn", "completed"] as PatientStatus[]).map((s) => {
                     const st = statusStyle[s]
                     const active = form.status === s
                     return (
