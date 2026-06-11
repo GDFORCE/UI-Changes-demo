@@ -41,11 +41,20 @@ const initialTasks: Task[] = [
   { id: "T9", title: "Reviewed ICF for SCR-018", patient: "SCR-018", priority: "low", due: "22 May", done: true, category: "screening" },
 ]
 
-const todayVisits = [
-  { id: "V1", patient: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 6", time: "9:00 AM", type: "Efficacy Assessment", done: false },
-  { id: "V2", patient: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", time: "11:30 AM", type: "Safety Follow-up", done: false },
-  { id: "V3", patient: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", time: "2:00 PM", type: "Lab & Vitals", done: true },
+type TodayVisit = {
+  id: string; patient: string; name: string; visit: string; time: string; type: string
+  protocol: string; indication: string; phase: string; pi: string; done: boolean
+  completedBy?: string; completedByRole?: string; completedAt?: string
+}
+const todayVisits: TodayVisit[] = [
+  { id: "V1", patient: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 6", time: "9:00 AM", type: "Efficacy Assessment", protocol: "Protocol-001", indication: "Type 2 Diabetes", phase: "Phase II", pi: "Dr. Sharma", done: false },
+  { id: "V2", patient: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", time: "11:30 AM", type: "Safety Follow-up", protocol: "Protocol-001", indication: "Type 2 Diabetes", phase: "Phase II", pi: "Dr. Sharma", done: false },
+  { id: "V3", patient: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", time: "2:00 PM", type: "Lab & Vitals", protocol: "Protocol-005", indication: "Asthma", phase: "Phase III", pi: "Dr. Sharma", done: true, completedBy: "Priya Desai", completedByRole: "CRC", completedAt: "2:35 PM" },
 ]
+
+// Subjects are identified by initials only (privacy). "Priya Krishnan" → "P.K."
+const subjectInitials = (full: string) =>
+  full.split(/\s+/).filter(Boolean).map(w => w[0]?.toUpperCase() ?? "").join(".")
 
 const overduePatients = [
   { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", daysOverdue: 3, lastContact: "19 May" },
@@ -399,7 +408,7 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                 { label: "Phase", val: tr.phase },
                 { label: "Disease", val: tr.disease },
                 { label: "Drug", val: tr.drug },
-                { label: "Status of Trial", val: tr.status },
+                { label: "Sponsor", val: tr.sponsor },
               ].map(f => (
                 <div key={f.label}>
                   <p className="text-[9px] text-muted-foreground/70 uppercase tracking-wide">{f.label}</p>
@@ -533,19 +542,14 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
             const done = completedVisits.has(visit.id)
             return (
               <div key={visit.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4 transition-all", done ? "border-teal-400" : "border-info")}>
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-sm">{visit.name}</p>
-                    <p className="text-xs text-muted-foreground/70">{visit.patient} · {visit.visit}</p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {visit.time}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{visit.type}</span>
-                    </div>
+                    <p className="font-semibold text-foreground text-sm">{visit.patient} · {subjectInitials(visit.name)}</p>
+                    <p className="text-xs text-muted-foreground/70">{visit.protocol} · {visit.pi}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{visit.visit} · {visit.type}</p>
                   </div>
                   {done ? (
-                    <div className="flex items-center gap-1 text-accent text-xs font-medium">
+                    <div className="flex items-center gap-1 text-accent text-xs font-medium shrink-0">
                       <CheckCircle className="w-4 h-4" /> Done
                     </div>
                   ) : (
@@ -557,6 +561,14 @@ export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps
                     </button>
                   )}
                 </div>
+
+                {/* Who completed it */}
+                {done && visit.completedBy && (
+                  <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-border text-[11px] text-muted-foreground">
+                    <CheckCircle className="w-3 h-3 text-accent shrink-0" />
+                    <span>Completed by <span className="font-medium text-foreground">{visit.completedBy}</span> ({visit.completedByRole}) · {visit.completedAt}</span>
+                  </div>
+                )}
               </div>
             )
           })}

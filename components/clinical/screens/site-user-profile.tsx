@@ -1,11 +1,29 @@
 "use client"
 
 import { useState } from "react"
-import { Camera, ShieldCheck, UserPen, Lock, Bell, ChevronRight, ChevronDown, Eye, EyeOff, Check, X, LogOut, Mail, Phone, Plus, Trash2, Building2, FlaskConical, FileText, HelpCircle, BarChart2, Users, UserCheck, AlertTriangle } from "lucide-react"
+import { Camera, ShieldCheck, UserPen, Lock, Bell, ChevronRight, ChevronDown, Eye, EyeOff, Check, X, LogOut, Mail, Phone, Plus, Trash2, Building2, FlaskConical, FileText, HelpCircle, BarChart2, Users, UserCheck, AlertTriangle, MessageCircle, Clock, Ticket } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
 export type SiteRole = "PI" | "Research Team"
+
+export type TicketStatus = "Open" | "In Progress" | "Resolved" | "Closed"
+export interface SupportTicket {
+  id: string
+  subject: string
+  category: string
+  status: TicketStatus
+  date: string
+}
+export const ticketStatusStyle = (s: TicketStatus) =>
+  s === "Resolved" ? "bg-success/15 text-success"
+  : s === "In Progress" ? "bg-info/10 text-info"
+  : s === "Open" ? "bg-warning/15 text-warning"
+  : "bg-muted text-muted-foreground"
+
+// All registrable entity types. The Entity Change dropdown offers every type
+// except the user's current one (e.g. a Site user can switch to Sponsor/CRO/SMO).
+export const ENTITY_TYPES = ["Sponsor", "CRO", "SMO", "Site / Hospital"] as const
 
 export interface SiteHospital {
   name: string
@@ -64,6 +82,9 @@ type Section =
   | "invite-member"
   | "tnc"
   | "help"
+  | "help-faq"
+  | "help-contact"
+  | "help-tickets"
   | "reports"
 
 const DEFAULT_TRIALS: SiteTrial[] = [
@@ -84,6 +105,20 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
   ])
   const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null)
+  const [contactForm, setContactForm] = useState({ category: "Login Issue", subject: "", description: "" })
+  const [ticketSubmitted, setTicketSubmitted] = useState(false)
+  const [lastTicketId, setLastTicketId] = useState("")
+  const [tickets, setTickets] = useState<SupportTicket[]>([
+    { id: "#TKT-20260604-0031", subject: "Notification not received for a scheduled visit", category: "Notification Problem", status: "In Progress", date: "04 Jun 2026" },
+    { id: "#TKT-20260528-0019", subject: "App shows an error opening the patient list", category: "App Bug", status: "Resolved", date: "28 May 2026" },
+  ])
+  const handleSubmitTicket = () => {
+    const newId = `#TKT-20260611-${String(43 + tickets.length).padStart(4, "0")}`
+    setTickets(prev => [{ id: newId, subject: contactForm.subject.trim() || "Support request", category: contactForm.category, status: "Open", date: "11 Jun 2026" }, ...prev])
+    setLastTicketId(newId)
+    setTicketSubmitted(true)
+    setContactForm({ category: "Login Issue", subject: "", description: "" })
+  }
   const [inviteForm, setInviteForm] = useState({ name: "", designation: "", phone: "", email: "", role: "PI" as SiteRole, department: "", trials: [] as string[] })
 
   const maskPhone = (phone: string) => {
@@ -169,10 +204,12 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
           { label: "Entity Type", val: user.entityType },
           { label: "Org. Name", val: user.orgName },
           { label: "Org. Address", val: user.orgAddress },
-          // 9. Role
-          { label: "Role", val: user.role },
-          // 10. Department (only for PI)
-          ...(user.role === "PI" ? [{ label: "Department", val: user.department || "—" }] : []),
+          // 9. Role + 10. Department — only for single-site users.
+          // For SMO, role/department are defined per hospital (see Hospitals section below).
+          ...(isSMO ? [] : [
+            { label: "Role", val: user.role },
+            ...(user.role === "PI" ? [{ label: "Department", val: user.department || "—" }] : []),
+          ]),
         ].map(r => (
           <div key={r.label} className="py-2 border-b border-border last:border-0">
             <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
@@ -498,52 +535,152 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
   )
 
   /* ─────────────── Help & Support ─────────────── */
+  const helpFaqs = [
+    { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
+    { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite. They'll receive an email to join." },
+    { q: "How are patient visits scheduled?", a: "Visits are auto-calculated from the patient's baseline date using the trial's visit template. You can review and adjust each visit's date and window from the patient's schedule." },
+    { q: "How do I report a protocol deviation?", a: "Open the relevant patient or visit record and use 'Report Deviation'. Add the details and submit — it's logged for audit and routed to the PI and sponsor for review." },
+  ]
+
   const help = (
     <div className="absolute inset-0 z-50 bg-surface flex flex-col">
       <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
         <button onClick={() => setSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
         <span className="font-semibold flex-1">Help &amp; Support</span>
       </div>
-      <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-        <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
-          <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-border">
-            <Mail className="w-4 h-4 text-primary" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">Email Support</p>
-              <p className="text-xs text-muted-foreground">support@mtb-pvs.com</p>
-            </div>
-          </a>
-          <a href="tel:+918000000000" className="flex items-center gap-3 px-4 py-3">
-            <Phone className="w-4 h-4 text-primary" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">Call Helpline</p>
-              <p className="text-xs text-muted-foreground">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
-            </div>
-          </a>
-        </div>
-        <div>
-          <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">FAQ</p>
-          <div className="bg-card rounded-2xl border border-border shadow-xs divide-y divide-border/60">
-            {[
-              { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
-              { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite. They'll receive an email to join." },
-              { q: "How are patient visits scheduled?", a: "Visits are auto-calculated from the patient's baseline date using the trial's visit template. You can review and adjust each visit's date and window from the patient's schedule." },
-              { q: "How do I report a protocol deviation?", a: "Open the relevant patient or visit record and use 'Report Deviation'. Add the details and submit — it's logged for audit and routed to the PI and sponsor for review." },
-            ].map(item => {
-              const open = expandedFaq === item.q
-              return (
-                <div key={item.q}>
-                  <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full flex items-center gap-2 px-4 py-3 text-left">
-                    <HelpCircle className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
-                    <span className="text-sm text-foreground flex-1">{item.q}</span>
-                    <ChevronDown className={cn("w-4 h-4 text-slate-300 transition-transform", open && "rotate-180")} />
-                  </button>
-                  {open && <p className="px-4 pb-3 pl-10 text-xs text-muted-foreground leading-relaxed">{item.a}</p>}
+      <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+        {[
+          { icon: HelpCircle,    bg: "bg-info/10",    ic: "text-info",     label: "Frequently Asked Questions", sub: "Browse common questions",      action: () => setSection("help-faq") },
+          { icon: MessageCircle, bg: "bg-success/15", ic: "text-success",  label: "Contact Support",            sub: "Get help from our team",       action: () => { setTicketSubmitted(false); setSection("help-contact") } },
+          { icon: Ticket,        bg: "bg-violet/10",  ic: "text-violet",   label: "My Tickets",                 sub: "Track your raised tickets",    action: () => setSection("help-tickets") },
+        ].map((item, i) => {
+          const Icon = item.icon
+          return (
+            <button key={i} onClick={item.action} className="w-full bg-card rounded-2xl p-4 flex items-center justify-between shadow-xs border border-border">
+              <div className="flex items-center gap-3">
+                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", item.bg)}>
+                  <Icon className={cn("w-5 h-5", item.ic)} />
                 </div>
-              )
-            })}
+                <div className="text-left">
+                  <p className="font-medium text-foreground text-sm">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">{item.sub}</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground/50" />
+            </button>
+          )
+        })}
+
+        <div className="bg-info/5 rounded-2xl p-4">
+          <p className="text-sm font-semibold text-primary mb-3">Contact Us</p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">support@patientvisitschedule.com</span></div>
+            <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">1800-XXX-XXXX (Toll Free)</span></div>
+            <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">Mon – Fri, 9:00 AM – 6:00 PM</span></div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+
+  const helpFaq = (
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+        <button onClick={() => setSection("help")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+        <span className="font-semibold flex-1">FAQ</span>
+      </div>
+      <div className="flex-1 overflow-auto px-4 py-4 space-y-2">
+        {helpFaqs.map(item => {
+          const open = expandedFaq === item.q
+          return (
+            <div key={item.q} className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+              <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full px-4 py-4 flex items-center justify-between gap-3 text-left">
+                <span className="text-sm font-medium text-foreground">{item.q}</span>
+                <ChevronDown className={cn("w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform", open && "rotate-180")} />
+              </button>
+              {open && <div className="px-4 pb-4"><p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p></div>}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  const helpContact = (
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+        <button onClick={() => { setSection("help"); setTicketSubmitted(false) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+        <span className="font-semibold flex-1">Contact Support</span>
+      </div>
+      {ticketSubmitted ? (
+        <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4 text-center">
+          <div className="w-16 h-16 bg-success/15 rounded-full flex items-center justify-center">
+            <Check className="w-8 h-8 text-success" />
+          </div>
+          <h3 className="font-bold text-foreground text-lg">Ticket Submitted!</h3>
+          <p className="text-sm text-muted-foreground">We'll respond within 24 hours.</p>
+          <div className="bg-card rounded-xl px-4 py-3 border border-border">
+            <p className="text-xs text-muted-foreground">Ticket ID</p>
+            <p className="font-mono text-primary-deep font-semibold">{lastTicketId}</p>
+          </div>
+          <button onClick={() => setSection("help-tickets")} className="text-sm text-info font-medium">View my tickets</button>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Issue Category</label>
+            <select value={contactForm.category} onChange={e => setContactForm({ ...contactForm, category: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card">
+              <option>Login Issue</option><option>Notification Problem</option><option>App Bug</option><option>Visit Query</option><option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Subject</label>
+            <input value={contactForm.subject} onChange={e => setContactForm({ ...contactForm, subject: e.target.value })}
+              placeholder="Brief subject"
+              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Description</label>
+            <textarea rows={5} value={contactForm.description} onChange={e => setContactForm({ ...contactForm, description: e.target.value })}
+              placeholder="Describe your issue in detail..."
+              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary resize-none bg-card" />
+          </div>
+          <button onClick={handleSubmitTicket}
+            className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">
+            Submit Ticket
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  const helpTickets = (
+    <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+        <button onClick={() => setSection("help")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+        <span className="font-semibold flex-1">My Tickets</span>
+      </div>
+      <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+        {tickets.length === 0 && (
+          <p className="text-sm text-muted-foreground/70 bg-card rounded-2xl border border-border p-6 text-center">You haven't raised any tickets yet.</p>
+        )}
+        {tickets.map(t => (
+          <div key={t.id} className="bg-card rounded-2xl border border-border shadow-xs p-4">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <span className="font-mono text-xs font-semibold text-primary-deep">{t.id}</span>
+              <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", ticketStatusStyle(t.status))}>{t.status}</span>
+            </div>
+            <p className="text-sm font-medium text-foreground">{t.subject}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t.category} · {t.date}</p>
+          </div>
+        ))}
+      </div>
+      <div className="px-4 py-4 border-t border-border bg-card">
+        <button onClick={() => { setTicketSubmitted(false); setSection("help-contact") }}
+          className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white flex items-center justify-center gap-2">
+          <MessageCircle className="w-4 h-4" /> Raise New Ticket
+        </button>
       </div>
     </div>
   )
@@ -691,7 +828,7 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
               className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
             >
               <option value="">Select entity type</option>
-              {["Site / Hospital", "SMO"].map(o => <option key={o} value={o}>{o}</option>)}
+              {ENTITY_TYPES.filter(o => o !== user.entityType).map(o => <option key={o} value={o}>{o}</option>)}
             </select>
           ) : (
             <input
@@ -948,6 +1085,9 @@ export function SiteUserProfile({ user, onSignOut, trials = DEFAULT_TRIALS, onOp
       {section === "reports" && reports}
       {section === "tnc" && tnc}
       {section === "help" && help}
+      {section === "help-faq" && helpFaq}
+      {section === "help-contact" && helpContact}
+      {section === "help-tickets" && helpTickets}
     </>
   )
 }

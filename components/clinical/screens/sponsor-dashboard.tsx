@@ -7,12 +7,13 @@ import {
   BarChart2, ShieldCheck, Users, Download, Phone, Mail,
   X, Check, AlertTriangle, Info, SlidersHorizontal,
   FileText, UserPen, Lock, LogOut, Camera,
-  UserCheck, Eye, EyeOff, HelpCircle, Building2
+  UserCheck, Eye, EyeOff, HelpCircle, Building2, Clock, Ticket
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { TrialActionsMenu } from "@/components/clinical/trial-actions-menu"
 import { StatusBadge as SharedStatusBadge } from "@/components/clinical/status-badge"
+import { ENTITY_TYPES, ticketStatusStyle, type SupportTicket } from "@/components/clinical/screens/site-user-profile"
 
 interface SponsorDashboardProps {
   onNavigate: (screen: string) => void
@@ -89,6 +90,30 @@ function recruitmentStatus(status: string) {
   return status === "Active" ? "Recruiting" : status === "Completed" ? "Closed" : "Terminated"
 }
 
+// Two-letter avatar initials, ignoring honorifics (Dr./Mr./Ms.).
+function memberInitials(name: string): string {
+  return name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase()
+}
+
+// Deterministic contact details for site CRCs (the mock site roster only carries
+// the CRC's name), so the same CRC always shows the same email/phone.
+function hashNum(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return h
+}
+function crcEmail(name: string, siteName: string): string {
+  const clean = name.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s*/i, "").trim()
+  const parts = clean.split(/\s+/).filter(Boolean)
+  const handle = parts.length > 1 ? `${parts[0]}.${parts[parts.length - 1]}` : parts[0]
+  const domain = siteName.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 12) || "site"
+  return `${handle.toLowerCase()}@${domain}.org`
+}
+function crcPhone(seed: string): string {
+  const n = hashNum(seed)
+  return `+91 ${90000 + (n % 10000)} ${10000 + (Math.floor(n / 13) % 90000)}`
+}
+
 export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: SponsorDashboardProps) {
   const [activeTab, setActiveTab] = useState(initialTab ?? "dashboard")
   const [trials, setTrials] = useState(mockData.trials)
@@ -151,6 +176,20 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   ])
   const [expandedMemberId, setExpandedMemberId] = useState<string | null>(null)
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null)
+  const [contactForm, setContactForm] = useState({ category: "Login Issue", subject: "", description: "" })
+  const [ticketSubmitted, setTicketSubmitted] = useState(false)
+  const [lastTicketId, setLastTicketId] = useState("")
+  const [tickets, setTickets] = useState<SupportTicket[]>([
+    { id: "#TKT-20260604-0031", subject: "Site not visible under my trial", category: "App Bug", status: "In Progress", date: "04 Jun 2026" },
+    { id: "#TKT-20260528-0019", subject: "Unable to download enrolment report", category: "App Bug", status: "Resolved", date: "28 May 2026" },
+  ])
+  const handleSubmitTicket = () => {
+    const newId = `#TKT-20260611-${String(43 + tickets.length).padStart(4, "0")}`
+    setTickets(prev => [{ id: newId, subject: contactForm.subject.trim() || "Support request", category: contactForm.category, status: "Open", date: "11 Jun 2026" }, ...prev])
+    setLastTicketId(newId)
+    setTicketSubmitted(true)
+    setContactForm({ category: "Login Issue", subject: "", description: "" })
+  }
   const [inviteForm, setInviteForm] = useState({ name: "", designation: "", phone: "", email: "", trials: [] as string[] })
 
   // Mask the middle digits of a phone number: "+91 98100 12345" → "+91 •••••  12345".
@@ -483,6 +522,55 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
               ))}
               {sites.filter(s => s.trials.includes(t.id)).length === 0 && (
                 <p className="text-xs text-muted-foreground/70 italic">No sites added to this trial yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* PANEL — Trial Team (everyone related to this trial) */}
+          <div className="bg-card rounded-2xl border border-border p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-4 h-4 text-muted-foreground/70" />
+              <p className="font-semibold text-sm text-foreground">Trial Team</p>
+            </div>
+            <div className="space-y-2.5">
+              {/* Sponsor-side contact (the logged-in organization) */}
+              <div className="rounded-xl border border-border bg-surface p-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-primary-deep text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">{mockData.user.initials}</div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground truncate">{mockData.user.name}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{mockData.user.designation} · {mockData.user.org}</p>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 bg-info/10 text-info">Sponsor</span>
+                </div>
+                <div className="mt-2.5 pt-2.5 border-t border-border space-y-1.5">
+                  <a href={`mailto:${mockData.user.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info"><Mail className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{mockData.user.email}</span></a>
+                  <a href={`tel:${mockData.user.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info"><Phone className="w-3.5 h-3.5 flex-shrink-0" /><span>{mockData.user.phone}</span></a>
+                </div>
+              </div>
+
+              {/* PI + CRC for each site running this trial */}
+              {sites.filter(s => s.trials.includes(t.id)).flatMap(site => [
+                { key: `${site.id}-pi`, name: site.pi, roleLabel: "PI", roleCls: "bg-accent/10 text-accent", org: `${site.name} · ${site.department}`, email: site.piEmail, phone: site.piPhone },
+                { key: `${site.id}-crc`, name: site.crc, roleLabel: "CRC", roleCls: "bg-success/15 text-success", org: site.name, email: crcEmail(site.crc, site.name), phone: crcPhone(site.crc + site.id) },
+              ]).map(m => (
+                <div key={m.key} className="rounded-xl border border-border bg-surface p-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">{memberInitials(m.name)}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-foreground truncate">{m.name}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{m.org}</p>
+                    </div>
+                    <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0", m.roleCls)}>{m.roleLabel}</span>
+                  </div>
+                  <div className="mt-2.5 pt-2.5 border-t border-border space-y-1.5">
+                    <a href={`mailto:${m.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info"><Mail className="w-3.5 h-3.5 flex-shrink-0" /><span className="truncate">{m.email}</span></a>
+                    <a href={`tel:${m.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info"><Phone className="w-3.5 h-3.5 flex-shrink-0" /><span>{m.phone}</span></a>
+                  </div>
+                </div>
+              ))}
+              {sites.filter(s => s.trials.includes(t.id)).length === 0 && (
+                <p className="text-xs text-muted-foreground/70 italic">No sites assigned yet — team will appear once sites are added.</p>
               )}
             </div>
           </div>
@@ -1374,12 +1462,23 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             {/* New value */}
             <div>
               <label className="block text-sm font-medium text-foreground/80 mb-1.5">Change To</label>
-              <input
-                value={entityChange.newValue}
-                onChange={e => setEntityChange(c => ({ ...c, newValue: e.target.value }))}
-                placeholder={`Enter new ${entityChange.field.toLowerCase()}`}
-                className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
-              />
+              {entityChange.field === "Entity Type" ? (
+                <select
+                  value={entityChange.newValue}
+                  onChange={e => setEntityChange(c => ({ ...c, newValue: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
+                >
+                  <option value="">Select entity type</option>
+                  {ENTITY_TYPES.filter(o => o !== "Sponsor").map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : (
+                <input
+                  value={entityChange.newValue}
+                  onChange={e => setEntityChange(c => ({ ...c, newValue: e.target.value }))}
+                  placeholder={`Enter new ${entityChange.field.toLowerCase()}`}
+                  className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary focus:ring-2 focus:ring-info/15 bg-card"
+                />
+              )}
             </div>
 
           </div>
@@ -1804,46 +1903,147 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             <button onClick={() => setMeSection(null)} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
             <span className="font-semibold flex-1">Help &amp; Support</span>
           </div>
-          <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-            <div className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
-              <a href="mailto:support@mtb-pvs.com" className="flex items-center gap-3 px-4 py-3 border-b border-border">
-                <Mail className="w-4 h-4 text-primary" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Email Support</p>
-                  <p className="text-xs text-muted-foreground">support@mtb-pvs.com</p>
-                </div>
-              </a>
-              <a href="tel:+918000000000" className="flex items-center gap-3 px-4 py-3">
-                <Phone className="w-4 h-4 text-primary" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Call Helpline</p>
-                  <p className="text-xs text-muted-foreground">+91 80000 00000 · Mon–Fri, 9am–6pm</p>
-                </div>
-              </a>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">FAQ</p>
-              <div className="bg-card rounded-2xl border border-border shadow-xs divide-y divide-border/60">
-                {[
-                  { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
-                  { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite." },
-                  { q: "How do I add a new site?", a: "Go to the Sites tab and tap Add Site. Enter the site and PI details, then share access with the PI to onboard them." },
-                  { q: "How are visit schedules created?", a: "Upload the protocol and the AI extracts the visit template. You can review, edit, and save it, after which patient visits are auto-calculated from each baseline date." },
-                ].map(item => {
-                  const open = expandedFaq === item.q
-                  return (
-                    <div key={item.q}>
-                      <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full flex items-center gap-2 px-4 py-3 text-left">
-                        <HelpCircle className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
-                        <span className="text-sm text-foreground flex-1">{item.q}</span>
-                        <ChevronDown className={cn("w-4 h-4 text-slate-300 transition-transform", open && "rotate-180")} />
-                      </button>
-                      {open && <p className="px-4 pb-3 pl-10 text-xs text-muted-foreground leading-relaxed">{item.a}</p>}
+          <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+            {[
+              { icon: HelpCircle,    bg: "bg-info/10",    ic: "text-info",     label: "Frequently Asked Questions", sub: "Browse common questions",   action: () => setMeSection("help-faq") },
+              { icon: MessageCircle, bg: "bg-success/15", ic: "text-success",  label: "Contact Support",            sub: "Get help from our team",    action: () => { setTicketSubmitted(false); setMeSection("help-contact") } },
+              { icon: Ticket,        bg: "bg-violet/10",  ic: "text-violet",   label: "My Tickets",                 sub: "Track your raised tickets", action: () => setMeSection("help-tickets") },
+            ].map((item, i) => {
+              const Icon = item.icon
+              return (
+                <button key={i} onClick={item.action} className="w-full bg-card rounded-2xl p-4 flex items-center justify-between shadow-xs border border-border">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", item.bg)}>
+                      <Icon className={cn("w-5 h-5", item.ic)} />
                     </div>
-                  )
-                })}
+                    <div className="text-left">
+                      <p className="font-medium text-foreground text-sm">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.sub}</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/50" />
+                </button>
+              )
+            })}
+
+            <div className="bg-info/5 rounded-2xl p-4">
+              <p className="text-sm font-semibold text-primary mb-3">Contact Us</p>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">support@patientvisitschedule.com</span></div>
+                <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">1800-XXX-XXXX (Toll Free)</span></div>
+                <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">Mon – Fri, 9:00 AM – 6:00 PM</span></div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Help → FAQ (full-screen) ── */}
+      {meSection === "help-faq" && (
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection("help")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">FAQ</span>
+          </div>
+          <div className="flex-1 overflow-auto px-4 py-4 space-y-2">
+            {[
+              { q: "How do I reset my password?", a: "Go to Account → Change Password, enter your current password, then set a new one that meets all the strength requirements. If you're locked out, use 'Forgot Password' on the sign-in screen and verify via OTP." },
+              { q: "How do I invite a team member?", a: "Open Trial Management → Team Members → Invite Members. Fill in the name, email, role and the trials they should be involved in, then tap Send Invite." },
+              { q: "How do I add a new site?", a: "Go to the Sites tab and tap Add Site. Enter the site and PI details, then share access with the PI to onboard them." },
+              { q: "How are visit schedules created?", a: "Upload the protocol and the AI extracts the visit template. You can review, edit, and save it, after which patient visits are auto-calculated from each baseline date." },
+            ].map(item => {
+              const open = expandedFaq === item.q
+              return (
+                <div key={item.q} className="bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+                  <button onClick={() => setExpandedFaq(open ? null : item.q)} className="w-full px-4 py-4 flex items-center justify-between gap-3 text-left">
+                    <span className="text-sm font-medium text-foreground">{item.q}</span>
+                    <ChevronDown className={cn("w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform", open && "rotate-180")} />
+                  </button>
+                  {open && <div className="px-4 pb-4"><p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p></div>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Help → Contact Support (full-screen) ── */}
+      {meSection === "help-contact" && (
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => { setMeSection("help"); setTicketSubmitted(false) }} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">Contact Support</span>
+          </div>
+          {ticketSubmitted ? (
+            <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4 text-center">
+              <div className="w-16 h-16 bg-success/15 rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-success" />
+              </div>
+              <h3 className="font-bold text-foreground text-lg">Ticket Submitted!</h3>
+              <p className="text-sm text-muted-foreground">We'll respond within 24 hours.</p>
+              <div className="bg-card rounded-xl px-4 py-3 border border-border">
+                <p className="text-xs text-muted-foreground">Ticket ID</p>
+                <p className="font-mono text-primary-deep font-semibold">{lastTicketId}</p>
+              </div>
+              <button onClick={() => setMeSection("help-tickets")} className="text-sm text-info font-medium">View my tickets</button>
+            </div>
+          ) : (
+            <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground/80 mb-1.5">Issue Category</label>
+                <select value={contactForm.category} onChange={e => setContactForm({ ...contactForm, category: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card">
+                  <option>Login Issue</option><option>Notification Problem</option><option>App Bug</option><option>Visit Query</option><option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground/80 mb-1.5">Subject</label>
+                <input value={contactForm.subject} onChange={e => setContactForm({ ...contactForm, subject: e.target.value })}
+                  placeholder="Brief subject"
+                  className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground/80 mb-1.5">Description</label>
+                <textarea rows={5} value={contactForm.description} onChange={e => setContactForm({ ...contactForm, description: e.target.value })}
+                  placeholder="Describe your issue in detail..."
+                  className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary resize-none bg-card" />
+              </div>
+              <button onClick={handleSubmitTicket}
+                className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">
+                Submit Ticket
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Help → My Tickets (full-screen) ── */}
+      {meSection === "help-tickets" && (
+        <div className="absolute inset-0 z-50 bg-surface flex flex-col">
+          <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setMeSection("help")} className="p-1"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+            <span className="font-semibold flex-1">My Tickets</span>
+          </div>
+          <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+            {tickets.length === 0 && (
+              <p className="text-sm text-muted-foreground/70 bg-card rounded-2xl border border-border p-6 text-center">You haven't raised any tickets yet.</p>
+            )}
+            {tickets.map(t => (
+              <div key={t.id} className="bg-card rounded-2xl border border-border shadow-xs p-4">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="font-mono text-xs font-semibold text-primary-deep">{t.id}</span>
+                  <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", ticketStatusStyle(t.status))}>{t.status}</span>
+                </div>
+                <p className="text-sm font-medium text-foreground">{t.subject}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.category} · {t.date}</p>
+              </div>
+            ))}
+          </div>
+          <div className="px-4 py-4 border-t border-border bg-card">
+            <button onClick={() => { setTicketSubmitted(false); setMeSection("help-contact") }}
+              className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white flex items-center justify-center gap-2">
+              <MessageCircle className="w-4 h-4" /> Raise New Ticket
+            </button>
           </div>
         </div>
       )}

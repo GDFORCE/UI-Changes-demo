@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, Building2, MapPin, User, Stethoscope, FileText, Clock, CalendarDays, History, Share2, X, Check, Lock } from "lucide-react"
+import { ChevronLeft, Building2, MapPin, User, Stethoscope, FileText, Clock, CalendarDays, History, Share2, X, Check, Lock, Users, Mail, Phone } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TrialActionsMenu } from "@/components/clinical/trial-actions-menu"
 
@@ -69,6 +69,70 @@ function formatDate(iso: string): string {
 function ctriNo(id: string): string {
   const digits = (id.match(/\d+/)?.[0] ?? "0").padStart(2, "0")
   return `CTRI/2026/${digits}/${(parseInt(digits, 10) * 7919).toString().padStart(6, "0")}`
+}
+
+// ── Trial team ─────────────────────────────────────────────
+// Everyone related to a trial: the PI, the site CRCs and the sponsor-side
+// contact. The trial objects only carry the PI and sponsor names, so the CRCs
+// and sponsor contact are derived deterministically from the protocol id — the
+// same trial always shows the same team in this prototype.
+type TeamRole = "Principal Investigator" | "Clinical Research Coordinator" | "Sponsor Contact"
+
+interface TeamMember {
+  name: string
+  role: TeamRole
+  org: string
+  email: string
+  phone: string
+}
+
+const teamRoleStyle: Record<TeamRole, string> = {
+  "Principal Investigator": "bg-accent/10 text-accent",
+  "Clinical Research Coordinator": "bg-success/15 text-success",
+  "Sponsor Contact": "bg-info/10 text-info",
+}
+
+const CRC_POOL = ["Ms. Meera Iyer", "Mr. Arjun Reddy", "Ms. Kavitha Nair", "Mr. Amit Singh", "Ms. Divya Menon", "Mr. Rohit Verma"]
+const SPONSOR_CONTACT_POOL = ["Rajesh Kumar", "Anita Verma", "Sanjay Mehta", "Pooja Nair"]
+
+function hashNum(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return h
+}
+
+function slug(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, "")
+}
+
+function emailFor(name: string, domain: string): string {
+  const clean = name.replace(/^(dr|mr|mrs|ms)\.?\s+/i, "").trim()
+  const parts = clean.split(/\s+/).filter(Boolean)
+  const handle = parts.length > 1 ? `${parts[0]}.${parts[parts.length - 1]}` : parts[0]
+  return `${handle.toLowerCase()}@${domain}`
+}
+
+function phoneFor(seed: string): string {
+  const n = hashNum(seed)
+  const part1 = 90000 + (n % 10000)
+  const part2 = 10000 + (Math.floor(n / 13) % 90000)
+  return `+91 ${part1} ${part2}`
+}
+
+function buildTeam(trial: TrialSummary): TeamMember[] {
+  const h = hashNum(trial.id)
+  const siteDomain = `${slug(trial.site).slice(0, 12) || "site"}.org`
+  const sponsorDomain = `${slug(trial.sponsor).slice(0, 14) || "sponsor"}.com`
+  const crc1 = CRC_POOL[h % CRC_POOL.length]
+  const crc2 = CRC_POOL[(h + 3) % CRC_POOL.length]
+  const sponsorContact = SPONSOR_CONTACT_POOL[h % SPONSOR_CONTACT_POOL.length]
+
+  return [
+    { name: trial.pi, role: "Principal Investigator", org: `${trial.site} · ${trial.department}`, email: emailFor(trial.pi, siteDomain), phone: phoneFor(trial.pi + trial.id) },
+    { name: crc1, role: "Clinical Research Coordinator", org: trial.site, email: emailFor(crc1, siteDomain), phone: phoneFor(crc1 + trial.id) },
+    { name: crc2, role: "Clinical Research Coordinator", org: trial.site, email: emailFor(crc2, siteDomain), phone: phoneFor(crc2 + trial.id) },
+    { name: sponsorContact, role: "Sponsor Contact", org: trial.sponsor, email: emailFor(sponsorContact, sponsorDomain), phone: phoneFor(sponsorContact + trial.id) },
+  ]
 }
 
 const patientStatusStyle: Record<string, { label: string; cls: string }> = {
@@ -166,6 +230,8 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
     { version: "v1.0", note: "Initial protocol", date: "15 Jan 2026" },
   ]
 
+  const team = buildTeam(data)
+
   return (
     <div className="h-full flex flex-col bg-surface">
       {/* Header */}
@@ -216,6 +282,42 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
               <Stethoscope className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
               <DetailRow label="Department" value={data.department} />
             </div>
+          </div>
+        </div>
+
+        {/* Panel — Trial Team (everyone related to this trial) */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-4 h-4 text-muted-foreground/70" />
+            <PanelTitle>Trial Team</PanelTitle>
+          </div>
+          <div className="space-y-2.5">
+            {team.map(m => (
+              <div key={`${m.role}-${m.name}`} className="rounded-xl border border-border bg-surface p-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                    {initials(m.name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground truncate">{m.name}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{m.org}</p>
+                  </div>
+                  <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0", teamRoleStyle[m.role])}>
+                    {m.role === "Principal Investigator" ? "PI" : m.role === "Clinical Research Coordinator" ? "CRC" : "Sponsor"}
+                  </span>
+                </div>
+                <div className="mt-2.5 pt-2.5 border-t border-border space-y-1.5">
+                  <a href={`mailto:${m.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info">
+                    <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">{m.email}</span>
+                  </a>
+                  <a href={`tel:${m.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info">
+                    <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{m.phone}</span>
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -1,17 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, ChevronDown, Camera, User, Lock, Globe, Bell, FileText, Shield, HelpCircle, LogOut, AlertTriangle, Eye, EyeOff, Check, X, MessageCircle, Mail, Phone, Clock } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown, Camera, User, Lock, Globe, Bell, FileText, Shield, ShieldCheck, HelpCircle, LogOut, AlertTriangle, Eye, EyeOff, Check, X, MessageCircle, Mail, Phone, Clock, Ticket } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
 import { toast } from "sonner"
+import { ticketStatusStyle, type SupportTicket } from "@/components/clinical/screens/site-user-profile"
 
 interface ProfileSettingsScreenProps {
   onBack?: () => void
   onLogout?: () => void
 }
 
-type Section = "main" | "edit-profile" | "change-password" | "notification-prefs" | "terms" | "privacy" | "help" | "faq" | "contact-support"
+type Section = "main" | "edit-profile" | "change-password" | "notification-prefs" | "terms" | "privacy" | "help" | "faq" | "contact-support" | "tickets"
 
 export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScreenProps) {
   const { t, setLang } = useLanguage()
@@ -71,10 +72,37 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   // Contact Support form
   const [contactForm, setContactForm] = useState({ category: "Login Issue", subject: "", description: "" })
   const [ticketSubmitted, setTicketSubmitted] = useState(false)
+  const [lastTicketId, setLastTicketId] = useState("")
+  const [tickets, setTickets] = useState<SupportTicket[]>([
+    { id: "#TKT-20260604-0031", subject: "Reminder not received for my next visit", category: "Notification Problem", status: "In Progress", date: "04 Jun 2026" },
+    { id: "#TKT-20260528-0019", subject: "Could not open my visit schedule", category: "App Bug", status: "Resolved", date: "28 May 2026" },
+  ])
+  const handleSubmitTicket = () => {
+    const newId = `#TKT-20260611-${String(43 + tickets.length).padStart(4, "0")}`
+    setTickets(prev => [{ id: newId, subject: contactForm.subject.trim() || "Support request", category: contactForm.category, status: "Open", date: "11 Jun 2026" }, ...prev])
+    setLastTicketId(newId)
+    setTicketSubmitted(true)
+    setContactForm({ category: "Login Issue", subject: "", description: "" })
+  }
 
   const saveProfile = () => {
     toast.success("Profile updated")
     setSection("main")
+  }
+
+  // ── DOB / Age helpers ────────────────────────────────────
+  const formatDob = (dob: string) => {
+    const d = new Date(dob)
+    return isNaN(d.getTime()) ? dob : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+  }
+  const computeAge = (dob: string) => {
+    const d = new Date(dob)
+    if (isNaN(d.getTime())) return null
+    const now = new Date()
+    let age = now.getFullYear() - d.getFullYear()
+    const m = now.getMonth() - d.getMonth()
+    if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--
+    return age
   }
 
   // ── HELPERS ──────────────────────────────────────────────
@@ -402,8 +430,9 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
             <p className="text-sm text-muted-foreground">We'll respond within 24 hours.</p>
             <div className="bg-card rounded-xl px-4 py-3 border border-border">
               <p className="text-xs text-muted-foreground">Ticket ID</p>
-              <p className="font-mono text-primary-deep font-semibold">#TKT-20250526-0042</p>
+              <p className="font-mono text-primary-deep font-semibold">{lastTicketId}</p>
             </div>
+            <button onClick={() => setSection("tickets")} className="text-sm text-info font-medium">View my tickets</button>
           </div>
         </div>
       )
@@ -431,9 +460,38 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
               placeholder="Describe your issue in detail..."
               className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary resize-none" />
           </div>
-          <button onClick={() => setTicketSubmitted(true)}
+          <button onClick={handleSubmitTicket}
             className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">
             Submit Ticket
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (section === "tickets") {
+    return (
+      <div className="h-full flex flex-col bg-surface">
+        <SubBar title="My Tickets" onPress={() => setSection("help")} />
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+          {tickets.length === 0 && (
+            <p className="text-sm text-muted-foreground/70 bg-card rounded-2xl border border-border p-6 text-center">You haven't raised any tickets yet.</p>
+          )}
+          {tickets.map(t => (
+            <div key={t.id} className="bg-card rounded-2xl border border-border shadow-sm p-4">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="font-mono text-xs font-semibold text-primary-deep">{t.id}</span>
+                <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", ticketStatusStyle(t.status))}>{t.status}</span>
+              </div>
+              <p className="text-sm font-medium text-foreground">{t.subject}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t.category} · {t.date}</p>
+            </div>
+          ))}
+        </div>
+        <div className="px-4 py-4 border-t border-border bg-card">
+          <button onClick={() => { setTicketSubmitted(false); setSection("contact-support") }}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white flex items-center justify-center gap-2">
+            <MessageCircle className="w-4 h-4" /> Raise New Ticket
           </button>
         </div>
       </div>
@@ -448,7 +506,7 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
           {[
             { icon: HelpCircle,    bg: "bg-info/10",    ic: "text-info",     label: "Frequently Asked Questions", sub: "Browse common questions",    action: () => setSection("faq") },
             { icon: MessageCircle, bg: "bg-success/15", ic: "text-success",   label: "Contact Support",            sub: "Get help from our team",     action: () => setSection("contact-support") },
-            { icon: AlertTriangle, bg: "bg-warning/15",   ic: "text-warning",     label: "Report an Issue",            sub: "Report a bug or problem",    action: () => setSection("contact-support") },
+            { icon: Ticket,        bg: "bg-violet/10",  ic: "text-violet",   label: "My Tickets",                 sub: "Track your raised tickets",  action: () => setSection("tickets") },
           ].map((item, i) => {
             const Icon = item.icon
             return (
@@ -511,9 +569,28 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
               <Camera className="w-4 h-4 text-info" />
             </button>
           </div>
-          <h2 className="font-bold text-foreground text-[18px] font-[family-name:var(--font-heading)]">Priya Kapoor</h2>
-          <p className="text-[13px] text-muted-foreground mt-0.5">priya.k@gmail.com</p>
-          <p className="text-[13px] text-muted-foreground">+91 98765 43210</p>
+          <h2 className="font-bold text-foreground text-[18px] font-[family-name:var(--font-heading)]">{profile.fullName}</h2>
+          <span className="px-3 py-1 bg-info/10 text-info text-xs rounded-full font-semibold mt-1">Patient</span>
+        </div>
+
+        {/* Profile Info Card */}
+        <div className="mx-4 mt-3 bg-card rounded-2xl border border-border p-4 shadow-xs">
+          {[
+            { label: "Name", val: profile.fullName },
+            { label: "DOB / Age", val: computeAge(profile.dob) != null ? `${formatDob(profile.dob)} · ${computeAge(profile.dob)} yrs` : formatDob(profile.dob) },
+            { label: "Gender", val: profile.gender },
+            { label: "Phone No.", val: `+91 ${profile.phone}`, verify: true },
+            { label: "Email ID", val: profile.email, verify: true },
+            { label: "Preferred Language", val: selectedLanguage },
+          ].map(r => (
+            <div key={r.label} className="py-2 border-b border-border last:border-0">
+              <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                {r.label}
+                {r.verify && <ShieldCheck className="w-3 h-3 text-warning" />}
+              </p>
+              <p className="text-sm text-foreground font-medium mt-0.5">{r.val}</p>
+            </div>
+          ))}
         </div>
 
         {/* Menu Items */}

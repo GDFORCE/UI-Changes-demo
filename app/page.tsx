@@ -164,6 +164,8 @@ export default function PatientVisitScheduleApp() {
   const [calendarView, setCalendarView] = useState<"day" | "week" | "month">("month")
   // Which PI-dashboard tab to open on when the nav routes into it.
   const [piTab, setPiTab] = useState<"dashboard" | "my-trials">("dashboard")
+  // Which entity owns the PI dashboard's profile ("smo" shows the SMO hospitals view).
+  const [piProfileEntity, setPiProfileEntity] = useState<"site" | "smo">("site")
   // Hide the bottom nav while a chat conversation (message thread) is open.
   const [chatConversationOpen, setChatConversationOpen] = useState(false)
 
@@ -273,7 +275,7 @@ export default function PatientVisitScheduleApp() {
       case "sponsor-dashboard":
         return <SponsorDashboard onNavigate={(screen) => navigate(screen as Screen)} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} initialTab={sponsorTab} />
       case "pi-dashboard":
-        return <PIDashboard initialTab={piTab} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} onNavigate={(screen) => navigate(screen as Screen)} />
+        return <PIDashboard initialTab={piTab} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} profileEntity={piProfileEntity} onNavigate={(screen) => navigate(screen as Screen)} />
       case "research-team-dashboard":
         return <ResearchTeamDashboard onNavigate={(screen) => navigate(screen as Screen)} />
       case "patient-dashboard":
@@ -597,11 +599,23 @@ export default function PatientVisitScheduleApp() {
               <button
                 onClick={() => {
                   setSelectedEntity("site")
+                  setPiProfileEntity("site")
                   navigate("pi-dashboard")
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
               >
                 Login as PI (Oversight)
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedEntity("site")
+                  setPiProfileEntity("smo")
+                  setPiTab("dashboard")
+                  navigate("pi-dashboard")
+                }}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
+              >
+                Login as SMO (Site Profile)
               </button>
               <button
                 onClick={() => {

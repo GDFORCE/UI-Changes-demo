@@ -17,6 +17,8 @@ interface PIDashboardProps {
   initialTab?: PiTab
   /** When set, the dashboard opens directly on this trial's summary (e.g. after saving a new trial). */
   initialTrialId?: string
+  /** Which entity the logged-in user belongs to. "smo" shows the SMO profile (hospitals + Add Hospital). */
+  profileEntity?: "site" | "smo"
 }
 
 type PiTab = "dashboard" | "my-trials" | "patients" | "approvals" | "chat" | "notifs" | "me"
@@ -185,11 +187,20 @@ const piSponsors = [
   { name: "NovaCure Bio", trials: [piTrials[2]] },
 ]
 
-const todayVisits = [
-  { id: "V1", patient: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 6", time: "9:00 AM", type: "Efficacy Assessment", done: false },
-  { id: "V2", patient: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", time: "11:30 AM", type: "Safety Follow-up", done: false },
-  { id: "V3", patient: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", time: "2:00 PM", type: "Lab & Vitals", done: true },
+type TodayVisit = {
+  id: string; patient: string; name: string; visit: string; time: string; type: string
+  protocol: string; indication: string; phase: string; pi: string; done: boolean
+  completedBy?: string; completedByRole?: string; completedAt?: string
+}
+const todayVisits: TodayVisit[] = [
+  { id: "V1", patient: "SUBJ-001", name: "Priya Krishnan", visit: "Visit 6", time: "9:00 AM", type: "Efficacy Assessment", protocol: "Protocol-001", indication: "Type 2 Diabetes", phase: "Phase II", pi: "Dr. Sharma", done: false },
+  { id: "V2", patient: "SUBJ-003", name: "Anita Patel", visit: "Visit 2", time: "11:30 AM", type: "Safety Follow-up", protocol: "Protocol-001", indication: "Type 2 Diabetes", phase: "Phase II", pi: "Dr. Sharma", done: false },
+  { id: "V3", patient: "SUBJ-004", name: "Vijay Sharma", visit: "Visit 5", time: "2:00 PM", type: "Lab & Vitals", protocol: "Protocol-005", indication: "Asthma", phase: "Phase III", pi: "Dr. Sharma", done: true, completedBy: "Priya Desai", completedByRole: "CRC", completedAt: "2:35 PM" },
 ]
+
+// Subjects are identified by initials only (privacy). "Priya Krishnan" → "P.K."
+const subjectInitials = (full: string) =>
+  full.split(/\s+/).filter(Boolean).map(w => w[0]?.toUpperCase() ?? "").join(".")
 
 const overduePatients = [
   { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", daysOverdue: 3, lastContact: "19 May" },
@@ -229,7 +240,7 @@ const statusStyle: Record<string, { label: string; bg: string; text: string }> =
   dropout:    { label: "Dropout",  bg: "bg-warning/15", text: "text-warning" },
 }
 
-export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrialId }: PIDashboardProps) {
+export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrialId, profileEntity = "site" }: PIDashboardProps) {
   const [activeTab, setActiveTab] = useState<PiTab>(initialTab)
   const [approvalTab, setApprovalTab] = useState<ApprovalSubTab>("deviations")
   const [signedDeviations, setSignedDeviations] = useState<Set<string>>(new Set())
@@ -489,19 +500,14 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
             const done = completedVisits.has(visit.id)
             return (
               <div key={visit.id} className={cn("bg-card rounded-2xl border border-border p-4 shadow-xs border-l-4 transition-all", done ? "border-teal-400" : "border-info")}>
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-sm">{visit.name}</p>
-                    <p className="text-xs text-muted-foreground/70">{visit.patient} · {visit.visit}</p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {visit.time}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{visit.type}</span>
-                    </div>
+                    <p className="font-semibold text-foreground text-sm">{visit.patient} · {subjectInitials(visit.name)}</p>
+                    <p className="text-xs text-muted-foreground/70">{visit.protocol} · {visit.pi}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{visit.visit} · {visit.type}</p>
                   </div>
                   {done ? (
-                    <div className="flex items-center gap-1 text-accent text-xs font-medium">
+                    <div className="flex items-center gap-1 text-accent text-xs font-medium shrink-0">
                       <CheckCircle className="w-4 h-4" /> Done
                     </div>
                   ) : (
@@ -513,6 +519,14 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                     </button>
                   )}
                 </div>
+
+                {/* Who completed it */}
+                {done && visit.completedBy && (
+                  <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-border text-[11px] text-muted-foreground">
+                    <CheckCircle className="w-3 h-3 text-accent shrink-0" />
+                    <span>Completed by <span className="font-medium text-foreground">{visit.completedBy}</span> ({visit.completedByRole}) · {visit.completedAt}</span>
+                  </div>
+                )}
               </div>
             )
           })}
@@ -771,7 +785,24 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   // ── Profile / Me tab ─────────────────────────────────────────────────────
   const renderMe = () => (
     <SiteUserProfile
-      user={{
+      user={profileEntity === "smo" ? {
+        initials: "RV",
+        avatarColor: "bg-accent",
+        name: "Dr. Ramesh Verma",
+        designation: "SMO Coordinator",
+        phone: "+91 98200 67890",
+        email: "ramesh.verma@medsite.com",
+        entityType: "SMO",
+        orgName: "MedSite Clinical Services",
+        orgAddress: "MG Road, Bengaluru 560001",
+        role: "PI",
+        department: "Operations",
+        hospitals: [
+          { name: "Apollo Hospital", address: "Greams Road, Chennai 600006", role: "PI", department: "Oncology" },
+          { name: "Fortis Hospital", address: "Bannerghatta Road, Bengaluru 560076", role: "PI", department: "Cardiology" },
+          { name: "Manipal Hospital", address: "HAL Airport Road, Bengaluru 560017", role: "Research Team" },
+        ],
+      } : {
         initials: "DS",
         avatarColor: "bg-primary",
         name: "Dr. Sharma",
@@ -993,11 +1024,11 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   return (
     <div className="h-full flex flex-col bg-surface relative">
       <AppBar
-        title="PI Dashboard"
-        subtitle="Dr. Sharma · Protocol-001"
+        title={profileEntity === "smo" ? "SMO Dashboard" : "PI Dashboard"}
+        subtitle={profileEntity === "smo" ? "Dr. Ramesh Verma" : "Dr. Sharma"}
         notificationCount={3}
         onNotificationClick={() => onNavigate("notifications")}
-        avatar="DS"
+        avatar={profileEntity === "smo" ? "RV" : "DS"}
         onAvatarClick={() => setActiveTab("me")}
       />
 
