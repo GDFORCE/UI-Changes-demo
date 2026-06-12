@@ -1,7 +1,7 @@
 "use client"
 
-import { AppBar } from "../app-bar"
-import { ShieldCheck, Eye, EyeOff } from "lucide-react"
+import { AuthHeader } from "../auth-header"
+import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -34,6 +34,9 @@ const QUESTION_POOLS: string[][] = [
 const NUM_QUESTIONS = QUESTION_POOLS.length
 const PLACEHOLDER = "Please select a question"
 
+const inputClass =
+  "w-full px-4 py-3 rounded-lg border border-border bg-card text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/15"
+
 export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsScreenProps) {
   const [questions, setQuestions] = useState<string[]>(Array(NUM_QUESTIONS).fill(""))
   const [answers, setAnswers] = useState<string[]>(Array(NUM_QUESTIONS).fill(""))
@@ -49,78 +52,77 @@ export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsS
   const allComplete = questions.every((q) => q) && answers.every((a) => a.trim().length > 0)
 
   return (
-    <div className="h-full flex flex-col bg-card">
-      <AppBar title="Account Security" showBack onBack={onBack} />
+    <div className="h-full flex flex-col bg-background paper-grain">
+      <AuthHeader
+        eyebrow="Step 3 of 5"
+        title="Only you would know"
+        subtitle="Three security questions help us verify it's you and recover your account if it's ever locked."
+        onBack={onBack}
+        step={3}
+      />
 
-      <div className="flex-1 px-5 py-5 overflow-auto">
-        {/* Intro */}
-        <div className="flex items-start gap-2.5 mb-5">
-          <ShieldCheck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Set up {NUM_QUESTIONS} security questions. We&apos;ll use these to verify it&apos;s you and to
-            recover your account if it gets locked. Choose answers only you would know.
-          </p>
-        </div>
-
-        <div className="space-y-6">
+      <div className="flex-1 px-6 pt-3 pb-4 overflow-auto">
+        <div className="space-y-4">
           {questions.map((selected, i) => (
-            <div key={i} className="space-y-3">
-              {/* Question */}
-              <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">
-                  Security Question {i + 1}:
-                </label>
-                <select
-                  value={selected}
-                  onChange={(e) => setQuestion(i, e.target.value)}
-                  className={cn(
-                    "w-full px-3.5 py-3 rounded-lg border border-border text-sm outline-none bg-card focus:border-primary focus:ring-2 focus:ring-info/15",
-                    selected ? "text-foreground" : "text-muted-foreground/70"
-                  )}
-                >
-                  <option value="" disabled>{PLACEHOLDER}</option>
-                  {QUESTION_POOLS[i].map((q) => (
-                    <option key={q} value={q} className="text-foreground">{q}</option>
-                  ))}
-                </select>
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-card shadow-xs p-4 space-y-3 animate-rise"
+              style={{ animationDelay: `${200 + i * 90}ms` }}
+            >
+              <div className="flex items-center gap-3">
+                <span className="font-heading text-lg tabular-nums text-accent">{String(i + 1).padStart(2, "0")}</span>
+                <span className="eyebrow text-muted-foreground">Security question</span>
               </div>
 
-              {/* Answer */}
-              <div>
-                <label className="block text-sm text-muted-foreground mb-1.5">Answer:</label>
-                <div className="relative">
-                  <input
-                    type={revealed[i] ? "text" : "password"}
-                    value={answers[i]}
-                    onChange={(e) => setAnswer(i, e.target.value)}
-                    className="w-full px-3.5 pr-10 py-3 rounded-lg border border-border outline-none text-sm text-foreground focus:border-primary focus:ring-2 focus:ring-info/15"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => toggleReveal(i)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground"
-                    aria-label={revealed[i] ? "Hide answer" : "Show answer"}
-                  >
-                    {revealed[i] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+              <select
+                value={selected}
+                onChange={(e) => setQuestion(i, e.target.value)}
+                className={cn(inputClass, selected ? "text-foreground" : "text-muted-foreground/60")}
+              >
+                <option value="" disabled>{PLACEHOLDER}</option>
+                {QUESTION_POOLS[i].map((q) => (
+                  <option key={q} value={q} className="text-foreground">{q}</option>
+                ))}
+              </select>
+
+              <div className="relative">
+                <input
+                  type={revealed[i] ? "text" : "password"}
+                  value={answers[i]}
+                  placeholder="Your answer"
+                  onChange={(e) => setAnswer(i, e.target.value)}
+                  className={cn(inputClass, "pr-10 placeholder:text-muted-foreground/55")}
+                />
+                <button
+                  type="button"
+                  onClick={() => toggleReveal(i)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-foreground"
+                  aria-label={revealed[i] ? "Hide answer" : "Show answer"}
+                >
+                  {revealed[i] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           ))}
         </div>
+
+        <p className="text-xs text-muted-foreground/70 text-center mt-5 leading-relaxed">
+          Choose answers that don't change over time and that only you would know.
+        </p>
       </div>
 
-      {/* Submit */}
-      <div className="px-5 py-4 border-t border-border">
+      <div className="px-6 py-4 bg-background/90 backdrop-blur-sm border-t border-border">
         <button
           onClick={onSubmit}
           disabled={!allComplete}
           className={cn(
-            "w-full py-3.5 rounded-xl font-semibold text-sm transition-all",
-            allComplete ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70"
+            "w-full py-4 rounded-full text-[15px] font-semibold tracking-tight transition-all duration-200",
+            allComplete
+              ? "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.99]"
+              : "bg-muted text-muted-foreground/60 cursor-not-allowed",
           )}
         >
-          Continue →
+          Continue
         </button>
       </div>
     </div>

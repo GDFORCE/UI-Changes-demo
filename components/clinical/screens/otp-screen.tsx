@@ -1,6 +1,6 @@
 "use client"
 
-import { AppBar } from "../app-bar"
+import { AuthHeader } from "../auth-header"
 import { Smartphone, Mail, Clock, ShieldOff } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
@@ -107,15 +107,15 @@ function OtpRow({
   }
 
   return (
-    <div className="w-full mb-6">
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 text-primary" />
-        <span className="text-sm text-muted-foreground">
-          {channel === "phone" ? "Phone" : "Email"} —{" "}
-          <span className="font-semibold text-foreground">{destination}</span>
+    <div className="w-full rounded-xl border border-border bg-card shadow-xs p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-primary">
+          <Icon className="w-3.5 h-3.5" />
         </span>
+        <span className="eyebrow text-muted-foreground">{channel === "phone" ? "Phone" : "Email"}</span>
+        <span className="text-sm font-medium text-foreground ml-auto tabular-nums">{destination}</span>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-between">
         {value.map((digit, index) => (
           <input
             key={index}
@@ -129,9 +129,12 @@ function OtpRow({
             onKeyDown={(e) => handleKeyDown(index, e)}
             onFocus={() => setFocusedIndex(index)}
             className={cn(
-              "w-11 h-14 text-center text-xl font-semibold rounded-lg border-2 outline-none transition-all",
-              digit ? "border-info bg-info/5"
-                : focusedIndex === index ? "border-primary bg-card" : "border-border bg-card"
+              "w-11 h-14 text-center font-heading text-xl rounded-lg border outline-none transition-all bg-background",
+              digit
+                ? "border-primary/50 bg-secondary/40 text-primary"
+                : focusedIndex === index
+                  ? "border-accent ring-2 ring-accent/15"
+                  : "border-border",
             )}
           />
         ))}
@@ -182,65 +185,84 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
   const allComplete = isPatient ? phoneComplete : phoneComplete && emailComplete
 
   return (
-    <div className="h-full flex flex-col bg-card">
-      <AppBar title="Verify OTP" showBack onBack={onBack} />
+    <div className="h-full flex flex-col bg-background paper-grain">
+      <AuthHeader
+        eyebrow="Step 4 of 5"
+        title={isLocked ? "Verification paused" : "Check your messages"}
+        subtitle={
+          isLocked
+            ? undefined
+            : isPatient
+              ? "We've sent a 6-digit code to your phone."
+              : "We've sent a 6-digit code to both your phone and your email."
+        }
+        onBack={onBack}
+        step={4}
+      />
 
-      <div className="flex-1 px-6 py-8 flex flex-col items-center overflow-auto">
-        <div className={cn("w-24 h-24 rounded-full flex items-center justify-center mb-6", isLocked ? "bg-destructive/10" : "bg-info/10")}>
-          {isLocked ? <ShieldOff className="w-12 h-12 text-destructive" /> : <Smartphone className="w-12 h-12 text-primary" />}
-        </div>
-
+      <div className="flex-1 px-6 pt-3 pb-4 overflow-auto">
         {isLocked ? (
-          <div className="text-center mb-8">
-            <p className="font-bold text-destructive text-lg mb-2">Account Temporarily Locked</p>
-            <p className="text-muted-foreground text-sm">Too many resend attempts. Please contact support or try again after 30 minutes.</p>
+          <div className="rounded-2xl border border-destructive/25 bg-destructive/5 p-6 text-center animate-rise" style={{ animationDelay: "120ms" }}>
+            <div className="mx-auto w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <ShieldOff className="w-7 h-7 text-destructive" />
+            </div>
+            <p className="font-heading text-lg text-destructive mb-1.5">Account temporarily locked</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Too many resend attempts. Please contact support or try again after 30 minutes.
+            </p>
           </div>
         ) : (
-          <>
-            <p className="text-muted-foreground text-center mb-6">
-              {isPatient
-                ? "We've sent a 6-digit OTP to your phone"
-                : "We've sent a 6-digit OTP to both your phone and email"}
-            </p>
-
-            {channels.map(ch => (
-              <OtpRow
-                key={ch}
-                channel={ch}
-                destination={ch === "phone" ? maskPhone(PHONE_COUNTRY_CODE, PHONE_NUMBER) : maskEmail(EMAIL)}
-                value={ch === "phone" ? phoneOtp : emailOtp}
-                onChange={(i, v) => setOtpDigit(ch, i, v)}
-              />
+          <div className="space-y-4">
+            {channels.map((ch, i) => (
+              <div key={ch} className="animate-rise" style={{ animationDelay: `${200 + i * 100}ms` }}>
+                <OtpRow
+                  channel={ch}
+                  destination={ch === "phone" ? maskPhone(PHONE_COUNTRY_CODE, PHONE_NUMBER) : maskEmail(EMAIL)}
+                  value={ch === "phone" ? phoneOtp : emailOtp}
+                  onChange={(i, v) => setOtpDigit(ch, i, v)}
+                />
+              </div>
             ))}
 
-            {timeLeft > 0 ? (
-              <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                <Clock className="w-4 h-4" />
-                <span>Expires in <span className="font-semibold text-primary">{formatTime(timeLeft)}</span></span>
+            <div className="flex items-center justify-between pt-2 animate-rise" style={{ animationDelay: "400ms" }}>
+              {timeLeft > 0 ? (
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4" />
+                  <span>
+                    Expires in <span className="font-semibold text-primary tabular-nums">{formatTime(timeLeft)}</span>
+                  </span>
+                </div>
+              ) : (
+                <p className="text-destructive text-sm font-medium">OTP expired</p>
+              )}
+              <div className="text-right">
+                <button
+                  onClick={handleResend}
+                  disabled={timeLeft > 0}
+                  className={cn(
+                    "text-sm font-semibold",
+                    timeLeft > 0 ? "text-muted-foreground/50" : "text-accent hover:underline",
+                  )}
+                >
+                  Resend OTP
+                </button>
+                <p className="text-[11px] text-muted-foreground/60">{resendCount}/{MAX_RESEND} resends used</p>
               </div>
-            ) : (
-              <p className="text-destructive text-sm mb-4">OTP expired</p>
-            )}
-
-            <div className="flex flex-col items-center gap-1 mb-8">
-              <button
-                onClick={handleResend}
-                disabled={timeLeft > 0}
-                className={cn("font-medium", timeLeft > 0 ? "text-muted-foreground/70" : "text-primary")}
-              >
-                Resend OTP
-              </button>
-              <p className="text-xs text-muted-foreground/70">{resendCount}/{MAX_RESEND} resend attempts used</p>
             </div>
-          </>
+          </div>
         )}
       </div>
 
-      <div className="px-6 py-4">
+      <div className="px-6 py-4 bg-background/90 backdrop-blur-sm border-t border-border">
         <button
           onClick={onVerify}
           disabled={isLocked || !allComplete}
-          className={cn("w-full py-4 rounded-full font-semibold", isLocked || !allComplete ? "bg-border text-muted-foreground/70" : "bg-primary text-white")}
+          className={cn(
+            "w-full py-4 rounded-full text-[15px] font-semibold tracking-tight transition-all duration-200",
+            isLocked || !allComplete
+              ? "bg-muted text-muted-foreground/60 cursor-not-allowed"
+              : "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.99]",
+          )}
         >
           Verify OTP
         </button>

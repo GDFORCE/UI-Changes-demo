@@ -26,10 +26,10 @@ interface SponsorDashboardProps {
 const mockData = {
   user: { name: "Rajesh Kumar", initials: "RK", role: "Sponsor Admin", designation: "Clinical Operations Lead", org: "PharmaCo Ltd", orgAddress: "4th Floor, Cyber Towers, HITEC City, Hyderabad 500081", email: "rajesh.kumar@pharmaco.com", phone: "+91 98765 43210" },
   trials: [
-    { id: "Protocol-001", name: "Diabetes Phase II", phase: "Phase II", indication: "Type 2 Diabetes", drug: "Metformin XR", duration: "18 months", ctri: "CTRI/2024/001", totalVisits: 18, sponsor: "PharmaCo Ltd", status: "Active", sites: 3, screened: 48, enrolled: 45, target: 100, completed: 12, screenFail: 8, randomized: 40, withdrawn: 3, dropouts: 2, followUp: 23, scheduleVersion: "v3", lastModified: "12 May 2025", modifiedBy: "Dr. Sharma" },
-    { id: "Protocol-002", name: "Hypertension Study", phase: "Phase III", indication: "Hypertension", drug: "Amlodipine", duration: "24 months", ctri: "CTRI/2024/002", totalVisits: 12, sponsor: "PharmaCo Ltd", status: "Active", sites: 2, screened: 32, enrolled: 28, target: 60, completed: 5, screenFail: 4, randomized: 28, withdrawn: 1, dropouts: 0, followUp: 22, scheduleVersion: "v1", lastModified: "8 May 2025", modifiedBy: "Dr. Rao" },
-    { id: "Protocol-003", name: "Oncology Phase I", phase: "Phase I", indication: "NSCLC", drug: "Osimertinib", duration: "12 months", ctri: "CTRI/2023/045", totalVisits: 8, sponsor: "PharmaCo Ltd", status: "Completed", sites: 1, screened: 20, enrolled: 18, target: 20, completed: 18, screenFail: 2, randomized: 18, withdrawn: 0, dropouts: 0, followUp: 0, scheduleVersion: "v2", lastModified: "1 May 2025", modifiedBy: "Admin" },
-    { id: "Protocol-004", name: "Cardiology Trial", phase: "Phase II", indication: "Heart Failure", drug: "Sacubitril/Valsartan", duration: "18 months", ctri: "CTRI/2024/078", totalVisits: 14, sponsor: "PharmaCo Ltd", status: "Terminated", sites: 2, screened: 15, enrolled: 12, target: 40, completed: 0, screenFail: 3, randomized: 10, withdrawn: 4, dropouts: 2, followUp: 4, scheduleVersion: "v1", lastModified: "10 Apr 2025", modifiedBy: "Admin" },
+    { id: "Protocol-001", name: "Phase III, Randomized, Double-blinded, Parallel Group, Multi-centre, Study to Assess the Efficacy and Safety of ZD6474 (ZACTIMA™) in Combination with Pemetrexed (Alimta®) versus Pemetrexed alone in Patients with Locally Advanced or Metastatic (stage IIIB or IV) Non-Small Cell Lung Cancer (NSCLC) after Failure of 1st Line Anti-cancer Therapy. Acronym: ZEAL", phase: "Phase II", indication: "Type 2 Diabetes", drug: "Metformin XR", duration: "18 months", ctri: "CTRI/2024/001", totalVisits: 18, sponsor: "PharmaCo Ltd", status: "Active", sites: 3, screened: 48, enrolled: 45, target: 100, completed: 12, screenFail: 8, randomized: 40, withdrawn: 3, dropouts: 2, followUp: 23, scheduleVersion: "v3", lastModified: "12 May 2025", modifiedBy: "Dr. Sharma" },
+    { id: "Protocol-002", name: "Phase III, Randomized, Double-blinded, Parallel Group, Multi-centre, Study to Assess the Efficacy and Safety of ZD6474 (ZACTIMA™) in Combination with Pemetrexed (Alimta®) versus Pemetrexed alone in Patients with Locally Advanced or Metastatic (stage IIIB or IV) Non-Small Cell Lung Cancer (NSCLC) after Failure of 1st Line Anti-cancer Therapy. Acronym: ZEAL", phase: "Phase III", indication: "Hypertension", drug: "Amlodipine", duration: "24 months", ctri: "CTRI/2024/002", totalVisits: 12, sponsor: "PharmaCo Ltd", status: "Active", sites: 2, screened: 32, enrolled: 28, target: 60, completed: 5, screenFail: 4, randomized: 28, withdrawn: 1, dropouts: 0, followUp: 22, scheduleVersion: "v1", lastModified: "8 May 2025", modifiedBy: "Dr. Rao" },
+    { id: "Protocol-003", name: "Phase III, Randomized, Double-blinded, Parallel Group, Multi-centre, Study to Assess the Efficacy and Safety of ZD6474 (ZACTIMA™) in Combination with Pemetrexed (Alimta®) versus Pemetrexed alone in Patients with Locally Advanced or Metastatic (stage IIIB or IV) Non-Small Cell Lung Cancer (NSCLC) after Failure of 1st Line Anti-cancer Therapy. Acronym: ZEAL", phase: "Phase I", indication: "NSCLC", drug: "Osimertinib", duration: "12 months", ctri: "CTRI/2023/045", totalVisits: 8, sponsor: "PharmaCo Ltd", status: "Completed", sites: 1, screened: 20, enrolled: 18, target: 20, completed: 18, screenFail: 2, randomized: 18, withdrawn: 0, dropouts: 0, followUp: 0, scheduleVersion: "v2", lastModified: "1 May 2025", modifiedBy: "Admin" },
+    { id: "Protocol-004", name: "Phase III, Randomized, Double-blinded, Parallel Group, Multi-centre, Study to Assess the Efficacy and Safety of ZD6474 (ZACTIMA™) in Combination with Pemetrexed (Alimta®) versus Pemetrexed alone in Patients with Locally Advanced or Metastatic (stage IIIB or IV) Non-Small Cell Lung Cancer (NSCLC) after Failure of 1st Line Anti-cancer Therapy. Acronym: ZEAL", phase: "Phase II", indication: "Heart Failure", drug: "Sacubitril/Valsartan", duration: "18 months", ctri: "CTRI/2024/078", totalVisits: 14, sponsor: "PharmaCo Ltd", status: "Terminated", sites: 2, screened: 15, enrolled: 12, target: 40, completed: 0, screenFail: 3, randomized: 10, withdrawn: 4, dropouts: 2, followUp: 4, scheduleVersion: "v1", lastModified: "10 Apr 2025", modifiedBy: "Admin" },
   ],
   sites: [
     { id: "SITE-001", name: "Apollo Mumbai", hospital: "Apollo Hospitals Mumbai", city: "Mumbai", state: "Maharashtra", status: "Active", pi: "Dr. Rajesh Sharma", piEmail: "r.sharma@apollo.com", piPhone: "+91 98100 12345", crc: "Ms. Priya Desai", enrolled: 72, target: 85, enrollmentPct: 85, trials: ["Protocol-001", "Protocol-002"], patients: 72, visitCompliance: 89, overdueVisits: 3, department: "Endocrinology", screened: 80, screenFail: 8, randomized: 70, withdrawn: 3, dropouts: 2, followUp: 55, completed: 12 },
@@ -138,7 +138,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   const [showAddSite, setShowAddSite] = useState(false)
   const [siteEntryMode, setSiteEntryMode] = useState<"single" | "upload">("single")
   const [newSite, setNewSite] = useState({
-    protocolId: "", siteName: "", siteAddress: "", piName: "", department: "",
+    protocolId: "", siteName: "", siteAddress: "", hospitalType: "Private", piName: "", department: "",
     piEmail: "", accessType: "Patient Management",
   })
   const [addSiteSuccess, setAddSiteSuccess] = useState(false)
@@ -289,7 +289,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
     setTimeout(() => {
       setAddSiteSuccess(false)
       setShowAddSite(false)
-      setNewSite({ protocolId: "", siteName: "", siteAddress: "", piName: "", department: "", piEmail: "", accessType: "Patient Management" })
+      setNewSite({ protocolId: "", siteName: "", siteAddress: "", hospitalType: "Private", piName: "", department: "", piEmail: "", accessType: "Patient Management" })
     }, 1400)
   }
 
@@ -828,8 +828,6 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                         <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
                       </div>
                     </div>
-                    {/* Study Title */}
-                    <h4 className="font-semibold text-foreground text-sm mb-2">{t.name}</h4>
                     {/* Phase · Disease · Drug · Sites */}
                     <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
                       <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
@@ -837,9 +835,11 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                       <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
                       <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-foreground">{t.sites}</p></div>
                     </div>
-                    {/* Enrollment Bar */}
-                    <ProgressBar value={Math.round((t.enrolled / t.target) * 100)} />
-                    <p className="text-xs text-muted-foreground mt-1">{t.enrolled}/{t.target} enrolled</p>
+                    {/* Study Title */}
+                    <p className="text-xs font-normal text-muted-foreground leading-relaxed mb-3">{t.name}</p>
+                    {/* Randomization Bar */}
+                    <ProgressBar value={Math.round((t.randomized / t.target) * 100)} />
+                    <p className="text-xs text-muted-foreground mt-1">{t.randomized}/{t.target} randomized</p>
                   </button>
                 ))}
               </div>
@@ -974,8 +974,6 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                     <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{t.id}</span>
                     <div className="flex items-center gap-2"><StatusBadge status={t.status} /><ChevronRight className="w-4 h-4 text-muted-foreground/70" /></div>
                   </div>
-                  {/* Study Title */}
-                  <h4 className="font-semibold text-foreground text-sm mb-2">{t.name}</h4>
                   {/* Phase · Disease · Drug · Sites */}
                   <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
                     <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
@@ -983,6 +981,8 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                     <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
                     <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-foreground">{t.sites}</p></div>
                   </div>
+                  {/* Study Title */}
+                  <p className="text-xs font-normal text-muted-foreground leading-relaxed mb-3">{t.name}</p>
                   {/* Enrollment Bar */}
                   <ProgressBar value={Math.round((t.enrolled / t.target) * 100)} />
                   <p className="text-xs text-muted-foreground mt-1">{t.enrolled}/{t.target} enrolled</p>
@@ -1315,6 +1315,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                           <input value={newSite.siteAddress} onChange={e => setNewSite(p => ({ ...p, siteAddress: e.target.value }))}
                             placeholder="Building, Street, City, State"
                             className="w-full px-4 py-3 rounded-xl border border-border outline-none text-sm focus:border-primary" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground/80 mb-1.5">Hospital Type</label>
+                          <div className="flex rounded-xl border border-border overflow-hidden">
+                            {(["Private", "Government"] as const).map(t => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => setNewSite(p => ({ ...p, hospitalType: t }))}
+                                className={cn("flex-1 py-2.5 text-sm font-medium", newSite.hospitalType === t ? "bg-primary text-white" : "bg-card text-muted-foreground")}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-foreground/80 mb-1.5">PI Name</label>

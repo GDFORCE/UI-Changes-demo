@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { MobileFrame } from "@/components/clinical/mobile-frame"
 import { BottomNav, type UserRole } from "@/components/clinical/bottom-nav"
+import { MtbLogoMark } from "@/components/clinical/mtb-logo"
 import { WelcomeScreen } from "@/components/clinical/screens/welcome-screen"
 import { EntityTypeScreen } from "@/components/clinical/screens/entity-type-screen"
 import { RegistrationScreen } from "@/components/clinical/screens/registration-screen"
@@ -163,7 +164,9 @@ export default function PatientVisitScheduleApp() {
   // Which view the PI/CRC calendar should open in (deep-linked from the dashboard).
   const [calendarView, setCalendarView] = useState<"day" | "week" | "month">("month")
   // Which PI-dashboard tab to open on when the nav routes into it.
-  const [piTab, setPiTab] = useState<"dashboard" | "my-trials">("dashboard")
+  const [piTab, setPiTab] = useState<"dashboard" | "my-trials" | "patients">("dashboard")
+  // Which research-team (CRC) dashboard tab to open on when the nav routes into it.
+  const [crcTab, setCrcTab] = useState<"dashboard" | "patients">("dashboard")
   // Which entity owns the PI dashboard's profile ("smo" shows the SMO hospitals view).
   const [piProfileEntity, setPiProfileEntity] = useState<"site" | "smo">("site")
   // Hide the bottom nav while a chat conversation (message thread) is open.
@@ -183,6 +186,14 @@ export default function PatientVisitScheduleApp() {
     }
     setHistory([...history, target as Screen])
     setCurrentScreen(target as Screen)
+  }
+
+  // After adding/inviting a patient, return to the Patients view of whichever
+  // dashboard launched the flow — not the standalone legacy patient-list screen.
+  const returnToPatients = () => {
+    if (history.includes("pi-dashboard")) { setPiTab("patients"); navigate("pi-dashboard") }
+    else if (history.includes("research-team-dashboard")) { setCrcTab("patients"); navigate("research-team-dashboard") }
+    else navigate("patient-list")
   }
 
   const goBack = () => {
@@ -277,7 +288,7 @@ export default function PatientVisitScheduleApp() {
       case "pi-dashboard":
         return <PIDashboard initialTab={piTab} initialTrialId={openTrialSummary ? "Protocol-001" : undefined} profileEntity={piProfileEntity} onNavigate={(screen) => navigate(screen as Screen)} />
       case "research-team-dashboard":
-        return <ResearchTeamDashboard onNavigate={(screen) => navigate(screen as Screen)} />
+        return <ResearchTeamDashboard initialTab={crcTab} onNavigate={(screen) => navigate(screen as Screen)} />
       case "patient-dashboard":
         return <PatientDashboard onNavigate={(screen) => navigate(screen as Screen)} />
       case "add-trial":
@@ -308,7 +319,7 @@ export default function PatientVisitScheduleApp() {
       case "add-patient":
         return (
           <AddPatientScreen
-            onAdd={() => navigate("patient-list")}
+            onAdd={returnToPatients}
             onBack={goBack}
           />
         )
@@ -480,6 +491,16 @@ export default function PatientVisitScheduleApp() {
   // The nav is hidden while a chat conversation (message thread) is open.
   const navVisible = isGlobalNavScreen && !(currentScreen === "chat" && chatConversationOpen)
 
+  // The pre-login flow sits on ivory paper, so its status bar is ink-on-paper;
+  // post-login screens keep the forest status bar that matches their app bar.
+  const lightStatusBar = authScreens.includes(currentScreen)
+  const statusBarClassName =
+    currentScreen === "welcome"
+      ? "bg-transparent text-foreground absolute top-0 left-0 right-0 z-20"
+      : lightStatusBar
+        ? "bg-transparent text-foreground"
+        : ""
+
   // Highlight the nav tab that matches the current screen (best-effort).
   const globalActiveTab: Record<string, string> = {
     "patient-list": "patients",
@@ -510,59 +531,92 @@ export default function PatientVisitScheduleApp() {
       else if (tab === "calendar") navigate("pi-calendar")
       else if (tab === "me") navigate("profile-settings")
     } else if (navRole === "crc") {
-      if (tab === "dashboard") navigate("research-team-dashboard")
-      else if (tab === "patients") navigate("patient-list")
+      if (tab === "dashboard") { setCrcTab("dashboard"); navigate("research-team-dashboard") }
+      else if (tab === "patients") { setCrcTab("patients"); navigate("research-team-dashboard") }
       else if (tab === "calendar") navigate("crc-calendar")
       else if (tab === "me") navigate("profile-settings")
     }
   }
 
+  const roleLogins = [
+    { label: "Sponsor", sub: "Trial owner", action: () => { setSelectedEntity("sponsor"); navigate("sponsor-dashboard") } },
+    { label: "PI — Oversight", sub: "Principal investigator", action: () => { setSelectedEntity("site"); setPiProfileEntity("site"); navigate("pi-dashboard") } },
+    { label: "SMO", sub: "Site profile", action: () => { setSelectedEntity("site"); setPiProfileEntity("smo"); setPiTab("dashboard"); navigate("pi-dashboard") } },
+    { label: "CRC / Research Team", sub: "Site coordinator", action: () => { setSelectedEntity("site"); navigate("research-team-dashboard") } },
+    { label: "Patient", sub: "Trial participant", action: () => { setSelectedEntity("patient"); navigate("patient-dashboard") } },
+  ]
+
+  const patientFeatures = [
+    { label: "My Trial Hub", screen: "my-trial" },
+    { label: "Patient Calendar", screen: "patient-calendar" },
+    { label: "My Visits", screen: "my-visits" },
+    { label: "Medication Reminder", screen: "medication-reminder" },
+    { label: "Chat Interface", screen: "chat" },
+    { label: "About Trial", screen: "about-trial" },
+    { label: "Profile & Settings", screen: "profile-settings" },
+  ]
+
   return (
     <LanguageProvider>
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Patient Visit Schedule</h1>
-          <p className="text-muted-foreground">Clinical Trial Visit Management App UI</p>
-        </div>
+        {/* ── Masthead ── */}
+        <header className="mb-8">
+          <div className="flex items-center justify-center gap-4">
+            <MtbLogoMark className="w-12 h-12 rounded-xl shadow-sm" />
+            <div className="text-left">
+              <p className="eyebrow text-accent">My Trial Board · Design Console</p>
+              <h1 className="display-serif text-3xl text-foreground leading-tight">
+                Patient Visit Schedule
+              </h1>
+            </div>
+          </div>
+          <div className="mt-6 flex items-center gap-4 max-w-3xl mx-auto">
+            <span className="h-px flex-1 bg-border" />
+            <p className="eyebrow text-muted-foreground/60">Clinical Editorial · Phase 1 Mobile</p>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+        </header>
 
         <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-          {/* Screen Navigator */}
-          <div className="w-full lg:w-72 bg-card rounded-2xl shadow-lg p-4 order-2 lg:order-1 max-h-[80vh] overflow-y-auto">
-            <h2 className="font-semibold text-foreground mb-4">Navigate Screens</h2>
+          {/* ── Screen index ── */}
+          <aside className="w-full lg:w-72 bg-card rounded-2xl border border-border shadow-sm p-5 order-2 lg:order-1 max-h-[80vh] overflow-y-auto">
+            <h2 className="font-heading text-lg text-foreground mb-4">Screen index</h2>
             {screenCategories.map((category) => (
-              <div key={category.name} className="mb-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                  {category.name}
-                </h3>
-                <div className="space-y-1">
+              <div key={category.name} className="mb-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="eyebrow text-primary shrink-0">{category.name}</h3>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+                <div className="space-y-0.5">
                   {category.screens.map((screen) => (
                     <button
                       key={screen.id}
                       onClick={() => navigate(screen.id as Screen)}
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-all",
+                        "w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2",
                         currentScreen === screen.id
-                          ? "bg-primary text-white"
-                          : "text-foreground/80 hover:bg-muted"
+                          ? "bg-primary text-primary-foreground font-medium shadow-xs"
+                          : "text-foreground/75 hover:bg-surface hover:text-foreground"
                       )}
                     >
+                      <span
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full shrink-0",
+                          currentScreen === screen.id ? "bg-accent" : "bg-border"
+                        )}
+                      />
                       {screen.label}
                     </button>
                   ))}
                 </div>
               </div>
             ))}
-          </div>
+          </aside>
 
-          {/* Mobile Frame */}
+          {/* ── Mobile Frame ── */}
           <div className="order-1 lg:order-2 flex justify-center">
-            <MobileFrame
-              statusBarClassName={
-                currentScreen === "welcome" ? "bg-transparent absolute top-0 left-0 right-0 z-10" : ""
-              }
-            >
+            <MobileFrame statusBarClassName={statusBarClassName}>
               {isGlobalNavScreen && navRole ? (
                 <div className="h-full flex flex-col">
                   <div className="flex-1 min-h-0 overflow-auto">{renderedScreen}</div>
@@ -583,137 +637,80 @@ export default function PatientVisitScheduleApp() {
             </MobileFrame>
           </div>
 
-          {/* Quick Actions */}
-          <div className="w-full lg:w-72 bg-card rounded-2xl shadow-lg p-4 order-3 max-h-[80vh] overflow-y-auto">
-            <h2 className="font-semibold text-foreground mb-4">Quick Actions</h2>
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  setSelectedEntity("sponsor")
-                  navigate("sponsor-dashboard")
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-info/5 text-primary hover:bg-info/10"
-              >
-                Login as Sponsor
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedEntity("site")
-                  setPiProfileEntity("site")
-                  navigate("pi-dashboard")
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
-              >
-                Login as PI (Oversight)
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedEntity("site")
-                  setPiProfileEntity("smo")
-                  setPiTab("dashboard")
-                  navigate("pi-dashboard")
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
-              >
-                Login as SMO (Site Profile)
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedEntity("site")
-                  navigate("research-team-dashboard")
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-success/10 text-success hover:bg-success/15"
-              >
-                Login as CRC / Research Team
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedEntity("patient")
-                  navigate("patient-dashboard")
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-violet/5 text-violet hover:bg-violet/10"
-              >
-                Login as Patient
-              </button>
+          {/* ── Quick actions ── */}
+          <aside className="w-full lg:w-72 bg-card rounded-2xl border border-border shadow-sm p-5 order-3 max-h-[80vh] overflow-y-auto">
+            <h2 className="font-heading text-lg text-foreground mb-4">Quick actions</h2>
 
-              <div className="h-px bg-border my-3" />
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Patient Features
-              </p>
-              <button
-                onClick={() => navigate("my-trial")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-accent/5 text-accent hover:bg-accent/10"
-              >
-                My Trial Hub
-              </button>
-              <button
-                onClick={() => navigate("patient-calendar")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-info/5 text-info hover:bg-info/10"
-              >
-                Patient Calendar
-              </button>
-              <button
-                onClick={() => navigate("my-visits")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-violet/5 text-violet hover:bg-violet/10"
-              >
-                My Visits
-              </button>
-              <button
-                onClick={() => navigate("medication-reminder")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-pink-50 text-pink-700 hover:bg-pink-100"
-              >
-                Medication Reminder
-              </button>
-              <button
-                onClick={() => navigate("chat")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
-              >
-                Chat Interface
-              </button>
-              <button
-                onClick={() => navigate("about-trial")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-warning/10 text-warning hover:bg-warning/15"
-              >
-                About Trial
-              </button>
-              <button
-                onClick={() => navigate("profile-settings")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-surface text-foreground/80 hover:bg-muted"
-              >
-                Profile & Settings
-              </button>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="eyebrow text-primary shrink-0">Sign in as</p>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <div className="space-y-1.5 mb-5">
+              {roleLogins.map((role, i) => (
+                <button
+                  key={role.label}
+                  onClick={role.action}
+                  className="group w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl border border-border bg-background transition-all hover:border-primary/40 hover:shadow-xs"
+                >
+                  <span className="font-heading text-sm tabular-nums text-accent w-6">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                      {role.label}
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground">{role.sub}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
 
-              <div className="h-px bg-border my-3" />
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Trial Actions
-              </p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="eyebrow text-primary shrink-0">Patient features</p>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <div className="space-y-0.5 mb-5">
+              {patientFeatures.map((f) => (
+                <button
+                  key={f.label}
+                  onClick={() => navigate(f.screen as Screen)}
+                  className="w-full text-left px-3 py-2 rounded-lg text-sm text-foreground/75 transition-colors hover:bg-surface hover:text-foreground"
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 mb-2">
+              <p className="eyebrow text-primary shrink-0">Trial actions</p>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <div className="space-y-1.5">
               <button
                 onClick={() => navigate("add-trial")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-warning/10 text-warning hover:bg-warning/15"
+                className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium border border-accent/30 bg-accent/5 text-accent transition-colors hover:bg-accent/10"
               >
-                Add New Trial
+                + Add New Trial
               </button>
               <button
                 onClick={() => navigate("add-patient")}
-                className="w-full text-left px-3 py-2 rounded-lg text-sm bg-success/10 text-success hover:bg-success/15"
+                className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium border border-primary/25 bg-secondary/40 text-primary transition-colors hover:bg-secondary/70"
               >
-                Add New Patient
+                + Add New Patient
               </button>
             </div>
 
-            <div className="mt-6 pt-4 border-t">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Current Path
-              </h3>
+            <div className="mt-6 pt-4 border-t border-border">
+              <p className="eyebrow text-muted-foreground/70 mb-2">Current path</p>
               <div className="flex flex-wrap gap-1">
                 {history.map((screen, i) => (
-                  <span key={i} className="text-xs bg-muted px-2 py-1 rounded">
+                  <span key={i} className="text-[11px] bg-surface border border-border px-2 py-0.5 rounded-full text-muted-foreground">
                     {screen}
                   </span>
                 ))}
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </div>

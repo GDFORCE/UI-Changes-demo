@@ -1,0 +1,25 @@
+<svg width="300" height="64" viewBox="0 0 300 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- MTB / My Trial Board — horizontal lockup.
+       Wordmark uses Sora (the app heading font); falls back to system-ui where Sora isn't loaded. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2B4F97"/>
+      <stop offset="0.55" stop-color="#1A3872"/>
+      <stop offset="1" stop-color="#0D1B3E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="32" cy="4" r="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dot" x1="28.4" y1="16.4" x2="35.6" y2="23.6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14.5" fill="url(#tile)"/>
+  <rect width="64" height="64" rx="14.5" fill="url(#glow)"/>
+  <path d="M15 45.5 L22.5 21.5 L32 39 L41.5 21.5 L49 45.5" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="20" r="3.6" fill="url(#dot)"/>
+  <text x="80" y="34" font-family="Sora, 'DM Sans', system-ui, sans-serif" font-size="23" font-weight="700" fill="#0D1B3E">My Trial Board</text>
+  <text x="80" y="52" font-family="'DM Sans', system-ui, sans-serif" font-size="12" font-weight="500" letter-spacing="0.04em" fill="#0D9488">VISIT SCHEDULE MANAGEMENT</text>
+</svg>

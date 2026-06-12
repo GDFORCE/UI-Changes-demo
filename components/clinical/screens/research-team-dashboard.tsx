@@ -14,6 +14,7 @@ import { SiteUserProfile } from "@/components/clinical/screens/site-user-profile
 
 interface ResearchTeamDashboardProps {
   onNavigate: (screen: string) => void
+  initialTab?: CrcTab
 }
 
 type CrcTab = "dashboard" | "patients" | "tasks" | "chat" | "notifs" | "me"
@@ -227,8 +228,8 @@ const categoryIcon: Record<string, React.FC<{ className?: string }>> = {
   screening: Users,
 }
 
-export function ResearchTeamDashboard({ onNavigate }: ResearchTeamDashboardProps) {
-  const [activeTab, setActiveTab] = useState<CrcTab>("dashboard")
+export function ResearchTeamDashboard({ onNavigate, initialTab = "dashboard" }: ResearchTeamDashboardProps) {
+  const [activeTab, setActiveTab] = useState<CrcTab>(initialTab)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("today")
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [selectedTrial, setSelectedTrial] = useState<typeof crcTrials[0] | null>(null)

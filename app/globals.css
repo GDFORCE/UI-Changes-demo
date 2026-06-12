@@ -4,120 +4,128 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ---------------------------------------------------------------------------
-   My Trial Board — design tokens
-   Brand: clinical navy (#1A3872) + teal (#0D9488), expressed as OKLCH.
+   My Trial Board — "Clinical Editorial" design tokens
+   Identity: warm ivory paper, forest-ink green, coral accent. The app should
+   read like a premium health publication — calm, human, precise.
+
+   Brand anchors (expressed below as OKLCH):
+   - Paper:    #FAF7F2 ivory  — page wash, never pure white pages
+   - Ink:      #1F2B26 green-tinted near-black — all primary text
+   - Forest:   #1B3A2F primary — headers, primary actions
+   - Coral:    #E8674A accent — the single vivid voice; alerts, highlights, focus
    Rules of use:
    - Never hardcode hex in components; use the semantic tokens below.
-   - Surfaces: background (page) → surface (tinted section) → card (white).
-   - Radius: cards rounded-xl/2xl, inputs rounded-md/lg, pills rounded-full.
-   - Elevation: shadow-xs for cards, shadow-sm on hover, shadow-md+ for
-     overlays. Always pair with a 1px border-border hairline.
+   - Surfaces: background (ivory page) → surface (deeper cream) → card (warm white).
+   - Type: Fraunces (font-heading) for display/headings, Instrument Sans for UI.
+   - Labels: small-caps eyebrow style (.eyebrow) instead of bold mini-headings.
+   - Radius: cards rounded-xl/2xl, inputs rounded-lg, pills rounded-full.
+   - Elevation: warm, low-contrast shadows. Always pair with a hairline border.
 --------------------------------------------------------------------------- */
 
 :root {
-  --background: oklch(0.9842 0.0034 247.86); /* slate-50 page wash */
-  --surface: oklch(0.9755 0.005 250);        /* tinted panels on white cards */
-  --foreground: oklch(0.21 0.0398 265.75);   /* navy-tinted ink (slate-900) */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.0398 265.75);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.0398 265.75);
-  --primary: oklch(0.353 0.1065 261.94);     /* brand navy #1A3872 */
-  --primary-deep: oklch(0.233 0.0698 265.03);/* deep navy #0D1B3E — gradients, hero */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.932 0.0316 255.59);   /* blue-100 tint */
-  --secondary-foreground: oklch(0.353 0.1065 261.94);
-  --muted: oklch(0.9683 0.0069 247.9);       /* slate-100 */
-  --muted-foreground: oklch(0.51 0.038 257); /* AA on white and muted */
-  --accent: oklch(0.6002 0.1038 184.7);      /* brand teal #0D9488 */
+  --background: oklch(0.978 0.007 84);        /* ivory paper #FAF7F2 */
+  --surface: oklch(0.961 0.011 83);           /* deeper cream panels */
+  --foreground: oklch(0.265 0.024 162);       /* green-tinted ink */
+  --card: oklch(0.993 0.004 91);              /* warm white card */
+  --card-foreground: oklch(0.265 0.024 162);
+  --popover: oklch(0.993 0.004 91);
+  --popover-foreground: oklch(0.265 0.024 162);
+  --primary: oklch(0.345 0.052 163);          /* forest green #1B3A2F */
+  --primary-deep: oklch(0.255 0.042 164);     /* deep forest — gradients, hero */
+  --primary-foreground: oklch(0.985 0.006 84);
+  --secondary: oklch(0.93 0.018 160);         /* pale sage tint */
+  --secondary-foreground: oklch(0.345 0.052 163);
+  --muted: oklch(0.951 0.01 84);              /* warm muted fill */
+  --muted-foreground: oklch(0.49 0.024 158);  /* AA on ivory and cream */
+  --accent: oklch(0.655 0.155 33);            /* coral #E8674A */
   --accent-foreground: oklch(1 0 0);
-  --info: oklch(0.5461 0.2152 262.88);       /* action blue #2563EB */
+  --info: oklch(0.485 0.078 213);             /* petrol blue — links, informative */
   --info-foreground: oklch(1 0 0);
-  --violet: oklch(0.5413 0.2466 293.01);     /* role/category accent */
-  --destructive: oklch(0.5771 0.2152 27.33);
+  --violet: oklch(0.5 0.115 330);             /* plum — role/category accent */
+  --destructive: oklch(0.53 0.185 28);
   --destructive-foreground: oklch(1 0 0);
-  --warning: oklch(0.6658 0.1574 58.32);
+  --warning: oklch(0.615 0.125 70);           /* ochre */
   --warning-foreground: oklch(1 0 0);
-  --success: oklch(0.6002 0.1038 184.7);
+  --success: oklch(0.52 0.092 155);           /* clear leaf green */
   --success-foreground: oklch(1 0 0);
-  --border: oklch(0.929 0.0126 255.51);      /* cool hairline (slate-200) */
-  --input: oklch(0.929 0.0126 255.51);
-  --ring: oklch(0.5461 0.2152 262.88);
-  --chart-1: oklch(0.5461 0.2152 262.88);
-  --chart-2: oklch(0.6002 0.1038 184.7);
-  --chart-3: oklch(0.6658 0.1574 58.32);
-  --chart-4: oklch(0.5413 0.2466 293.01);
-  --chart-5: oklch(0.5544 0.0407 257.42);
+  --border: oklch(0.906 0.014 83);            /* warm hairline */
+  --input: oklch(0.906 0.014 83);
+  --ring: oklch(0.655 0.155 33);              /* coral focus ring */
+  --chart-1: oklch(0.345 0.052 163);
+  --chart-2: oklch(0.655 0.155 33);
+  --chart-3: oklch(0.615 0.125 70);
+  --chart-4: oklch(0.5 0.115 330);
+  --chart-5: oklch(0.485 0.078 213);
   --radius: 0.625rem;
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.21 0.0398 265.75);
-  --sidebar-primary: oklch(0.353 0.1065 261.94);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9683 0.0069 247.9);
-  --sidebar-accent-foreground: oklch(0.353 0.1065 261.94);
-  --sidebar-border: oklch(0.929 0.0126 255.51);
-  --sidebar-ring: oklch(0.5461 0.2152 262.88);
+  --sidebar: oklch(0.993 0.004 91);
+  --sidebar-foreground: oklch(0.265 0.024 162);
+  --sidebar-primary: oklch(0.345 0.052 163);
+  --sidebar-primary-foreground: oklch(0.985 0.006 84);
+  --sidebar-accent: oklch(0.951 0.01 84);
+  --sidebar-accent-foreground: oklch(0.345 0.052 163);
+  --sidebar-border: oklch(0.906 0.014 83);
+  --sidebar-ring: oklch(0.655 0.155 33);
 
-  /* Legacy clinical-blue aliases — retained for backward compatibility. */
+  /* Legacy aliases — retained for backward compatibility. */
   --clinical-900: var(--primary-deep);
   --clinical-700: var(--primary);
   --clinical-500: var(--info);
   --clinical-100: var(--secondary);
-  --teal: var(--accent);
+  --teal: var(--success);
   --red: var(--destructive);
   --amber: var(--warning);
 }
 
-/* Dark mode — deep navy slate, never pure black. Surfaces step up in
+/* Dark mode — warm espresso-forest, never pure black. Surfaces step up in
    lightness (background → surface → card → popover) for hierarchy. */
 .dark {
-  --background: oklch(0.155 0.022 262);
-  --surface: oklch(0.182 0.024 262);
-  --foreground: oklch(0.955 0.007 250);
-  --card: oklch(0.205 0.026 262);
-  --card-foreground: oklch(0.955 0.007 250);
-  --popover: oklch(0.225 0.028 262);
-  --popover-foreground: oklch(0.955 0.007 250);
-  --primary: oklch(0.52 0.13 261);           /* navy lifted for contrast */
-  --primary-deep: oklch(0.21 0.05 264);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.29 0.055 262);
-  --secondary-foreground: oklch(0.93 0.02 255);
-  --muted: oklch(0.245 0.022 261);
-  --muted-foreground: oklch(0.715 0.025 257);
-  --accent: oklch(0.72 0.112 184);
-  --accent-foreground: oklch(0.17 0.035 196);
-  --info: oklch(0.645 0.19 259);
-  --info-foreground: oklch(1 0 0);
-  --violet: oklch(0.66 0.21 295);
-  --destructive: oklch(0.637 0.2078 25.33);
+  --background: oklch(0.168 0.013 158);
+  --surface: oklch(0.193 0.014 158);
+  --foreground: oklch(0.95 0.009 88);
+  --card: oklch(0.216 0.016 158);
+  --card-foreground: oklch(0.95 0.009 88);
+  --popover: oklch(0.238 0.017 158);
+  --popover-foreground: oklch(0.95 0.009 88);
+  --primary: oklch(0.56 0.07 162);            /* forest lifted for contrast */
+  --primary-deep: oklch(0.225 0.035 163);
+  --primary-foreground: oklch(0.99 0.004 90);
+  --secondary: oklch(0.29 0.03 161);
+  --secondary-foreground: oklch(0.92 0.02 150);
+  --muted: oklch(0.252 0.016 158);
+  --muted-foreground: oklch(0.72 0.018 130);
+  --accent: oklch(0.715 0.145 36);
+  --accent-foreground: oklch(0.21 0.04 35);
+  --info: oklch(0.67 0.085 213);
+  --info-foreground: oklch(0.17 0.03 220);
+  --violet: oklch(0.68 0.12 330);
+  --destructive: oklch(0.64 0.175 27);
   --destructive-foreground: oklch(1 0 0);
-  --warning: oklch(0.769 0.155 65);
-  --warning-foreground: oklch(0.22 0.05 60);
-  --success: oklch(0.72 0.112 184);
-  --success-foreground: oklch(0.17 0.035 196);
-  --border: oklch(0.29 0.022 260);
-  --input: oklch(0.31 0.022 260);
-  --ring: oklch(0.645 0.19 259);
-  --chart-1: oklch(0.645 0.19 259);
-  --chart-2: oklch(0.72 0.112 184);
-  --chart-3: oklch(0.769 0.155 65);
-  --chart-4: oklch(0.66 0.21 295);
-  --chart-5: oklch(0.71 0.03 257);
-  --sidebar: oklch(0.19 0.028 263);
-  --sidebar-foreground: oklch(0.955 0.007 250);
-  --sidebar-primary: oklch(0.645 0.19 259);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.27 0.03 262);
-  --sidebar-accent-foreground: oklch(0.955 0.007 250);
-  --sidebar-border: oklch(0.27 0.025 262);
-  --sidebar-ring: oklch(0.645 0.19 259);
+  --warning: oklch(0.74 0.125 72);
+  --warning-foreground: oklch(0.24 0.05 65);
+  --success: oklch(0.7 0.1 155);
+  --success-foreground: oklch(0.18 0.035 160);
+  --border: oklch(0.29 0.018 156);
+  --input: oklch(0.31 0.018 156);
+  --ring: oklch(0.715 0.145 36);
+  --chart-1: oklch(0.7 0.1 155);
+  --chart-2: oklch(0.715 0.145 36);
+  --chart-3: oklch(0.74 0.125 72);
+  --chart-4: oklch(0.68 0.12 330);
+  --chart-5: oklch(0.67 0.085 213);
+  --sidebar: oklch(0.198 0.015 158);
+  --sidebar-foreground: oklch(0.95 0.009 88);
+  --sidebar-primary: oklch(0.56 0.07 162);
+  --sidebar-primary-foreground: oklch(0.99 0.004 90);
+  --sidebar-accent: oklch(0.265 0.018 158);
+  --sidebar-accent-foreground: oklch(0.95 0.009 88);
+  --sidebar-border: oklch(0.27 0.017 158);
+  --sidebar-ring: oklch(0.715 0.145 36);
 }
 
 @theme inline {
-  --font-sans: 'DM Sans', 'DM Sans Fallback', system-ui, sans-serif;
-  --font-heading: 'Sora', 'Sora Fallback', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: 'Instrument Sans', 'Instrument Sans Fallback', system-ui, sans-serif;
+  --font-heading: 'Fraunces', 'Fraunces Fallback', Georgia, serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
@@ -164,20 +172,20 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Elevation — soft, navy-tinted, low contrast. Pair with border-border. */
-  --shadow-2xs: 0 1px 2px 0 oklch(0.233 0.0698 265.03 / 0.04);
-  --shadow-xs: 0 1px 2px 0 oklch(0.233 0.0698 265.03 / 0.05),
-    0 1px 1px -0.5px oklch(0.233 0.0698 265.03 / 0.03);
-  --shadow-sm: 0 1px 2px 0 oklch(0.233 0.0698 265.03 / 0.05),
-    0 2px 8px -2px oklch(0.233 0.0698 265.03 / 0.06);
-  --shadow: 0 1px 2px 0 oklch(0.233 0.0698 265.03 / 0.05),
-    0 3px 10px -2px oklch(0.233 0.0698 265.03 / 0.07);
-  --shadow-md: 0 2px 4px -1px oklch(0.233 0.0698 265.03 / 0.05),
-    0 8px 20px -4px oklch(0.233 0.0698 265.03 / 0.08);
-  --shadow-lg: 0 4px 8px -2px oklch(0.233 0.0698 265.03 / 0.06),
-    0 16px 36px -8px oklch(0.233 0.0698 265.03 / 0.1);
-  --shadow-xl: 0 8px 16px -4px oklch(0.233 0.0698 265.03 / 0.08),
-    0 24px 48px -12px oklch(0.233 0.0698 265.03 / 0.14);
+  /* Elevation — soft, umber-tinted, low contrast. Pair with border-border. */
+  --shadow-2xs: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.04);
+  --shadow-xs: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.05),
+    0 1px 1px -0.5px oklch(0.32 0.03 80 / 0.03);
+  --shadow-sm: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.05),
+    0 2px 8px -2px oklch(0.32 0.03 80 / 0.06);
+  --shadow: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.05),
+    0 3px 10px -2px oklch(0.32 0.03 80 / 0.07);
+  --shadow-md: 0 2px 4px -1px oklch(0.32 0.03 80 / 0.05),
+    0 8px 20px -4px oklch(0.32 0.03 80 / 0.08);
+  --shadow-lg: 0 4px 8px -2px oklch(0.32 0.03 80 / 0.06),
+    0 16px 36px -8px oklch(0.32 0.03 80 / 0.1);
+  --shadow-xl: 0 8px 16px -4px oklch(0.32 0.03 80 / 0.08),
+    0 24px 48px -12px oklch(0.32 0.03 80 / 0.14);
 }
 
 @layer base {
@@ -192,7 +200,38 @@
   h1, h2, h3, h4 {
     font-family: var(--font-heading);
     letter-spacing: -0.01em;
+    font-variation-settings: 'opsz' 28, 'SOFT' 30, 'WONK' 0;
   }
+}
+
+/* Small-caps editorial label — replaces bold mini-headings. */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Display serif with the soft, large-optical-size cut of Fraunces. */
+.display-serif {
+  font-family: var(--font-heading);
+  font-variation-settings: 'opsz' 100, 'SOFT' 55, 'WONK' 0;
+  letter-spacing: -0.02em;
+}
+
+/* Subtle paper grain for hero/ambient surfaces. */
+.paper-grain {
+  position: relative;
+}
+.paper-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Soft inner highlight + radial glow for gradient hero cards. */
@@ -217,6 +256,26 @@
 }
 .animate-fade-in {
   animation: fade-in 300ms ease forwards;
+}
+
+/* Staggered editorial reveal — pair with inline animation-delay. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  opacity: 0;
+  animation: rise-in 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Coral underline stroke that draws itself in. */
+@keyframes draw-line {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.animate-draw-line {
+  transform-origin: left;
+  animation: draw-line 700ms 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes fill-bar {

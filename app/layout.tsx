@@ -1,11 +1,18 @@
 import type { Metadata } from 'next'
-import { DM_Sans, Sora } from 'next/font/google'
+import { Fraunces, Instrument_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
-const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
+  axes: ['opsz', 'SOFT', 'WONK'],
+})
+const instrumentSans = Instrument_Sans({
+  subsets: ['latin'],
+  variable: '--font-instrument-sans',
+})
 
 export const metadata: Metadata = {
   title: 'My Trial Board',
@@ -20,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-background">
-      <body className={`${dmSans.variable} ${sora.variable} font-sans antialiased`}>
+      <body className={`${instrumentSans.variable} ${fraunces.variable} font-sans antialiased`}>
         {children}
         <Toaster position="top-center" richColors />
         {process.env.NODE_ENV === 'production' && <Analytics />}

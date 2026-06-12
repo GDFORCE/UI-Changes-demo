@@ -1,7 +1,7 @@
 "use client"
 
-import { AppBar } from "../app-bar"
-import { Building2, FlaskConical, Building, Hotel, User, Check } from "lucide-react"
+import { AuthHeader } from "../auth-header"
+import { Check, X } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
@@ -12,47 +12,73 @@ interface RegistrationScreenProps {
   entityType?: string | null
 }
 
-const entityConfig: Record<string, { label: string; icon: typeof Building2; color: string }> = {
-  sponsor: { label: "Sponsor", icon: Building2, color: "bg-info/10 text-info" },
-  cro: { label: "CRO", icon: FlaskConical, color: "bg-violet/10 text-violet" },
-  smo: { label: "SMO", icon: Building, color: "bg-accent/10 text-accent" },
-  site: { label: "Site/Hospital", icon: Hotel, color: "bg-warning/15 text-warning" },
-  patient: { label: "Patient", icon: User, color: "bg-success/15 text-success" },
+const entityLabels: Record<string, string> = {
+  sponsor: "Sponsor",
+  cro: "CRO",
+  smo: "SMO",
+  site: "Site / Hospital",
+  patient: "Patient",
 }
+
+const inputClass =
+  "w-full px-4 py-3 rounded-lg border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground/55 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/15"
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-foreground/80 mb-1.5">{label}{required && " *"}</label>
+      <label className="block text-[13px] font-medium text-foreground/85 mb-1.5">
+        {label}
+        {required && <span className="text-accent"> *</span>}
+      </label>
       {children}
     </div>
   )
 }
 
 function Input({ placeholder, defaultValue, type = "text" }: { placeholder?: string; defaultValue?: string; type?: string }) {
-  return (
-    <input type={type} defaultValue={defaultValue} placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none text-sm text-foreground" />
-  )
+  return <input type={type} defaultValue={defaultValue} placeholder={placeholder} className={inputClass} />
 }
 
 function PhoneInput({ defaultValue }: { defaultValue?: string }) {
   return (
     <div className="flex gap-2">
-      <div className="px-4 py-3 rounded-xl border border-border bg-surface text-muted-foreground text-sm font-medium">+91</div>
-      <input type="tel" defaultValue={defaultValue} placeholder="98XXXXXXXX"
-        className="flex-1 px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none text-sm" />
+      <div className="px-4 py-3 rounded-lg border border-border bg-surface text-muted-foreground text-sm font-medium">+91</div>
+      <input type="tel" defaultValue={defaultValue} placeholder="98XXXXXXXX" className={cn(inputClass, "flex-1")} />
     </div>
   )
 }
 
 function SectionHeader({ title }: { title: string }) {
-  return <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider pt-2 pb-1 border-b border-border">{title}</p>
+  return (
+    <div className="flex items-center gap-3 pt-3">
+      <p className="eyebrow text-primary shrink-0">{title}</p>
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  )
+}
+
+function SegmentToggle<T extends string>({ options, value, onChange }: { options: readonly T[]; value: T; onChange: (v: T) => void }) {
+  return (
+    <div className="flex rounded-lg border border-border bg-card p-1 gap-1">
+      {options.map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          onClick={() => onChange(opt)}
+          className={cn(
+            "flex-1 py-2 rounded-md text-sm font-medium transition-all duration-200",
+            value === opt ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {opt}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 // ── Sponsor / CRO form ──────────────────────────────────
-function SponsorForm({ entityType }: { entityType?: string | null }) {
-  const entityLabel = entityType === "cro" ? "CRO" : "Sponsor"
+function SponsorForm() {
   return (
     <div className="space-y-4">
       <Field label="Full Name" required><Input defaultValue="John Doe" /></Field>
@@ -62,17 +88,10 @@ function SponsorForm({ entityType }: { entityType?: string | null }) {
       </Field>
       <Field label="Phone Number" required><PhoneInput defaultValue="98765 43210" /></Field>
 
-      {/* Entity Type — auto-populated */}
-      <div className="bg-surface border border-border rounded-xl px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">Entity Type</span>
-        <span className="text-sm font-semibold text-primary-deep">{entityLabel}</span>
-      </div>
-
       <SectionHeader title="Organization" />
       <Field label="Organization Name" required><Input defaultValue="PharmaCo Ltd" /></Field>
       <Field label="Organization Address" required>
-        <textarea rows={2} defaultValue="21 Business Park, Mumbai 400001"
-          className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary focus:ring-2 focus:ring-info/15 resize-none" />
+        <textarea rows={2} defaultValue="21 Business Park, Mumbai 400001" className={cn(inputClass, "resize-none")} />
       </Field>
     </div>
   )
@@ -81,48 +100,29 @@ function SponsorForm({ entityType }: { entityType?: string | null }) {
 // ── Site / Hospital form ──────────────────────────────────
 function SiteForm() {
   const [role, setRole] = useState<"PI" | "Research Team">("PI")
+  const [hospitalType, setHospitalType] = useState<"Private" | "Government">("Private")
 
   return (
     <div className="space-y-4">
-      {/* 1. Full Name */}
       <Field label="Full Name" required><Input defaultValue="Dr. Rajesh Kumar" /></Field>
-      {/* 2. Designation */}
       <Field label="Designation" required><Input defaultValue="Principal Investigator" /></Field>
-      {/* 3. Email ID (Work Email) */}
       <Field label="Email ID" required><Input type="email" defaultValue="r.kumar@apollo.com" /></Field>
-      {/* 4. Phone No. */}
       <Field label="Phone Number" required><PhoneInput defaultValue="98100 12345" /></Field>
 
-      {/* 5. Entity Type — not bold */}
-      <div className="bg-surface border border-border rounded-xl px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">Entity Type</span>
-        <span className="text-sm text-primary-deep">Site / Hospital</span>
-      </div>
-
-      {/* 6. Org. Name */}
+      <SectionHeader title="Organization" />
       <Field label="Organization Name" required><Input defaultValue="Apollo Hospitals Mumbai" /></Field>
-      {/* 7. Org. Address */}
       <Field label="Organization Address" required>
-        <textarea rows={2} placeholder="Building / Street, City, State, PIN"
-          className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary focus:ring-2 focus:ring-info/15 resize-none" />
+        <textarea rows={2} placeholder="Building / Street, City, State, PIN" className={cn(inputClass, "resize-none")} />
       </Field>
 
-      {/* 8. Role: PI / Research Team */}
+      <Field label="Hospital Type" required>
+        <SegmentToggle options={["Private", "Government"] as const} value={hospitalType} onChange={setHospitalType} />
+      </Field>
+
       <Field label="Role" required>
-        <div className="flex rounded-xl border border-border overflow-hidden">
-          {(["PI", "Research Team"] as const).map(r => (
-            <button
-              key={r}
-              onClick={() => setRole(r)}
-              className={cn("flex-1 py-2.5 text-sm font-medium", role === r ? "bg-primary text-white" : "bg-card text-muted-foreground")}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
+        <SegmentToggle options={["PI", "Research Team"] as const} value={role} onChange={setRole} />
       </Field>
 
-      {/* 9. Department — only when PI */}
       {role === "PI" && (
         <Field label="Department">
           <Input placeholder="e.g. Oncology, Cardiology" />
@@ -145,70 +145,57 @@ function SMOForm() {
 
   return (
     <div className="space-y-4">
-      {/* 1. Full Name */}
       <Field label="Full Name" required><Input defaultValue="Dr. Rajesh Kumar" /></Field>
-      {/* 2. Designation */}
       <Field label="Designation" required><Input defaultValue="SMO Manager" /></Field>
-      {/* 3. Email ID (Work Email) */}
       <Field label="Email ID" required><Input type="email" defaultValue="r.kumar@smo.com" /></Field>
-      {/* 4. Phone No. */}
       <Field label="Phone Number" required><PhoneInput defaultValue="98100 12345" /></Field>
 
-      {/* 5. Entity Type — not bold */}
-      <div className="bg-surface border border-border rounded-xl px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">Entity Type</span>
-        <span className="text-sm text-primary-deep">SMO</span>
-      </div>
-
-      {/* 6. SMO Name */}
+      <SectionHeader title="Organization" />
       <Field label="SMO Name" required><Input defaultValue="MedSites SMO Pvt Ltd" /></Field>
-      {/* 7. SMO Address */}
       <Field label="SMO Address" required>
-        <textarea rows={2} placeholder="Building / Street, City, State, PIN"
-          className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary focus:ring-2 focus:ring-info/15 resize-none" />
+        <textarea rows={2} placeholder="Building / Street, City, State, PIN" className={cn(inputClass, "resize-none")} />
       </Field>
 
-      {/* 8. Add Hospital (Name; Address, Role: PI / Research Team) */}
       <SectionHeader title="Hospitals" />
-      <p className="text-xs text-muted-foreground">Add the hospital / site locations managed by this SMO.</p>
+      <p className="text-xs text-muted-foreground -mt-1">Add the hospital / site locations managed by this SMO.</p>
       {hospitals.map((h, i) => (
-        <div key={i} className="bg-surface rounded-xl border border-border p-3 space-y-2">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-semibold text-muted-foreground">Hospital {i + 1}</span>
+        <div key={i} className="rounded-xl border border-border bg-card shadow-xs p-4 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="eyebrow text-muted-foreground">Hospital {String(i + 1).padStart(2, "0")}</span>
             {hospitals.length > 1 && (
-              <button onClick={() => removeHospital(i)} className="text-destructive text-xs font-medium">Remove</button>
+              <button
+                onClick={() => removeHospital(i)}
+                className="flex items-center gap-1 text-destructive text-xs font-medium hover:underline"
+              >
+                <X className="w-3 h-3" /> Remove
+              </button>
             )}
           </div>
           <input
             placeholder="Hospital Name *"
-            className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary"
+            className={cn(inputClass, "px-3 py-2.5")}
             defaultValue={i === 0 ? "Apollo Hospitals Mumbai" : ""}
           />
           <input
             placeholder="Hospital Address"
-            className="w-full px-3 py-2.5 rounded-lg border border-border text-sm outline-none focus:border-primary"
+            className={cn(inputClass, "px-3 py-2.5")}
             defaultValue={i === 0 ? "Bandra West, Mumbai" : ""}
           />
-          {/* Role: PI / Research Team */}
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">Role</label>
-            <div className="flex rounded-lg border border-border overflow-hidden">
-              {(["PI", "Research Team"] as const).map(r => (
-                <button
-                  key={r}
-                  onClick={() => setHospitalRole(i, r)}
-                  className={cn("flex-1 py-2 text-sm font-medium", h.role === r ? "bg-primary text-white" : "bg-card text-muted-foreground")}
-                >
-                  {r}
-                </button>
-              ))}
-            </div>
+            <SegmentToggle
+              options={["PI", "Research Team"] as const}
+              value={h.role}
+              onChange={(r) => setHospitalRole(i, r)}
+            />
           </div>
         </div>
       ))}
-      <button onClick={addHospital}
-        className="w-full py-2.5 border-2 border-dashed border-border rounded-xl text-sm text-muted-foreground font-medium hover:border-primary hover:text-primary transition-colors">
-        + Add Hospital
+      <button
+        onClick={addHospital}
+        className="w-full py-3 border border-dashed border-primary/35 rounded-xl text-sm text-primary font-medium transition-colors hover:bg-secondary/40 hover:border-primary"
+      >
+        + Add another hospital
       </button>
     </div>
   )
@@ -219,30 +206,23 @@ function PatientForm() {
   const { setLang } = useLanguage()
   return (
     <div className="space-y-4">
-      {/* 1. Full Name */}
       <Field label="Full Name" required><Input defaultValue="Priya Kapoor" /></Field>
-      {/* 2. Phone No. */}
       <Field label="Phone Number" required><PhoneInput defaultValue="98765 43210" /></Field>
-      {/* 3. Email ID */}
       <Field label="Email ID" required><Input type="email" placeholder="patient@example.com" /></Field>
 
-      {/* 4. Entity Type — not required for patient (omitted) */}
-
-      {/* 5. DOB / Age */}
       <div className="grid grid-cols-2 gap-3">
         <Field label="Date of Birth" required>
           <Input type="date" defaultValue="1985-06-15" />
         </Field>
         <Field label="Age">
-          <div className="px-4 py-3 rounded-xl border border-border bg-surface text-sm text-muted-foreground font-medium">
+          <div className="px-4 py-3 rounded-lg border border-border bg-surface text-sm text-muted-foreground font-medium">
             39 yrs
           </div>
         </Field>
       </div>
 
-      {/* 6. Gender */}
       <Field label="Gender" required>
-        <select className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card">
+        <select className={inputClass}>
           <option value="">Select gender</option>
           <option>Female</option>
           <option>Male</option>
@@ -251,11 +231,8 @@ function PatientForm() {
         </select>
       </Field>
 
-      {/* 7. Preferred Language */}
       <Field label="Preferred Language">
-        <select
-          onChange={(e) => setLang(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card">
+        <select onChange={(e) => setLang(e.target.value)} className={inputClass}>
           <option>English</option>
           <option>Hindi</option>
           <option>Tamil</option>
@@ -272,8 +249,7 @@ export function RegistrationScreen({ onSubmit, onBack, entityType }: Registratio
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [showTermsModal, setShowTermsModal] = useState(false)
   const [termsScrolled, setTermsScrolled] = useState(false)
-  const entity = entityType && entityConfig[entityType] ? entityConfig[entityType] : entityConfig.sponsor
-  const Icon = entity.icon
+  const entityLabel = (entityType && entityLabels[entityType]) || entityLabels.sponsor
 
   const handleTermsScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
@@ -307,82 +283,87 @@ export function RegistrationScreen({ onSubmit, onBack, entityType }: Registratio
       case "sponsor":
       case "cro":
       default:
-        return <SponsorForm entityType={entityType} />
+        return <SponsorForm />
     }
   }
 
   return (
-    <div className="h-full flex flex-col bg-surface">
-      <AppBar title="Registration" showBack onBack={onBack} />
+    <div className="h-full flex flex-col bg-background paper-grain">
+      <AuthHeader
+        eyebrow={`Step 2 of 5 · ${entityLabel}`}
+        title="Tell us about you"
+        onBack={onBack}
+        step={2}
+      />
 
-      <div className="flex-1 px-4 py-5 overflow-auto space-y-4">
-        {/* Entity Chip */}
-        <div className={cn("inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium", entity.color)}>
-          <Icon className="w-4 h-4" />
-          {entity.label}
+      <div className="flex-1 px-6 pt-3 pb-4 overflow-auto space-y-4">
+        <div className="animate-rise" style={{ animationDelay: "200ms" }}>
+          {renderForm()}
         </div>
-
-        {/* Progress */}
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-primary-deep rounded-full" style={{ width: "40%" }} />
-        </div>
-        <p className="text-xs text-muted-foreground/70">Step 2 of 5 — Account details</p>
-
-        {/* Role-specific form */}
-        {renderForm()}
 
         {/* Terms checkbox — clicking opens the modal */}
-        <div className="pt-2">
-          <button onClick={handleCheckboxClick} className="flex items-start gap-3 w-full text-left cursor-pointer">
-            <div className={cn(
-              "w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors",
-              agreedToTerms ? "border-primary-deep bg-primary-deep" : "border-border bg-card"
-            )}>
-              {agreedToTerms && <Check className="w-3 h-3 text-white" />}
-            </div>
-            <span className="text-sm text-muted-foreground">
+        <div className="pt-1">
+          <button onClick={handleCheckboxClick} className="flex items-start gap-3 w-full text-left cursor-pointer group">
+            <span
+              className={cn(
+                "w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors",
+                agreedToTerms ? "border-primary bg-primary" : "border-border bg-card group-hover:border-primary/50",
+              )}
+            >
+              {agreedToTerms && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
+            </span>
+            <span className="text-sm text-muted-foreground leading-relaxed">
               I have read and agree to the{" "}
-              <span className="text-primary font-medium">Terms &amp; Conditions</span>
+              <span className="text-primary font-medium underline decoration-accent/50 underline-offset-2">Terms &amp; Conditions</span>
               {" "}and{" "}
-              <span className="text-primary font-medium">Privacy Policy</span>
+              <span className="text-primary font-medium underline decoration-accent/50 underline-offset-2">Privacy Policy</span>
             </span>
           </button>
         </div>
       </div>
 
       {/* Submit */}
-      <div className="px-4 py-4 bg-card border-t border-border">
+      <div className="px-6 py-4 bg-background/90 backdrop-blur-sm border-t border-border">
         <button
           onClick={onSubmit}
-          className={cn("w-full py-3.5 rounded-xl font-semibold text-sm transition-all", agreedToTerms ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70")}
+          disabled={!agreedToTerms}
+          className={cn(
+            "w-full py-4 rounded-full text-[15px] font-semibold tracking-tight transition-all duration-200",
+            agreedToTerms
+              ? "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.99]"
+              : "bg-muted text-muted-foreground/60 cursor-not-allowed",
+          )}
         >
-          Continue →
+          Continue
         </button>
       </div>
 
       {/* Terms & Conditions Modal */}
       {showTermsModal && (
-        <div className="absolute inset-0 bg-black/60 flex items-end z-50">
-          <div className="bg-card w-full rounded-t-2xl flex flex-col" style={{ maxHeight: "85%" }}>
+        <div className="absolute inset-0 bg-primary-deep/50 backdrop-blur-[2px] flex items-end z-50">
+          <div className="bg-background w-full rounded-t-3xl flex flex-col shadow-xl animate-rise" style={{ maxHeight: "85%", animationDuration: "350ms" }}>
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-              <h2 className="font-bold text-primary-deep text-base">Terms &amp; Conditions</h2>
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-border">
+              <div>
+                <p className="eyebrow text-accent mb-0.5">Before you continue</p>
+                <h2 className="font-heading text-lg text-foreground">Terms &amp; Conditions</h2>
+              </div>
               <button
                 onClick={() => setShowTermsModal(false)}
-                className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold text-sm"
+                aria-label="Close"
+                className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Scroll hint */}
-            {!termsScrolled && (
-              <div className="bg-warning/10 border-b border-warning/20 px-5 py-2 flex items-center gap-2">
-                <span className="text-xs text-warning font-medium">↓ Please scroll through all content to accept</span>
+            {/* Scroll state banner */}
+            {!termsScrolled ? (
+              <div className="bg-accent/10 border-b border-accent/20 px-6 py-2">
+                <span className="text-xs text-accent font-medium">↓ Scroll through all the terms to enable Accept</span>
               </div>
-            )}
-            {termsScrolled && (
-              <div className="bg-success/10 border-b border-success/20 px-5 py-2 flex items-center gap-2">
+            ) : (
+              <div className="bg-success/10 border-b border-success/20 px-6 py-2 flex items-center gap-2">
                 <Check className="w-3.5 h-3.5 text-success" />
                 <span className="text-xs text-success font-medium">You have read all terms — you may now accept</span>
               </div>
@@ -391,46 +372,34 @@ export function RegistrationScreen({ onSubmit, onBack, entityType }: Registratio
             {/* Scrollable Content */}
             <div
               onScroll={handleTermsScroll}
-              className="flex-1 overflow-auto px-5 py-4 text-sm text-muted-foreground leading-relaxed space-y-4"
+              className="flex-1 overflow-auto px-6 py-5 text-sm text-muted-foreground leading-relaxed space-y-5"
             >
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">1. Acceptance of Terms</p>
-                <p>By registering, you agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree, do not proceed with registration.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">2. Data Privacy &amp; PDPA Compliance</p>
-                <p>All personal and clinical data collected is handled in accordance with applicable data protection laws. Your data will be used solely for the purposes of clinical trial management and communications related to your participation.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">3. Data Security</p>
-                <p>We employ industry-standard security measures including encryption at rest and in transit. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">4. Use of Platform</p>
-                <p>Access is granted strictly for clinical trial management purposes. Any misuse, sharing of credentials, or unauthorized access is prohibited and may result in immediate account termination and legal action.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">5. Audit &amp; Compliance</p>
-                <p>All actions performed on the platform are logged for audit and regulatory compliance purposes. These logs may be shared with authorized regulators upon request and are retained as per applicable regulations.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">6. Consent for Communications</p>
-                <p>By registering, you consent to receive communications related to your trial participation including visit reminders, medication alerts, and important protocol updates via SMS, email, or in-app notifications.</p>
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">7. Contact &amp; Support</p>
-                <p>For any questions regarding these terms, contact support@mtb-pvs.com. By scrolling through and tapping Accept, you confirm you have read and understood all terms above in full.</p>
-              </div>
+              {[
+                ["1. Acceptance of Terms", "By registering, you agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree, do not proceed with registration."],
+                ["2. Data Privacy & PDPA Compliance", "All personal and clinical data collected is handled in accordance with applicable data protection laws. Your data will be used solely for the purposes of clinical trial management and communications related to your participation."],
+                ["3. Data Security", "We employ industry-standard security measures including encryption at rest and in transit. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account."],
+                ["4. Use of Platform", "Access is granted strictly for clinical trial management purposes. Any misuse, sharing of credentials, or unauthorized access is prohibited and may result in immediate account termination and legal action."],
+                ["5. Audit & Compliance", "All actions performed on the platform are logged for audit and regulatory compliance purposes. These logs may be shared with authorized regulators upon request and are retained as per applicable regulations."],
+                ["6. Consent for Communications", "By registering, you consent to receive communications related to your trial participation including visit reminders, medication alerts, and important protocol updates via SMS, email, or in-app notifications."],
+                ["7. Contact & Support", "For any questions regarding these terms, contact support@mtb-pvs.com. By scrolling through and tapping Accept, you confirm you have read and understood all terms above in full."],
+              ].map(([heading, body]) => (
+                <div key={heading} className="space-y-1">
+                  <p className="font-heading text-[15px] text-foreground">{heading}</p>
+                  <p>{body}</p>
+                </div>
+              ))}
             </div>
 
             {/* Accept Button */}
-            <div className="px-5 py-4 border-t border-border">
+            <div className="px-6 py-4 border-t border-border">
               <button
                 onClick={handleAccept}
                 disabled={!termsScrolled}
                 className={cn(
-                  "w-full py-3.5 rounded-xl font-semibold text-sm transition-all",
-                  termsScrolled ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70 cursor-not-allowed"
+                  "w-full py-3.5 rounded-full font-semibold text-sm transition-all",
+                  termsScrolled
+                    ? "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.99]"
+                    : "bg-muted text-muted-foreground/60 cursor-not-allowed",
                 )}
               >
                 {termsScrolled ? "Accept & Continue" : "Scroll to read all terms"}

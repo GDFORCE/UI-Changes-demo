@@ -1,7 +1,9 @@
 "use client"
 
-import { Building2, Eye, EyeOff, Lock, ShieldQuestion, AlertCircle } from "lucide-react"
+import { Eye, EyeOff, Lock, ShieldQuestion, AlertCircle } from "lucide-react"
+import { MtbLogoMark } from "@/components/clinical/mtb-logo"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface SignInScreenProps {
   onSignIn: () => void
@@ -15,6 +17,9 @@ const MAX_ATTEMPTS = 5
 const SECURITY_QUESTION = "What is the name of your first pet?"
 const CORRECT_SECURITY_ANSWER = "bruno"
 
+const inputClass =
+  "w-full px-4 py-3 rounded-lg border bg-card text-sm text-foreground outline-none transition-colors focus:ring-2"
+
 export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScreenProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -26,8 +31,6 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
   // Unlock flow
   const [securityAnswer, setSecurityAnswer] = useState("")
   const [unlockError, setUnlockError] = useState("")
-
-  const remaining = MAX_ATTEMPTS - attempts
 
   const handleSignIn = () => {
     if (locked) return
@@ -67,23 +70,28 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
   /* ---------------------------------------------------------------- */
   if (locked) {
     return (
-      <div className="h-full flex flex-col bg-surface">
-        <div className="flex-1 px-6 py-8">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-destructive/10 rounded-2xl flex items-center justify-center">
-              <Lock className="w-10 h-10 text-destructive" />
+      <div className="h-full flex flex-col bg-background paper-grain">
+        <div className="flex-1 px-7 pt-14 overflow-auto">
+          <div className="flex justify-center mb-7 animate-rise" style={{ animationDelay: "60ms" }}>
+            <div className="w-18 h-18 p-5 bg-destructive/10 rounded-full flex items-center justify-center">
+              <Lock className="w-8 h-8 text-destructive" />
             </div>
           </div>
 
-          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground text-center mb-1">Account Locked</h2>
-          <p className="text-muted-foreground text-center mb-8">
-            Too many incorrect password attempts. Answer your security question to unlock your account.
+          <p className="eyebrow text-destructive text-center mb-2 animate-rise" style={{ animationDelay: "120ms" }}>
+            Too many attempts
+          </p>
+          <h2 className="display-serif text-[28px] leading-tight text-foreground text-center mb-2.5 animate-rise" style={{ animationDelay: "180ms" }}>
+            Account locked
+          </h2>
+          <p className="text-sm text-muted-foreground text-center leading-relaxed mb-8 animate-rise" style={{ animationDelay: "240ms" }}>
+            Answer your security question to unlock your account.
           </p>
 
-          <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
-            <div className="flex items-start gap-2">
+          <div className="rounded-xl border border-border bg-card shadow-xs p-5 space-y-4 animate-rise" style={{ animationDelay: "300ms" }}>
+            <div className="flex items-start gap-2.5">
               <ShieldQuestion className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-              <p className="text-sm font-medium text-foreground">{SECURITY_QUESTION}</p>
+              <p className="text-sm font-medium text-foreground leading-relaxed">{SECURITY_QUESTION}</p>
             </div>
             <div>
               <input
@@ -94,26 +102,31 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
                   if (unlockError) setUnlockError("")
                 }}
                 placeholder="Your answer"
-                className={`w-full px-4 py-3 rounded-xl border outline-none bg-card focus:ring-2 ${
-                  unlockError
-                    ? "border-red-500 focus:ring-destructive/15"
-                    : "border-border focus:border-primary focus:ring-info/15"
-                }`}
+                className={cn(
+                  inputClass,
+                  "placeholder:text-muted-foreground/55",
+                  unlockError ? "border-destructive focus:ring-destructive/15" : "border-border focus:border-accent focus:ring-accent/15",
+                )}
               />
               {unlockError && <p className="text-xs text-destructive mt-1.5">{unlockError}</p>}
             </div>
           </div>
         </div>
 
-        <div className="px-6 py-4 space-y-4">
+        <div className="px-7 pb-9 pt-4 space-y-4">
           <button
             onClick={handleUnlock}
             disabled={!securityAnswer.trim()}
-            className="w-full py-4 rounded-full font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary-deep active:scale-[0.99] disabled:bg-muted-foreground/30 disabled:text-white"
+            className={cn(
+              "w-full py-4 rounded-full text-[15px] font-semibold tracking-tight transition-all duration-200",
+              securityAnswer.trim()
+                ? "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.99]"
+                : "bg-muted text-muted-foreground/60 cursor-not-allowed",
+            )}
           >
             Unlock Account
           </button>
-          <button onClick={onForgotPassword} className="w-full text-center text-sm text-primary font-medium">
+          <button onClick={onForgotPassword} className="w-full text-center text-sm text-primary font-medium hover:text-accent transition-colors">
             Forgot your security answer? Reset password
           </button>
         </div>
@@ -125,36 +138,36 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
   /* Normal sign-in                                                    */
   /* ---------------------------------------------------------------- */
   return (
-    <div className="h-full flex flex-col bg-surface">
-      <div className="flex-1 px-6 py-8">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center">
-            <Building2 className="w-10 h-10 text-white" />
-          </div>
+    <div className="h-full flex flex-col bg-background paper-grain">
+      <div className="flex-1 px-7 pt-12 overflow-auto">
+        {/* Masthead */}
+        <div className="flex justify-center mb-6 animate-rise" style={{ animationDelay: "60ms" }}>
+          <MtbLogoMark className="w-16 h-16 rounded-2xl shadow-md" />
         </div>
 
-        {/* Title */}
-        <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground text-center mb-1">
-          Welcome Back 👋
+        <p className="eyebrow text-accent text-center mb-1.5 animate-rise" style={{ animationDelay: "120ms" }}>
+          My Trial Board
+        </p>
+        <h2 className="display-serif text-[30px] leading-tight text-foreground text-center mb-2 animate-rise" style={{ animationDelay: "180ms" }}>
+          Welcome back.
         </h2>
-        <p className="text-muted-foreground text-center mb-8">
-          Sign in to continue
+        <p className="text-sm text-muted-foreground text-center mb-9 animate-rise" style={{ animationDelay: "240ms" }}>
+          Sign in to open your trial board
         </p>
 
         {/* Form */}
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Email or Phone</label>
+          <div className="animate-rise" style={{ animationDelay: "300ms" }}>
+            <label className="block text-[13px] font-medium text-foreground/85 mb-1.5">Email or Phone</label>
             <input
               type="text"
               defaultValue="john.doe@example.com"
-              className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-info/15 outline-none bg-card"
+              className={cn(inputClass, "border-border focus:border-accent focus:ring-accent/15")}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Password</label>
+          <div className="animate-rise" style={{ animationDelay: "360ms" }}>
+            <label className="block text-[13px] font-medium text-foreground/85 mb-1.5">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -163,14 +176,17 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
                   setPassword(e.target.value)
                   if (error) setError("")
                 }}
-                className={`w-full px-4 py-3 pr-12 rounded-xl border outline-none bg-card focus:ring-2 ${
-                  error ? "border-red-500 focus:ring-destructive/15" : "border-border focus:border-primary focus:ring-info/15"
-                }`}
+                className={cn(
+                  inputClass,
+                  "pr-12",
+                  error ? "border-destructive focus:ring-destructive/15" : "border-border focus:border-accent focus:ring-accent/15",
+                )}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -178,23 +194,23 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
             {error && (
               <div className="flex items-start gap-1.5 mt-1.5">
                 <AlertCircle className="w-3.5 h-3.5 text-destructive mt-0.5 shrink-0" />
-                <p className="text-xs text-destructive">{error}</p>
+                <p className="text-xs text-destructive leading-relaxed">{error}</p>
               </div>
             )}
           </div>
 
           {/* Remember Me & Forgot */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between animate-rise" style={{ animationDelay: "420ms" }}>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                className="w-4 h-4 rounded border-border accent-[var(--primary)]"
               />
               <span className="text-sm text-muted-foreground">Remember me</span>
             </label>
-            <button onClick={onForgotPassword} className="text-sm text-primary font-medium">
+            <button onClick={onForgotPassword} className="text-sm text-accent font-medium hover:underline underline-offset-2">
               Forgot?
             </button>
           </div>
@@ -202,23 +218,24 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
       </div>
 
       {/* Bottom Section */}
-      <div className="px-6 py-4 space-y-4">
+      <div className="px-7 pb-9 pt-4 space-y-4">
         <button
           onClick={handleSignIn}
-          className="w-full py-4 rounded-full font-semibold bg-primary text-white transition-all duration-200 hover:bg-primary-deep active:scale-[0.99]"
+          className="w-full py-4 rounded-full bg-primary text-primary-foreground text-[15px] font-semibold tracking-tight shadow-md transition-all duration-200 hover:bg-primary-deep active:scale-[0.99] animate-rise"
+          style={{ animationDelay: "480ms" }}
         >
           Sign In
         </button>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 animate-rise" style={{ animationDelay: "520ms" }}>
           <div className="flex-1 h-px bg-border" />
-          <span className="text-muted-foreground text-sm">or</span>
+          <span className="eyebrow text-muted-foreground/60">or</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
-        <p className="text-center text-muted-foreground text-sm">
+        <p className="text-center text-muted-foreground text-sm animate-rise" style={{ animationDelay: "560ms" }}>
           {"Don't have an account? "}
-          <button onClick={onSignUp} className="text-primary font-semibold">
+          <button onClick={onSignUp} className="text-primary font-semibold hover:text-accent transition-colors">
             Sign Up
           </button>
         </p>

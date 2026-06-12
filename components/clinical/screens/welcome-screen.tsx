@@ -1,7 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Building2 } from "lucide-react"
+import { MtbLogoMark } from "@/components/clinical/mtb-logo"
 
 interface WelcomeScreenProps {
   onSignUp: () => void
@@ -9,50 +8,104 @@ interface WelcomeScreenProps {
   onForgotPassword: () => void
 }
 
+/**
+ * Welcome — the editorial cover page of the app.
+ * Ivory paper, Fraunces display serif, a single coral accent, and the
+ * journey-line motif (the patient's path across visits) drawn across the page.
+ */
 export function WelcomeScreen({ onSignUp, onSignIn, onForgotPassword }: WelcomeScreenProps) {
   return (
-    <div className="h-full flex flex-col">
-      {/* Gradient Background */}
-      <div className="relative flex-1 overflow-hidden bg-gradient-to-b from-primary-deep via-primary to-accent/70 flex flex-col items-center justify-center px-6">
-        {/* Soft radial glow for depth */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_38%,rgba(255,255,255,0.14),transparent_70%)]"
-        />
-        {/* Logo */}
-        <div className="relative w-24 h-24 bg-card rounded-2xl flex items-center justify-center mb-6 shadow-lg ring-1 ring-white/20">
-          <Building2 className="w-12 h-12 text-primary" />
+    <div className="h-full flex flex-col bg-background paper-grain overflow-hidden">
+      {/* ── Masthead ── */}
+      <div className="relative pt-16 px-7 flex items-center gap-3 animate-rise" style={{ animationDelay: "60ms" }}>
+        <MtbLogoMark className="w-10 h-10 rounded-xl shadow-sm" />
+        <div className="flex-1">
+          <p className="eyebrow text-primary">My Trial Board</p>
+          <p className="text-[11px] text-muted-foreground">Patient Visit Schedule</p>
         </div>
+        <span className="eyebrow text-muted-foreground/70 border border-border rounded-full px-2.5 py-1">
+          Est. 2026
+        </span>
+      </div>
 
-        {/* Title */}
-        <h1 className="relative font-heading text-3xl font-bold tracking-tight text-white text-center mb-2">
-          My Trial Board
+      {/* hairline rule under the masthead */}
+      <div className="mx-7 mt-5 h-px bg-border animate-rise" style={{ animationDelay: "140ms" }} />
+
+      {/* ── Cover statement ── */}
+      <div className="relative flex-1 px-7 pt-10 flex flex-col">
+        <h1 className="display-serif text-[40px] leading-[1.08] text-foreground animate-rise" style={{ animationDelay: "220ms" }}>
+          Every visit,
+          <br />
+          beautifully
+          <br />
+          <span className="relative inline-block text-primary">
+            on schedule
+            <span
+              aria-hidden
+              className="animate-draw-line absolute -bottom-1 left-0 right-0 h-[3px] rounded-full bg-accent"
+            />
+          </span>
+          <span className="text-accent">.</span>
         </h1>
-        <p className="relative text-base text-white/75 text-center">
-          Visit Schedule Management
+
+        <p className="mt-5 max-w-[260px] text-[15px] leading-relaxed text-muted-foreground animate-rise" style={{ animationDelay: "320ms" }}>
+          One calm place for sponsors, sites and patients to follow a clinical
+          trial — visit by visit.
+        </p>
+
+        {/* ── Journey-line motif: the patient's path across visits ── */}
+        <svg
+          viewBox="0 0 340 120"
+          fill="none"
+          aria-hidden
+          className="mt-auto w-full text-primary/30 animate-rise"
+          style={{ animationDelay: "440ms" }}
+        >
+          <path
+            d="M-10 95 C 60 95, 75 38, 130 38 S 215 86, 268 70, 330 24, 360 20"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeDasharray="1 7"
+            strokeLinecap="round"
+          />
+          {/* completed visits */}
+          <circle cx="46" cy="83" r="4" className="fill-primary/40" />
+          <circle cx="130" cy="38" r="4" className="fill-primary/40" />
+          {/* the next visit — the patient, in coral */}
+          <g>
+            <circle cx="225" cy="78" r="11" className="fill-accent/15" />
+            <circle cx="225" cy="78" r="5.5" className="fill-accent" />
+          </g>
+          {/* future visits */}
+          <circle cx="300" cy="42" r="4" className="fill-none stroke-primary/40" strokeWidth="1.5" />
+        </svg>
+        <p className="eyebrow text-muted-foreground/60 pb-5 animate-rise" style={{ animationDelay: "500ms" }}>
+          Screening · Baseline · Follow-up · Completion
         </p>
       </div>
 
-      {/* Bottom Card */}
-      <div className="bg-card rounded-t-3xl -mt-8 relative px-6 py-8 space-y-4 shadow-lg">
-        <Button
+      {/* ── Actions ── */}
+      <div className="px-7 pb-9 space-y-3">
+        <button
           onClick={onSignUp}
-          className="w-full bg-primary hover:bg-primary-deep text-white rounded-full py-6 text-base font-semibold transition-all duration-200 active:scale-[0.99]"
+          className="w-full py-4 rounded-full bg-primary text-primary-foreground text-[15px] font-semibold tracking-tight shadow-md transition-all duration-200 hover:bg-primary-deep active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background animate-rise"
+          style={{ animationDelay: "560ms" }}
         >
-          Sign Up
-        </Button>
-        <Button
+          Create an account
+        </button>
+        <button
           onClick={onSignIn}
-          variant="outline"
-          className="w-full border-primary text-primary hover:bg-primary/5 hover:text-primary rounded-full py-6 text-base font-semibold transition-all duration-200 active:scale-[0.99]"
+          className="w-full py-4 rounded-full border border-primary/30 bg-card text-primary text-[15px] font-semibold tracking-tight transition-all duration-200 hover:border-primary hover:bg-secondary/50 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background animate-rise"
+          style={{ animationDelay: "620ms" }}
         >
-          Sign In
-        </Button>
+          Sign in
+        </button>
         <button
           onClick={onForgotPassword}
-          className="w-full rounded-md text-primary text-sm font-medium py-2 transition-colors hover:text-primary-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="w-full py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-md animate-rise"
+          style={{ animationDelay: "680ms" }}
         >
-          Forgot Password?
+          Forgot password?
         </button>
       </div>
     </div>
