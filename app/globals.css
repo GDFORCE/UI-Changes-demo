@@ -409,6 +409,21 @@
   animation: strikethrough 300ms ease forwards;
 }
 
+/* Hide native scrollbars inside the device frame — they break the mobile
+   illusion. Scoped to the frame so the surrounding design console keeps its
+   scrollbars. .scrollbar-hide is the reusable opt-in used by overflow chips. */
+.mobile-frame,
+.mobile-frame *,
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mobile-frame::-webkit-scrollbar,
+.mobile-frame *::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

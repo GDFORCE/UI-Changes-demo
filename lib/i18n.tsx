@@ -28,6 +28,7 @@ const translations: Partial<Record<LangCode, Dict>> = {
     // App bar / dashboard
     "myTrialJourney": "My Trial Journey",
     "hello": "Hello,",
+    "welcomeBack": "Welcome back",
     "yourProgress": "Your Progress",
     "visitOfCompleted": "Visit {a} of {b} completed",
     "nextVisit": "Next Visit",
@@ -82,6 +83,7 @@ const translations: Partial<Record<LangCode, Dict>> = {
   hi: {
     "myTrialJourney": "मेरी ट्रायल यात्रा",
     "hello": "नमस्ते,",
+    "welcomeBack": "वापसी पर स्वागत है",
     "yourProgress": "आपकी प्रगति",
     "visitOfCompleted": "{b} में से {a} विज़िट पूरी",
     "nextVisit": "अगली विज़िट",
@@ -124,6 +126,7 @@ const translations: Partial<Record<LangCode, Dict>> = {
   ta: {
     "myTrialJourney": "எனது சோதனை பயணம்",
     "hello": "வணக்கம்,",
+    "welcomeBack": "மீண்டும் வரவேற்கிறோம்",
     "yourProgress": "உங்கள் முன்னேற்றம்",
     "visitOfCompleted": "{b} இல் {a} வருகை முடிந்தது",
     "nextVisit": "அடுத்த வருகை",
@@ -166,6 +169,7 @@ const translations: Partial<Record<LangCode, Dict>> = {
   te: {
     "myTrialJourney": "నా ట్రయల్ ప్రయాణం",
     "hello": "నమస్కారం,",
+    "welcomeBack": "తిరిగి స్వాగతం",
     "yourProgress": "మీ పురోగతి",
     "visitOfCompleted": "{b} లో {a} సందర్శన పూర్తయింది",
     "nextVisit": "తదుపరి సందర్శన",
@@ -208,6 +212,7 @@ const translations: Partial<Record<LangCode, Dict>> = {
   kn: {
     "myTrialJourney": "ನನ್ನ ಪ್ರಯೋಗ ಪ್ರಯಾಣ",
     "hello": "ನಮಸ್ಕಾರ,",
+    "welcomeBack": "ಮರಳಿ ಸ್ವಾಗತ",
     "yourProgress": "ನಿಮ್ಮ ಪ್ರಗತಿ",
     "visitOfCompleted": "{b} ರಲ್ಲಿ {a} ಭೇಟಿ ಪೂರ್ಣಗೊಂಡಿದೆ",
     "nextVisit": "ಮುಂದಿನ ಭೇಟಿ",
@@ -250,6 +255,7 @@ const translations: Partial<Record<LangCode, Dict>> = {
   mr: {
     "myTrialJourney": "माझा चाचणी प्रवास",
     "hello": "नमस्कार,",
+    "welcomeBack": "पुन्हा स्वागत आहे",
     "yourProgress": "तुमची प्रगती",
     "visitOfCompleted": "{b} पैकी {a} भेट पूर्ण",
     "nextVisit": "पुढील भेट",

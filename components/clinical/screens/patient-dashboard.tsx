@@ -1,8 +1,7 @@
 "use client"
 
-import { AppBar } from "../app-bar"
 import { BottomNav } from "../bottom-nav"
-import { ChevronRight, Check, Calendar, Bell, MessageCircle } from "lucide-react"
+import { ChevronRight, Check, Calendar, Bell, MessageCircle, Activity } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
@@ -11,22 +10,60 @@ interface PatientDashboardProps {
   onNavigate: (screen: string) => void
 }
 
+const TOTAL_VISITS = 10
+const VISITS_DONE = 6
+
+/**
+ * Dawn ring — a circular progress dial. On the gradient hero it renders in
+ * cream/white (the hero itself is the dawn gesture); on paper it carries the
+ * dawn gradient. The fill sweeps in on load.
+ */
+function DawnRing({ pct, size = 84, tone = "dawn" }: { pct: number; size?: number; tone?: "dawn" | "light" }) {
+  const light = tone === "light"
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90" fill="none" aria-hidden>
+        <defs>
+          <linearGradient id="dawn-ring" x1="0" y1="0" x2="84" y2="84" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="var(--dawn-from)" />
+            <stop offset="0.55" stopColor="var(--dawn-mid)" />
+            <stop offset="1" stopColor="var(--dawn-to)" />
+          </linearGradient>
+        </defs>
+        <circle cx="42" cy="42" r="34" stroke={light ? "rgb(255 255 255 / 0.22)" : "var(--border)"} strokeWidth="7" />
+        <circle
+          cx="42"
+          cy="42"
+          r="34"
+          stroke={light ? "rgb(255 255 255 / 0.95)" : "url(#dawn-ring)"}
+          strokeWidth="7"
+          strokeLinecap="round"
+          pathLength="100"
+          className="animate-arc"
+          style={{ ["--arc-rest" as string]: String(100 - pct) }}
+        />
+      </svg>
+      <div className={cn("absolute inset-0 flex flex-col items-center justify-center", light ? "text-primary-foreground" : "text-foreground")}>
+        <span className="font-heading text-xl leading-none tabular-nums">{pct}%</span>
+      </div>
+    </div>
+  )
+}
+
 export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState("dashboard")
+
+  const progressPct = Math.round((VISITS_DONE / TOTAL_VISITS) * 100)
 
   const recentActivity = [
     { visit: "Visit 6", date: "10 May", status: "Done" },
     { visit: "Visit 5", date: "22 Apr", status: "Done" },
   ]
 
-  // Section 3 — Calendar (monthly view): visit days for the current month
-  const calendarMonth = new Date(2025, 4, 1) // May 2025
-  const monthVisits: Record<number, "completed" | "upcoming" | "scheduled"> = {
-    5: "completed",
-    19: "completed",
-    23: "upcoming",
-  }
+  // Calendar mini (May 2025)
+  const calendarMonth = new Date(2025, 4, 1)
+  const monthVisits: Record<number, "completed" | "upcoming" | "scheduled"> = { 5: "completed", 19: "completed", 23: "upcoming" }
   const today = new Date(2025, 4, 19).getDate()
   const startDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1).getDay()
   const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate()
@@ -34,120 +71,129 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
   for (let d = 1; d <= daysInMonth; d++) calendarCells.push(d)
   while (calendarCells.length % 7 !== 0) calendarCells.push(null)
 
-  // Section 4 — Notifications: each redirects to its specific page
   const notifications = [
-    {
-      id: "1",
-      icon: Bell,
-      bg: "bg-info/10",
-      color: "text-info",
-      title: "Visit 7 Tomorrow",
-      body: "Follow-Up Visit at AIIMS Delhi · 23 May 2025",
-      time: "2h ago",
-      unread: true,
-      screen: "my-visits",
-    },
-    {
-      id: "2",
-      icon: MessageCircle,
-      bg: "bg-sky-100",
-      color: "text-sky-600",
-      title: "Message from Dr. Sharma",
-      body: "Please fast for 8 hours before your Visit 7 blood draw.",
-      time: "Yesterday",
-      unread: true,
-      screen: "chat",
-    },
+    { id: "1", icon: Bell, bg: "bg-accent/15", color: "text-accent", title: "Visit 7 Tomorrow", body: "Follow-Up Visit at AIIMS Delhi · 23 May 2025", time: "2h ago", unread: true, screen: "my-visits" },
+    { id: "2", icon: MessageCircle, bg: "bg-violet/10", color: "text-violet", title: "Message from Dr. Sharma", body: "Please fast for 8 hours before your Visit 7 blood draw.", time: "Yesterday", unread: true, screen: "chat" },
   ]
 
   return (
-    <div className="h-full flex flex-col bg-surface">
-      <AppBar
-        title={t("myTrialJourney")}
-        notificationCount={2}
-        avatar="PK"
-        onNotificationClick={() => onNavigate("notifications")}
-        onAvatarClick={() => onNavigate("profile-settings")}
-      />
-      
-      <div className="flex-1 overflow-auto pb-4">
-        {/* Hero Card */}
-        <div className="px-4 py-4">
-          <div className="hero-glow bg-gradient-to-br from-primary-deep via-primary to-info rounded-2xl p-5 text-white shadow-md">
-            <h2 className="text-xl font-bold mb-1 font-[family-name:var(--font-heading)]">{t("hello")} Priya</h2>
-            <p className="text-primary-foreground/75 text-sm mb-4">Protocol-001 · Dr. Sharma</p>
+    <div className="h-full flex flex-col bg-background">
+      <div className="flex-1 overflow-auto pb-6">
+        {/* ── Dawn hero — one even deep plum with a soft rose glow up top; the
+            Next Visit card lifts up over its rounded bottom ── */}
+        <div
+          className="hero-glow paper-grain relative overflow-hidden rounded-b-[28px] px-6 pt-6 pb-7 text-primary-foreground shadow-md"
+          style={{ backgroundImage: "radial-gradient(125% 92% at 50% -8%, var(--primary) 0%, var(--primary-deep) 56%)" }}
+        >
+          {/* warm sun glow + drifting motes */}
+          <span aria-hidden className="absolute -top-14 -right-12 h-44 w-44 rounded-full bg-[var(--dawn-from)] opacity-30 blur-2xl" />
+          <span aria-hidden className="animate-drift absolute top-10 right-24 h-2.5 w-2.5 rounded-full bg-white/30" />
+          <span aria-hidden className="animate-drift-slow absolute top-24 left-12 h-2 w-2 rounded-full bg-white/20" />
 
-            <div className="mb-2">
-              <span className="text-sm text-primary-foreground/75">{t("yourProgress")}</span>
+          {/* greeting + actions */}
+          <div className="relative flex items-start justify-between gap-3 animate-rise" style={{ animationDelay: "40ms" }}>
+            <div className="min-w-0">
+              <p className="eyebrow text-primary-foreground/80">{t("welcomeBack")}</p>
+              <h1 className="display-serif text-[30px] leading-tight">{t("hello")} Priya</h1>
+              <p className="text-primary-foreground/75 text-[13px] mt-1">Protocol-001 · Dr. Sharma</p>
             </div>
-            <div className="h-3 bg-white/20 rounded-full overflow-hidden mb-2">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-info to-accent transition-all duration-500"
-                style={{ width: "60%" }}
-              />
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => onNavigate("notifications")}
+                aria-label="Notifications"
+                className="springy relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-primary-foreground backdrop-blur-sm transition-colors hover:bg-white/25 active:scale-95"
+              >
+                <Bell className="h-5 w-5" />
+                <span aria-hidden className="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-[var(--dawn-from)] ring-2 ring-[var(--primary)]" />
+              </button>
+              <button
+                onClick={() => onNavigate("profile-settings")}
+                aria-label="Account"
+                className="springy flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-sm font-semibold text-primary-foreground ring-1 ring-white/25 backdrop-blur-sm active:scale-95"
+              >
+                PK
+              </button>
             </div>
-            <span className="text-sm text-primary-foreground/75">{t("visitOfCompleted", { a: 6, b: 10 })}</span>
           </div>
-        </div>
-        
-        {/* Next Visit Card */}
-        <div className="px-4 mb-4">
-          <h3 className="font-semibold text-foreground mb-3 font-[family-name:var(--font-heading)]">{t("nextVisit")}</h3>
-          <div className="bg-card rounded-2xl border-l-4 border-info p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-foreground">Visit 7</span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-warning/15 text-warning">
-                {t("upcoming")}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2 mb-3">
-              <div>
-                <p className="text-[11px] text-muted-foreground">{t("protocolId")}</p>
-                <p className="text-sm text-foreground font-medium">Protocol-001</p>
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground">{t("phase")}</p>
-                <p className="text-sm text-foreground font-medium">Phase II</p>
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground">{t("indication")}</p>
-                <p className="text-sm text-foreground font-medium">Diabetes</p>
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground">{t("visitType")}</p>
-                <p className="text-sm text-foreground font-medium">{t("followUpVisit")}</p>
+
+          {/* progress — seated in a frosted glass panel */}
+          <div className="relative mt-5 flex items-center gap-4 rounded-3xl bg-white/10 px-4 py-4 ring-1 ring-white/15 backdrop-blur-sm animate-rise" style={{ animationDelay: "130ms" }}>
+            <DawnRing pct={progressPct} tone="light" size={72} />
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow text-primary-foreground/75">{t("yourProgress")}</p>
+              <p className="font-heading text-[17px] leading-snug mt-0.5">
+                {t("visitOfCompleted", { a: VISITS_DONE, b: TOTAL_VISITS })}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-semibold">
+                  <Activity className="h-3 w-3" /> 93% adherence
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-semibold">
+                  Next in 4 days
+                </span>
               </div>
             </div>
-            <p className="text-sm text-primary-deep font-medium mb-1">23 May 2025</p>
-            <p className="text-xs text-muted-foreground mb-3">{t("window")} 20 May – 26 May</p>
-            <button
-              onClick={() => onNavigate("my-visits")}
-              className="text-info font-medium text-sm flex items-center gap-1 hover:underline"
-            >
-              {t("viewDetails")} <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
-        {/* Section 3 — Calendar (monthly view, opens full Calendar) */}
-        <div className="px-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
+        {/* ── Next Visit — feature card, sitting cleanly below the hero ── */}
+        <div className="px-4 mt-4 animate-rise" style={{ animationDelay: "200ms" }}>
+          <button onClick={() => onNavigate("my-visits")} className="group w-full text-left">
+            <div className="dawn-ambient relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-sm transition-all group-hover:shadow-md group-active:scale-[0.99]">
+              <div className="relative flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl dawn-gradient text-primary-foreground shadow-sm">
+                    <Calendar className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="eyebrow text-accent">{t("nextVisit")}</p>
+                    <p className="font-heading text-[18px] text-foreground leading-tight">Visit 7</p>
+                  </div>
+                </div>
+                <span className="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-warning/15 text-warning">{t("upcoming")}</span>
+              </div>
+
+              <div className="relative grid grid-cols-2 gap-x-3 gap-y-3 mb-4">
+                {[
+                  { k: t("protocolId"), v: "Protocol-001" },
+                  { k: t("phase"), v: "Phase II" },
+                  { k: t("indication"), v: "Diabetes" },
+                  { k: t("visitType"), v: t("followUpVisit") },
+                ].map((f) => (
+                  <div key={f.k}>
+                    <p className="eyebrow text-muted-foreground/60">{f.k}</p>
+                    <p className="text-sm text-foreground font-medium mt-0.5">{f.v}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="relative flex items-center justify-between pt-3 border-t border-border">
+                <div>
+                  <p className="text-sm font-semibold text-primary">23 May 2025</p>
+                  <p className="text-xs text-muted-foreground">{t("window")} 20 May – 26 May</p>
+                </div>
+                <span className="flex items-center gap-1 text-sm font-medium text-accent">
+                  {t("viewDetails")}
+                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        {/* ── Calendar mini ── */}
+        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "320ms" }}>
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary-deep" />
-              <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">{t("calendar")}</h3>
+              <Calendar className="w-4 h-4 text-accent" />
+              <p className="eyebrow text-primary">{t("calendar")}</p>
             </div>
-            <button
-              onClick={() => onNavigate("patient-calendar")}
-              className="text-info font-medium text-sm flex items-center gap-1 hover:underline"
-            >
+            <button onClick={() => onNavigate("patient-calendar")} className="flex items-center gap-1 text-sm font-medium text-accent hover:underline underline-offset-2">
               {t("openCalendar")} <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <button
-            onClick={() => onNavigate("patient-calendar")}
-            className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs"
-          >
-            <p className="text-center font-semibold text-foreground mb-3">
+          <button onClick={() => onNavigate("patient-calendar")} className="w-full text-left rounded-3xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+            <p className="text-center font-heading text-foreground mb-3">
               {calendarMonth.toLocaleString("en-US", { month: "long", year: "numeric" })}
             </p>
             <div className="grid grid-cols-7 gap-1 mb-1">
@@ -165,11 +211,11 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                     className={cn(
                       "aspect-square flex items-center justify-center rounded-full text-xs font-medium",
                       !day && "invisible",
-                      status === "completed" && "bg-accent/10 text-accent",
+                      status === "completed" && "bg-accent/15 text-accent",
                       status === "upcoming" && "bg-warning/15 text-warning",
                       status === "scheduled" && "bg-info/10 text-info",
-                      !status && isToday && "ring-1 ring-inset ring-info text-info",
-                      !status && !isToday && "text-foreground/80"
+                      !status && isToday && "ring-1 ring-inset ring-accent text-accent",
+                      !status && !isToday && "text-foreground/80",
                     )}
                   >
                     {day}
@@ -185,17 +231,14 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
           </button>
         </div>
 
-        {/* Section 4 — Notifications (each opens its page; See All opens Notifications) */}
-        <div className="px-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
+        {/* ── Notifications ── */}
+        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "380ms" }}>
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-primary-deep" />
-              <h3 className="font-semibold text-foreground font-[family-name:var(--font-heading)]">{t("notifications")}</h3>
+              <Bell className="w-4 h-4 text-accent" />
+              <p className="eyebrow text-primary">{t("notifications")}</p>
             </div>
-            <button
-              onClick={() => onNavigate("notifications")}
-              className="text-info font-medium text-sm hover:underline"
-            >
+            <button onClick={() => onNavigate("notifications")} className="text-sm font-medium text-accent hover:underline underline-offset-2">
               {t("seeAll")}
             </button>
           </div>
@@ -204,37 +247,34 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
               <button
                 key={n.id}
                 onClick={() => onNavigate(n.screen)}
-                className={cn(
-                  "w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs flex items-start gap-3",
-                  n.unread && "border-l-4 border-info"
-                )}
+                className="group w-full text-left rounded-3xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md active:scale-[0.99] flex items-start gap-3"
               >
-                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", n.bg)}>
+                <div className={cn("w-11 h-11 rounded-2xl flex items-center justify-center shrink-0", n.bg)}>
                   <n.icon className={cn("w-5 h-5", n.color)} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-medium text-foreground text-[15px] truncate">{n.title}</p>
-                    {n.unread && <span className="w-2 h-2 rounded-full bg-info shrink-0" />}
+                    {n.unread && <span className="w-2 h-2 rounded-full bg-accent shrink-0" />}
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2">{n.body}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">{n.time}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0 mt-1" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/40 shrink-0 mt-1 transition-transform group-hover:translate-x-0.5" />
               </button>
             ))}
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="px-4">
-          <h3 className="font-semibold text-foreground mb-3 font-[family-name:var(--font-heading)]">{t("recentActivity")}</h3>
-          <div className="bg-card rounded-2xl border border-border divide-y divide-border shadow-xs">
+        {/* ── Recent activity ── */}
+        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "440ms" }}>
+          <p className="eyebrow text-primary mb-2.5">{t("recentActivity")}</p>
+          <div className="rounded-3xl border border-border bg-card divide-y divide-border shadow-sm overflow-hidden">
             {recentActivity.map((activity) => (
               <div key={activity.visit} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
-                    <Check className="w-4 h-4 text-accent" />
+                  <div className="w-9 h-9 bg-success/15 rounded-full flex items-center justify-center">
+                    <Check className="w-4 h-4 text-success" strokeWidth={2.5} />
                   </div>
                   <div>
                     <p className="font-medium text-foreground">{activity.visit}</p>
@@ -249,18 +289,18 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
           </div>
         </div>
       </div>
-      
-      <BottomNav 
-        activeTab={activeTab} 
+
+      <BottomNav
+        activeTab={activeTab}
         role="patient"
         notificationCount={2}
         onTabChange={(tab) => {
           setActiveTab(tab)
           if (tab === "my-trial") onNavigate("my-visits")
-          if (tab === "chat")     onNavigate("chat")
+          if (tab === "chat") onNavigate("chat")
           if (tab === "calendar") onNavigate("patient-calendar")
-          if (tab === "me")       onNavigate("profile-settings")
-        }} 
+          if (tab === "me") onNavigate("profile-settings")
+        }}
       />
     </div>
   )
