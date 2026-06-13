@@ -138,18 +138,27 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
   /* Normal sign-in                                                    */
   /* ---------------------------------------------------------------- */
   return (
-    <div className="h-full flex flex-col bg-background paper-grain">
+    <div className="h-full flex flex-col bg-background paper-grain dawn-ambient overflow-hidden">
       <div className="flex-1 px-7 pt-12 overflow-auto">
         {/* Masthead */}
-        <div className="flex justify-center mb-6 animate-rise" style={{ animationDelay: "60ms" }}>
-          <MtbLogoMark className="w-16 h-16 rounded-2xl shadow-md" />
+        <div className="relative flex justify-center mb-6 animate-rise" style={{ animationDelay: "60ms" }}>
+          <span aria-hidden className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-20 rounded-full dawn-gradient opacity-20 blur-lg" />
+          <MtbLogoMark className="relative w-16 h-16 rounded-2xl shadow-md" />
         </div>
 
         <p className="eyebrow text-accent text-center mb-1.5 animate-rise" style={{ animationDelay: "120ms" }}>
           My Trial Board
         </p>
         <h2 className="display-serif text-[30px] leading-tight text-foreground text-center mb-2 animate-rise" style={{ animationDelay: "180ms" }}>
-          Welcome back.
+          Welcome{" "}
+          <span className="relative inline-block">
+            back
+            <span
+              aria-hidden
+              className="animate-draw-line absolute -bottom-0.5 left-0 right-0 h-[3px] rounded-full dawn-gradient"
+            />
+          </span>
+          <span className="dawn-text">.</span>
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-9 animate-rise" style={{ animationDelay: "240ms" }}>
           Sign in to open your trial board
@@ -221,7 +230,7 @@ export function SignInScreen({ onSignIn, onSignUp, onForgotPassword }: SignInScr
       <div className="px-7 pb-9 pt-4 space-y-4">
         <button
           onClick={handleSignIn}
-          className="w-full py-4 rounded-full bg-primary text-primary-foreground text-[15px] font-semibold tracking-tight shadow-md transition-all duration-200 hover:bg-primary-deep active:scale-[0.99] animate-rise"
+          className="springy w-full py-4 rounded-full bg-primary text-primary-foreground text-[15px] font-semibold tracking-tight shadow-md transition-colors duration-200 hover:bg-primary-deep active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background animate-rise"
           style={{ animationDelay: "480ms" }}
         >
           Sign In

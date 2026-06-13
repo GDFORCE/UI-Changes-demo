@@ -1,0 +1,1776 @@
+ 
+ 
+ 
+ 
+BUSINESS REQUIREMENTS 
+DOCUMENT 
+ 
+Patient Visit Schedule 
+Mobile Application 
+ 
+ 
+Document Version 1.0 
+Status Draft 
+Date May 20, 2026 
+Platform Mobile Application (Phase 1) 
+ 
+ 
+ 
+ 
+ 
+CONFIDENTIAL — FOR AUTHORIZED USE ONLY
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 2 
+1. Introduction 
+1.1 Document Purpose 
+This Business Requirements Document (BRD) defines the complete functional and non -functional 
+requirements for the Patient Visit Schedule (PVS) Mobile Application. The document serves as the 
+primary reference for design, development, testing, and deployment teams involved in Phase 1 of the 
+platform. 
+ 
+1.2 Project Overview 
+The Patient Visit Schedule Mobile Application is a digital platform designed to streamline the 
+management of clinical trial visit schedules. The application enables Sponsors, CROs, S MOs, Sites, 
+Principal Investigators (PIs), Research Teams, and Patients to coordinate, track, and manage clinical trial 
+visit activities efficiently through a centralized mobile interface. 
+ 
+1.3 Scope 
+Phase 1 of the platform covers the following modules: 
+• Module 1: User Registration and Login 
+• Module 2: Dashboards 
+• Module 3: Trial / Patient Visit Schedule Management 
+• Module 4: Notifications 
+• Module 5: Calendar 
+• Module 6: Patient Profile & Settings 
+• Module 7: Chat Interface 
+• Module 8: Medication Reminder 
+• Module 9: About Trial 
+• Module 10: Platform Admin 
+ 
+The mobile application backend shall be architected to support future integration with a web -based 
+clinical trial ecosystem platform. 
+ 
+1.4 Applicable Regulatory Standards 
+• ICH-GCP (Good Clinical Practice) 
+• NDCT Rules 2019 (New Drugs and Clinical Trials Rules, India) 
+• Indian data privacy requirements 
+ 
+1.5 Stakeholders 
+Entity Role Primary Access Notes 
+Sponsor Trial owner Trial creation, site management, 
+recruitment monitoring 
+No access to patient PII 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 3 
+CRO Contract Research 
+Organization 
+Trial creation, site management, 
+recruitment monitoring 
+No access to patient PII 
+SMO Site Management 
+Organization 
+Site-level trial management Can add sites 
+Site / Hospital Investigational site Patient management, trial conduct PI and Research Team 
+roles 
+Patient Clinical trial participant Visit schedule, medication 
+reminders, trial info 
+Restricted to own data 
+Platform Admin Operational oversight User management, system 
+monitoring 
+No clinical data access 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 4 
+MODULE 1: User Registration and Login 
+ 
+2. Module 1 — User Registration and Login 
+2.1 Objective 
+This module allows individual users from the clinical trial ecosystem to register on the Patient Visit 
+Schedule mobile application, verify their identity through OTP or email verification, create login 
+credentials, and securely access the platform. 
+ 
+2.2 Applicable User Entities 
+• Sponsor 
+• CRO (Contract Research Organization) 
+• SMO (Site Management Organization) 
+• Site / Hospital 
+• Patient 
+ 
+2.3 Registration Screen Flow 
+Screen No. Screen Name 
+Screen 1 Welcome Screen 
+Screen 2 Select User Type / Entity Screen 
+Screen 3 Registration Form 
+Screen 4 OTP Verification Screen 
+Screen 5 Password Creation Screen 
+Screen 6 Registration Success Screen 
+Screen 7 Login Screen 
+Screen 8 Forgot Password Screen 
+ 
+2.4 Screen Specifications 
+2.4.1 Screen 1 — Welcome Screen 
+Purpose: To introduce the application and allow users to proceed to sign up or sign in.  
+• App Logo 
+• App Name: Patient Visit Schedule 
+• Button: Sign Up 
+• Button: Sign In 
+• Link: Forgot Password 
+ 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 5 
+2.4.2 Screen 2 — Select User Type / Entity 
+Purpose: To identify the type of user registering on the platform. 
+Field: Entity Type — Dropdown or Selection Cards: 
+• Sponsor 
+• CRO 
+• SMO 
+• Site / Hospital 
+• Patient 
+Rule: Based on the selected entity, the next registration form shall display relevant fields. 
+ 
+2.4.3 Screen 3 — Registration Form 
+The fields in the registration form vary based on the selected entity type: 
+ 
+# Field Sponsor / CRO Site / SMO Patient 
+1 Full Name Yes Yes Yes 
+2 Designation Yes Yes No 
+3 Email ID Yes Yes Yes 
+4 Phone Number Yes Yes Yes 
+5 Entity Type (auto-populated) Yes Yes Yes 
+6 Organization Name Yes Yes No 
+7 Organization Address Yes Yes No 
+8 Add Sites (name and address) No SMO only No 
+9 Role: PI / Research Team No Yes No 
+10 Department (if PI) No Yes No 
+11 Gender No No Yes 
+12 Date of Birth / Age No No Yes 
+13 Preferred Language No No Yes 
+ 
+Organization Mapping Logic 
+Upon entering the organization name with the selected entity type, the system shall:  
+1. Search for existing organizations with similar details 
+2. Detect exact or similar organization names (e.g., Apollo Hospital / Apollo Hospitals / Apollo Health 
+City may be identified as similar) 
+3. Suggest possible matching organizations to the user 
+ 
+If a similar organization exists, the user shall see two options: 
+• Join Existing Organization 
+• Enter New Organization 
+ 
+The system shall maintain an Organization Master Record containing: 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 6 
+• Unique internal Organization ID 
+• Standardized organization name 
+• Entity type 
+• Location details 
+ 
+All users associated with the same organization shall be linked to the same organization record.  
+ 
+Duplicate Organization Handling 
+• Duplicate organization detection 
+• Administrative organization merge capability 
+• Manual review by platform administrator if required 
+ 
+Terms and Conditions 
+4. The system shall display Terms and Conditions during registration. 
+5. Users must read and accept the Terms and Conditions before proceeding.  
+6. A checkbox or Accept button shall be provided. 
+7. The system shall not allow users to continue without acceptance. 
+8. The system shall store the following details for audit trail: User name, Organization name, 
+Accepted version, Date and time of acceptance. 
+9. Application Admin shall be able to update Terms and Conditions. 
+10. If Terms and Conditions are updated, users shall be required to accept the latest version again 
+during the next login. 
+ 
+Validation Rules 
+Before registration submission, the system shall validate: 
+11. Mandatory fields completed 
+12. Valid email format 
+13. Valid phone number format 
+14. Duplicate phone number check — display message in red: 'Phone number already exists' 
+15. Duplicate email check — display message in red: 'Email ID already exists' 
+16. Terms & Conditions accepted 
+ 
+2.4.4 Screen 4 — OTP Verification 
+Verification Options 
+• OTP sent to mobile number 
+• OTP sent to email ID 
+Fields 
+• Enter OTP 
+• Resend OTP 
+Rules 
+• OTP shall expire after 15 minutes 
+• Maximum retry attempts: 5 
+• If OTP fails multiple times, the account shall be temporarily locked or verification shall be paused  
+ 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 7 
+2.4.5 Screen 5 — Password Creation 
+Fields: Create Password, Confirm Password 
+Password Rules 
+• Minimum 8 characters 
+• At least one uppercase letter 
+• At least one lowercase letter 
+• At least one numeric character 
+• At least one special character 
+• Password and Confirm Password must match 
+ 
+2.4.6 Screen 6 — Registration Success 
+• User account shall be created 
+• Success message displayed: 'Your account has been created successfully.' 
+• User redirected to the Sign In screen 
+ 
+2.4.7 Screen 7 — Login Screen 
+Fields 
+• Email ID / Phone Number 
+• Password (Show / Hide toggle) 
+Buttons 
+• Sign In 
+• Forgot Password 
+• Sign Up 
+• Remember Me (optional) 
+Login Rules 
+• Users shall be allowed to log in only after OTP verification is complete 
+ 
+2.4.8 Screen 8 — Forgot Password 
+Flow: 
+17. User enters registered email ID or phone number 
+18. OTP is sent to the registered contact 
+19. User verifies OTP 
+20. User creates a new password 
+21. User is returned to the login screen 
+ 
+2.5 Patient Registration — Two Registration Modes 
+2.5.1 Self-Registration 
+The patient can register directly through the mobile application following this flow:  
+22. Open the mobile application 
+23. Select 'Register as Patient' 
+24. Complete the Registration Form 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 8 
+25. Verify phone number through OTP 
+26. Create password 
+27. Accept Terms & Conditions and Privacy Policy 
+28. Login into the application 
+29. View the Patient Dashboard 
+ 
+2.5.2 Site-Initiated Registration / Invitation 
+When the PI or research team adds a patient to the trial (by entering phone number and email ID), an 
+invitation link shall be sent to the patient Email ID & Phone Number. Upon clicking the link, the patient 
+shall be redirected to the Registration Form with the email ID and phone number auto-populated. 
+During registration, the pre-filled fields (email ID, Phone) shall not be editable by the patient.  
+After registration, the system shall automatically map the invited user to the shared trial and trial access 
+shall become active automatically. 
+ 
+2.5.3 Patient Consent / Declaration 
+During patient registration, the patient shall accept: 
+• Terms & Conditions 
+• Privacy Policy 
+• Consent for receiving in-app reminders 
+• Consent for using the app for trial visit schedule support 
+ 
+2.6 Business Rules 
+2.6.1 Role-Based Access After Login 
+User / Entity Dashboard Redirected To 
+Sponsor Sponsor Dashboard 
+CRO CRO Dashboard 
+Site PI Investigator Dashboard 
+Site Research Team Research Team Dashboard 
+Patient Patient Dashboard 
+Platform Admin Admin Dashboard 
+ 
+2.6.2 Duplicate Check 
+The system shall not allow duplicate registration using the same: 
+• Email ID 
+• Phone Number 
+ 
+2.6.3 Audit Trail 
+The system shall record the following for every user: 
+• Registration date and time 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 9 
+• OTP verification status 
+• Password creation status 
+• Login and logout history 
+• Failed login attempts 
+• Organization mapping 
+• Account activation / deactivation 
+ 
+Each audit entry shall capture: 
+• Username 
+• Date and time 
+• Action performed 
+• IP and device information (if applicable) 
+ 
+2.6.4 Security Requirements 
+• Passwords shall be stored in encrypted format 
+• OTP shall not be stored as plain text 
+• User sessions shall expire after inactivity 
+• Accounts shall be locked after repeated failed login attempts 
+• Sensitive patient and trial-related access shall be role-based 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 10 
+MODULE 3: Trial / Patient Visit Schedule Management 
+ 
+3. Module 3 — Trial / Patient Visit Schedule Management 
+3.1 Module Overview 
+The Trial & Patient Visit Schedule Management module enables Sponsors, CROs, SMOs, Sites, Principal 
+Investigators (PIs), Research Teams (including Clinical Research Coordinators), and Patients to manage 
+clinical trial visit schedules digitally through the platform. 
+ 
+3.2 Capabilities Supported 
+• Trial creation 
+• Upload and interpretation of Patient Visit Schedule documents 
+• Auto-generation of structured visit schedule templates 
+• AI summary document with Q&A 
+• Site assignment 
+• Patient enrolment 
+• Auto-calculation of patient-specific visit dates 
+• Visit reminders and notifications 
+• Trial recruitment tracking 
+ 
+3.3 Stakeholders with Module Access 
+• Sponsor Users 
+• CRO Users 
+• SMO Users 
+• Site Users (PI, CRCs and others) 
+• Patients 
+ 
+3.4 Trial Creation 
+The system shall provide an 'Add Trial' option to all users (except Patients). 
+Upon selecting 'Add Trial,' the following fields shall be displayed: 
+30. Protocol ID (mandatory) 
+31. CTRI Number (mandatory) 
+32. Study Title 
+33. Disease / Indication (multi-select with 'Others Specify' option) 
+34. Study Drug Name 
+35. Upload Patient Visit Schedule (Supported formats: PDF, DOC, DOCX, XLS, CSV, JPEG, PNG, 
+etc.) 
+ 
+Instruction displayed to user: 'Upload your Patient Visit Schedule to auto-populate the above trial fields.' 
+ 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 11 
+'Others Specify' Workflow 
+If a user selects 'Others Specify' for any field, the system shall: 
+36. Allow the user to enter a custom value 
+37. Save the value for the user and send a request to the Platform Admin 
+38. The Admin may Approve, Edit, or Reject the custom value 
+39. If approved: the value becomes available globally to all users 
+40. If edited: the corrected value is approved and made globally available 
+41. If rejected: the value remains user-specific only 
+This process is applicable across the entire platform wherever the 'Others Specify' option is provided.  
+ 
+3.5 Auto-Interpretation of Patient Visit Schedule 
+Upon upload of the Patient Visit Schedule document, the system shall: 
+• Read and interpret the uploaded schedule 
+• Extract visit schedule details 
+• Convert the extracted information into a standardized structured visit schedule format  
+ 
+The system shall attempt to identify: 
+• Visit Number 
+• Visit Name 
+• Visit Type 
+• Visit Gap 
+• Window Period 
+• Activities: Clinical Activities and Administrative Activities 
+• Other applicable fields 
+ 
+3.6 Standardized Visit Schedule Template 
+3.6.1 Template Structure 
+Visit Number Visit Name Visit Type Visit Gap (units) 
+Auto-extracted Auto-extracted Auto-extracted Auto-extracted 
+ 
+Positive Window Period Negative Window 
+Period 
+Activities Comments 
+Auto-extracted Auto-extracted Clinical & Administrative User editable 
+ 
+3.6.2 Preview, Edit & Save 
+Users shall be able to: 
+• Preview the generated template 
+• Edit extracted fields 
+• Add or remove visits 
+• Modify visit gaps 
+• Modify activities 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 12 
+• Add comments 
+• Add or remove rows and columns 
+• Save the final approved template 
+• Delete existing schedule and add a new schedule 
+Note: Deleted schedules shall be retained in Version History for reference. 
+ 
+3.6.3 Version History 
+The system shall maintain version history for all schedules. Version history shall capture:  
+• Version Number 
+• Date and Time 
+• Modified By 
+• Change Summary 
+• Previous Version Reference 
+• View document 
+3.7 Trial Saving & Management 
+Upon saving the trial, the system shall: 
+• Create the trial in the system 
+• Link the approved visit schedule template to the trial 
+• Store all trial metadata 
+• Generate an audit trail entry 
+ 
+3.8 Trial Sharing and Access Control 
+3.8.1 Sponsor / CRO Created Trials 
+If a Sponsor or CRO user creates a trial, they shall be able to: 
+• Share the trial internally within their organization 
+• Share the trial with Site users (e.g., Sponsor shares with PI) 
+• Add sites through single entry or bulk upload 
+ 
+Single Entry Fields 
+• Site Name 
+• Site Address 
+• PI Name 
+• PI Email ID 
+• Access Type (Patient Management — set by default) 
+ 
+Bulk Upload 
+Users shall upload site lists through PDF, Excel, DOC/DOCX, CSV, Images, etc. The system shall:  
+42. Read uploaded documents 
+43. Extract site and PI details 
+44. Auto-create site mappings 
+45. Allow users to review and edit extracted information before saving 
+46. Display the schedule template to added sites upon saving 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 13 
+ 
+3.8.2 Access Types for Internal Trial Assignment 
+Access Type Description 
+View Access User can view trial and schedule details only 
+Edit Access User can modify trial schedule details 
+Patient Management Access User can add and manage patients under the trial 
+ 
+Access Restriction Rules 
+If the trial creator is a Sponsor or CRO user: 
+• For Internal Trial Assignment: Disable/Hide Patient Management Access 
+• If the trial is shared with Sites: Disable/Hide Edit Access 
+ 
+3.8.3 Site-Created Trials 
+If a Site user creates a trial: 
+• The trial can only be shared with users within the same organization 
+• Cross-organization sharing shall not be allowed 
+ 
+For Internal Trial Assignment (with in the Organization members), the system shall display the following 
+fields - 
+• Full Name* 
+• Designation 
+• Email ID* 
+• Phone Number 
+• Organization Name (autopopulated) 
+• Access Type 
+◦ View access 
+◦ Edit access 
+◦ Patient Management access 
+ 
+3.8.4 Unregistered User Invitation Edge Case 
+While sharing the trial access, If the entered email or mobile number is not registered on the platform, the 
+system shall: 
+• Send an invitation to the user via email 
+• Auto-populate the fields filled by the sender in the registration form (except email ID and 
+Organization Name — editable by the invitee) 
+• To change organisation name (in case of any spelling errors), the user has to request platform 
+admin   
+• Upon registration, automatically map the invited user to the shared trial 
+• Activate trial access automatically 
+ 
+3.9 Site User Functionalities 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 14 
+3.9.1 Create Independent Trials 
+• Create and manage their own active trials 
+• Upload their own patient visit schedules 
+• Manage site-level patients 
+ 
+3.9.2 Receive Sponsor / CRO Templates 
+• Receive trial schedule templates shared by Sponsors / CROs 
+• Access assigned trials 
+• Manage patients under assigned trials 
+• Share trials with other users (research team) within the organization 
+ 
+3.9.3 Patient Management — Add Patients 
+Fields required to add a patient: 
+• Subject Number / ID 
+• Subject Initials 
+• Phone Number 
+• Email ID 
+• Preferred Language for the Patient 
+• Screening Date OR Randomization Date 
+ 
+3.9.4 Single & Bulk Patient Upload 
+• Single patient entry 
+• Bulk upload through Excel, PDF, DOC, etc. 
+ 
+3.9.5 Auto Generation of Patient Visit Dates 
+Upon entering the Screening Date or Randomization Date, the system shall:  
+• Automatically calculate all patient visit dates 
+• Apply visit gaps and window periods 
+• Generate patient-specific visit calendars with the following fields 
+◦ Visit Number 
+◦ Type of Visit (Hospital Visit/ Telephonic Visit/ Home Visit) 
+◦ Positive Window Period (Date) 
+◦ Actual Visit Date  
+◦ Negative Window Period (Date) 
+◦ Visit Completion Date (manual entry) 
+◦ Status of the Visit (Manual entry) - Screened/Screen Failure/ Follow-up/Withdrawn/Drop 
+out/Completed 
+◦ Entry Details 
+ 
+3.10 Trial Recruitment & Status Tracking 
+3.10.1 Sponsor / CRO View  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 15 
+3.10.1.1 Cumulative Recruitment Status of all site associated with a trial 
+◦ Total Screened 
+◦ Screen Failures 
+◦ Randomized 
+◦ Withdrawn 
+◦ Dropouts 
+◦ Completed 
+◦ Follow-up 
+ 
+3.10.1.2 Site-wise Trial Status 
+The Sponsor / CRO shall be able to view individual site-level performance metrics. 
+ 
+3.10.1.3 Patient Privacy & Access Control 
+Sponsor / CRO users shall NOT have access to: 
+• Patient names 
+• Full patient identifiers 
+• Contact details 
+• Sensitive medical records 
+Sponsor / CRO users shall only have access to aggregated recruitment and trial status metrics.  
+ 
+3.10.2 Site Users 
+The Site Users (PI & Research Team) shall be able to view the associated-trials status 
+◦ Protocol ID 
+◦ Disease/Indication 
+◦ Sponsor Name 
+◦ PI Name 
+◦ Total Screened 
+◦ Screen Failures 
+◦ Randomized 
+◦ Withdrawn 
+◦ Dropouts 
+◦ Completed 
+◦ Follow-up 
+ 
+3.11 Audit Trail for Trial Management 
+The system shall maintain audit trails for: 
+• Trial creation 
+• Schedule uploads 
+• Template modifications 
+• Site assignments 
+• Patient additions 
+• Visit modifications 
+• Notification activities 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 16 
+• Status changes 
+ 
+Audit logs shall capture: Username, Timestamp, Activity performed, Previous value, Updated value. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 17 
+MODULE 4: Notifications 
+ 
+4. Module 4 — Notifications 
+4.1 Objective 
+The Notification Module provides real-time in-app reminders and alerts to users involved in patient visit 
+management within the Patient Visit Schedule mobile application. 
+ 
+4.2 Notification Capabilities 
+• In-app notifications only (Phase 1) 
+• Notification history 
+• Read / Unread notifications 
+• Role-based notifications 
+• Patient visit reminders 
+• Medication reminders 
+• Trial sharing notifications 
+• Visit schedule modification notifications 
+• Navigation to related activity screens 
+ 
+4.3 Notification Section 
+4.3.1 Notification  Channels 
+Notifications shall be displayed inside the mobile application (in app notifications) under the Notification 
+Section. 
+ 
+Users shall be able to: 
+• View Notifications 
+• Open related activity 
+• Mark notifications as read/unread 
+• View notification timestamp 
+• Delete notifications 
+ 
+4.3.2 Notification Center 
+The mobile application shall include a dedicated: 
+• Notification Icon 
+• Notification Screen list 
+4.3.3 Notification Display Fields 
+• Notification Title 
+• Notification Message 
+• Sender Details 
+• Date and Timestamp 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 18 
+• Read / Unread Status 
+ 
+4.4 Notification Categories 
+Category App Type Description 
+Patient Visits Mobile (Phase 1) + Web (future) Visit reminders and visit updates 
+Medication Reminders Mobile (Phase 1) + Web (future) Reminders to patients about 
+medicines 
+Trial Notifications Mobile (Phase 1) + Web (future) Trial sharing and trial updates 
+Meetings Web (future) Meeting scheduling and reminders 
+General Web (future) General system notifications 
+Initially, the platform shall support the following notification categories for mobile application:  
+• Visit Notifications (Patient visit reminders and updates) 
+• Medication Reminders (Reminders to Patients about Medicines) 
+• Trial Notification (Trial assignment and sharing) 
+4.5 Notification Filters 
+• All 
+• Read 
+• Unread 
+ 
+4.6 Notification Delivery 
+Phase 1: In-app notifications only. 
+Future versions may additionally support WhatsApp notifications. 
+ 
+4.7 Notification Trigger Rules 
+4.7.1 Patient Visit — Screening Visit 
+Trigger: When PI / Research Team enters the Baseline (screening) date of a subject.  
+To Patient 
+Message: Confirmation that the patient has been registered for the trial and information about the next 
+visit (visit type, date, window period, site, PI details). 
+To PI / Research Team / SMO Admin 
+Message: Alert that the patient has been screened and a request to update the visit status in 'Patient Visit 
+Details.' 
+ 
+4.7.2 Patient Eligible (Screen Pass) 
+Trigger: When PI / Research Team updates screening status as 'Screen Pass' in Patient Visit Details. 
+To Patient 
+Message: Confirmation of eligibility, next visit type, date, window period, site, and PI information.  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 19 
+To PI / Research Team / SMO Admin 
+Message: Notification that the patient is eligible and the next visit is scheduled, along with a request to 
+update the status on the day of the visit. 
+ 
+4.7.3 Visit Reminders 
+Recipients: Patients, PI, PI Delegates, SMO / Site Admin. 
+Recipient 1 Week Before 1 Day Before Day of Visit 
+Patient Yes Yes Yes (with time) 
+PI / Delegates Assignment only Yes (Notification) Yes (Notification) 
+SMO / Site Admin Assignment only Yes (Notification) Yes (Notification) 
+ 
+4.7.4 Screen Failure Notification 
+Trigger: When PI / Research Team marks a patient as 'Screen Failure.' 
+To Patient 
+Message: Regret message informing the patient they are not eligible for the trial, along with the reason for 
+screen failure. 
+Reasons for Screen Failure 
+• Not meeting Inclusion / Exclusion Criteria 
+• Laboratory Test Abnormalities 
+• Other comorbidities 
+• Non-compliance with Study Protocol 
+• Inadequate Organ Function 
+• Psychological Conditions 
+• Risk Factors for Adverse Events 
+• Previous Participation in a Clinical Trial 
+• Pregnancy or Breastfeeding 
+• Substance Abuse 
+• Inability to Provide Informed Consent 
+• Socioeconomic or Logistical Issues 
+• Baseline Health Status 
+• Others Specify 
+ 
+4.7.5 Overdue Visit Status Notification 
+Trigger: PI / PI Delegates fail to update the visit status by the due date. 
+Frequency: Notification for 3 days following the due date, then weekly reminders to PI / PI Delegates and 
+SMO / Site Admin. 
+ 
+4.7.6 Subsequent Visit Completion Notification 
+Trigger: Visit status updated as 'Completed' in Patient Visit Details. 
+Recipients: Patient, PI / Delegates, SMO / Site Admin. 
+Applicable to all visits subsequent to the screening visit but not to the final study completion visit.  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 20 
+ 
+4.7.7 Patient Withdrawal Notification 
+Trigger: Visit status updated as 'Withdrawn.' 
+Message: Regret message to patient with reason for withdrawal. Alert to PI and SMO / Site Admin. 
+ 
+4.7.8 Patient Dropout Notification 
+Trigger: Visit status updated as 'Drop Out.' 
+Message: Alert to PI and SMO / Site Admin with reason for dropout (no patient message specified).  
+ 
+4.7.9 Study Completion Notification 
+Trigger: Last visit status updated as 'Completed.' 
+To Patient 
+Message: Grateful message acknowledging the patient's completion of the entire trial.  
+To PI / Research Team / SMO Admin 
+Message: Confirmation that the patient has completed the trial. 
+ 
+4.7.10 Medication Reminders 
+Trigger: Based on the medication schedule template and baseline date entered by the PI / Research 
+Team. 
+Recipient: Patient 
+Message: Medication name, dosage, timing, and instructions to confirm intake after taking the medication.  
+ 
+4.8 Notification Screen Options 
+• ALL — View all notifications 
+• READ — View read notifications (displayed in light blue) 
+• UNREAD — View unread notifications 
+• DELETE — Select individual or all notifications to delete; deleted notifications can be restored 
+from the bin before permanent deletion 
+• STOP — Stops all further alerts related to a specific activity. A confirmation hover message shall 
+be displayed: 'Selecting the STOP option will stop all further message alerts related to this 
+activity.' 
+ 
+4.9 Role-Based Notification Visibility 
+• Patients shall see only their own visit notifications 
+• PI and Research Staff shall see notifications for all patients across their assigned trials  
+• Notifications are displayed based on: Entity Type, Role, Trial Access, and Patient Association  
+ 
+4.10 Notification History 
+• Notification title 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 21 
+• Message 
+• Timestamp 
+• Read / Unread status 
+Older notifications may later be archived automatically. 
+ 
+4.11 Audit Trail — Notifications 
+• Notification generated 
+• Notification viewed 
+• Notification deleted 
+• Read status updated 
+Each log entry captures: Username, Date & time, Notification type, Related activity. 
+ 
+ 
+Note:  
+The Notification requirements are prepared specifically for the Patient Visit Schedule Mobile Application 
+(Phase 1). 
+The detailed web application architecture and advanced work flows are available in the document 
+“ASSIGNMENTS AND NOTIFICATIONS (31/12/2024) ” 
+If any notification-related points, workflows, timelines, cat egories, or message formats are not explicitly 
+covered in this mobile application requirement document, they shall be referred from and governed by 
+the ASSIGNMENTS AND NOTIFICATIONS (31/12/2024) ” document. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 22 
+MODULE 5: Calendar 
+ 
+5. Module 5 — Calendar 
+5.1 Objective 
+The Calendar Module provides a centralized calendar view for managing and tracking patient visits, trial -
+related activities, and meetings within the Patient Visit Schedule mobile application. 
+ 
+The Calendar Module shall support: 
+• Patient visit display 
+• Meeting schedules (future) 
+• Site Visits (future) 
+• Day/Week/Month calendar views 
+• Role-based calendar visibility 
+ 
+The calendar module in the current phase is focused mainly on: 
+• Patient visits 
+Advanced scheduling workflows (Site Visits, full meeting management) may be introduced in later 
+phases. 
+ 
+5.3 Calendar Access 
+The Calendar module shall be accessible from: 
+ 
+• Dashboard 
+• Menu / Navigation 
+ 
+5.4 Calendar Views 
+View Type Description Applies To 
+Day View Activities for the selected day All users 
+Week View Activities for the selected week All users 
+Month View Activities for the selected month All users 
+ 
+5.5 Visit Details in Calendar 
+5.5.1 For PI / Research Team 
+Each visit in the calendar shall display - 
+ 
+• Subject ID 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 23 
+• Protocol ID 
+• Visit Number 
+• Visit Name 
+• Visit Date 
+• Window Period 
+• Visit Status (updating a visit status automatically updates the calendar display)  
+• Site Name 
+• PI Name 
+ 
+5.5.2 For Patients   
+Each visit in the calendar shall display - 
+• Protocol ID 
+• Visit Number 
+• Visit Name 
+• Visit Date 
+• Window Period 
+• Visit Status (updating a visit status automatically updates the calendar display)  
+• Site Name 
+• PI Name 
+ 
+5.6 Role-Based Calendar Visibility 
+• Visibility is based on: Entity type, Trial access, and Patient assignment 
+Example: 
+• Patients shall see only their own visits 
+• Site users shall see assigned trials and related patients 
+ 
+NOTE:  
+The Calendar requirements are prepared specifically for the Patient Visit Schedu le Mobile Application 
+(Phase 1). 
+The detailed web application architecture and advanced workflows are available in the document 
+“CALENDAR REQUIREMENTS ” 
+If any Calendar -related points, workflows, timelines, categories, or message formats are not explicitly 
+covered in this mobile application requirement document, they shall be referred from and governed by 
+the CALENDAR REQUIREMENTS ”  document. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 24 
+MODULE 6: Patient Profile & Settings 
+ 
+Module 6 — Patient Profile & Settings 
+6.1 Objective 
+The Profile & Settings module allows all registered users on the Patient Visit Schedule mobile application 
+to manage their profile information, update passwords, view Terms & Conditions, access help and 
+support, and securely log out. 
+ 
+This module is applicable to all user entities: 
+ 
+• Sponsor 
+• CRO (Contract Research Organization) 
+• SMO (Site Management Organization) 
+• Site / Hospital (PI and Research Team) 
+• Patient 
+• Platform Admin 
+ 
+The profile fields displayed and the editability of those fields vary based on the user entity and role.  
+6.2 Access 
+• Bottom navigation menu 
+• Side menu or Profile icon 
+ 
+6.3 Profile Fields 
+  
+The following table defines the profile fields applicable to each user entity: 
+# Field Sponsor / CRO 
+Users 
+Site / SMO 
+Users 
+Patient Platform Admin 
+1 Profile Photo Yes Yes Yes Yes 
+2 Full Name Yes Yes Yes Yes 
+3 Designation Yes Yes No Yes 
+4 Email ID Yes Yes Yes Yes 
+5 Phone Number Yes Yes Yes Yes 
+6 Entity Type  Read only Read only Read only No 
+7 Organization Name Yes Yes No No 
+8 Organization Address Yes Yes No No 
+9 Add Sites (name and address) No SMO only No No 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 25 
+10 Role: PI / Research Team No Yes No No 
+11 Department (if PI) No Yes No No 
+12 Gender No No Yes No 
+13 Date of Birth / Age No No Yes No 
+14 Preferred Language No No Yes No 
+ 
+Editability Rules: 
+ 
+• Profile Photo: All users may add, update, or remove their profile photo. 
+• Email ID and Phone Number: Editable upon OTP verification. If a trial is active and the user is a 
+Patient, the system shall notify relevant stakeholders (PI & Research Team) of the contact 
+update. 
+• Entity Type and Role: These fields are system-assigned at registration and are read-only. 
+Changes require Platform Admin intervention. 
+• Organization Name: For Sponsor, CRO, SMO, and Site users, corrections to organization name 
+shall be submitted to the Platform Admin for review and update. 
+6.4 Password Management 
+Fields: Current password, New password, Confirm password 
+Password Rules: Minimum 8 characters, uppercase, lowercase, numeric, and special character 
+required. 
+ 
+6.5 Terms and Conditions 
+All users shall be able to view the current Terms and Conditions within the application. 
+• Patients shall additionally be able to view the Privacy Policy and the consent declarations 
+accepted during registration. 
+• If Terms and Conditions are updated, users shall be required to accept the latest version upon 
+the next login.. 
+ 
+6.6 Help and Support 
+• FAQ / Help section 
+• Contact support 
+• Report issue 
+ 
+6.7 Session Management 
+This section is applicable to all user entities. 
+• The system shall maintain secure login sessions for all users. 
+• Sessions shall automatically expire after a configurable period of inactivity.  
+• Re-login shall be required after a password reset. 
+• Active sessions shall be terminated upon logout. 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 26 
+6.8 Audit Trail — Profile & Settings 
+• Profile updates 
+• Password changes 
+• Login / Logout activity 
+• Session Expiry events 
+• Contact information updates (with verification status) 
+ 
+Each audit entry shall capture: Username, Entity Type, Field Updated, Previous Value (masked where 
+applicable), Updated Value, Date and Time. 
+6.9 Security & Privacy 
+• Each user can access only their own profile. 
+• Sensitive information such as passwords shall be stored in encrypted format.  
+• Contact details (Email ID and Phone Number) shall be editable only after OTP verification.  
+• Patient profile information shall not be visible to Sponsor or CRO users. 
+• Role-based access control shall be enforced. 
+• Secure authentication shall be maintained at all times. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 27 
+MODULE 7: My Visits (Patient) 
+ 
+7. Module 7 — My Visits (Patient) 
+7.1 Objective 
+The My Visits module allows patients to view and track all their clinical trial visits in a simple mobile 
+interface. 
+The module shall display: 
+• Upcoming visit 
+• All visit list 
+• Visit details 
+• Visit status 
+• Visit reminders 
+• Visit instructions 
+• Visit window period 
+• Visit type 
+7.2 Access Points 
+Patients shall access this module from: 
+ 
+• Bottom menu: My Visits 
+• Dashboard — Upcoming Visit card 
+• Notification click-through 
+• Calendar visit entry 
+ 
+7.3 Screen Layout 
+A list of associated trials (including past trials) shall be displayed. Upon selecting a trial, the screen s hall 
+consist of three panels: 
+ 
+7.3.1 Panel 1 — Trial Details 
+• Protocol ID 
+• Study Title 
+• Disease / Indication 
+• Drug Name 
+• Global / Domestic 
+• Hospital Name 
+• PI Name 
+ 
+7.3.2 Panel 2 — Upcoming Visit 
+• Visit Number 
+• Visit Name 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 28 
+• Visit Type (Hospital / Telephonic / Home) 
+• Scheduled Date and Time 
+• Visit Window 
+• Hospital Name 
+• PI Name 
+• Visit Status 
+• Instructions 
+ 
+7.3.3 Panel 3 — All Visits 
+• Visit Number 
+• Visit Name 
+• Visit Type (Hospital / Telephonic / Home) 
+• Scheduled Date and Time 
+• Visit Window 
+• Visit Status 
+Note: The fields displayed may vary based on the uploaded visit schedule. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 29 
+MODULE 8: Chat Interface 
+ 
+8. Module 8 — Chat Interface 
+8.1 Objective 
+The Chat Interface module enables secure communication between patients, Principal Investigators (PI), 
+and the Research Team to improve patient engagement, visit coordination, medication communication, 
+and trial-related support. 
+ 
+8.2 Communication Participants 
+• Patient 
+• Principal Investigator (PI) 
+• Research Team 
+ 
+8.3 Chat Features 
+Feature Description 
+Group Chat Supports multi-party communication within a trial group 
+Text Messaging Standard text-based messaging 
+Voice Messaging Voice message recording and playback 
+Voice-to-Text Conversion Converts voice messages to readable text 
+Document Upload & Sharing Supports sharing of documents within the chat 
+In-app Chat Notifications Alerts for new messages 
+Chat History Full message and document history maintained 
+Message Timestamps Date and time stamp on every message 
+Role-Based Access Access restricted by entity and role 
+ 
+8.4 Message Display Fields 
+• Sender Name 
+• Sender Role 
+• Message Content 
+• Date and Time Stamp 
+• Attachment Indicator (if document attached) 
+ 
+8.5 Chat History 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 30 
+The system shall maintain full message history, voice message history, and shared document history. 
+Chat history shall remain linked to the trial, Patient / Subject ID, and site. 
+ 
+8.6 Access Points 
+• Dashboard 
+• My Visits 
+• Notifications 
+• Patient Profile 
+• Dedicated Chat menu 
+ 
+8.7 Security & Privacy 
+• Secure message transmission 
+• Encrypted storage 
+• Role-based access control 
+• Secure document handling 
+• Patients can access only their own trial group 
+• Unauthorized users cannot access chats 
+• Sensitive patient or trial information shared only with authorized users 
+ 
+8.8 Audit Trail — Chat 
+• Message sent 
+• Voice message uploaded 
+• Document shared 
+• Message viewed 
+• Message deleted 
+• User added / removed from group 
+Each log captures: Username, Date & time, Activity type. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 31 
+MODULE 9: Medication Reminder 
+ 
+9. Module 9 — Medication Reminder 
+9.1 Objective 
+The Medication Reminder module helps clinical trial patients adhere to protocol-defined medication 
+schedules by providing timely reminders and allowing patients to confirm medication intake through the 
+mobile application. 
+ 
+9.2 Capabilities 
+• Medication schedule creation 
+• Medication reminders 
+• Medication intake confirmation 
+• Medication status tracking 
+• Reminder notifications 
+• Date and time stamp capture 
+• Medication history 
+• Role-based visibility 
+ 
+9.3 Medication Schedule Creation 
+Authorized research team users shall be able to: 
+• Upload a medication schedule linked to patient visits / trial schedule, OR 
+• Allow the system to auto-calculate from the patient visit schedule / Protocol, OR 
+• Manually enter medication details 
+ 
+Manual entry fields: 
+• Medication Name 
+• Dosage 
+• Route of Administration 
+• Frequency 
+• Scheduled Time 
+• Start Date 
+• End Date 
+• Instructions 
+ 
+9.4 Reminder Notifications 
+ 
+9.4.1 Reminder Notification Message (refer to Medication reminders section in Notification)  
+ 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 32 
+9.4.1 Reminder Timing (It is based on the Frequency entered by the PI/ Research team or captured 
+from Medication chart/Protocol/Patient Visit Schedule) 
+9.5 Patient Medication Actions 
+Upon receiving a medication reminder, the patient shall be able to select:  
+• Medicine Taken 
+• Medicine Not Taken 
+• Medicine Skipped 
+• Remind Me Later 
+ 
+9.6 Medication Confirmation Capture 
+When a patient updates medication status, the system shall capture and display the following to the PI / 
+Research Team: 
+• Patient ID / Initials 
+• Medication Name 
+• Dosage 
+• Status: Taken / Not Taken / Skipped 
+• Date and Time 
+ 
+9.7 Access Points 
+• Dashboard 
+• Notifications 
+• Dedicated Medication Reminder menu 
+• My Visits 
+ 
+9.8 Security & Privacy 
+• Patients can access only their own medication schedule 
+• Site users can access all patient medication data for their assigned trials 
+• Unauthorized users cannot access medication records 
+ 
+Medication reminders are support tools and do not replace investigator instructions or medical advice  
+ 
+9.9 Audit Trail — Medication 
+• Medication reminder generated 
+• Reminder viewed 
+• Medication status updated 
+• Confirmation timestamps 
+• Medication schedule modifications 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 33 
+MODULE 10: About Trial 
+ 
+10. Module 10 — About Trial 
+10.1 Objective 
+The About Trial module provides patients with simplified, patient-friendly information about the clinical trial 
+in which they are participating. 
+ 
+The module shall support:  
+• Display of the Trial Summary 
+• Visit Schedule Summary (Overview) 
+• Site/Research Team Contact Details 
+ 
+10.2 Access 
+• Dashboard 
+• Side menu / Navigation 
+ 
+10.3 Trial Information Source 
+About Trial content shall primarily be generated from: 
+• Patient Information Sheet (PIS) 
+• Trial summary details 
+• Site / Research team inputs 
+ 
+10.3.1 PIS Upload 
+PI / Research team / Site users shall be able to upload Patient Information Sheet documents in the 
+following formats: 
+• PDF 
+• DOC / DOCX 
+• Scanned copies 
+ 
+10.3.2 PIS-to-Template Conversion 
+The system shall: 
+• Read the uploaded PIS document 
+• Extract relevant information 
+• Convert information into structured mobile-friendly sections using OCR, text extraction, and AI-
+assisted summarization 
+ 
+10.3.3 About Trial Sections 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 34 
+Section Description 
+Trial Title Name / title of the study 
+Trial Purpose Why the study is being conducted 
+Trial Summary Simplified study overview 
+Study Duration Expected participation duration 
+Visit Schedule Overview of planned visits 
+Patient Responsibilities What the patient needs to do 
+Medication Information Trial medication details and instructions 
+Risks & Discomforts Simplified risks 
+Benefits Potential benefits 
+Emergency Contact Site / Research team contact 
+PI Details Investigator information 
+Site / Hospital Details Trial site information 
+Withdrawal Information Patient withdrawal rights 
+ 
+10.4 Language Support 
+The About Trial module shall support multiple languages based on the Preferred Language selected by 
+the patient during registration. 
+ 
+10.5 Trial Updates 
+If trial-related patient information is updated, the About Trial section shall be updated and relevant 
+notifications may be generated. 
+ 
+10.6 Audit Trail — About Trial 
+• PIS upload 
+• Trial content update 
+• Patient access / view history 
+• Download activity 
+ 
+Audit logs shall include: 
+a) User 
+b) Activity 
+c) Date & time 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 35 
+MODULE 11: Platform Admin 
+ 
+11. Module 11 — Platform Admin 
+11.1 Overview 
+The Platform Admin manages and monitors the overall functioning of the Patient Visit Schedule Mobile 
+Application. The Platform Admin role is operational and technical in nature and shall not participate in 
+clinical decision-making, patient treatment, or trial conduct activities. 
+ 
+11.2 Responsibilities 
+• Monitor platform usage 
+• Support users 
+• Manage registrations 
+• Handle basic security issues 
+• Monitor notification delivery 
+• Resolve operational issues 
+• Ensure smooth functioning of the application 
+ 
+The Platform Admin is not intended to access confidential clinical trial data unnecessarily.  
+11.3 Access Permissions 
+11.3.1 Platform Admin SHALL access 
+• View registered users 
+• View organizations 
+• View trial names and basic trial information 
+• View notification delivery status 
+• View app usage statistics 
+• Reset passwords 
+• Suspend suspicious accounts 
+• Resolve support issues 
+ 
+11.3.2 Platform Admin SHALL NOT access 
+• Patient medical records 
+• Lab reports 
+• Clinical data 
+• Chat content 
+• Uploaded confidential trial documents 
+• Audio / video communications 
+ 
+11.3.3 Data Masking 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 36 
+The system shall implement masking of sensitive information wherever applicable.  
+Example: 
+Data Field Original Format Masked Format 
+Patient Name Divya Yadav D*** Y*** 
+Mobile Number 9876504582 ******4582 
+Email ID divya@gmail.com di***@gmail.com 
+ 
+11.4 Platform Admin Dashboard 
+The system shall provide a simple dashboard displaying: 
+• Total registered users with entity-based categorization (Sponsor Users, CRO Users, PIs, 
+Research Team, Patients) 
+• Total organizations with entity-based categorization (Sponsor, CRO, SMO, Sites, Patients) 
+• Total trials: Active, Completed, Terminated / Suspended 
+• Notifications: Sent today, Failed count 
+• Pending support requests 
+• Pending activities (Others Specify approvals, Organization Names corrections, etc.) 
+• Data storage usage 
+ 
+Dashboard Filters 
+• Date range 
+• Organization type 
+• Trial status 
+• User role 
+ 
+11.5 User Management 
+11.5.1 User List View Fields 
+• User ID 
+• Profile Photo (if uploaded) 
+• Name 
+• Email 
+• Mobile Number 
+• Organization Name 
+• Organization Type 
+• User Role 
+• Registration Date 
+• Last Login Date 
+• Account Status 
+ 
+11.5.2 Search and Filter 
+Search by: Name, Email, Mobile Number, Organization Name. 
+Filter by: Organization Type, User Role, Account Status, Registration Date. 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 37 
+ 
+11.5.3 Account Status Types 
+Status Description 
+Active User can access the platform 
+Pending Verification Verification is incomplete 
+Suspended User access is temporarily blocked 
+ 
+11.5.4 Admin User Actions 
+The Platform Admin shall be able to: 
+• Activate user accounts 
+• Suspend user accounts 
+• Unlock user accounts 
+• Reset passwords 
+• Assist with login issues or account recovery 
+Note: All admin actions shall be recorded in audit logs. 
+ 
+11.5.5 Patient User Visibility 
+The Platform Admin shall only view limited patient information: 
+• Patient ID 
+• Patient initials / masked name 
+• Masked Phone Number 
+• Masked Email ID 
+• Trial association 
+• Account status 
+ 
+The Platform Admin shall NOT access: 
+• Medical records 
+• Lab reports 
+• Clinical notes 
+• Chat messages 
+• Uploaded medical documents 
+11.6 Organization Management 
+• View registered organizations 
+• Correct duplicate organization entries (merge duplicate profiles) 
+• Correct spelling variations and standardize organization names 
+• Correct organization mapping errors 
+• Suspend suspicious organizations 
+• View number of users linked to an organization 
+• View number of active trials linked to an organization 
+ 
+11.5.6 Display Fields 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 38 
+• Organization name 
+• Organization type 
+• Organization address 
+• Registered contact details 
+• Number of users 
+• Number of trials 
+ 
+11.7 Trial Monitoring 
+The Platform Admin may view trial activity at a high level for operational purposes:  
+• Trial title 
+• Trial ID 
+• Sponsor / CRO name 
+• Site name 
+• Trial status 
+• Number of patients enrolled 
+• Schedule version number 
+• Date of modification 
+• Modified by 
+• Change summary 
+ 
+The Platform Admin shall NOT  
+• Modify trial schedules 
+• Modify patient visits 
+• Access clinical outcomes 
+• Access confidential protocol sections. 
+ 
+11.8 Privacy and Data Protection 
+The system shall ensure that: 
+• Patient confidentiality is protected 
+• Clinical trial confidentiality is maintained 
+• Role-based access control is implemented 
+• Sensitive information is masked 
+• All admin activities are audit trailed 
+ 
+The platform shall align with: 
+• HIPAA  
+• GDPR 
+• 21 CFR Part 11 
+• ICH-GCP 
+• NDCT Rules 2019 
+• Indian data privacy requirements 
+ 
+The system shall ensure: 
+• Least privilege access 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 39 
+• Need-to-know access 
+• Secure password encryption 
+• Session timeout controls 
+All Platform Admin activities shall be logged and audit trailed. 
+  
+11.9 Notification Monitoring 
+The Platform Admin shall be able to monitor: 
+• Visit reminder notifications 
+• Medication reminder notifications 
+• Trial sharing notifications 
+• Failed notifications 
+ 
+The Platform Admin shall be able to: 
+• Configure notification content 
+• Configure reminder timelines 
+• Configure system-wide notification settings 
+ 
+The Platform Admin shall be able to: 
+• Retry failed notifications 
+• View notification history 
+• Monitor delivery success/failure status 
+• Configure basic reminder timing settings 
+ 
+The Platform Admin shall not access confidential patient communication content unnecessarily.  
+11.10 Terms and Conditions Management 
+• Create Terms & Conditions versions 
+• Update Terms & Conditions  
+• Update Privacy Policy 
+• Activate / Deactivate versions 
+• View acceptance history 
+The system shall force users to accept the updated Terms & Conditions during next login and maintain 
+audit trail of all acceptance events. 
+ 
+11.11 Master Data Management 
+The Platform Admin shall be able to: 
+• Review custom values submitted under “Others Specify” 
+• Approve custom values 
+• Edit custom values 
+• Reject custom values 
+If approved: 
+• value becomes globally available 
+If edited: 
+• corrected value becomes globally available 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 40 
+If rejected: 
+• value remains user-specific only 
+The system shall maintain audit logs for: 
+• Approval 
+• Rejection 
+• Editing of custom values 
+ 
+The system shall maintain audit logs for all approvals, rejections, and edits of custom values.  
+11.12 Support and Help Desk 
+11.12.1 Support Request Categories 
+• Login issues 
+• Password reset 
+• Notification issues 
+• Trial access problems 
+• App technical issues 
+ 
+11.12.2 Ticket Management Fields 
+The Platform Admin shall be able to: 
+• View support requests 
+• Respond to issues 
+• Resolve technical problems  
+• Update ticket status 
+• Mark tickets resolved 
+ 
+ 
+11.12.3 Ticket Management 
+• Ticket ID (unique, system-generated) 
+• User name 
+• Issue category 
+• Date / Time raised 
+• Ticket status (open/In progress/Resolved/Closed) 
+• Resolution notes 
+ 
+Ticket Status Meaning 
+Open Issue received, not yet actioned 
+In Progress Admin is working on resolution 
+Resolved Issue addressed 
+Closed Fully closed 
+ 
+11.13 Audit Trail — Admin 
+Audit logs shall be maintained for:  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 41 
+• User registration 
+• Login / Logout 
+• Password reset 
+• Trial creation 
+• Trial sharing 
+• Patient addition 
+• Visit schedule updates 
+• Notification activities 
+•  Admin actions 
+Audit logs shall capture: User / Admin ID, Action performed, Date and time, Status of action. Audit logs 
+shall be non-editable. 
+ 
+11.14 Security Controls 
+• Suspend suspicious users 
+• Force logout of active sessions if required 
+ 
+11.15 Reports 
+The Platform Admin shall generate the following reports: 
+• Registered users report 
+• Organization-wise user report 
+• User status report 
+• Login activity report 
+ 
+Reports shall support filtering by date, organization, and trial, and shall support PDF and Excel export. 
+ 
+11.16 Delegation to MTB Staff 
+The main Platform Admin may delegate limited operational activities to authorized MTB staff including:  
+• User support 
+• Password reset assistance 
+• Notification monitoring 
+• Ticket management.  
+• Other Tasks (Configure Others Specify Values; Standardize Organization Names, etc)  
+All delegated actions shall be audit logged. 
+ 
+11.17 Emergency Access 
+11.17.1 Purpose 
+The system may provide restricted emergency access to the Platform Admin only under exceptional 
+situations.  
+11.17.2 Permitted Situations 
+Emergency access may be permitted for: 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 42 
+• Serious technical failure investigation 
+• Security breach investigation 
+• Legal or regulatory requirement 
+• Data recovery activity 
+• Critical patient safety issue related to system malfunction 
+• Court / Government authority request 
+ 
+11.17.3 Conditions for Emergency Access 
+Emergency access shall require: 
+• Valid reason / justification entry required 
+• Authorized Senior Personnel approval required 
+• Time-limited access 
+• Audit logging of all activities 
+• Access only to the minimum required information 
+ 
+11.17.4 Emergency Access Audit Trail 
+• Admin name 
+• Reason for emergency access 
+• Date and time 
+• Information accessed 
+• Duration of access 
+• Actions performed 
+Emergency access logs shall be non-editable. 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 43 
+Non-Functional Requirements 
+ 
+12. Non-Functional Requirements 
+12.1 Security 
+• All passwords shall be stored in encrypted format 
+• OTP shall not be stored as plain text 
+• User sessions shall expire after inactivity 
+• Accounts shall be locked after repeated failed login attempts 
+• Role-based access control shall be enforced throughout the platform 
+• Least privilege access principle shall be applied 
+• Need-to-know access principle shall be applied 
+• Secure password encryption 
+• Session timeout controls 
+ 
+12.2 Privacy and Data Protection 
+• Patient confidentiality shall be protected at all times 
+• Clinical trial confidentiality shall be maintained 
+• Sensitive information shall be masked where applicable 
+• All admin activities shall be audit trailed 
+• The platform shall align with ICH-GCP, NDCT Rules 2019, and Indian data privacy requirements 
+ 
+12.3 Performance 
+• Fast dashboard loading 
+• Real-time notification delivery 
+• Responsive UI on all mobile screen sizes 
+ 
+12.4 Scalability & Architecture 
+• The mobile application backend shall be designed to support future integration with a web-based 
+clinical trial ecosystem platform 
+• Scalable architecture for future enhancements 
+• High availability 
+• Basic backup and recovery support 
+ 
+12.5 Usability 
+• Mobile responsive UI 
+• Simple navigation 
+• Multi-language support based on patient's preferred language 
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 44 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 45 
+13. Glossary 
+Term / Abbreviation Definition 
+BRD Business Requirements Document 
+CRC Clinical Research Coordinator 
+CRO Contract Research Organization 
+CTRI Clinical Trials Registry — India 
+ICH-GCP International Council for Harmonisation — Good 
+Clinical Practice 
+MFA Multi-Factor Authentication 
+NDCT New Drugs and Clinical Trials Rules 
+OCR Optical Character Recognition 
+OTP One-Time Password 
+PI Principal Investigator 
+PIS Patient Information Sheet 
+PVS Patient Visit Schedule 
+SMO Site Management Organization 
+Subject ID Unique identifier assigned to a clinical trial participant 
+Window Period Acceptable date range before or after a scheduled visit 
+ 
+  
+
+--- PAGE BREAK ---
+
+Patient Visit Schedule — Business Requirements Document 
+CONFIDENTIAL   |   Page 46 
+14. Document Control 
+Attribute Details 
+Document Title Business Requirements Document — Patient Visit 
+Schedule Mobile Application 
+Version 1.0 
+Status Draft 
+Phase Phase 1 — Mobile Application 
+Governing Standards ICH-GCP, NDCT Rules 2019, Indian Data Privacy 
+Requirements 
+Review Cycle As required upon change in scope or regulatory 
+requirements 
+Classification Confidential — For Authorized Use Only 
+ 
+ 
+— End of Document — 

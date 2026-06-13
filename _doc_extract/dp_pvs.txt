@@ -1,0 +1,305 @@
+PATIENT VISIT SCHEDULE 
+DATE: 26 MAY 2026 
+DISCUSSION POINTS. 
+Registration Page Add Asterix for phone field. 
+Delete Role (Admin/ User) 
+Terms & Conditions – user to scroll through all and accept. 
+Explore time limit for OPT 
+Chat Chat interaction- 
+ between the Sponsor/CRO with sites ( PI/ Research Team) 
+Between MTB Admin and Users 
+To be able to share the text, documents, Pictures 
+Protocol While uploading the protocol for creating the Visit schedule, 
+should it be compressed? 
+Will the compression save expense to MTB 
+Will the compression document lead to any errors in extraction of 
+visit schedule or medication information 
+Trial Information  Should include –  
+Total sites 
+Screened 
+Screen failure 
+Withdrawn 
+Drop out 
+Completed 
+Total Site info Delete Inactive 
+Add-  
+Completed 
+Terminated along with Active trials 
+Patient Information To create –  
+Add patient Feature (for the site to add patient details) 
+Explore for patient access (sign in through patient profile created 
+by the Site (PI & Research Team) 
+PI should also be able to add patient. 
+Duplicate entries should be highlighted 
+ 
+Team  To Create – Add team 
+(Applicable to all users including MTB admin console expect for 
+patients) 
+ 
+Calendar Every day in a week (current week) to be displayed Sun to Sat 
+Provision for the users to select the timeline through day ( 
+Previous week/month, Current & next week/month, and over all 
+schedule calendar) 
+Alerts or Notifications 1. Alerts about the visits to users (PI/ RT/Patients) 
+2. Alerts about deviations (crossing window Periods/ Usage 
+of Medication) 
+3. * alerts for completion of the visit  status at the end of 
+each visit (  Screen failure, drop out, withdrawn, 
+completed) 
+Provision for remarks to be displayed in the subject panel for 
+view 
+Option for stopping or continuation of visits?? 
+
+--- PAGE BREAK ---
+
+Objectives of the 
+schedule 
+Primary Objective – to build Visit schedule functionality 
+Secondary Objective – to collect information of the users for 
+future correspondence. 
+(To explore the extent of the personal information of the users 
+that the MTB admin can access & use especially when TICKETS 
+are raised from the users) 
+Audit trial access Type of and extent of information access that the MTB admin can 
+have for audit trial. 
+The time duration for storage of  audit trail information of a trial or 
+other information ( to explore) 
+Audit log  To be created for MTB admin 
+Emergency Access 
+Request 
+To explore on it 
+ 
+PATIENT VISIT SCHEDULE (PVS) 
+MOBILE APPLICATION 
+Requirement Document – Today's Discussion Points 
+Date: 26 May 2026 
+Document Type: Discussion-to-Requirements Conversion 
+Version: Draft 1.0 
+ 
+1. Registration Module 
+Requirement 1.1: Mandatory Phone Number 
+Description: 
+Phone number field shall be mandatory in the registration page. 
+Functional Requirements: 
+ Phone number field shall display (*) indicating mandatory status. 
+ 
+ 
+Requirement 1.2: User Role Removal 
+Description: 
+The system shall remove the Admin/User role selection from registration. 
+
+--- PAGE BREAK ---
+
+Functional Requirements: 
+ All users register as standard users. 
+ Organization mapping and permissions shall be controlled internally. 
+ 
+Requirement 1.3: Terms & Conditions 
+Description: 
+Users shall review and accept Terms and Conditions before registration completion. 
+Functional Requirements: 
+ User must scroll through complete content. 
+ Accept checkbox enabled only after scrolling. 
+ Registration cannot proceed without acceptance. 
+ 
+Requirement 1.4: OTP Validation 
+Description: 
+OTP expiry and resend mechanism to be evaluated. 
+Points for Exploration: 
+ OTP validity duration 
+ Maximum resend attempts 
+ Lockout conditions 
+ 
+2. Chat Module 
+Requirement 2.1: User Communication 
+Description: 
+Users shall communicate within the platform. 
+Functional Requirements: 
+Sponsor/CRO ↔ Site Communication 
+ Sponsor/CRO with PI 
+ Sponsor/CRO with Research Team 
+
+--- PAGE BREAK ---
+
+MTB Admin ↔ Users Communication 
+Supported Formats: 
+ Text messages 
+ Documents 
+ Images/Pictures 
+ 
+3. Trial Creation & Protocol Upload 
+Requirement 3.1: Protocol Upload Compression 
+Description: 
+Evaluate protocol document compression. 
+Points for Exploration: 
+Business Considerations: 
+ Storage cost reduction 
+ Processing cost reduction 
+Technical Considerations: 
+ Extraction accuracy impact 
+ Medication extraction impact 
+ Visit schedule extraction impact 
+ 
+4. Trial Information Module 
+Requirement 4.1: Trial Dashboard Metrics 
+Description: 
+System shall display trial-level metrics. 
+Fields: 
+ Total Sites 
+ Total Screened 
+ Screen Failure 
+ Withdrawn 
+ Dropouts 
+
+--- PAGE BREAK ---
+
+ Completed Patients 
+ 
+Requirement 4.2: Trial Status 
+Description: 
+Update trial status categories. 
+Status Types: 
+ Active 
+ Completed 
+ Terminated 
+To Remove: 
+ Inactive 
+ 
+5. Patient Management Module 
+Requirement 5.1: Add Patient 
+Description: 
+Site users shall add patients. 
+Authorized Users: 
+ Principal Investigator 
+ Research Team 
+Functional Requirements: 
+ Add patient demographics 
+ Add patient trial mapping 
+ Duplicate detection 
+ 
+Requirement 5.2: Patient Access 
+Description: 
+Evaluate patient login access. 
+Points for Exploration: 
+
+--- PAGE BREAK ---
+
+ Patient login through profile created by Site 
+ Authentication process 
+ Security implications 
+ 
+6. Team Module 
+Requirement 6.1: Team Creation 
+Description: 
+Users shall create and share the links with other team members/organization. 
+Applicable Users: 
+ Sponsor 
+ CRO 
+ Site 
+ PI 
+ Research Team 
+ MTB Admin 
+Not Applicable: 
+ Patients 
+ 
+7. Calendar Module 
+Requirement 7.1: Weekly Calendar View 
+Description: 
+Current week shall display: 
+Sun | Mon | Tue | Wed | Thu | Fri | Sat 
+ 
+Requirement 7.2: Calendar Navigation 
+Functional Requirements: 
+Users shall view: 
+ Previous week 
+
+--- PAGE BREAK ---
+
+ Current week 
+ Next week 
+ Previous month 
+ Current month 
+ Next month 
+ Overall schedule calendar 
+ 
+8. Alerts & Notifications Module 
+Requirement 8.1: Visit Alerts 
+System shall generate notifications for: 
+ PI 
+ Research Team 
+ Patients 
+ 
+Requirement 8.2: Deviation Alerts 
+System shall notify for: 
+ Window period violations 
+ Medication deviations 
+ 
+Requirement 8.3: Visit Completion Alerts 
+System shall generate alerts for: 
+ Screen failure 
+ Dropout 
+ Withdrawal 
+ Completion 
+ 
+Requirement 8.4: Remarks 
+Functional Requirements: 
+ Remarks shall be visible in subject panel 
+ Users can review comments 
+
+--- PAGE BREAK ---
+
+ 
+Requirement 8.5: Visit Continuation/Stopping 
+Points for Exploration: 
+ Stop future visits 
+ Continue schedule after interruption 
+ Logic handling for patient status changes 
+ 
+9. Objectives 
+Primary Objective 
+Build Patient Visit Schedule functionality. 
+ 
+Secondary Objective 
+Collect user information for future correspondence. 
+Points for Exploration: 
+ Extent of user information accessible to MTB Admin 
+ Usage limitations 
+ Ticket-based access permissions 
+ 
+10. Audit Trail 
+Requirement 10.1: Audit Access 
+Points for Exploration: 
+ Type of information MTB Admin can access 
+ Extent of information visibility 
+ Data retention duration 
+ 
+Requirement 10.2: Audit Logs 
+
+--- PAGE BREAK ---
+
+Functional Requirements: 
+System shall maintain: 
+ User actions 
+ Trial actions 
+ Login activities 
+ Updates 
+ Access history 
+ 
+11. Emergency Access Request 
+Requirement 11.1 
+Points for Exploration: 
+ Emergency access conditions 
+ Approval workflow 
+ Audit logging 
+ Time-limited access 
+ Justification capture 
+ 
+Pending Open Items 
+1. OTP validity duration 
+2. Protocol compression impact 
+3. Patient login workflow 
+4. Visit continuation logic 
+5. MTB admin data access limits 
+6. Audit trail retention duration 
+7. Emergency access workflow 
+ 

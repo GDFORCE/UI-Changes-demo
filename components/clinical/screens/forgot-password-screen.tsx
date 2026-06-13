@@ -116,9 +116,9 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
     <div className="flex flex-col h-full bg-background paper-grain">
       {step < 4 && (
         <AuthHeader
-          eyebrow={stepMeta[step].eyebrow}
-          title={stepMeta[step].title}
-          subtitle={stepMeta[step].subtitle}
+          eyebrow={stepMeta[step as 1 | 2 | 3].eyebrow}
+          title={stepMeta[step as 1 | 2 | 3].title}
+          subtitle={stepMeta[step as 1 | 2 | 3].subtitle}
           onBack={() => (step === 1 ? onBack?.() : setStep((step - 1) as 1 | 2 | 3))}
           step={step}
           totalSteps={3}
@@ -186,8 +186,8 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
                   value={digit}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   className={cn(
-                    "w-11 h-14 text-center font-heading text-xl rounded-lg border outline-none transition-all bg-background",
-                    digit ? "border-primary/50 bg-secondary/40 text-primary" : "border-border focus:border-accent focus:ring-2 focus:ring-accent/15",
+                    "w-11 h-14 text-center font-mono text-xl tabular-nums rounded-xl border outline-none transition-all duration-200 bg-background",
+                    digit ? "border-primary/60 bg-secondary/50 text-primary shadow-xs scale-[1.03]" : "border-border hover:border-primary/30 focus:border-accent focus:ring-2 focus:ring-accent/20",
                   )}
                 />
               ))}
@@ -313,27 +313,27 @@ export function ForgotPasswordScreen({ onBack, onSuccess }: ForgotPasswordScreen
 
       {/* Step 4: Success */}
       {step === 4 && (
-        <div className="flex-1 flex flex-col px-7">
+        <div className="flex-1 flex flex-col px-7 bg-background paper-grain dawn-ambient overflow-hidden">
           <div className="flex-1 flex flex-col items-center justify-center text-center">
-            <div className="relative mb-8 animate-rise" style={{ animationDelay: "80ms" }}>
-              <span aria-hidden className="absolute inset-0 rounded-full bg-success/10 scale-[1.7]" />
-              <span aria-hidden className="absolute inset-0 rounded-full bg-success/15 scale-[1.32]" />
-              <div className="relative w-20 h-20 rounded-full bg-primary flex items-center justify-center shadow-lg">
+            {/* Sunrise milestone — a quieter dawn for the reset moment */}
+            <div className="relative mb-9 animate-sun-rise" style={{ animationDelay: "80ms" }}>
+              <span aria-hidden className="absolute -inset-5 rounded-full dawn-gradient opacity-25 blur-md" />
+              <span aria-hidden className="absolute inset-0 rounded-full bg-accent/10 scale-[1.55]" />
+              <div className="hero-glow relative w-[72px] h-[72px] rounded-full dawn-gradient flex items-center justify-center shadow-lg">
                 <Check className="w-9 h-9 text-primary-foreground" strokeWidth={2.5} />
               </div>
-              <span aria-hidden className="absolute -right-1 -top-1 w-4 h-4 rounded-full bg-accent ring-4 ring-background" />
             </div>
-            <p className="eyebrow text-accent mb-2 animate-rise" style={{ animationDelay: "180ms" }}>
+            <p className="eyebrow text-accent mb-2 animate-rise" style={{ animationDelay: "260ms" }}>
               Password reset
             </p>
-            <h2 className="display-serif text-[30px] leading-tight text-foreground mb-3 animate-rise" style={{ animationDelay: "260ms" }}>
-              All set.
+            <h2 className="display-serif text-[30px] leading-tight text-foreground mb-3 animate-rise" style={{ animationDelay: "340ms" }}>
+              All set<span className="dawn-text">.</span>
             </h2>
-            <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[250px] animate-rise" style={{ animationDelay: "340ms" }}>
+            <p className="text-[15px] text-muted-foreground leading-relaxed max-w-[250px] animate-rise" style={{ animationDelay: "420ms" }}>
               Your password has been reset successfully. Sign in with your new password.
             </p>
           </div>
-          <div className="pb-9 animate-rise" style={{ animationDelay: "440ms" }}>
+          <div className="pb-9 animate-rise" style={{ animationDelay: "520ms" }}>
             <button onClick={() => onSuccess?.()} className={primaryButton}>
               Back to Sign In
             </button>

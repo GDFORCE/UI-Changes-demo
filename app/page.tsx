@@ -573,7 +573,7 @@ export default function PatientVisitScheduleApp() {
           </div>
           <div className="mt-6 flex items-center gap-4 max-w-3xl mx-auto">
             <span className="h-px flex-1 bg-border" />
-            <p className="eyebrow text-muted-foreground/60">Clinical Editorial · Phase 1 Mobile</p>
+            <p className="eyebrow text-muted-foreground/60">Dawn Rounds · Phase 1 Mobile</p>
             <span className="h-px flex-1 bg-border" />
           </div>
         </header>

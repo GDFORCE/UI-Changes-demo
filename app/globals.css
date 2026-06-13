@@ -4,67 +4,75 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ---------------------------------------------------------------------------
-   My Trial Board — "Clinical Editorial" design tokens
-   Identity: warm ivory paper, forest-ink green, coral accent. The app should
-   read like a premium health publication — calm, human, precise.
+   My Trial Board — "Dawn Rounds" design tokens
+   Identity: a warm sunrise over a clinical journey. Cream-blush paper, deep
+   plum ink, and one dawn-gradient voice (apricot → rose). The app should feel
+   like the first calm hour of a hospital morning — hopeful, soft, human.
 
    Brand anchors (expressed below as OKLCH):
-   - Paper:    #FAF7F2 ivory  — page wash, never pure white pages
-   - Ink:      #1F2B26 green-tinted near-black — all primary text
-   - Forest:   #1B3A2F primary — headers, primary actions
-   - Coral:    #E8674A accent — the single vivid voice; alerts, highlights, focus
+   - Paper:    warm cream-blush  — page wash, never pure white pages
+   - Ink:      deep plum near-black — all primary text
+   - Rose:     raspberry-rose primary — actions, emphasis
+   - Dawn:     apricot → rose gradient — THE brand gesture; heroes, progress
    Rules of use:
    - Never hardcode hex in components; use the semantic tokens below.
-   - Surfaces: background (ivory page) → surface (deeper cream) → card (warm white).
-   - Type: Fraunces (font-heading) for display/headings, Instrument Sans for UI.
+   - Surfaces: background (cream page) → surface (peach-cream) → card (warm white).
+   - Type: Bricolage Grotesque (font-heading) for display/headings, Figtree for UI,
+     Spline Sans Mono for OTP digits and dense data numerals.
    - Labels: small-caps eyebrow style (.eyebrow) instead of bold mini-headings.
-   - Radius: cards rounded-xl/2xl, inputs rounded-lg, pills rounded-full.
-   - Elevation: warm, low-contrast shadows. Always pair with a hairline border.
+   - Radius: cards rounded-2xl/3xl, inputs rounded-xl, pills rounded-full.
+   - Elevation: warm plum-tinted, low-contrast shadows + hairline border.
+   - Motion: rich but kind — sunrise arcs, drifting petals, springy presses,
+     staggered rises. Every screen gets ONE orchestrated load reveal.
 --------------------------------------------------------------------------- */
 
 :root {
-  --background: oklch(0.978 0.007 84);        /* ivory paper #FAF7F2 */
-  --surface: oklch(0.961 0.011 83);           /* deeper cream panels */
-  --foreground: oklch(0.265 0.024 162);       /* green-tinted ink */
-  --card: oklch(0.993 0.004 91);              /* warm white card */
-  --card-foreground: oklch(0.265 0.024 162);
-  --popover: oklch(0.993 0.004 91);
-  --popover-foreground: oklch(0.265 0.024 162);
-  --primary: oklch(0.345 0.052 163);          /* forest green #1B3A2F */
-  --primary-deep: oklch(0.255 0.042 164);     /* deep forest — gradients, hero */
-  --primary-foreground: oklch(0.985 0.006 84);
-  --secondary: oklch(0.93 0.018 160);         /* pale sage tint */
-  --secondary-foreground: oklch(0.345 0.052 163);
-  --muted: oklch(0.951 0.01 84);              /* warm muted fill */
-  --muted-foreground: oklch(0.49 0.024 158);  /* AA on ivory and cream */
-  --accent: oklch(0.655 0.155 33);            /* coral #E8674A */
-  --accent-foreground: oklch(1 0 0);
-  --info: oklch(0.485 0.078 213);             /* petrol blue — links, informative */
+  --background: oklch(0.972 0.013 65);        /* cream-blush paper */
+  --surface: oklch(0.951 0.019 60);           /* deeper peach-cream panels */
+  --foreground: oklch(0.295 0.05 340);        /* deep plum ink */
+  --card: oklch(0.99 0.007 80);               /* warm white card */
+  --card-foreground: oklch(0.295 0.05 340);
+  --popover: oklch(0.99 0.007 80);
+  --popover-foreground: oklch(0.295 0.05 340);
+  --primary: oklch(0.48 0.145 5);             /* raspberry-rose */
+  --primary-deep: oklch(0.36 0.115 350);      /* deep mulberry — gradients, hero */
+  --primary-foreground: oklch(0.985 0.009 70);
+  --secondary: oklch(0.93 0.028 20);          /* pale rose tint */
+  --secondary-foreground: oklch(0.42 0.13 0);
+  --muted: oklch(0.945 0.015 60);             /* warm muted fill */
+  --muted-foreground: oklch(0.49 0.038 340);  /* AA plum-gray on cream */
+  --accent: oklch(0.72 0.13 55);              /* apricot */
+  --accent-foreground: oklch(0.3 0.06 40);    /* deep amber-plum on apricot */
+  --info: oklch(0.53 0.09 295);               /* dusty lavender — links, informative */
   --info-foreground: oklch(1 0 0);
-  --violet: oklch(0.5 0.115 330);             /* plum — role/category accent */
-  --destructive: oklch(0.53 0.185 28);
+  --violet: oklch(0.52 0.115 315);            /* orchid — role/category accent */
+  --destructive: oklch(0.545 0.19 27);
   --destructive-foreground: oklch(1 0 0);
-  --warning: oklch(0.615 0.125 70);           /* ochre */
+  --warning: oklch(0.62 0.125 70);            /* honey amber */
   --warning-foreground: oklch(1 0 0);
-  --success: oklch(0.52 0.092 155);           /* clear leaf green */
+  --success: oklch(0.53 0.095 150);           /* warm sage green */
   --success-foreground: oklch(1 0 0);
-  --border: oklch(0.906 0.014 83);            /* warm hairline */
-  --input: oklch(0.906 0.014 83);
-  --ring: oklch(0.655 0.155 33);              /* coral focus ring */
-  --chart-1: oklch(0.345 0.052 163);
-  --chart-2: oklch(0.655 0.155 33);
-  --chart-3: oklch(0.615 0.125 70);
-  --chart-4: oklch(0.5 0.115 330);
-  --chart-5: oklch(0.485 0.078 213);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.993 0.004 91);
-  --sidebar-foreground: oklch(0.265 0.024 162);
-  --sidebar-primary: oklch(0.345 0.052 163);
-  --sidebar-primary-foreground: oklch(0.985 0.006 84);
-  --sidebar-accent: oklch(0.951 0.01 84);
-  --sidebar-accent-foreground: oklch(0.345 0.052 163);
-  --sidebar-border: oklch(0.906 0.014 83);
-  --sidebar-ring: oklch(0.655 0.155 33);
+  --border: oklch(0.906 0.02 55);             /* warm hairline */
+  --input: oklch(0.906 0.02 55);
+  --ring: oklch(0.72 0.13 55);                /* apricot focus ring */
+  /* The dawn gradient — the single brand gesture. */
+  --dawn-from: oklch(0.8 0.115 65);           /* high apricot */
+  --dawn-mid: oklch(0.71 0.14 35);            /* sunrise coral */
+  --dawn-to: oklch(0.58 0.165 10);            /* deep rose */
+  --chart-1: oklch(0.48 0.145 5);
+  --chart-2: oklch(0.72 0.13 55);
+  --chart-3: oklch(0.53 0.095 150);
+  --chart-4: oklch(0.53 0.09 295);
+  --chart-5: oklch(0.62 0.125 70);
+  --radius: 1rem;
+  --sidebar: oklch(0.99 0.007 80);
+  --sidebar-foreground: oklch(0.295 0.05 340);
+  --sidebar-primary: oklch(0.48 0.145 5);
+  --sidebar-primary-foreground: oklch(0.985 0.009 70);
+  --sidebar-accent: oklch(0.945 0.015 60);
+  --sidebar-accent-foreground: oklch(0.42 0.13 0);
+  --sidebar-border: oklch(0.906 0.02 55);
+  --sidebar-ring: oklch(0.72 0.13 55);
 
   /* Legacy aliases — retained for backward compatibility. */
   --clinical-900: var(--primary-deep);
@@ -76,56 +84,59 @@
   --amber: var(--warning);
 }
 
-/* Dark mode — warm espresso-forest, never pure black. Surfaces step up in
-   lightness (background → surface → card → popover) for hierarchy. */
+/* Dark mode — "dusk rounds": deep plum-charcoal, ember accents, never pure
+   black. Surfaces step up in lightness (background → surface → card → popover). */
 .dark {
-  --background: oklch(0.168 0.013 158);
-  --surface: oklch(0.193 0.014 158);
-  --foreground: oklch(0.95 0.009 88);
-  --card: oklch(0.216 0.016 158);
-  --card-foreground: oklch(0.95 0.009 88);
-  --popover: oklch(0.238 0.017 158);
-  --popover-foreground: oklch(0.95 0.009 88);
-  --primary: oklch(0.56 0.07 162);            /* forest lifted for contrast */
-  --primary-deep: oklch(0.225 0.035 163);
-  --primary-foreground: oklch(0.99 0.004 90);
-  --secondary: oklch(0.29 0.03 161);
-  --secondary-foreground: oklch(0.92 0.02 150);
-  --muted: oklch(0.252 0.016 158);
-  --muted-foreground: oklch(0.72 0.018 130);
-  --accent: oklch(0.715 0.145 36);
-  --accent-foreground: oklch(0.21 0.04 35);
-  --info: oklch(0.67 0.085 213);
-  --info-foreground: oklch(0.17 0.03 220);
-  --violet: oklch(0.68 0.12 330);
-  --destructive: oklch(0.64 0.175 27);
+  --background: oklch(0.205 0.022 330);
+  --surface: oklch(0.232 0.024 330);
+  --foreground: oklch(0.952 0.011 70);
+  --card: oklch(0.255 0.026 330);
+  --card-foreground: oklch(0.952 0.011 70);
+  --popover: oklch(0.278 0.027 330);
+  --popover-foreground: oklch(0.952 0.011 70);
+  --primary: oklch(0.71 0.135 10);            /* rose lifted for contrast */
+  --primary-deep: oklch(0.3 0.08 345);
+  --primary-foreground: oklch(0.205 0.04 345);
+  --secondary: oklch(0.32 0.045 350);
+  --secondary-foreground: oklch(0.92 0.03 15);
+  --muted: oklch(0.29 0.026 330);
+  --muted-foreground: oklch(0.73 0.025 340);
+  --accent: oklch(0.78 0.125 60);
+  --accent-foreground: oklch(0.26 0.055 45);
+  --info: oklch(0.7 0.085 295);
+  --info-foreground: oklch(0.2 0.04 300);
+  --violet: oklch(0.7 0.11 315);
+  --destructive: oklch(0.66 0.17 27);
   --destructive-foreground: oklch(1 0 0);
-  --warning: oklch(0.74 0.125 72);
-  --warning-foreground: oklch(0.24 0.05 65);
-  --success: oklch(0.7 0.1 155);
-  --success-foreground: oklch(0.18 0.035 160);
-  --border: oklch(0.29 0.018 156);
-  --input: oklch(0.31 0.018 156);
-  --ring: oklch(0.715 0.145 36);
-  --chart-1: oklch(0.7 0.1 155);
-  --chart-2: oklch(0.715 0.145 36);
-  --chart-3: oklch(0.74 0.125 72);
-  --chart-4: oklch(0.68 0.12 330);
-  --chart-5: oklch(0.67 0.085 213);
-  --sidebar: oklch(0.198 0.015 158);
-  --sidebar-foreground: oklch(0.95 0.009 88);
-  --sidebar-primary: oklch(0.56 0.07 162);
-  --sidebar-primary-foreground: oklch(0.99 0.004 90);
-  --sidebar-accent: oklch(0.265 0.018 158);
-  --sidebar-accent-foreground: oklch(0.95 0.009 88);
-  --sidebar-border: oklch(0.27 0.017 158);
-  --sidebar-ring: oklch(0.715 0.145 36);
+  --warning: oklch(0.76 0.12 72);
+  --warning-foreground: oklch(0.25 0.05 65);
+  --success: oklch(0.7 0.095 152);
+  --success-foreground: oklch(0.2 0.04 155);
+  --border: oklch(0.315 0.028 330);
+  --input: oklch(0.335 0.028 330);
+  --ring: oklch(0.78 0.125 60);
+  --dawn-from: oklch(0.78 0.12 60);
+  --dawn-mid: oklch(0.7 0.14 35);
+  --dawn-to: oklch(0.6 0.16 10);
+  --chart-1: oklch(0.71 0.135 10);
+  --chart-2: oklch(0.78 0.125 60);
+  --chart-3: oklch(0.7 0.095 152);
+  --chart-4: oklch(0.7 0.085 295);
+  --chart-5: oklch(0.76 0.12 72);
+  --sidebar: oklch(0.235 0.024 330);
+  --sidebar-foreground: oklch(0.952 0.011 70);
+  --sidebar-primary: oklch(0.71 0.135 10);
+  --sidebar-primary-foreground: oklch(0.205 0.04 345);
+  --sidebar-accent: oklch(0.3 0.027 330);
+  --sidebar-accent-foreground: oklch(0.952 0.011 70);
+  --sidebar-border: oklch(0.295 0.027 330);
+  --sidebar-ring: oklch(0.78 0.125 60);
 }
 
 @theme inline {
-  --font-sans: 'Instrument Sans', 'Instrument Sans Fallback', system-ui, sans-serif;
-  --font-heading: 'Fraunces', 'Fraunces Fallback', Georgia, serif;
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --font-sans: 'Figtree', 'Figtree Fallback', system-ui, sans-serif;
+  --font-heading: 'Bricolage Grotesque', 'Bricolage Grotesque Fallback', system-ui, sans-serif;
+  --font-mono: 'Spline Sans Mono', 'Spline Sans Mono Fallback', monospace;
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
@@ -154,15 +165,18 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-dawn-from: var(--dawn-from);
+  --color-dawn-mid: var(--dawn-mid);
+  --color-dawn-to: var(--dawn-to);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -172,20 +186,20 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Elevation — soft, umber-tinted, low contrast. Pair with border-border. */
-  --shadow-2xs: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.04);
-  --shadow-xs: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.05),
-    0 1px 1px -0.5px oklch(0.32 0.03 80 / 0.03);
-  --shadow-sm: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.05),
-    0 2px 8px -2px oklch(0.32 0.03 80 / 0.06);
-  --shadow: 0 1px 2px 0 oklch(0.32 0.03 80 / 0.05),
-    0 3px 10px -2px oklch(0.32 0.03 80 / 0.07);
-  --shadow-md: 0 2px 4px -1px oklch(0.32 0.03 80 / 0.05),
-    0 8px 20px -4px oklch(0.32 0.03 80 / 0.08);
-  --shadow-lg: 0 4px 8px -2px oklch(0.32 0.03 80 / 0.06),
-    0 16px 36px -8px oklch(0.32 0.03 80 / 0.1);
-  --shadow-xl: 0 8px 16px -4px oklch(0.32 0.03 80 / 0.08),
-    0 24px 48px -12px oklch(0.32 0.03 80 / 0.14);
+  /* Elevation — soft, plum-tinted, low contrast. Pair with border-border. */
+  --shadow-2xs: 0 1px 2px 0 oklch(0.35 0.05 340 / 0.04);
+  --shadow-xs: 0 1px 2px 0 oklch(0.35 0.05 340 / 0.05),
+    0 1px 1px -0.5px oklch(0.35 0.05 340 / 0.03);
+  --shadow-sm: 0 1px 2px 0 oklch(0.35 0.05 340 / 0.05),
+    0 2px 8px -2px oklch(0.35 0.05 340 / 0.06);
+  --shadow: 0 1px 2px 0 oklch(0.35 0.05 340 / 0.05),
+    0 3px 10px -2px oklch(0.35 0.05 340 / 0.07);
+  --shadow-md: 0 2px 4px -1px oklch(0.35 0.05 340 / 0.05),
+    0 8px 20px -4px oklch(0.35 0.05 340 / 0.09);
+  --shadow-lg: 0 4px 8px -2px oklch(0.35 0.05 340 / 0.06),
+    0 16px 36px -8px oklch(0.35 0.05 340 / 0.11);
+  --shadow-xl: 0 8px 16px -4px oklch(0.35 0.05 340 / 0.08),
+    0 24px 48px -12px oklch(0.35 0.05 340 / 0.15);
 }
 
 @layer base {
@@ -199,8 +213,8 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-heading);
-    letter-spacing: -0.01em;
-    font-variation-settings: 'opsz' 28, 'SOFT' 30, 'WONK' 0;
+    letter-spacing: -0.015em;
+    font-variation-settings: 'opsz' 24, 'wdth' 100;
   }
 }
 
@@ -209,15 +223,29 @@
   font-family: var(--font-sans);
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
 }
 
-/* Display serif with the soft, large-optical-size cut of Fraunces. */
-.display-serif {
+/* Big display cut of Bricolage — large optical size, slightly condensed.
+   (Class name kept from the previous system for compatibility.) */
+.display-serif,
+.display {
   font-family: var(--font-heading);
-  font-variation-settings: 'opsz' 100, 'SOFT' 55, 'WONK' 0;
-  letter-spacing: -0.02em;
+  font-variation-settings: 'opsz' 96, 'wdth' 96;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* The dawn gradient — heroes, progress fills, brand moments. */
+.dawn-gradient {
+  background-image: linear-gradient(135deg, var(--dawn-from), var(--dawn-mid) 52%, var(--dawn-to));
+}
+.dawn-text {
+  background-image: linear-gradient(110deg, var(--dawn-mid), var(--dawn-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Subtle paper grain for hero/ambient surfaces. */
@@ -230,7 +258,7 @@
   inset: 0;
   pointer-events: none;
   border-radius: inherit;
-  opacity: 0.5;
+  opacity: 0.45;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -246,8 +274,28 @@
   pointer-events: none;
   border-radius: inherit;
   background:
-    radial-gradient(120% 80% at 85% -10%, rgb(255 255 255 / 0.14), transparent 55%),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.07), transparent 30%);
+    radial-gradient(120% 80% at 85% -10%, rgb(255 255 255 / 0.18), transparent 55%),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.08), transparent 30%);
+}
+
+/* Ambient morning light — two soft dawn-tinted pools behind hero areas. */
+.dawn-ambient {
+  position: relative;
+}
+.dawn-ambient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 38% at 18% 0%, color-mix(in oklch, var(--dawn-from), transparent 82%), transparent 70%),
+    radial-gradient(50% 32% at 92% 12%, color-mix(in oklch, var(--dawn-to), transparent 88%), transparent 70%);
+}
+
+/* Springy press for buttons and cards — pair with active:scale-[0.97]. */
+.springy {
+  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes fade-in {
@@ -258,17 +306,28 @@
   animation: fade-in 300ms ease forwards;
 }
 
-/* Staggered editorial reveal — pair with inline animation-delay. */
+/* Staggered reveal — pair with inline animation-delay. */
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-rise {
   opacity: 0;
-  animation: rise-in 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: rise-in 650ms cubic-bezier(0.22, 1.2, 0.36, 1) forwards;
 }
 
-/* Coral underline stroke that draws itself in. */
+/* Pop for badges, checkmarks, celebratory dots. */
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.4); }
+  70%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop {
+  opacity: 0;
+  animation: pop-in 480ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Underline stroke that draws itself in. */
 @keyframes draw-line {
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
@@ -284,7 +343,50 @@
 }
 .animate-fill-bar {
   transform-origin: left;
-  animation: fill-bar 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fill-bar 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Sunrise arc — SVG stroke sweep. Set pathLength=100 on the path. */
+@keyframes arc-sweep {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: var(--arc-rest, 0); }
+}
+.animate-arc {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: arc-sweep 1100ms 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* The sun itself rising into place. */
+@keyframes sun-rise {
+  from { opacity: 0; transform: translateY(10px) scale(0.6); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-sun-rise {
+  opacity: 0;
+  animation: sun-rise 800ms 700ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Drifting petals / motes for ambient hero backgrounds. */
+@keyframes drift {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  50%  { transform: translate(6px, -10px) rotate(8deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.animate-drift {
+  animation: drift 7s ease-in-out infinite;
+}
+.animate-drift-slow {
+  animation: drift 11s ease-in-out infinite reverse;
+}
+
+/* Gentle pulse for "now" markers and live indicators. */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.86); }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2.4s ease-in-out infinite;
 }
 
 @keyframes strikethrough {

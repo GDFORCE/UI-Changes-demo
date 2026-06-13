@@ -129,12 +129,12 @@ function OtpRow({
             onKeyDown={(e) => handleKeyDown(index, e)}
             onFocus={() => setFocusedIndex(index)}
             className={cn(
-              "w-11 h-14 text-center font-heading text-xl rounded-lg border outline-none transition-all bg-background",
+              "w-11 h-14 text-center font-mono text-xl tabular-nums rounded-xl border outline-none transition-all duration-200 bg-background",
               digit
-                ? "border-primary/50 bg-secondary/40 text-primary"
+                ? "border-primary/60 bg-secondary/50 text-primary shadow-xs scale-[1.03]"
                 : focusedIndex === index
-                  ? "border-accent ring-2 ring-accent/15"
-                  : "border-border",
+                  ? "border-accent ring-2 ring-accent/20"
+                  : "border-border hover:border-primary/30",
             )}
           />
         ))}

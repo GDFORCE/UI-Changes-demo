@@ -20,8 +20,8 @@ const entities = [
 ]
 
 /**
- * Entity selection styled as an editorial table of contents — numbered rows,
- * serif entity names, a coral index marker on the selected entry.
+ * Entity selection as a Dawn Rounds index — numbered rows, Bricolage display
+ * names, and an apricot spine + index marker on the selected entry.
  */
 export function EntityTypeScreen({ selectedEntity, onSelect, onContinue, onBack }: EntityTypeScreenProps) {
   return (
@@ -51,7 +51,7 @@ export function EntityTypeScreen({ selectedEntity, onSelect, onContinue, onBack 
                 )}
                 style={{ animationDelay: `${180 + i * 70}ms` }}
               >
-                {/* coral spine on the selected row */}
+                {/* apricot spine on the selected row */}
                 <span
                   aria-hidden
                   className={cn(
@@ -100,9 +100,9 @@ export function EntityTypeScreen({ selectedEntity, onSelect, onContinue, onBack 
           onClick={onContinue}
           disabled={!selectedEntity}
           className={cn(
-            "w-full py-4 rounded-full text-[15px] font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            "springy w-full py-4 rounded-full text-[15px] font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             selectedEntity
-              ? "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.99]"
+              ? "bg-primary text-primary-foreground shadow-md hover:bg-primary-deep active:scale-[0.97]"
               : "bg-muted text-muted-foreground/60 cursor-not-allowed",
           )}
         >

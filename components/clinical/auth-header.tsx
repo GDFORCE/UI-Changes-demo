@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 interface AuthHeaderProps {
   /** Small-caps line above the title, e.g. "Step 2 of 5". */
   eyebrow?: string
-  /** Large Fraunces serif title. Omit for screens that compose their own. */
+  /** Large Bricolage display title. Omit for screens that compose their own. */
   title?: string
   /** Supporting line under the title. */
   subtitle?: string
@@ -18,20 +18,21 @@ interface AuthHeaderProps {
 }
 
 /**
- * Light editorial header used across the pre-login flow: a hairline back
- * button, a small-caps eyebrow, a serif title, and a segmented progress rule
- * with a coral active segment.
+ * Dawn Rounds pre-login header: a hairline back button, a small-caps eyebrow,
+ * a Bricolage display title, and a "sunrise progress" rule — completed steps
+ * carry the dawn gradient, the active step glows like the cresting sun, and a
+ * faint morning-light wash sits behind the whole block.
  */
 export function AuthHeader({ eyebrow, title, subtitle, onBack, step, totalSteps = 5, className }: AuthHeaderProps) {
   return (
-    <div className={cn("px-6 pt-4 pb-2 bg-background", className)}>
+    <div className={cn("dawn-ambient relative px-6 pt-4 pb-2 bg-background", className)}>
       <div className="flex items-center justify-between mb-5">
         {onBack ? (
           <button
             type="button"
             onClick={onBack}
             aria-label="Back"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground/70 shadow-xs transition-colors hover:text-foreground hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="springy flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground/70 shadow-xs transition-colors hover:text-foreground hover:border-primary/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -40,15 +41,21 @@ export function AuthHeader({ eyebrow, title, subtitle, onBack, step, totalSteps 
         )}
         {step !== undefined && (
           <div className="flex items-center gap-1.5" aria-label={`Step ${step} of ${totalSteps}`}>
-            {Array.from({ length: totalSteps }).map((_, i) => (
-              <span
-                key={i}
-                className={cn(
-                  "h-1 rounded-full transition-all duration-300",
-                  i < step - 1 ? "w-4 bg-primary/35" : i === step - 1 ? "w-7 bg-accent" : "w-4 bg-border",
-                )}
-              />
-            ))}
+            {Array.from({ length: totalSteps }).map((_, i) => {
+              const done = i < step - 1
+              const active = i === step - 1
+              return (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-500",
+                    done && "w-4 dawn-gradient opacity-70",
+                    active && "w-8 dawn-gradient shadow-[0_0_10px_-1px_var(--dawn-mid)]",
+                    !done && !active && "w-4 bg-border",
+                  )}
+                />
+              )
+            })}
           </div>
         )}
       </div>

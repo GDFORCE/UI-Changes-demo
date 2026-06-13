@@ -1,0 +1,1679 @@
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+ 
+PLATFORM ADMIN 
+NOTIFICATION REQUIREMENTS 
+ 
+Patient Visit Schedule — Mobile & Web Application 
+ 
+Document version 1.0 
+Document type Notification Requirements — 
+Platform Admin 
+Applicable to Platform Administrator — Web 
+Portal 
+Status Draft 
+Total notifications 45 (6 Critical · 20 High · 13 Medium 
+· 6 Low) 
+Regulations ICH-GCP E6(R2) | 21 CFR Part 11 
+| HIPAA | DPDPA 2023 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+1. Overview & Purpose 
+ 
+This document defines all notifications that the Platform Admin receives within the Patient Visit Schedule 
+application. Admin notifications are distinct from end-user notifications — they are operational and 
+compliance-driven alerts that require admin awareness or action. Every notification must be actionable, 
+precise, and link directly to the screen where the issue can be resolved. 
+ 
+PURPOSE 
+Admin notifications ensure the Platform Admin is always aware of critical events, pending approvals, system 
+failures, and compliance-relevant actions — without needing to manually monitor every screen. Each notification 
+is a trigger for admin to act, review, or acknowledge. 
+ 
+1.1 Admin Notification vs User Notification 
+Admin notifications are a separate system from end-user notifications. They must not be mixed or confused. 
+ 
+Dimension Admin notifications End-user notifications 
+Audience Platform Admin only Sponsors, CROs, SMOs, Site users, 
+Patients 
+Delivery channel Admin web portal — bell icon + 
+notification screen 
+Mobile app in-app notification center 
+Content Operational events, failures, pending 
+approvals, compliance alerts 
+Visit reminders, trial sharing, medication 
+reminders, status updates 
+Action required Most admin notifications require action 
+or acknowledgement 
+Mostly informational for users 
+Defined in This document Module 4 of the application 
+requirements 
+Audit trail All admin notifications logged All user notifications logged 
+ 
+1.2 Urgency Levels 
+Urgency Color code Definition Response expectation Badge color in 
+portal 
+Critical Dark red Immediate threat to platform 
+security, patient safety, or 
+regulatory compliance 
+Immediate — no delay 
+acceptable 
+Dark red 
+High Red Core platform function blocked 
+or user significantly impacted 
+Within 2 hours Red 
+Medium Amber Non-blocking issue or pending 
+approval requiring attention 
+Within 24 hours Amber 
+Low Gray Informational — no immediate 
+action deadline 
+Within 72 hours or at 
+admin discretion 
+Gray 
+ 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+1.3 Summary Count by Category 
+# Category Notifications Critical High Medium Low 
+1 Account & Access 11 1 7 1 2 
+2 Organization 4 0 0 3 1 
+3 Others Specify Approvals 2 0 0 2 0 
+4 Trial & Protocol 7 0 4 2 1 
+5 Issue Management 7 3 4 0 0 
+6 Patient & Visit 4 0 3 1 0 
+7 Notification System 3 0 2 1 0 
+8 Terms & Conditions 2 0 0 1 1 
+9 Chat & Messages 2 0 0 2 0 
+10 System Health 3 2 0 1 0 
+ TOTAL 45 6 20 14 4 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+2. Notification Structure — Every Notification 
+ 
+Every admin notification — regardless of category or urgency — must contain the following fields. This 
+ensures admin always has enough context to act without navigating away first. 
+ 
+2.1 Standard Notification Fields 
+# Field / element Type Mandatory? Specification & rules 
+1 Notification ID Display text Auto Unique identifier for each notification instance. 
+Format: ADN-XXXX (Admin Notification). 
+Sequential. 
+2 Category Badge / label Auto Which category triggered this notification 
+(Account-Access / Organization / Trial / Issue 
+etc.) 
+3 Urgency level Color badge Auto Critical (dark red) / High (red) / Medium (amber) / 
+Low (gray). Displayed prominently. 
+4 Notification title Display text Auto Short, specific headline (max 80 characters). 
+Must identify the specific event. 
+5 Notification message Display text Auto Full notification content. Includes: what happened, 
+who triggered it, which record is affected, what 
+admin should do. Max 250 characters. 
+6 Triggered by Display text Auto System-generated: 'System — Auto-detected'. 
+User-generated: User name, role, entity. Admin-
+generated: 'Platform Admin'. 
+7 Triggered at Timestamp Auto Date, time, and timezone (IST) when the event 
+occurred that triggered this notification. 
+8 Related record Display text / 
+link 
+Auto The specific record this notification relates to: 
+User ID, Trial CTRI, Ticket ID, Org ID, Subject ID 
+— whichever is applicable. 
+9 Navigation link Clickable link Auto Clicking the notification navigates directly to the 
+screen and record where admin can act. Defined 
+per notification type. 
+10 Read / unread status Visual indicator Auto Unread: bold text + blue dot. Read: normal text, 
+no dot. Marks as read when admin clicks. 
+11 Acknowledged Optional 
+checkbox 
+Manual For Critical and High notifications: admin must 
+explicitly acknowledge after acting. Prevents 
+accidental dismissal. 
+ 
+2.2 Notification Message Format 
+All notification messages follow a consistent format to ensure admin can understand and act without reading 
+ambiguous text: 
+ 
+MESSAGE FORMAT TEMPLATE 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Line 1 (Title): [Event type] — [Specific record name / ID] Line 2 (Detail): [Who triggered it] · [Entity/Org] · [What 
+happened] Line 3 (Action): [What admin should do] — click to [go to screen] 
+ 
+Example — Account locked notification: 
+ 
+EXAMPLE NOTIFICATION 
+Title: Account locked — Mark Johnson Detail: Sponsor Rep · TrialPharma Inc. · 5 failed login attempts at 10:14 
+AM IST Action: Unlock account after identity verification — click to open User Management 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+3. All Admin Notifications — By Category 
+ 
+The following sections define every admin notification in detail. For each notification: the trigger event, the 
+exact message content, the urgency level, and the screen admin is taken to when clicking. 
+ 
+ CATEGORY 1 — Account & Access   |   11 notifications 
+ 
+These notifications relate to user accounts, login security, OTP delivery, MFA, and entity or role changes. 
+Account-related notifications are among the most frequent and most urgent in the platform. 
+ 
+ADN-001 — Account Auto-Locked 
+Field Specification 
+Notification ID ADN-001 
+Urgency HIGH 
+Trigger System auto-locks a user account after 5 consecutive failed login attempts 
+Triggered by System — Auto-detected 
+Title Account locked — [User Full Name] 
+Message [Entity] · [Organization Name] · 5 failed login attempts. Locked at [HH:MM AM/PM 
+IST]. Identity verification required before unlock. 
+Action line Unlock account after verifying identity — click to open User Management 
+Navigate to ADM-02 User Management — pre-filtered to the locked user's profile 
+Acknowledgement 
+required? 
+Yes — admin must acknowledge after unlocking 
+Auto-resolve? No — stays active until admin unlocks the account 
+ 
+ADN-002 — Security Alert: Multiple Lockouts from Same IP 
+Field Specification 
+Notification ID ADN-002 
+Urgency CRITICAL 
+Trigger Same IP address triggers account lockouts for 2 or more accounts within a 24-hour 
+window 
+Triggered by System — Security monitor 
+Title SECURITY ALERT — Multiple lockouts from same IP 
+Message IP [masked IP address] has triggered lockouts on [N] accounts in the last 24 hours. 
+Accounts: [User 1], [User 2]. Possible brute-force attempt. Do NOT unlock without 
+enhanced verification. 
+Action line Review security logs immediately — click to open System Alerts 
+Navigate to ADM-11 System Alerts — pre-filtered to security alerts 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+Yes — mandatory acknowledgement before any unlock can proceed 
+Auto-resolve? No — stays active until admin acknowledges and reviews all affected accounts 
+ 
+ADN-003 — New User Registration 
+Field Specification 
+Notification ID ADN-003 
+Urgency LOW 
+Trigger Any new user completes registration and OTP verification on the platform 
+Triggered by System — Registration completion 
+Title New registration — [User Full Name] 
+Message [Entity] · [Organization Name] registered at [HH:MM AM/PM IST]. OTP verified. 
+Account active. 
+Action line View new user profile — click to open User Management 
+Navigate to ADM-02 User Management — pre-filtered to the new user 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — informational only 
+ 
+ADN-004 — Entity Change Request Submitted 
+Field Specification 
+Notification ID ADN-004 
+Urgency MEDIUM 
+Trigger A user submits a request to change their entity type (e.g., Sponsor to CRO) 
+Triggered by User — [User Full Name] 
+Title Entity change request — [User Full Name] 
+Message [Current Entity] to [Requested Entity] · [Organization Name] · Reason: [User's 
+reason, truncated to 80 chars]. Documentation verification may be required. 
+Action line Review and approve or reject — click to open User Management 
+Navigate to ADM-02 User Management — Role and Entity Change Requests panel 
+Acknowledgement 
+required? 
+No — resolved when admin approves or rejects 
+Auto-resolve? No — stays pending until actioned 
+ 
+ADN-005 — Role Change Request Submitted 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Notification ID ADN-005 
+Urgency MEDIUM 
+Trigger A user submits a request to change their role (e.g., CRC to PI) 
+Triggered by User — [User Full Name] 
+Title Role change request — [User Full Name] 
+Message [Current Role] to [Requested Role] · [Organization Name] · [Trial if applicable] · 
+Reason: [User's reason]. Verify authorization before approving. 
+Action line Review and approve or reject — click to open User Management 
+Navigate to ADM-02 User Management — Role and Entity Change Requests panel 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No 
+ 
+ADN-006 — OTP Delivery Failure 
+Field Specification 
+Notification ID ADN-006 
+Urgency HIGH 
+Trigger OTP delivery fails after 3 attempts — user is blocked at registration, login, or 
+password reset 
+Triggered by System — OTP gateway 
+Title OTP delivery failure — user blocked 
+Message [Masked phone/email] · [Flow: Registration/Login/Password reset] · Failure reason: 
+[Gateway timeout/DND block/Invalid number] · [N] attempts made. User cannot 
+proceed. 
+Action line Investigate and retry — click to open System Alerts 
+Navigate to ADM-11 System Alerts — pre-filtered to OTP failures 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No — stays active until admin resolves delivery failure 
+ 
+ADN-007 — MFA Reset Requested 
+Field Specification 
+Notification ID ADN-007 
+Urgency HIGH 
+Trigger User reports MFA device is lost or inaccessible and requests admin reset 
+Triggered by Support ticket — created by user or system via 'Report Issue' flow 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Title MFA reset request — [User Full Name] 
+Message [Entity] · [Organization Name] · User cannot access MFA device. Last successful 
+MFA: [date]. Identity verification required before reset. 
+Action line Reset MFA after identity verification — click to open User Management 
+Navigate to ADM-02 User Management — pre-filtered to user's security panel 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No — stays active until admin resets MFA 
+ 
+ADN-008 — Admin's Own Login from New Device or IP 
+Field Specification 
+Notification ID ADN-008 
+Urgency HIGH 
+Trigger Admin account is successfully logged into from an IP address or device not seen 
+before 
+Triggered by System — Session monitor 
+Title New login detected on your account 
+Message Login at [HH:MM AM/PM IST] from [Browser] · [OS] · IP: [masked IP]. If this was not 
+you, terminate the session and change your password immediately. 
+Action line Review session — click to open My Profile 
+Navigate to ADM-12 My Profile — Security and Session panel 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+ADN-009 — Admin Session Expiry Warning 
+Field Specification 
+Notification ID ADN-009 
+Urgency LOW 
+Trigger Admin session is 15 minutes from automatic expiry due to inactivity 
+Triggered by System — Session manager 
+Title Your session expires in 15 minutes 
+Message You have been inactive for [N] minutes. Your session will expire at [HH:MM IST]. 
+Save your work to avoid losing any unsaved changes. 
+Action line Extend session — click to stay logged in 
+Navigate to Current screen — extends session timer on click 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — resolves when admin acts or session expires 
+ 
+ADN-010 — T&C Acceptance Overdue (Per User) 
+Field Specification 
+Notification ID ADN-010 
+Urgency LOW 
+Trigger A user has not accepted the latest T&C version 7 days after it was published 
+Triggered by System — T&C monitor (daily check) 
+Title T&C acceptance overdue — [User Full Name] 
+Message [Entity] · [Organization Name] · Has not accepted T&C v[X.X] for [N] days. Last 
+login: [date]. Consider sending a reminder. 
+Action line Send reminder — click to open Terms and Conditions 
+Navigate to ADM-04 Terms and Conditions — Users Pending Acceptance panel 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — resolves when user accepts the T&C 
+ 
+ADN-011 — User Account Deactivated by System 
+Field Specification 
+Notification ID ADN-011 
+Urgency LOW 
+Trigger User account is auto-deactivated due to extended inactivity (if platform has an 
+inactivity policy configured) 
+Triggered by System — Inactivity policy 
+Title Account auto-deactivated — [User Full Name] 
+Message [Entity] · [Organization Name] · Inactive for [N] days. Account deactivated at [date]. 
+Re-activate manually if user should retain access. 
+Action line Review and reactivate if needed — click to open User Management 
+Navigate to ADM-02 User Management — pre-filtered to inactive status 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No 
+ 
+ CATEGORY 2 — Organization   |   4 notifications 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+ 
+Organization notifications inform admin about duplicate organizations detected by the system, name 
+correction requests from users, and new organization registrations. 
+ 
+ADN-012 — Duplicate Organization Detected 
+Field Specification 
+Notification ID ADN-012 
+Urgency MEDIUM 
+Trigger System detects name similarity >= 85% between two organization records 
+Triggered by System — Organization duplicate detector 
+Title Possible duplicate organization — review required 
+Message '[Org Name A]' and '[Org Name B]' are [N]% similar. Record A: [N] users, [N] trials. 
+Record B: [N] users, [N] trials. Confirm if same organization and merge if needed. 
+Action line Review and merge or keep separate — click to open Organization Management 
+Navigate to ADM-03 Organization Management — Duplicate Review panel, pre-scrolled to this 
+pair 
+Acknowledgement 
+required? 
+No — resolved when admin merges or marks as separate 
+Auto-resolve? No 
+ 
+ADN-013 — Organization Name Correction Request 
+Field Specification 
+Notification ID ADN-013 
+Urgency LOW 
+Trigger A user submits an organization name correction request from their Profile screen 
+Triggered by User — [User Full Name] 
+Title Org name correction request — [User Full Name] 
+Message [Entity] · Current name: '[Incorrect Name]' · Requested name: '[Correct Name]' · [N] 
+users and [N] trials will be affected on approval. 
+Action line Approve or reject — click to open Organization Management 
+Navigate to ADM-03 Organization Management — Name Correction Requests panel 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No — stays pending until admin actions it 
+ 
+ADN-014 — New Organization Registered 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Notification ID ADN-014 
+Urgency LOW 
+Trigger A new organization record is created when a user registers with a new organization 
+name 
+Triggered by System — Registration 
+Title New organization registered — [Org Name] 
+Message Entity: [Type] · Location: [City, State] · Created by: [User Full Name] · [N] users 
+currently linked. 
+Action line View organization — click to open Organization Management 
+Navigate to ADM-03 Organization Management — Organization Master List, pre-scrolled to new 
+record 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — informational 
+ 
+ADN-015 — Organization Merge Completed 
+Field Specification 
+Notification ID ADN-015 
+Urgency LOW 
+Trigger An organization merge is successfully executed by admin (confirmation notification) 
+Triggered by System — post admin action 
+Title Organization merge complete — [Master Org Name] 
+Message '[Merged Org Name]' merged into '[Master Org Name]'. [N] users re-linked. [N] trials 
+consolidated. Merged record archived. All users notified. 
+Action line View merged organization — click to open Organization Management 
+Navigate to ADM-03 Organization Management — Master list, pre-scrolled to master record 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — confirmation only 
+ 
+ CATEGORY 3 — Others Specify Approvals   |   2 notifications 
+ 
+Others Specify notifications alert admin whenever a user submits a custom value in any dropdown field 
+across the platform, and when the approval queue grows beyond a threshold. 
+ 
+ADN-016 — Others Specify Value Submitted 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Notification ID ADN-016 
+Urgency MEDIUM 
+Trigger A user submits an 'Others Specify' custom value in any dropdown field on the 
+platform 
+Triggered by User — [User Full Name] 
+Title Others Specify submitted — approval required 
+Message [User Full Name] · [Entity] · [Organization] submitted '[Custom Value]' for field '[Field 
+Name]' in trial [CTRI Number]. Approve to make globally available or reject to keep 
+user-specific. 
+Action line Approve, edit, or reject — click to open Others Specify Approvals 
+Navigate to ADM-05 Others Specify Approvals — Pending Approvals table, pre-scrolled to this 
+submission 
+Acknowledgement 
+required? 
+No — resolved when admin approves, edits, or rejects 
+Auto-resolve? No 
+ 
+ADN-017 — Others Specify Backlog Alert 
+Field Specification 
+Notification ID ADN-017 
+Urgency MEDIUM 
+Trigger 5 or more Others Specify submissions are pending admin approval simultaneously 
+Triggered by System — queue monitor 
+Title Others Specify backlog — [N] pending approvals 
+Message [N] custom values are awaiting your approval. Oldest submission: [N] days ago. 
+Users submitted values are not globally visible until approved. 
+Action line Review all pending — click to open Others Specify Approvals 
+Navigate to ADM-05 Others Specify Approvals — filtered to Pending status 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — resolves when pending count drops below 5 
+ 
+ CATEGORY 4 — Trial & Protocol   |   7 notifications 
+ 
+Trial and protocol notifications inform admin about AI extraction failures, upload problems, new trial creation, 
+trial status changes, and access mapping failures. 
+ 
+ADN-018 — AI Extraction Failed — Protocol 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Notification ID ADN-018 
+Urgency HIGH 
+Trigger AI extraction of a protocol document fails after all automatic retry attempts 
+Triggered by System — AI extraction pipeline 
+Title AI extraction failed — Protocol · [CTRI Number] 
+Message Trial: [Study Title] · Uploaded by: [User Full Name] · [Entity] · Reason: [Error 
+description e.g., 'File size 18MB exceeds 15MB limit' or 'Complex multi-column table 
+not recognized']. Trial cannot generate visit schedule template until resolved. 
+Action line Re-trigger or notify user — click to open System Alerts 
+Navigate to ADM-11 System Alerts — pre-filtered to AI extraction failures, this trial 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No — stays active until extraction succeeds or admin notifies user 
+ 
+ADN-019 — AI Extraction Failed — PIS Document 
+Field Specification 
+Notification ID ADN-019 
+Urgency HIGH 
+Trigger AI extraction of a Patient Information Sheet (PIS) document fails after all retry 
+attempts 
+Triggered by System — AI extraction pipeline 
+Title AI extraction failed — PIS · [CTRI Number] 
+Message Trial: [Study Title] · Uploaded by: [User Full Name] · [Entity] · Reason: [Error e.g., 
+'Scanned image OCR confidence 12% — below 60% threshold']. About Trial section 
+will not populate until resolved. 
+Action line Re-trigger or notify user — click to open System Alerts 
+Navigate to ADM-11 System Alerts — pre-filtered to AI extraction failures, this trial 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+ADN-020 — Protocol Upload Failed — File Size / Format 
+Field Specification 
+Notification ID ADN-020 
+Urgency MEDIUM 
+Trigger Protocol upload fails due to file size limit exceeded or unsupported file format 
+Triggered by System — Upload validator 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Title Protocol upload failed — [CTRI Number] 
+Message Trial: [Study Title] · Uploaded by: [User Full Name] · File: [Filename] · Size: [X MB] · 
+Reason: [Size exceeds limit / Unsupported format]. User must re-upload. Consider 
+notifying user. 
+Action line Notify user — click to open System Alerts 
+Navigate to ADM-11 System Alerts — upload failures section 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — resolves when user successfully re-uploads 
+ 
+ADN-021 — New Trial Created 
+Field Specification 
+Notification ID ADN-021 
+Urgency LOW 
+Trigger A new trial is successfully created and saved on the platform 
+Triggered by User — [User Full Name] 
+Title New trial created — [CTRI Number] 
+Message [Study Title] · Phase [N] · Indication: [Disease/Indication] · Created by: [User Full 
+Name] · [Entity] · [Organization Name]. 
+Action line View trial — click to open Trial Overview 
+Navigate to ADM-06 Trial Overview — pre-scrolled to new trial 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — informational 
+ 
+ADN-022 — Trial Status Changed to On Hold 
+Field Specification 
+Notification ID ADN-022 
+Urgency MEDIUM 
+Trigger A trial's status is changed to 'On Hold' by any authorized user 
+Triggered by User — [User Full Name] 
+Title Trial placed On Hold — [CTRI Number] 
+Message [Study Title] · Status changed to On Hold by [User Full Name] · [Entity] at [HH:MM 
+IST]. [N] subjects currently enrolled. Ongoing visit schedules remain active. 
+Action line View trial — click to open Trial Overview 
+Navigate to ADM-06 Trial Overview — pre-scrolled to the affected trial 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — informational 
+ 
+ADN-023 — Trial Sharing Invitation Bounced 
+Field Specification 
+Notification ID ADN-023 
+Urgency MEDIUM 
+Trigger A trial sharing invitation email bounces or is not delivered to the intended 
+unregistered user 
+Triggered by System — Email gateway 
+Title Trial invitation delivery failed — [CTRI Number] 
+Message Invitation to [masked email] for trial [Study Title] bounced. Invited by: [User Full 
+Name] · [Entity]. Reason: [Invalid email / Server rejected]. User cannot register and 
+access trial. 
+Action line Correct email and resend — click to open System Alerts 
+Navigate to ADM-11 System Alerts — invitation failures section 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+ADN-024 — Trial Access Mapping Failed After Sharing 
+Field Specification 
+Notification ID ADN-024 
+Urgency HIGH 
+Trigger A trial is shared with a user but the access mapping process fails — trial does not 
+appear on user's dashboard 
+Triggered by System — Access mapping service 
+Title Trial access error — [CTRI Number] 
+Message [User Full Name] · [Entity] · [Organization] cannot see trial [Study Title] after sharing. 
+Access mapping failed at [HH:MM IST]. User's trial dashboard is incomplete. 
+Action line Re-trigger access mapping — click to open Trial Overview 
+Navigate to ADM-06 Trial Overview — the trial's Access and Sharing tab 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+ CATEGORY 5 — Issue Management   |   7 notifications 
+ 
+Issue Management notifications are among the most important for the admin. They notify admin when new 
+tickets are raised, when SLAs are breached, and when users reopen resolved tickets. 
+ 
+ADN-025 — New Support Ticket Raised — High Priority 
+Field Specification 
+Notification ID ADN-025 
+Urgency CRITICAL 
+Trigger A new support ticket is created with priority = High (includes all visit schedule 
+issues, clinical safety alerts, account lockouts of PI/CRC, and patient notification 
+failures) 
+Triggered by User or System 
+Title HIGH PRIORITY — New ticket TKT-[XXXX] 
+Message [Issue Title] · Reported by: [User Full Name] · [Entity] · [Organization] · [Trial if 
+applicable]. Response required within 2 hours. 
+Action line Open and action ticket — click to open Issue Management 
+Navigate to ADM-10-D Ticket Detail screen for TKT-[XXXX] 
+Acknowledgement 
+required? 
+Yes — mandatory before ticket can be marked In Progress 
+Auto-resolve? No 
+ 
+ADN-026 — New Support Ticket Raised — Medium Priority 
+Field Specification 
+Notification ID ADN-026 
+Urgency HIGH 
+Trigger A new support ticket is created with priority = Medium 
+Triggered by User or System 
+Title New ticket — TKT-[XXXX] · Medium priority 
+Message [Issue Title] · Reported by: [User Full Name] · [Entity] · [Organization]. Response 
+expected within 8 hours. 
+Action line View ticket — click to open Issue Management 
+Navigate to ADM-10-D Ticket Detail screen for TKT-[XXXX] 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No 
+ 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+ADN-027 — New Support Ticket Raised — Low Priority 
+Field Specification 
+Notification ID ADN-027 
+Urgency MEDIUM 
+Trigger A new support ticket is created with priority = Low 
+Triggered by User 
+Title New ticket — TKT-[XXXX] · Low priority 
+Message [Issue Title] · Reported by: [User Full Name] · [Entity] · [Organization]. No immediate 
+action required. 
+Action line View ticket — click to open Issue Management 
+Navigate to ADM-10 Issue Management list — pre-filtered to this ticket 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No 
+ 
+ADN-028 — Clinical Safety Ticket — Visit Date Error 
+Field Specification 
+Notification ID ADN-028 
+Urgency CRITICAL 
+Trigger A ticket is raised specifically for incorrect visit date calculation for any subject in any 
+trial 
+Triggered by User (PI or CRC) or System 
+Title CLINICAL SAFETY — Visit date error · TKT-[XXXX] 
+Message Subject [Subject ID] · Trial [CTRI Number] · [Study Title] · Visit dates reported 
+incorrect by [PI/CRC Name]. PI must be alerted immediately not to act on current 
+dates. Escalation to tech team required. 
+Action line Open ticket — PI alert is mandatory first step — click to open Issue Management 
+Navigate to ADM-10-D Ticket Detail for TKT-[XXXX] — Resolution Steps Panel, Step 1 pre-
+activated 
+Acknowledgement 
+required? 
+Yes — mandatory. System also sends automatic PI alert simultaneously. 
+Auto-resolve? No 
+ 
+ADN-029 — SLA Breach — High Priority Ticket 
+Field Specification 
+Notification ID ADN-029 
+Urgency CRITICAL 
+Trigger A High-priority ticket has been open for more than 2 hours without any admin action 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Triggered by System — SLA monitor 
+Title SLA BREACH — TKT-[XXXX] open [N] hours without action 
+Message TKT-[XXXX] · [Issue Title] · Priority: High · Open since [timestamp] · [N] hours 
+without response. SLA: 2 hours. Immediate action required. 
+Action line Open and action ticket now — click to open Issue Management 
+Navigate to ADM-10-D Ticket Detail for TKT-[XXXX] 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No — repeats every hour until admin takes action on the ticket 
+ 
+ADN-030 — SLA Breach — Medium Priority Ticket 
+Field Specification 
+Notification ID ADN-030 
+Urgency HIGH 
+Trigger A Medium-priority ticket has been open for more than 8 hours without admin action 
+Triggered by System — SLA monitor 
+Title SLA alert — TKT-[XXXX] open [N] hours without action 
+Message TKT-[XXXX] · [Issue Title] · Priority: Medium · Open since [timestamp]. SLA: 8 
+hours. Please review and begin resolution. 
+Action line View ticket — click to open Issue Management 
+Navigate to ADM-10-D Ticket Detail for TKT-[XXXX] 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No — repeats every 4 hours until actioned 
+ 
+ADN-031 — User Rejects Resolution — Ticket Re-Opened 
+Field Specification 
+Notification ID ADN-031 
+Urgency HIGH 
+Trigger A user reports that the resolution of their ticket was not effective — ticket is re-
+opened 
+Triggered by User — [User Full Name] 
+Title Ticket re-opened — TKT-[XXXX] 
+Message [User Full Name] · [Entity] rejected the resolution of TKT-[XXXX] · [Issue Title]. 
+Reason: '[User rejection note]'. Ticket status reset to Open. Requires new resolution 
+approach. 
+Action line Review rejection and re-resolve — click to open Issue Management 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Navigate to ADM-10-D Ticket Detail for TKT-[XXXX] — Activity Log showing rejection note 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+ CATEGORY 6 — Patient & Visit   |   4 notifications 
+ 
+Patient and visit notifications alert admin to events related to patient accounts, BTG access (self-logging), and 
+patient invitation failures. 
+ 
+ADN-032 — BTG Access Logged — Self Notification 
+Field Specification 
+Notification ID ADN-032 
+Urgency MEDIUM 
+Trigger Admin invokes a Break-the-Glass session to access patient PHI. System sends a 
+self-notification as a compliance confirmation. 
+Triggered by System — post-BTG session completion 
+Title BTG access logged — Subject [Subject ID] 
+Message You accessed PHI for Subject [Subject ID] · Trial [CTRI Number] · Fields: [Contact 
+details / Full name / Age and gender]. Session duration: [N] minutes. Justification: 
+'[Justification text truncated to 80 chars]'. Full record in Audit Trail. 
+Action line View audit entry — click to open Audit Trail 
+Navigate to ADM-08 Audit Trail — pre-filtered to this BTG event 
+Acknowledgement 
+required? 
+Yes — admin must acknowledge BTG record 
+Auto-resolve? Yes — acknowledgement resolves it 
+ 
+ADN-033 — Patient Account Auto-Locked 
+Field Specification 
+Notification ID ADN-033 
+Urgency HIGH 
+Trigger A patient's account is auto-locked after 5 failed login attempts 
+Triggered by System — Login monitor 
+Title Patient account locked — Subject [Subject ID] 
+Message Subject [Subject ID] · Site [Site Name] · Trial [CTRI Number]. Account locked at 
+[HH:MM IST] after 5 failed attempts. Patient cannot access their visit schedule or 
+messages. Unlock required. 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Action line Unlock after identity verification — click to open User Management 
+Navigate to ADM-02 User Management — pre-filtered to this patient's record (BTG may be 
+needed to verify identity) 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+ADN-034 — Patient Invitation Failed to Deliver 
+Field Specification 
+Notification ID ADN-034 
+Urgency HIGH 
+Trigger An invitation sent to a patient (site-initiated registration) fails to deliver via email or 
+SMS 
+Triggered by System — Invitation delivery service 
+Title Patient invitation failed — Subject [Subject ID] 
+Message Subject [Subject ID] · Invited by: [CRC/PI Name] · Trial [CTRI Number] · Delivery to 
+[masked contact] failed. Reason: [Bounce / Invalid / DND]. Patient cannot register 
+and will not receive visit schedule. 
+Action line Correct and resend — click to open System Alerts 
+Navigate to ADM-11 System Alerts — invitation failures section 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No 
+ 
+ADN-035 — Visit Status Correction Applied — Confirmation 
+Field Specification 
+Notification ID ADN-035 
+Urgency MEDIUM 
+Trigger A visit status correction is successfully applied through the admin-initiated correction 
+workflow 
+Triggered by System — post correction workflow 
+Title Visit status corrected — Subject [Subject ID] · Visit [N] 
+Message Trial: [CTRI Number] · Subject [Subject ID] · Visit [N] · Status: [Old Status] corrected 
+to [New Status] · PI authorization: [PI Name] · Reason logged. PI, CRC, and Patient 
+have been notified. 
+Action line View audit entry — click to open Audit Trail 
+Navigate to ADM-08 Audit Trail — pre-filtered to this correction event 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+No — confirmation only 
+Auto-resolve? Yes 
+ 
+ CATEGORY 7 — Notification System Health   |   3 notifications 
+ 
+These notifications alert admin when the notification delivery system itself has failures — when patient or 
+clinical user notifications are not reaching their recipients. 
+ 
+ADN-036 — Patient Visit Reminder Delivery Failed 
+Field Specification 
+Notification ID ADN-036 
+Urgency HIGH 
+Trigger A patient visit reminder notification fails to deliver after all automatic retry attempts 
+Triggered by System — Notification delivery service 
+Title Visit reminder failed — Subject [Subject ID] 
+Message Subject [Subject ID] · Trial [CTRI Number] · Visit reminder for [Visit Name] on [Visit 
+Date] failed to deliver. Reason: [Device token expired / Device offline / Invalid 
+contact]. [N] attempts made. Patient may miss visit. 
+Action line Investigate and retry — BTG may be required — click to open Notification 
+Monitoring 
+Navigate to ADM-07 Notification Monitoring — pre-filtered to this notification failure 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No — stays active until delivery succeeds 
+ 
+ADN-037 — Clinical User Notification Delivery Failed 
+Field Specification 
+Notification ID ADN-037 
+Urgency MEDIUM 
+Trigger A notification to a PI, CRC, or SMO Admin fails to deliver after all retry attempts 
+Triggered by System — Notification delivery service 
+Title Notification failed — [Recipient Role] · Trial [CTRI Number] 
+Message [Notification type e.g., Enrollment alert / Visit reminder] for [PI/CRC Name] · 
+[Organization] · Trial [Study Title] failed. Reason: [Error]. [N] attempts made. 
+Action line Retry or investigate — click to open Notification Monitoring 
+Navigate to ADM-07 Notification Monitoring — pre-filtered to this failure 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No — stays active until delivery succeeds or admin marks resolved 
+ 
+ADN-038 — High Notification Failure Rate 
+Field Specification 
+Notification ID ADN-038 
+Urgency HIGH 
+Trigger Notification delivery failure rate exceeds 5% of total notifications sent in any 24-hour 
+period 
+Triggered by System — Notification health monitor 
+Title High notification failure rate — system-wide alert 
+Message [N]% of notifications failed in the last 24 hours ([N] failed of [Total] sent). This may 
+indicate a gateway or system-wide issue. All trials and subjects potentially affected. 
+Action line Investigate system health — click to open System Alerts 
+Navigate to ADM-11 System Alerts — notification health section 
+Acknowledgement 
+required? 
+Yes 
+Auto-resolve? No — stays active until failure rate drops below 5% 
+ 
+ CATEGORY 8 — Terms & Conditions   |   2 notifications 
+ 
+T&C notifications inform admin of the outcome of publishing a new version and when overall acceptance rate 
+is low. 
+ 
+ADN-039 — New T&C Version Published — Confirmation 
+Field Specification 
+Notification ID ADN-039 
+Urgency LOW 
+Trigger Admin successfully publishes a new T&C version 
+Triggered by System — post admin publish action 
+Title T&C v[X.X] published successfully 
+Message T&C version [X.X] is now live. [N] users will be prompted to accept on next login. 
+Privacy policy v[X.X] updated: [Yes/No]. 
+Action line View acceptance status — click to open Terms and Conditions 
+Navigate to ADM-04 Terms and Conditions — Users Pending Acceptance panel 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+No — confirmation only 
+Auto-resolve? Yes 
+ 
+ADN-040 — Low T&C Acceptance Rate 
+Field Specification 
+Notification ID ADN-040 
+Urgency MEDIUM 
+Trigger T&C acceptance rate is below 80% of total users, 3 or more days after a new 
+version was published 
+Triggered by System — T&C acceptance monitor (daily check) 
+Title Low T&C acceptance rate — [N]% accepted 
+Message Only [N]% ([N] of [Total] users) have accepted T&C v[X.X] after [N] days. [N] users 
+still pending. Users who have not accepted cannot complete restricted actions. 
+Send reminders? 
+Action line Send reminders — click to open Terms and Conditions 
+Navigate to ADM-04 Terms and Conditions — Users Pending Acceptance panel with Send All 
+Reminders button 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? Yes — resolves when acceptance rate exceeds 80% 
+ 
+ CATEGORY 9 — Chat & Messages   |   2 notifications 
+ 
+Chat and message notifications alert admin when a trial chat group was not automatically created, or when a 
+user reports chat access issues. 
+ 
+ADN-041 — Chat Group Not Created for Trial 
+Field Specification 
+Notification ID ADN-041 
+Urgency MEDIUM 
+Trigger System detects that a trial has been active for more than 24 hours but one or both 
+required chat groups were not created 
+Triggered by System — Chat group monitor 
+Title Chat group missing — Trial [CTRI Number] 
+Message Trial: [Study Title] · [Which group is missing: Group 1 (PI + Research + Patient) 
+and/or Group 2 (PI + Research + Sponsor)] · Group not created automatically. PI 
+and patients cannot communicate via chat. 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Action line Create missing group — click to open Trial Overview 
+Navigate to ADM-06 Trial Overview — the trial's Chat Groups tab 
+Acknowledgement 
+required? 
+No — resolved when group is created 
+Auto-resolve? No 
+ 
+ADN-042 — Chat Access Issue Reported 
+Field Specification 
+Notification ID ADN-042 
+Urgency MEDIUM 
+Trigger A user submits a support ticket specifically reporting that they cannot access the 
+chat for a trial 
+Triggered by Support ticket — User [User Full Name] 
+Title Chat access issue — TKT-[XXXX] · [User Full Name] 
+Message [User Full Name] · [Entity] · [Organization] cannot access chat for trial [CTRI 
+Number]. Ticket TKT-[XXXX] created. Chat group may be missing or user's access 
+may not be linked. 
+Action line View ticket and fix — click to open Issue Management 
+Navigate to ADM-10-D Ticket Detail for TKT-[XXXX] 
+Acknowledgement 
+required? 
+No — resolved when ticket is closed 
+Auto-resolve? No 
+ 
+ CATEGORY 10 — System Health   |   3 notifications 
+ 
+System health notifications alert admin to platform-wide issues, storage limits, and regulatory audit export 
+requests. 
+ 
+ADN-043 — Platform-Wide System Error or Downtime 
+Field Specification 
+Notification ID ADN-043 
+Urgency CRITICAL 
+Trigger A platform-wide error is detected — API failure, database unavailability, or 
+widespread user login failure 
+Triggered by System — Health monitor 
+Title SYSTEM ERROR — Platform health critical 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Message Platform error detected at [HH:MM IST]. [N] users affected. Services impacted: 
+[Login / Notifications / Data entry / All]. Immediate investigation required. All ongoing 
+user sessions may be disrupted. 
+Action line Investigate immediately — click to open System Alerts 
+Navigate to ADM-11 System Alerts — system health section 
+Acknowledgement 
+required? 
+Yes — mandatory 
+Auto-resolve? No — stays active until system health is restored and admin confirms 
+ 
+ADN-044 — Trial Storage Approaching Limit 
+Field Specification 
+Notification ID ADN-044 
+Urgency MEDIUM 
+Trigger A trial's document and data storage usage reaches 80% of the plan's allocated limit 
+Triggered by System — Storage monitor 
+Title Storage warning — Trial [CTRI Number] at [N]% capacity 
+Message Trial: [Study Title] · Storage used: [N] GB of [Limit] GB ([N]%). At current upload 
+rate, limit will be reached in approximately [N] days. Notify sponsor to increase 
+storage or manage files. 
+Action line View trial storage — click to open Trial Overview 
+Navigate to ADM-06 Trial Overview — storage information for this trial 
+Acknowledgement 
+required? 
+No 
+Auto-resolve? No — stays active until storage is increased or usage drops below 80% 
+ 
+ADN-045 — Audit Trail Export Requested 
+Field Specification 
+Notification ID ADN-045 
+Urgency HIGH 
+Trigger An audit trail export is triggered — either by admin manually or by an automated 
+regulatory submission process 
+Triggered by Admin or System — Regulatory export 
+Title Audit trail export completed — [CTRI Number or All trials] 
+Message Export scope: [Trial CTRI / Date range / All entries]. Exported by: [Admin / System]. 
+Format: [CSV / PDF]. File size: [X MB]. Export log entry created in audit trail. 
+Action line Download export — click to open Audit Trail 
+Navigate to ADM-08 Audit Trail — export history section 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Field Specification 
+Acknowledgement 
+required? 
+No — confirmation only 
+Auto-resolve? Yes 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+4. Notification Screen Specifications 
+ 
+The admin portal has a dedicated notification system. This section defines every screen, field, and interaction 
+of the notification interface. 
+ 
+ADN-BELL Bell Icon — Top Bar Notification Indicator 
+Triggered by: Always visible in the top bar of every admin p ortal screen 
+ 
+Bell Icon Fields 
+# Field / element Type Mandatory? Specification & rules 
+1 Bell icon Icon button — Always visible in the top bar. Clicking opens the 
+Notification Panel (ADN-PANEL). 
+2 Unread count badge Number badge — Red badge showing count of unread notifications. 
+Visible when count > 0. Disappears when count = 
+0. Updates in real time. 
+3 Critical alert indicator Pulsing red dot — A pulsing red dot overlaid on the bell icon when 
+any Critical-urgency notification is unread. Distinct 
+from the count badge. 
+ 
+ADN-
+PANEL 
+Notification Panel — Dropdown 
+Triggered by: Clicking the bell icon in the top bar  
+ 
+A dropdown panel that appears under the bell icon showing the most recent notifications. Shows up to 10 
+most recent notifications. For the full list, admin navigates to ADN-SCREEN. 
+ 
+Notification Panel Fields 
+# Field / element Type Mandatory? Specification & rules 
+1 Panel title Display text — 'Notifications' 
+2 Unread count Display text — '[N] unread' shown next to title 
+3 Mark all read button Text button — Marks all notifications as read simultaneously. 
+Clears all unread indicators. 
+4 View all button Text link — Navigates to ADN-SCREEN full notification screen 
+5 Notification rows (up 
+to 10) 
+List of rows — Most recent 10 notifications. Each row: urgency 
+color dot + title + triggered time. Unread = bold. 
+Read = normal weight. 
+6 Critical notification 
+banner 
+Highlighted row — Critical notifications shown at top with dark red 
+background and bold text regardless of 
+chronological order. 
+7 Click on any row Navigation — Clicking any notification row marks it as read and 
+navigates to the relevant admin screen for that 
+notification type. 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+# Field / element Type Mandatory? Specification & rules 
+8 Empty state Display text — When no notifications: 'No new notifications. All 
+clear.' with a green checkmark icon. 
+ 
+ADN-
+SCREEN 
+Full Notification Screen 
+Triggered by: Clicking 'View all' in ADN-PANEL, or navigating to Notifications from admin menu  
+ 
+The full-screen notification management interface. Shows all admin notifications with full filtering, search, and 
+management capabilities. 
+ 
+Section 1 — Page Header 
+# Field / element Type Mandatory? Specification & rules 
+1 Page title Display text — 'Notifications' 
+2 Page subtitle Display text — 'All platform alerts and action items for Platform 
+Admin' 
+ 
+Section 2 — Summary Tiles (4 tiles) 
+# Field / element Type Mandatory? Specification & rules 
+1 Unread Metric tile — Count of unread notifications. Red color if > 0. 
+Blue if 0. 
+2 Critical & High unread Metric tile — Count of unread Critical + High urgency 
+notifications. Dark red. Requires immediate 
+attention. 
+3 Pending 
+acknowledgements 
+Metric tile — Count of notifications that require admin to 
+explicitly acknowledge. Amber. 
+4 Total today Metric tile — Total notifications received today across all 
+categories. 
+ 
+Section 3 — Filter & Search Bar 
+# Field / element Type Mandatory? Specification & rules 
+1 Search input Text input — Searches notification title and message text. Live 
+search. 
+2 Category filter Dropdown — All categories / Account-Access / Organization / 
+Others Specify / Trial-Protocol / Issue 
+Management / Patient-Visit / Notification System / 
+Terms-Conditions / Chat-Messages / System 
+Health 
+3 Urgency filter Dropdown — All urgency / Critical / High / Medium / Low 
+4 Status filter Dropdown — All / Unread / Read / Pending acknowledgement / 
+Acknowledged 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+# Field / element Type Mandatory? Specification & rules 
+5 Date range filter Date range 
+picker 
+— Filter by notification received date. Presets: Today 
+/ This week / This month / Custom range. 
+6 Mark all read button Secondary 
+button 
+— Marks all currently filtered notifications as read. 
+7 Export button Secondary 
+button 
+— Downloads notification log as CSV. 
+ 
+Section 4 — Notification List 
+The main notification list. Each row is a single notification. 
+ 
+# Field / element Type Mandatory? Specification & rules 
+1 Urgency indicator Colored left 
+border 
+— Critical = dark red, High = red, Medium = amber, 
+Low = gray. 4px left border on each row. 
+2 Read / unread dot Blue dot — Blue filled dot shown to the left of unread 
+notifications. Disappears when read. 
+3 Category badge Small badge — Shows the notification category (e.g., 'Account', 
+'Trial', 'Issue') 
+4 Urgency badge Small badge — Shows urgency level with color 
+5 Notification title Display text — Full notification title. Bold if unread, normal if read. 
+6 Notification message 
+preview 
+Display text — First 120 characters of the notification message. 
+Full message visible on expand. 
+7 Triggered by Display text — Who or what triggered this notification 
+8 Received at Display text — Relative time (e.g., '10 min ago'). Full timestamp 
+on hover. 
+9 Acknowledge button Success button — Shown only for Critical and High notifications 
+requiring acknowledgement. Clicking marks as 
+acknowledged. Logs action. 
+10 Navigate button Primary button — 'Go to [Screen name]' — navigates to the relevant 
+screen for this notification type. 
+11 Expand / collapse Toggle — Expands row to show full notification message 
+and all fields. 
+12 Delete button Icon button — Removes notification from list. Confirmation dialog 
+shown. Deletion logged. 
+ 
+Section 5 — Critical Notification Persistent Banner 
+When any Critical-urgency notification is unread, a persistent red banner appears at the top of every admin 
+portal screen (not just the notification screen) until acknowledged. 
+ 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+# Field / element Type Mandatory? Specification & rules 
+1 Banner background Red banner — Full-width, fixed at top of every admin screen 
+above the topbar. Cannot be dismissed without 
+acknowledging the notification. 
+2 Banner text Display text — 'CRITICAL ALERT — [Notification Title]. 
+Immediate action required.' Pulsing animation if 
+unacknowledged for > 15 minutes. 
+3 View and 
+acknowledge button 
+White button 
+on red 
+background 
+— Navigates to ADN-SCREEN filtered to Critical 
+unread notifications. 
+4 Count indicator Display text — If multiple Critical notifications: 'N critical alerts 
+pending' 
+ 
+Section 6 — Empty State 
+# Field / element Type Mandatory? Specification & rules 
+1 Illustration Icon — Green checkmark or inbox icon 
+2 Primary text Display text — 'All clear — no new notifications' 
+3 Secondary text Display text — 'The platform is healthy. All issues have been 
+addressed.' 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+5. Notification Delivery & System Rules 
+ 
+ 
+5.1 Delivery Rules 
+Rule Specification 
+Delivery channel All admin notifications are delivered in-app to the admin portal only. No 
+SMS, no email, no push notification to mobile (admin operates on web 
+portal). 
+Real-time delivery Notifications must appear within 30 seconds of the triggering event. No 
+batching or delayed delivery acceptable. 
+Critical banner persistence Critical urgency notifications show a persistent banner on all admin 
+screens until acknowledged. Cannot be dismissed by scrolling or 
+navigating away. 
+Duplicate prevention If the same triggering event fires again before the first notification is 
+acknowledged, the system updates the existing notification rather than 
+creating a duplicate. 
+SLA repeat notifications ADN-029 (High priority SLA breach) repeats every 60 minutes until admin 
+takes action. ADN-030 (Medium priority SLA breach) repeats every 4 
+hours. 
+Auto-resolve behavior Notifications marked as auto-resolve=Yes disappear from the unread list 
+when the underlying condition resolves (e.g., account unlocked, T&C 
+accepted). 
+Notification retention All notifications — read and unread — are retained in the notification 
+history for 90 days. After 90 days they are archived but remain accessible 
+in the audit trail. 
+Audit logging Every notification delivered to admin is logged in the audit trail: notification 
+ID, type, triggered at, delivered at, read at, acknowledged at (if 
+applicable). 
+ 
+5.2 Acknowledgement Rules 
+Certain notifications require explicit admin acknowledgement — not just reading. These are notifications 
+where the admin must confirm they have seen and actioned the alert. 
+ 
+Notification Why acknowledgement is required  What happens if not 
+acknowledged 
+ADN-002 — Same IP multiple 
+lockouts 
+Security incident — admin must 
+confirm they reviewed all affected 
+accounts 
+Critical banner persists. Cannot 
+be cleared. Unlock of any affected 
+account is blocked until 
+acknowledged. 
+ADN-007 — MFA reset requested Identity verification must be 
+confirmed before system proceeds 
+MFA reset button in ADM-02 is 
+disabled until acknowledgement is 
+logged. 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Notification Why acknowledgement is required  What happens if not 
+acknowledged 
+ADN-018 — AI extraction failed 
+(Protocol) 
+Trial cannot proceed — admin must 
+confirm they are aware 
+Trial status in ADM-06 shows 
+'Extraction failed — admin 
+notified' warning banner. 
+ADN-025 — High priority ticket SLA clock starts from notification 
+delivery — admin must confirm 
+receipt 
+SLA breach notification (ADN-
+029) fires after 2 hours if not 
+acknowledged. 
+ADN-028 — Clinical safety — visit 
+dates 
+Patient safety — admin must 
+confirm PI has been alerted 
+Ticket cannot move to In Progress 
+until acknowledgement is logged. 
+ADN-029 — SLA breach Regulatory compliance — admin 
+must acknowledge SLA was missed 
+Notification repeats every 60 
+minutes. Logged in audit trail as 
+unacknowledged breach. 
+ADN-032 — BTG access self-log Compliance — admin must confirm 
+BTG record is correct 
+BTG record in ADM-09 log shows 
+'Pending acknowledgement' 
+status. 
+ADN-043 — Platform system error Critical platform health — admin 
+must confirm they are investigating 
+System error banner persists on 
+all screens until acknowledged. 
+ 
+5.3 Navigate-To Mapping 
+When admin clicks any notification, the system navigates directly to the most relevant screen and pre-applies 
+context (pre-fills filters, scrolls to record, pre-opens overlays where applicable). 
+ 
+Notification ID Navigates to Pre-applied context 
+ADN-001 ADM-02 User Management Filtered to locked user. Unlock overlay pre-opened. 
+ADN-002 ADM-11 System Alerts Filtered to security alerts. All affected accounts highlighted. 
+ADN-003 ADM-02 User Management Filtered to new user's profile. 
+ADN-004 / 
+ADN-005 
+ADM-02 User Management Role and Entity Change Requests panel scrolled to the 
+request. 
+ADN-006 ADM-11 System Alerts Filtered to OTP failures. 
+ADN-007 ADM-02 User Management User security panel open. MFA reset button visible. 
+ADN-008 ADM-12 My Profile Security and Session panel open. 
+ADN-009 Current screen Session extend dialog shown. 
+ADN-010 ADM-04 Terms & Conditions Users Pending Acceptance panel. User row highlighted. 
+ADN-012 ADM-03 Organization 
+Management 
+Duplicate Review panel. Specific pair highlighted. 
+ADN-013 ADM-03 Organization 
+Management 
+Name Correction Requests panel. Request row highlighted. 
+ADN-014 / 
+ADN-015 
+ADM-03 Organization 
+Management 
+Master list. New or merged org row highlighted. 
+ADN-016 ADM-05 Others Specify Pending Approvals table. Submission row highlighted. 
+ADN-017 ADM-05 Others Specify Filtered to Pending status. 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Notification ID Navigates to Pre-applied context 
+ADN-018 / 
+ADN-019 
+ADM-11 System Alerts Filtered to AI extraction failures. Trial pre-selected. 
+ADN-020 ADM-11 System Alerts Upload failures section. Trial pre-selected. 
+ADN-021 / 
+ADN-022 
+ADM-06 Trial Overview Trial row highlighted. 
+ADN-023 / 
+ADN-024 
+ADM-11 System Alerts or ADM-
+06 
+Relevant failure section. Trial pre-selected. 
+ADN-025 / 
+ADN-026 / 
+ADN-027 
+ADM-10-D Ticket Detail Specific ticket opened. 
+ADN-028 ADM-10-D Ticket Detail Ticket opened. Resolution Step 1 (PI alert) activated. 
+ADN-029 / 
+ADN-030 
+ADM-10-D Ticket Detail Specific ticket opened. Activity log showing SLA breach. 
+ADN-031 ADM-10-D Ticket Detail Ticket opened. Activity log scrolled to rejection note. 
+ADN-032 ADM-08 Audit Trail Filtered to BTG event. Entry highlighted. 
+ADN-033 ADM-02 User Management Patient record. Unlock workflow ready. 
+ADN-034 ADM-11 System Alerts Invitation failures. Subject and trial pre-selected. 
+ADN-035 ADM-08 Audit Trail Filtered to correction event. 
+ADN-036 / 
+ADN-037 
+ADM-07 Notification Monitoring Filtered to failure. Trial and notification type pre-selected. 
+ADN-038 ADM-11 System Alerts Notification health section. 
+ADN-039 / 
+ADN-040 
+ADM-04 Terms and Conditions Relevant panel shown. 
+ADN-041 ADM-06 Trial Overview Trial's Chat Groups tab. 
+ADN-042 ADM-10-D Ticket Detail Specific ticket opened. 
+ADN-043 ADM-11 System Alerts System health section. 
+ADN-044 ADM-06 Trial Overview Trial storage information. 
+ADN-045 ADM-08 Audit Trail Export history section. 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+6. Audit Trail for Admin Notifications 
+ 
+Every admin notification — its delivery, reading, acknowledgement, and any admin action taken — must be 
+captured in the audit trail. This ensures full regulatory traceability. 
+ 
+Event Fields logged Compliance basis 
+Notification delivered to 
+admin 
+Notification ID, type, urgency, triggered by, 
+triggered at, delivered at, related record ID 
+21 CFR Part 11 
+Notification read by admin Notification ID, read at timestamp, admin session 
+ID 
+Operational traceability 
+Notification acknowledged Notification ID, acknowledged at, admin ID 21 CFR Part 11 — for 
+Critical/High requiring 
+acknowledgement 
+Notification deleted by 
+admin 
+Notification ID, deleted at, admin ID, deletion 
+reason if mandatory 
+21 CFR Part 11 
+Navigate action from 
+notification 
+Notification ID, screen navigated to, timestamp Operational traceability 
+Mark all read action Count of notifications marked, timestamp, admin 
+ID 
+Operational traceability 
+Critical banner dismissed Notification ID, acknowledged at, admin ID 21 CFR Part 11 
+SLA breach — 
+unacknowledged 
+Notification ID, breach duration, how many 
+repeat notifications sent 
+21 CFR Part 11 — regulatory 
+compliance record 
+BTG notification 
+acknowledged 
+ADN-032 ID, BTG session ID, acknowledged at, 
+admin ID 
+HIPAA, DPDPA 2023 
+  
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+Appendix — Quick Reference 
+ 
+A. All 45 Notifications — Master List 
+ID Category Title Urgency Acknowledgement? 
+ADN-
+001 
+Account & Access Account auto-locked HIGH Yes 
+ADN-
+002 
+Account & Access Security alert — multiple lockouts same 
+IP 
+CRITICAL Yes — mandatory 
+ADN-
+003 
+Account & Access New user registration LOW No 
+ADN-
+004 
+Account & Access Entity change request submitted MEDIUM No 
+ADN-
+005 
+Account & Access Role change request submitted MEDIUM No 
+ADN-
+006 
+Account & Access OTP delivery failure HIGH Yes 
+ADN-
+007 
+Account & Access MFA reset requested HIGH Yes 
+ADN-
+008 
+Account & Access Admin login from new device/IP HIGH Yes 
+ADN-
+009 
+Account & Access Admin session expiry warning LOW No 
+ADN-
+010 
+Account & Access T&C acceptance overdue (per user) LOW No 
+ADN-
+011 
+Account & Access Account auto-deactivated LOW No 
+ADN-
+012 
+Organization Duplicate organization detected MEDIUM No 
+ADN-
+013 
+Organization Org name correction request LOW No 
+ADN-
+014 
+Organization New organization registered LOW No 
+ADN-
+015 
+Organization Organization merge completed LOW No 
+ADN-
+016 
+Others Specify Others Specify value submitted MEDIUM No 
+ADN-
+017 
+Others Specify Others Specify backlog alert (5+) MEDIUM No 
+ADN-
+018 
+Trial & Protocol AI extraction failed — Protocol HIGH Yes 
+ADN-
+019 
+Trial & Protocol AI extraction failed — PIS HIGH Yes 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+ID Category Title Urgency Acknowledgement? 
+ADN-
+020 
+Trial & Protocol Protocol upload failed — file issue MEDIUM No 
+ADN-
+021 
+Trial & Protocol New trial created LOW No 
+ADN-
+022 
+Trial & Protocol Trial status changed to On Hold MEDIUM No 
+ADN-
+023 
+Trial & Protocol Trial invitation bounced MEDIUM Yes 
+ADN-
+024 
+Trial & Protocol Trial access mapping failed HIGH Yes 
+ADN-
+025 
+Issue Management New High-priority ticket raised CRITICAL Yes — mandatory 
+ADN-
+026 
+Issue Management New Medium-priority ticket raised HIGH No 
+ADN-
+027 
+Issue Management New Low-priority ticket raised MEDIUM No 
+ADN-
+028 
+Issue Management Clinical safety — visit date error ticket CRITICAL Yes — mandatory 
+ADN-
+029 
+Issue Management SLA breach — High-priority ticket CRITICAL Yes — mandatory 
+ADN-
+030 
+Issue Management SLA breach — Medium-priority ticket HIGH No 
+ADN-
+031 
+Issue Management User rejects resolution — ticket re-
+opened 
+HIGH Yes 
+ADN-
+032 
+Patient & Visit BTG access logged — self notification MEDIUM Yes 
+ADN-
+033 
+Patient & Visit Patient account auto-locked HIGH Yes 
+ADN-
+034 
+Patient & Visit Patient invitation failed to deliver HIGH Yes 
+ADN-
+035 
+Patient & Visit Visit status correction confirmation MEDIUM No 
+ADN-
+036 
+Notification System Patient visit reminder delivery failed HIGH Yes 
+ADN-
+037 
+Notification System Clinical user notification failed MEDIUM No 
+ADN-
+038 
+Notification System High notification failure rate HIGH Yes 
+ADN-
+039 
+T&C T&C version published confirmation LOW No 
+ADN-
+040 
+T&C Low T&C acceptance rate MEDIUM No 
+ADN-
+041 
+Chat & Messages Chat group not created for trial MEDIUM No 
+
+--- PAGE BREAK ---
+
+Platform Admin — Notification Requirements Patient Visit Schedule App  |  v1.0  |  Draft  
+CONFIDENTIAL  |  Platform Admin Notification Requirements  Draft 
+ID Category Title Urgency Acknowledgement? 
+ADN-
+042 
+Chat & Messages Chat access issue reported MEDIUM No 
+ADN-
+043 
+System Health Platform system error / downtime CRITICAL Yes — mandatory 
+ADN-
+044 
+System Health Trial storage approaching limit MEDIUM No 
+ADN-
+045 
+System Health Audit trail export completed HIGH No 
+ 
+B. Urgency Summary 
+Urgency Count Notifications Response SLA 
+CRITICAL 6 ADN-002, ADN-025, ADN-028, ADN-029, ADN-043, and any 
+High ticket 
+Immediate — no delay 
+HIGH 20 ADN-001, 006, 007, 008, 018, 019, 024, 026, 030, 031, 033, 
+034, 036, 038, 045 + others 
+Within 2 hours 
+MEDIUM 13 ADN-004, 005, 012, 016, 017, 020, 022, 023, 027, 032, 035, 
+037, 040, 041, 042, 044 
+Within 24 hours 
+LOW 6 ADN-003, 009, 010, 011, 013, 014, 015, 021, 039 Within 72 hours 
+ 

@@ -1,17 +1,21 @@
 import type { Metadata } from 'next'
-import { Fraunces, Instrument_Sans } from 'next/font/google'
+import { Bricolage_Grotesque, Figtree, Spline_Sans_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const fraunces = Fraunces({
+const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
-  variable: '--font-fraunces',
-  axes: ['opsz', 'SOFT', 'WONK'],
+  variable: '--font-bricolage',
+  axes: ['opsz', 'wdth'],
 })
-const instrumentSans = Instrument_Sans({
+const figtree = Figtree({
   subsets: ['latin'],
-  variable: '--font-instrument-sans',
+  variable: '--font-figtree',
+})
+const splineMono = Spline_Sans_Mono({
+  subsets: ['latin'],
+  variable: '--font-spline-mono',
 })
 
 export const metadata: Metadata = {
@@ -27,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-background">
-      <body className={`${instrumentSans.variable} ${fraunces.variable} font-sans antialiased`}>
+      <body className={`${figtree.variable} ${bricolage.variable} ${splineMono.variable} font-sans antialiased`}>
         {children}
         <Toaster position="top-center" richColors />
         {process.env.NODE_ENV === 'production' && <Analytics />}
