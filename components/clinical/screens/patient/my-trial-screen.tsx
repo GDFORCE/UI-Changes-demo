@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import {
-  Building2, Phone, ChevronRight, Check, Clock, Pill, CheckCircle,
-  X, SkipForward, AlarmClock, TrendingUp, FlaskConical
+  ChevronLeft, ChevronRight, Check, Clock, Pill, CheckCircle,
+  MapPin, Phone, Home, Building2, Calendar, Sparkles, Stethoscope,
+  type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "../../bottom-nav"
@@ -66,22 +67,10 @@ const heatmapData = [
   { week: "Wk 4", days: ["taken", "taken", "taken", "taken", "taken", "taken", "future"] },
 ]
 
-function getDotClass(status: string) {
-  switch (status) {
-    case "completed": return "w-3 h-3 rounded-full bg-accent"
-    case "upcoming": return "w-3 h-3 rounded-full bg-warning"
-    case "missed": return "w-3 h-3 rounded-full bg-destructive"
-    default: return "w-3 h-3 rounded-full border-2 border-border bg-card"
-  }
-}
-
-function getBadgeClass(status: string) {
-  switch (status) {
-    case "completed": return "bg-accent/10 text-accent"
-    case "upcoming": return "bg-warning/15 text-warning"
-    case "missed": return "bg-destructive/10 text-destructive"
-    default: return "bg-info/10 text-info"
-  }
+const TYPE_ICON: Record<string, LucideIcon> = {
+  Hospital: Building2,
+  Telephonic: Phone,
+  Home: Home,
 }
 
 function getMedBadge(status: string) {
@@ -103,6 +92,9 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
 
   const takenCount = medications.filter(m => m.status === "taken").length
   const allMedsDone = takenCount === medications.length
+  const completedVisits = visits.filter(v => v.status === "completed").length
+  const nextVisit = visits.find(v => v.status === "upcoming")
+  const journeyPct = Math.round((completedVisits / visits.length) * 100)
 
   const handleMedAction = (id: string, action: MedStatus) => {
     const now = new Date()
@@ -112,47 +104,60 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
     ))
   }
 
-  // Visit Detail screen
+  // ── Visit Detail sub-screen ──────────────────────────────────────────────
   if (selectedVisit) {
-    const color = selectedVisit.status === "completed" ? "teal" : selectedVisit.status === "upcoming" ? "amber" : "blue"
+    const TypeIcon = TYPE_ICON[selectedVisit.type] ?? Building2
     return (
       <div className="h-full flex flex-col bg-surface">
-        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setSelectedVisit(null)} className="text-white p-1">
-            <ChevronRight className="w-5 h-5 rotate-180" />
+        <div className="bg-primary-deep text-primary-foreground px-4 py-3.5 flex items-center gap-3 dawn-ambient">
+          <button
+            onClick={() => setSelectedVisit(null)}
+            aria-label="Back to My Trial"
+            className="springy p-1.5 -ml-1.5 rounded-full active:scale-90 hover:bg-white/10"
+          >
+            <ChevronLeft className="w-5 h-5" />
           </button>
-          <div>
-            <p className="text-xs text-blue-300">← My Trial</p>
-            <h1 className="font-semibold text-lg">Visit {selectedVisit.num} Details</h1>
+          <div className="relative">
+            <p className="eyebrow text-primary-foreground/55">My Trial · Protocol-001</p>
+            <h1 className="font-heading text-lg leading-tight">Visit {selectedVisit.num} Details</h1>
           </div>
         </div>
+
         <div className="flex-1 overflow-auto pb-6 space-y-4 p-4">
-          {/* Hero card */}
-          <div className="hero-glow bg-gradient-to-br from-primary-deep via-primary to-info/80 text-white rounded-2xl p-5 shadow-md">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-blue-300 text-sm">Protocol-001</p>
-              <span className={cn(
-                "px-3 py-1 rounded-full text-xs font-semibold",
-                color === "teal" && "bg-teal-200 text-teal-800",
-                color === "amber" && "bg-amber-200 text-warning",
-                color === "blue" && "bg-blue-200 text-blue-800"
-              )}>
+          {/* Hero — the dawn gesture */}
+          <div className="hero-glow paper-grain dawn-gradient text-primary-foreground rounded-3xl p-5 shadow-md animate-rise" style={{ animationDelay: "60ms" }}>
+            <div className="relative flex items-center justify-between mb-2">
+              <p className="eyebrow text-white/80">Protocol-001</p>
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/22 backdrop-blur-sm">
                 {selectedVisit.status === "upcoming" ? "Upcoming" : selectedVisit.status === "completed" ? "Completed ✓" : "Scheduled"}
               </span>
             </div>
-            <h2 className="font-bold text-lg mb-1">Visit {selectedVisit.num} · {selectedVisit.name}</h2>
-            <p className="text-primary-foreground/75 text-sm mb-1">📅 {selectedVisit.date}</p>
-            {selectedVisit.window && <p className="text-primary-foreground/75 text-sm">🪟 Window: {selectedVisit.window}</p>}
-            <p className="text-primary-foreground/75 text-sm">🏥 AIIMS Delhi · Dr. Sharma</p>
+            <h2 className="relative display-serif text-xl mb-2">Visit {selectedVisit.num} · {selectedVisit.name}</h2>
+            <div className="relative flex flex-wrap gap-2 text-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
+                <Calendar className="w-3.5 h-3.5" /> {selectedVisit.date}
+              </span>
+              {selectedVisit.window && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
+                  <Clock className="w-3.5 h-3.5" /> Window {selectedVisit.window}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
+                <TypeIcon className="w-3.5 h-3.5" /> {selectedVisit.type}
+              </span>
+            </div>
+            <p className="relative mt-3 text-sm text-white/85 inline-flex items-center gap-1.5">
+              <Stethoscope className="w-4 h-4" /> AIIMS Delhi · Dr. Sharma
+            </p>
           </div>
 
           {/* Instructions */}
           <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-            <h3 className="font-semibold text-foreground mb-3">Instructions</h3>
-            <ul className="space-y-2">
+            <p className="eyebrow text-muted-foreground mb-3">Before you come in</p>
+            <ul className="space-y-2.5">
               {["Fast for 8 hours before visit", "Bring your patient ID card", "Wear comfortable clothing"].map((inst, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                  <span className="text-accent mt-0.5">•</span>
+                <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/85">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent/12 text-accent text-[11px] font-bold">{i + 1}</span>
                   {inst}
                 </li>
               ))}
@@ -161,35 +166,36 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
 
           {/* Clinical tasks */}
           <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-            <h3 className="font-semibold text-foreground mb-3">Clinical Tasks</h3>
-            <div className="space-y-2 opacity-60">
+            <p className="eyebrow text-muted-foreground mb-3">Clinical tasks</p>
+            <div className="space-y-2.5">
               {["Vital signs", "Blood draw", "ECG"].map((task, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded border-2 border-border" />
+                  <div className="w-5 h-5 rounded-md border-2 border-border" />
                   <span className="text-sm text-muted-foreground">{task}</span>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground/70 mt-2">Tasks are managed by the research team</p>
+            <p className="text-xs text-muted-foreground/70 mt-3">Tasks are managed by the research team</p>
           </div>
 
           {selectedVisit.status === "completed" && (
-            <div className="bg-accent/5 rounded-2xl border border-accent/20 p-4 text-sm text-accent">
-              ✓ Completed on {selectedVisit.date} · Confirmed by Dr. Sharma
+            <div className="flex items-center gap-2 rounded-2xl border border-success/25 bg-success/8 p-4 text-sm text-success">
+              <CheckCircle className="w-4 h-4 shrink-0" />
+              Completed on {selectedVisit.date} · Confirmed by Dr. Sharma
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="space-y-3">
+          {/* Actions */}
+          <div className="space-y-2.5">
             <button
               onClick={() => onNavigate("chat")}
-              className="w-full bg-info text-white rounded-xl py-3 font-semibold text-sm"
+              className="springy w-full bg-primary text-primary-foreground rounded-full py-3.5 font-semibold text-sm shadow-md transition-colors hover:bg-primary-deep active:scale-[0.98] inline-flex items-center justify-center gap-2"
             >
-              Contact PI
+              <Phone className="w-4 h-4" /> Contact PI
             </button>
             {selectedVisit.type === "Hospital" && (
-              <button className="w-full border-2 border-info text-info rounded-xl py-3 font-semibold text-sm">
-                Get Directions
+              <button className="springy w-full border border-primary/30 bg-card text-primary rounded-full py-3.5 font-semibold text-sm transition-colors hover:border-primary hover:bg-secondary/50 active:scale-[0.98] inline-flex items-center justify-center gap-2">
+                <MapPin className="w-4 h-4" /> Get Directions
               </button>
             )}
           </div>
@@ -198,24 +204,50 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
     )
   }
 
+  // ── Main hub ─────────────────────────────────────────────────────────────
   return (
     <div className="h-full flex flex-col bg-surface">
       {/* Header */}
-      <div className="bg-primary-deep text-white px-4 py-3">
-        <h1 className="font-bold text-xl font-[family-name:var(--font-heading)]">My Trial</h1>
-        <p className="text-blue-300 text-xs mt-0.5">Protocol-001 · Dr. Sharma</p>
+      <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+        <div className="relative flex items-center justify-between">
+          <div>
+            <p className="eyebrow text-primary-foreground/55 mb-0.5">Protocol-001 · Dr. Sharma</p>
+            <h1 className="display-serif text-xl leading-tight">My Trial</h1>
+          </div>
+          <div className="rounded-full bg-white/12 px-3 py-1.5 text-center backdrop-blur-sm">
+            <p className="font-mono text-sm leading-none tabular-nums">Wk 12</p>
+            <p className="text-[10px] text-white/65 mt-0.5">of 24</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Persistent journey snapshot */}
+      <div className="px-4 pt-4">
+        <div className="dawn-gradient hero-glow paper-grain rounded-2xl p-4 text-primary-foreground shadow-sm animate-rise" style={{ animationDelay: "40ms" }}>
+          <div className="relative flex items-center justify-between">
+            <p className="eyebrow text-white/80">Your journey</p>
+            <span className="font-mono text-sm tabular-nums">{journeyPct}%</span>
+          </div>
+          <div className="relative mt-2 h-2 rounded-full bg-white/25 overflow-hidden">
+            <div className="h-full rounded-full bg-white animate-fill-bar" style={{ width: `${journeyPct}%` }} />
+          </div>
+          <div className="relative mt-2 flex items-center justify-between text-xs text-white/85">
+            <span>{completedVisits} of {visits.length} visits done</span>
+            {nextVisit && <span>Next · {nextVisit.name}</span>}
+          </div>
+        </div>
       </div>
 
       {/* Inner tabs */}
-      <div className="px-4 py-3 bg-card border-b border-border">
-        <div className="flex gap-2">
+      <div className="px-4 pt-3">
+        <div className="flex rounded-full bg-muted p-1">
           {(["visits", "medications", "progress"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setInnerTab(tab)}
               className={cn(
-                "flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors",
-                innerTab === tab ? "bg-primary-deep text-white" : "bg-card border border-border text-muted-foreground"
+                "flex-1 rounded-full py-2 text-sm font-medium capitalize transition-all",
+                innerTab === tab ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
               {tab}
@@ -225,55 +257,81 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
       </div>
 
       <div className="flex-1 overflow-auto pb-4">
-        {/* ===== VISITS TAB ===== */}
+        {/* ===== VISITS TAB — the trial as a path ===== */}
         {innerTab === "visits" && (
-          <div className="px-4 py-4 space-y-4">
-            {/* Progress card */}
-            <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-foreground text-sm">Your progress · Visit 6 of 10</p>
-                <span className="text-sm font-bold text-accent">60%</span>
-              </div>
-              <div className="h-2.5 bg-muted rounded-full overflow-hidden mb-2">
-                <div className="h-full bg-accent rounded-full" style={{ width: "60%" }} />
-              </div>
-              <p className="text-xs text-muted-foreground text-right">6 done · 4 left</p>
-            </div>
-
-            {/* All visits list */}
-            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">All Visits</p>
-            <div className="space-y-2">
-              {visits.map((v) => (
-                <button
-                  key={v.num}
-                  onClick={() => setSelectedVisit(v)}
-                  className={cn(
-                    "w-full bg-card rounded-xl p-4 border text-left shadow-sm flex items-center gap-3",
-                    v.status === "upcoming" && "bg-warning/10 border-l-4 border-amber-400",
-                    v.status === "missed" && "bg-destructive/5 border-l-4 border-red-400",
-                    v.status !== "upcoming" && v.status !== "missed" && "border-border"
-                  )}
-                >
-                  <div className={getDotClass(v.status)} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold text-foreground text-sm truncate">
-                        Visit {v.num} · {v.name}
-                      </p>
-                      <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold ml-2 shrink-0", getBadgeClass(v.status))}>
-                        {v.status === "completed" ? "Done ✓" : v.status === "upcoming" ? "Next →" : v.status === "missed" ? "Missed" : "Scheduled"}
+          <div className="px-4 py-4">
+            <p className="eyebrow text-muted-foreground mb-3">The road ahead</p>
+            <div className="relative">
+              {visits.map((v, i) => {
+                const TypeIcon = TYPE_ICON[v.type] ?? Building2
+                const isLast = i === visits.length - 1
+                const done = v.status === "completed"
+                const isNext = v.status === "upcoming"
+                return (
+                  <button
+                    key={v.num}
+                    onClick={() => setSelectedVisit(v)}
+                    className="group relative flex w-full items-stretch gap-3 text-left pb-3 last:pb-0"
+                  >
+                    {/* spine + node */}
+                    <div className="relative flex w-7 shrink-0 flex-col items-center">
+                      {!isLast && (
+                        <span
+                          className={cn(
+                            "absolute top-7 bottom-[-12px] w-[2px] rounded-full",
+                            done ? "bg-accent" : "bg-border"
+                          )}
+                        />
+                      )}
+                      <span
+                        className={cn(
+                          "relative z-10 grid h-7 w-7 place-items-center rounded-full ring-4 ring-surface transition-transform group-active:scale-90",
+                          done ? "bg-accent text-accent-foreground"
+                            : isNext ? "bg-warning text-warning-foreground animate-pulse-soft"
+                            : "border-2 border-border bg-card text-muted-foreground"
+                        )}
+                      >
+                        {done ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold tabular-nums">{v.num}</span>}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {v.date} · {v.type === "Hospital" ? "🏥" : v.type === "Telephonic" ? "📞" : "🏠"} {v.type}
-                    </p>
-                    {v.window && (
-                      <p className="text-xs text-warning mt-0.5">Window: {v.window}</p>
-                    )}
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/70 shrink-0" />
-                </button>
-              ))}
+
+                    {/* card */}
+                    <div
+                      className={cn(
+                        "flex-1 min-w-0 rounded-2xl border bg-card p-3.5 shadow-xs transition-all group-hover:shadow-sm",
+                        isNext ? "border-warning/40 bg-warning/5" : "border-border"
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-foreground text-sm truncate">
+                          Visit {v.num} · {v.name}
+                        </p>
+                        <span
+                          className={cn(
+                            "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                            done ? "bg-accent/12 text-accent"
+                              : isNext ? "bg-warning/15 text-warning"
+                              : "bg-info/10 text-info"
+                          )}
+                        >
+                          {done ? "Done" : isNext ? "Next →" : "Scheduled"}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="h-3 w-3" /> {v.date}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <TypeIcon className="h-3 w-3" /> {v.type}
+                        </span>
+                      </div>
+                      {v.window && (
+                        <p className="mt-1 text-xs text-warning">Window: {v.window}</p>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -281,31 +339,30 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
         {/* ===== MEDICATIONS TAB ===== */}
         {innerTab === "medications" && (
           <div className="px-4 py-4 space-y-4">
-            {/* Today summary card */}
-            <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-              <p className="font-semibold text-foreground mb-3">Today's Medications</p>
+            {/* Today summary */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="eyebrow text-muted-foreground mb-2.5">Today&apos;s medications</p>
               <div className="flex items-center gap-2">
-                {medications.map(m => (
-                  <div
-                    key={m.id}
-                    className={cn("w-3 h-3 rounded-full", m.status === "taken" ? "bg-accent" : "bg-border")}
-                  />
-                ))}
-                <span className="text-sm text-muted-foreground ml-1">
-                  {allMedsDone ? "All done ✓" : `${takenCount} of ${medications.length} taken`}
+                <div className="flex flex-1 items-center gap-1.5">
+                  {medications.map(m => (
+                    <span key={m.id} className={cn("h-2.5 flex-1 rounded-full", m.status === "taken" ? "bg-success" : m.status === "pending" ? "bg-border" : getMedBadge(m.status).split(" ")[0])} />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {allMedsDone ? "All done ✓" : `${takenCount}/${medications.length}`}
                 </span>
               </div>
             </div>
 
-            {/* Med inner tabs */}
-            <div className="flex gap-2">
+            {/* Med sub-tabs */}
+            <div className="flex rounded-full bg-muted p-1">
               {(["today", "schedule", "history"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => setMedTab(t)}
                   className={cn(
-                    "flex-1 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors",
-                    medTab === t ? "bg-primary-deep text-white" : "bg-card border border-border text-muted-foreground"
+                    "flex-1 rounded-full py-1.5 text-xs font-medium capitalize transition-all",
+                    medTab === t ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
                   )}
                 >
                   {t}
@@ -313,105 +370,107 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
               ))}
             </div>
 
-            {/* TODAY tab */}
+            {/* TODAY */}
             {medTab === "today" && (
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">
+                <p className="eyebrow text-muted-foreground">
                   Today · {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
 
                 {allMedsDone ? (
-                  <div className="bg-success/10 rounded-2xl border-l-4 border-accent p-5 flex flex-col items-center text-center">
-                    <div className="w-10 h-10 bg-success/15 rounded-full flex items-center justify-center mb-3">
-                      <CheckCircle className="w-6 h-6 text-accent" />
+                  <div className="rounded-2xl border border-success/25 bg-success/8 p-5 text-center">
+                    <div className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full bg-success/15">
+                      <Sparkles className="h-6 w-6 text-success" />
                     </div>
-                    <p className="font-semibold text-foreground mb-1">All medications done for today!</p>
-                    <p className="text-sm text-muted-foreground">No more doses required</p>
-                    <p className="text-sm text-muted-foreground">Great job keeping up 💪</p>
+                    <p className="font-heading text-foreground">All medications done for today!</p>
+                    <p className="text-sm text-muted-foreground">No more doses required · great job keeping up 💪</p>
                   </div>
                 ) : (
-                  medications.map((med) => (
-                    <div
-                      key={med.id}
-                      className={cn(
-                        "rounded-2xl p-4 border shadow-sm",
-                        med.status === "taken" ? "bg-success/10 border-success/20" :
-                        med.status === "notTaken" ? "bg-destructive/5 border-destructive/20" :
-                        med.status === "skipped" ? "bg-warning/10 border-warning/20" :
-                        "bg-warning/10 border-warning/20"
-                      )}
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
-                          <Pill className="w-5 h-5 text-accent" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <p className={cn("font-medium text-foreground", (med.status === "taken" || med.status === "notTaken" || med.status === "skipped") && "text-muted-foreground")}>
-                              {med.name} {med.dosage}
-                            </p>
-                            <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", getMedBadge(med.status))}>
-                              {med.status === "taken" ? "Taken ✓" : med.status === "notTaken" ? "Not Taken" : med.status === "skipped" ? "Skipped" : "Pending"}
-                            </span>
+                  medications.map((med) => {
+                    const settled = med.status !== "pending"
+                    return (
+                      <div
+                        key={med.id}
+                        className={cn(
+                          "rounded-2xl border p-4 shadow-xs",
+                          med.status === "taken" ? "border-success/20 bg-success/8"
+                            : med.status === "notTaken" ? "border-destructive/20 bg-destructive/5"
+                            : med.status === "skipped" ? "border-warning/20 bg-warning/8"
+                            : "border-border bg-card"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-secondary/60">
+                            <Pill className="h-5 w-5 text-primary" />
                           </div>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <Clock className="w-3 h-3" /> {med.time}
-                          </p>
-                          {med.status === "taken" && med.takenAt && (
-                            <p className="text-xs text-success mt-0.5">✓ Taken at {med.takenAt}</p>
-                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className={cn("font-medium text-foreground", settled && "text-muted-foreground")}>
+                                {med.name} {med.dosage}
+                              </p>
+                              <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold", getMedBadge(med.status))}>
+                                {med.status === "taken" ? "Taken ✓" : med.status === "notTaken" ? "Not taken" : med.status === "skipped" ? "Skipped" : "Pending"}
+                              </span>
+                            </div>
+                            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" /> {med.time}
+                              {med.status === "taken" && med.takenAt && (
+                                <span className="text-success">· logged {med.takenAt}</span>
+                              )}
+                            </p>
+                          </div>
                         </div>
+                        {med.status === "pending" && (
+                          <div className="mt-3 flex gap-2 border-t border-border pt-3">
+                            <button
+                              onClick={() => handleMedAction(med.id, "taken")}
+                              className="springy flex-1 rounded-xl bg-success py-2 text-xs font-semibold text-success-foreground active:scale-[0.97]"
+                            >
+                              ✓ Taken
+                            </button>
+                            <button
+                              onClick={() => handleMedAction(med.id, "notTaken")}
+                              className="springy flex-1 rounded-xl border border-destructive/40 py-2 text-xs font-semibold text-destructive active:scale-[0.97]"
+                            >
+                              ✗ Not taken
+                            </button>
+                            <button
+                              onClick={() => handleMedAction(med.id, "skipped")}
+                              className="springy flex-1 rounded-xl border border-warning/40 py-2 text-xs font-semibold text-warning active:scale-[0.97]"
+                            >
+                              Skip
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      {med.status === "pending" && (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleMedAction(med.id, "taken")}
-                            className="flex-1 bg-accent text-white rounded-lg py-1.5 text-xs font-semibold"
-                          >
-                            ✓ Taken
-                          </button>
-                          <button
-                            onClick={() => handleMedAction(med.id, "notTaken")}
-                            className="flex-1 border border-red-400 text-destructive rounded-lg py-1.5 text-xs font-semibold"
-                          >
-                            ✗ Not Taken
-                          </button>
-                          <button
-                            onClick={() => handleMedAction(med.id, "skipped")}
-                            className="flex-1 border border-amber-400 text-warning rounded-lg py-1.5 text-xs font-semibold"
-                          >
-                            Skip
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))
+                    )
+                  })
                 )}
               </div>
             )}
 
-            {/* SCHEDULE tab */}
+            {/* SCHEDULE */}
             {medTab === "schedule" && (
               <div className="space-y-3">
                 {[
                   { name: "Metformin", dosage: "500mg", form: "Oral tablet", freq: "Twice daily: 8:00 AM & 8:00 PM", instruction: "Take with food", period: "1 Mar 2025 – 18 Aug 2025" },
                   { name: "Aspirin", dosage: "75mg", form: "Oral tablet", freq: "Once daily: 2:00 PM", instruction: "Take after meals", period: "1 Mar 2025 – 18 Aug 2025" },
                 ].map((m, i) => (
-                  <div key={i} className="bg-card rounded-2xl border border-border shadow-xs p-4">
+                  <div key={i} className="rounded-2xl border border-border bg-card shadow-xs">
                     <button
-                      className="w-full flex items-center justify-between"
+                      className="flex w-full items-center justify-between p-4"
                       onClick={() => setExpandedMed(expandedMed === m.name ? null : m.name)}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-accent/10 rounded-full flex items-center justify-center">
-                          <Pill className="w-5 h-5 text-accent" />
+                        <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary/60">
+                          <Pill className="h-5 w-5 text-primary" />
                         </div>
                         <p className="font-semibold text-foreground">{m.name} {m.dosage}</p>
                       </div>
-                      <ChevronRight className={cn("w-5 h-5 text-muted-foreground/70 transition-transform", expandedMed === m.name && "rotate-90")} />
+                      <ChevronRight className={cn("h-5 w-5 text-muted-foreground/60 transition-transform", expandedMed === m.name && "rotate-90")} />
                     </button>
                     {expandedMed === m.name && (
-                      <div className="mt-3 pt-3 border-t border-border space-y-1 text-sm text-muted-foreground">
+                      <div className="space-y-1.5 border-t border-border px-4 py-3 text-sm text-muted-foreground">
                         <p>{m.dosage} · {m.form}</p>
                         <p>{m.freq}</p>
                         <p>Instructions: {m.instruction}</p>
@@ -423,21 +482,21 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
               </div>
             )}
 
-            {/* HISTORY tab */}
+            {/* HISTORY */}
             {medTab === "history" && (
               <div className="space-y-4">
                 {medHistory.map((day, i) => (
                   <div key={i}>
-                    <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-2">{day.date}</p>
-                    <div className="bg-card rounded-2xl border border-border shadow-xs divide-y divide-border/60">
+                    <p className="eyebrow text-muted-foreground mb-2">{day.date}</p>
+                    <div className="divide-y divide-border/60 rounded-2xl border border-border bg-card shadow-xs">
                       {day.meds.map((m, j) => (
-                        <div key={j} className="px-4 py-3 flex items-center justify-between">
+                        <div key={j} className="flex items-center justify-between px-4 py-3">
                           <div>
                             <p className="text-sm font-medium text-foreground">{m.name}</p>
                             <p className="text-xs text-muted-foreground">{m.time}</p>
                           </div>
-                          <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", getMedBadge(m.status))}>
-                            {m.status === "taken" ? "Taken ✓" : m.status === "skipped" ? "Skipped" : "Not Taken"}
+                          <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", getMedBadge(m.status))}>
+                            {m.status === "taken" ? "Taken ✓" : m.status === "skipped" ? "Skipped" : "Not taken"}
                           </span>
                         </div>
                       ))}
@@ -452,94 +511,86 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
         {/* ===== PROGRESS TAB ===== */}
         {innerTab === "progress" && (
           <div className="px-4 py-4 space-y-4">
-            {/* 2x2 stats grid */}
+            {/* stats grid */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { value: "6", label: "Completed", color: "text-accent", bg: "bg-accent/5" },
-                { value: "1", label: "Upcoming", color: "text-warning", bg: "bg-warning/10" },
-                { value: "3", label: "Remaining", color: "text-muted-foreground", bg: "bg-surface" },
-                { value: "93%", label: "Med. Rate", color: "text-info", bg: "bg-info/5" },
+                { value: "6", label: "Completed", color: "text-accent", bg: "bg-accent/6 border-accent/20" },
+                { value: "1", label: "Upcoming", color: "text-warning", bg: "bg-warning/8 border-warning/20" },
+                { value: "3", label: "Remaining", color: "text-foreground/70", bg: "bg-card border-border" },
+                { value: "93%", label: "Med. rate", color: "text-info", bg: "bg-info/6 border-info/20" },
               ].map((s, i) => (
-                <div key={i} className={cn("rounded-2xl p-4 text-center border border-border shadow-sm", s.bg)}>
-                  <p className={cn("text-3xl font-bold", s.color)}>{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
+                <div key={i} className={cn("rounded-2xl border p-4 text-center shadow-xs", s.bg)}>
+                  <p className={cn("font-heading text-3xl tabular-nums", s.color)}>{s.value}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
                 </div>
               ))}
             </div>
 
-            {/* Visit Progress bar */}
-            <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-              <p className="font-semibold text-foreground text-sm mb-2">Visit Completion</p>
-              <div className="h-2.5 bg-muted rounded-full overflow-hidden mb-1">
-                <div className="h-full bg-accent rounded-full" style={{ width: "60%" }} />
+            {/* visit completion */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="text-sm font-semibold text-foreground mb-2">Visit completion</p>
+              <div className="mb-1 h-2.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-full rounded-full bg-accent animate-fill-bar" style={{ width: "60%" }} />
               </div>
               <p className="text-xs text-muted-foreground">6 of 10 visits complete (60%)</p>
             </div>
 
-            {/* Medication Adherence bar */}
-            <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-semibold text-foreground text-sm">Medication Adherence · This Week</p>
+            {/* adherence */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-sm font-semibold text-foreground">Medication adherence · this week</p>
                 <span className="text-xs font-semibold text-success">Excellent!</span>
               </div>
-              <div className="h-2.5 bg-muted rounded-full overflow-hidden mb-1">
-                <div className="h-full bg-info rounded-full" style={{ width: "93%" }} />
+              <div className="mb-1 h-2.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-full rounded-full bg-info animate-fill-bar" style={{ width: "93%" }} />
               </div>
               <p className="text-xs text-muted-foreground">13 of 14 doses (93%)</p>
             </div>
 
-            {/* Study Timeline */}
-            <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-              <p className="font-semibold text-foreground text-sm mb-3">Study Timeline</p>
-              <div className="space-y-1 text-sm mb-4">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Started</span>
-                  <span className="font-medium text-foreground">3 Mar 2025</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Current</span>
-                  <span className="font-medium text-foreground">Week 12 of 24</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Estimated end</span>
-                  <span className="font-medium text-foreground">18 Aug 2025</span>
-                </div>
-              </div>
-              <div className="flex gap-1 items-center flex-wrap">
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "w-2.5 h-2.5 rounded-full",
-                      i < 12 ? "bg-accent" : "bg-border"
-                    )}
-                  />
+            {/* timeline */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="text-sm font-semibold text-foreground mb-3">Study timeline</p>
+              <div className="mb-4 space-y-1 text-sm">
+                {[
+                  ["Started", "3 Mar 2025"],
+                  ["Current", "Week 12 of 24"],
+                  ["Estimated end", "18 Aug 2025"],
+                ].map(([k, val]) => (
+                  <div key={k} className="flex justify-between">
+                    <span className="text-muted-foreground">{k}</span>
+                    <span className="font-medium text-foreground">{val}</span>
+                  </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">50% through the study</p>
+              <div className="flex flex-wrap items-center gap-1">
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <div key={i} className={cn("h-2.5 w-2.5 rounded-full", i < 12 ? "bg-accent" : "bg-border")} />
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">50% through the study</p>
             </div>
 
-            {/* Medication Heatmap */}
-            <div className="bg-card rounded-2xl border border-border shadow-xs p-4">
-              <p className="font-semibold text-foreground text-sm mb-3">Medication Heatmap (Last 4 Weeks)</p>
+            {/* heatmap */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="text-sm font-semibold text-foreground mb-3">Medication heatmap · last 4 weeks</p>
               <div className="overflow-x-auto">
                 <div className="min-w-[240px]">
-                  <div className="flex gap-1 mb-1 ml-10">
+                  <div className="mb-1 ml-10 flex gap-1">
                     {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-                      <div key={i} className="w-7 text-center text-[10px] text-muted-foreground/70 font-semibold">{d}</div>
+                      <div key={i} className="w-7 text-center text-[10px] font-semibold text-muted-foreground/70">{d}</div>
                     ))}
                   </div>
                   {heatmapData.map((week, wi) => (
-                    <div key={wi} className="flex items-center gap-1 mb-1">
-                      <span className="text-[10px] text-muted-foreground/70 w-9 shrink-0">{week.week}</span>
+                    <div key={wi} className="mb-1 flex items-center gap-1">
+                      <span className="w-9 shrink-0 text-[10px] text-muted-foreground/70">{week.week}</span>
                       {week.days.map((d, di) => (
                         <div
                           key={di}
                           className={cn(
-                            "w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold",
-                            d === "taken" && "bg-accent/10 text-accent",
+                            "grid h-7 w-7 place-items-center rounded text-[10px] font-bold",
+                            d === "taken" && "bg-accent/12 text-accent",
                             d === "missed" && "bg-destructive/10 text-destructive",
-                            d === "future" && "bg-muted text-slate-300"
+                            d === "future" && "bg-muted text-muted-foreground/40"
                           )}
                         >
                           {d === "taken" ? "✓" : d === "missed" ? "✗" : "–"}

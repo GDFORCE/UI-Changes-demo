@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, FileText, MapPin, User, Phone, Mail, Calendar, Clock, AlertCircle, Download, Globe } from "lucide-react";
+import {
+  ChevronLeft, ChevronRight, FileText, MapPin, User, Phone, Mail, Calendar,
+  AlertCircle, Download, Globe, Building2, ShieldCheck, Pill, HeartPulse,
+  ClipboardList, Sparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TrialContactPerson {
@@ -139,95 +143,102 @@ const sections: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: "overview", label: "Overview", icon: <FileText className="h-4 w-4" /> },
   { id: "purpose", label: "Trial Purpose", icon: <AlertCircle className="h-4 w-4" /> },
   { id: "schedule", label: "Visit Schedule", icon: <Calendar className="h-4 w-4" /> },
-  { id: "responsibilities", label: "Your Responsibilities", icon: <User className="h-4 w-4" /> },
-  { id: "medication", label: "Medication Info", icon: <FileText className="h-4 w-4" /> },
+  { id: "responsibilities", label: "Your Responsibilities", icon: <ClipboardList className="h-4 w-4" /> },
+  { id: "medication", label: "Medication Info", icon: <Pill className="h-4 w-4" /> },
   { id: "risks", label: "Risks & Side Effects", icon: <AlertCircle className="h-4 w-4" /> },
-  { id: "benefits", label: "Benefits", icon: <FileText className="h-4 w-4" /> },
+  { id: "benefits", label: "Benefits", icon: <Sparkles className="h-4 w-4" /> },
   { id: "contacts", label: "Contact Details", icon: <Phone className="h-4 w-4" /> },
-  { id: "withdrawal", label: "Withdrawal Info", icon: <FileText className="h-4 w-4" /> },
+  { id: "withdrawal", label: "Withdrawal Info", icon: <ShieldCheck className="h-4 w-4" /> },
 ];
+
+const VISIT_TYPE_ICON: Record<string, typeof Building2> = {
+  Hospital: Building2,
+  Telephonic: Phone,
+  Home: MapPin,
+};
+function visitTypeChip(type: string) {
+  return type === "Hospital" ? "bg-info/10 text-info"
+    : type === "Telephonic" ? "bg-success/15 text-success"
+    : "bg-warning/15 text-warning";
+}
+function riskTone(freq: string) {
+  return freq.includes("Common") ? { chip: "bg-warning/15 text-warning", bar: "bg-warning", w: "w-full" }
+    : freq.includes("Uncommon") ? { chip: "bg-info/10 text-info", bar: "bg-info", w: "w-2/3" }
+    : { chip: "bg-muted text-foreground/70", bar: "bg-foreground/40", w: "w-1/4" };
+}
 
 export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "About Trial" }: AboutTrialScreenProps) {
   const [activeSection, setActiveSection] = useState<Section>("overview");
   const trialInfo = info;
+
+  const detailRows: [string, string | undefined, boolean?][] = [
+    ["Phase", trialInfo.phase],
+    ["Disease", trialInfo.disease],
+    ["Drug", trialInfo.drug],
+    ["Site", trialInfo.site],
+    ["Principal Investigator", trialInfo.pi],
+    ["Department", trialInfo.department],
+    ["Status", trialInfo.status, true],
+  ];
 
   const renderContent = () => {
     switch (activeSection) {
       case "overview":
         return (
           <div className="space-y-4">
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <h3 className="font-semibold text-foreground mb-3">{trialInfo.title}</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Protocol ID</span>
-                  <span className="font-medium text-info">{trialInfo.protocolId}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Sponsor</span>
-                  <span className="text-foreground">{trialInfo.sponsor}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Duration</span>
-                  <span className="text-foreground">{trialInfo.duration}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Total Visits</span>
-                  <span className="text-foreground">{trialInfo.totalVisits}</span>
-                </div>
-                {trialInfo.phase && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Phase</span>
-                    <span className="text-foreground">{trialInfo.phase}</span>
-                  </div>
-                )}
-                {trialInfo.disease && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Disease</span>
-                    <span className="text-foreground">{trialInfo.disease}</span>
-                  </div>
-                )}
-                {trialInfo.drug && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Drug</span>
-                    <span className="text-foreground">{trialInfo.drug}</span>
-                  </div>
-                )}
-                {trialInfo.site && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Site</span>
-                    <span className="text-foreground">{trialInfo.site}</span>
-                  </div>
-                )}
-                {trialInfo.pi && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Principal Investigator</span>
-                    <span className="text-foreground">{trialInfo.pi}</span>
-                  </div>
-                )}
-                {trialInfo.department && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Department</span>
-                    <span className="text-foreground">{trialInfo.department}</span>
-                  </div>
-                )}
+            {/* Identity hero — the dawn gesture */}
+            <div className="dawn-gradient hero-glow paper-grain rounded-3xl p-5 text-primary-foreground shadow-md animate-rise" style={{ animationDelay: "40ms" }}>
+              <div className="relative flex items-center justify-between">
+                <span className="font-mono text-xs tabular-nums rounded-full bg-white/20 px-2.5 py-1 backdrop-blur-sm">{trialInfo.protocolId}</span>
                 {trialInfo.status && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className="font-medium text-success">{trialInfo.status}</span>
-                  </div>
+                  <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold backdrop-blur-sm">{trialInfo.status}</span>
                 )}
+              </div>
+              <h3 className="relative mt-3 font-heading text-xl leading-snug">{trialInfo.title}</h3>
+              <p className="relative mt-2 text-sm text-white/85 inline-flex items-center gap-1.5">
+                <Building2 className="h-4 w-4" /> {trialInfo.sponsor}
+              </p>
+            </div>
+
+            {/* Quick facts */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+                <Calendar className="h-4 w-4 text-accent" />
+                <p className="mt-2 font-heading text-base leading-tight text-foreground">{trialInfo.duration}</p>
+                <p className="text-xs text-muted-foreground">Duration</p>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+                <ClipboardList className="h-4 w-4 text-accent" />
+                <p className="mt-2 font-heading text-2xl tabular-nums text-foreground">{trialInfo.totalVisits}</p>
+                <p className="text-xs text-muted-foreground">Total visits</p>
               </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <h4 className="font-medium text-foreground mb-2">Study Summary</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">{trialInfo.summary}</p>
+            {/* Optional detail rows (PI / CRC view) */}
+            {detailRows.some(([, v]) => v) && (
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+                <p className="eyebrow text-muted-foreground mb-3">Trial details</p>
+                <div className="divide-y divide-border/60">
+                  {detailRows.filter(([, v]) => v).map(([label, value, success]) => (
+                    <div key={label} className="flex items-center justify-between py-2 text-sm">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className={cn("font-medium text-right", success ? "text-success" : "text-foreground")}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Summary */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="eyebrow text-muted-foreground mb-2">Study summary</p>
+              <p className="text-sm leading-relaxed text-foreground/80">{trialInfo.summary}</p>
             </div>
 
-            <button className="w-full bg-card rounded-xl border border-border shadow-xs p-4 flex items-center justify-between">
+            {/* PDF */}
+            <button className="springy flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-xs active:scale-[0.99]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-destructive/10">
                   <FileText className="h-5 w-5 text-destructive" />
                 </div>
                 <div className="text-left">
@@ -242,49 +253,57 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
 
       case "purpose":
         return (
-          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-            <h3 className="font-semibold text-foreground mb-3">Why This Study Is Being Conducted</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{trialInfo.purpose}</p>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+            <div className="mb-3 flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-accent/12">
+                <HeartPulse className="h-5 w-5 text-accent" />
+              </div>
+              <h3 className="font-heading text-base text-foreground">Why this study is being conducted</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-foreground/80">{trialInfo.purpose}</p>
           </div>
         );
 
       case "schedule":
         return (
-          <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-            <div className="bg-secondary px-4 py-2">
-              <h3 className="font-semibold text-primary">Visit Schedule Overview</h3>
-            </div>
-            <div className="divide-y divide-border">
-              {trialInfo.visitSchedule.map((visit, index) => (
-                <div key={index} className="p-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-foreground text-sm">{visit.visit}</p>
-                    <p className="text-xs text-muted-foreground">{visit.timepoint}</p>
+          <div>
+            <p className="eyebrow text-muted-foreground mb-3">Visit schedule overview</p>
+            <div className="relative">
+              {trialInfo.visitSchedule.map((visit, index) => {
+                const TypeIcon = VISIT_TYPE_ICON[visit.type] ?? Building2;
+                const isLast = index === trialInfo.visitSchedule.length - 1;
+                return (
+                  <div key={index} className="relative flex gap-3 pb-3 last:pb-0">
+                    <div className="relative flex w-6 shrink-0 flex-col items-center">
+                      {!isLast && <span className="absolute top-6 bottom-[-12px] w-px bg-border" />}
+                      <span className="z-10 grid h-6 w-6 place-items-center rounded-full bg-secondary/70 ring-4 ring-surface">
+                        <TypeIcon className="h-3 w-3 text-primary" />
+                      </span>
+                    </div>
+                    <div className="flex flex-1 items-center justify-between rounded-2xl border border-border bg-card p-3 shadow-xs">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{visit.visit}</p>
+                        <p className="text-xs text-muted-foreground">{visit.timepoint}</p>
+                      </div>
+                      <span className={cn("rounded-full px-2 py-1 text-[11px] font-medium", visitTypeChip(visit.type))}>
+                        {visit.type}
+                      </span>
+                    </div>
                   </div>
-                  <span className={cn(
-                    "text-xs px-2 py-1 rounded-full",
-                    visit.type === "Hospital" ? "bg-info/10 text-info" :
-                    visit.type === "Telephonic" ? "bg-success/15 text-success" :
-                    "bg-warning/15 text-warning"
-                  )}>
-                    {visit.type}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         );
 
       case "responsibilities":
         return (
-          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-            <h3 className="font-semibold text-foreground mb-3">Your Responsibilities</h3>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+            <h3 className="font-heading text-base text-foreground mb-3">Your responsibilities</h3>
             <ul className="space-y-3">
               {trialInfo.responsibilities.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-medium text-primary">{index + 1}</span>
-                  </div>
+                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-secondary/70 text-xs font-bold text-primary">{index + 1}</span>
                   <p className="text-sm text-foreground/80">{item}</p>
                 </li>
               ))}
@@ -295,17 +314,22 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       case "medication":
         return (
           <div className="space-y-4">
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <h3 className="font-semibold text-foreground mb-2">{trialInfo.medication.name}</h3>
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <div className="mb-2 flex items-center gap-2.5">
+                <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary/70">
+                  <Pill className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-heading text-base text-foreground">{trialInfo.medication.name}</h3>
+              </div>
               <p className="text-sm text-muted-foreground">{trialInfo.medication.description}</p>
             </div>
 
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <h4 className="font-medium text-foreground mb-3">Dosing Instructions</h4>
-              <ul className="space-y-2">
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="eyebrow text-muted-foreground mb-3">Dosing instructions</p>
+              <ul className="space-y-2.5">
                 {trialInfo.medication.instructions.map((instruction, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-info mt-2" />
+                  <li key={index} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-info" />
                     <p className="text-sm text-foreground/80">{instruction}</p>
                   </li>
                 ))}
@@ -317,31 +341,30 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
       case "risks":
         return (
           <div className="space-y-4">
-            <div className="bg-warning/10 rounded-xl p-4 flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" />
+            <div className="flex items-start gap-3 rounded-2xl border border-warning/25 bg-warning/8 p-4">
+              <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
               <p className="text-sm text-warning">
                 Please report any side effects to your study team immediately. Contact emergency services if you experience severe symptoms.
               </p>
             </div>
 
-            <div className="bg-card rounded-xl border border-border shadow-xs overflow-hidden">
-              <div className="bg-destructive/5 px-4 py-2">
-                <h3 className="font-semibold text-red-800">Possible Side Effects</h3>
-              </div>
-              <div className="divide-y divide-border">
-                {trialInfo.risks.map((item, index) => (
-                  <div key={index} className="p-3 flex items-center justify-between">
-                    <p className="text-sm text-foreground">{item.risk}</p>
-                    <span className={cn(
-                      "text-xs px-2 py-1 rounded-full",
-                      item.frequency.includes("Common") ? "bg-warning/15 text-warning" :
-                      item.frequency.includes("Uncommon") ? "bg-info/10 text-info" :
-                      "bg-muted text-foreground/80"
-                    )}>
-                      {item.frequency}
-                    </span>
-                  </div>
-                ))}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <p className="eyebrow text-destructive mb-3">Possible side effects</p>
+              <div className="space-y-3">
+                {trialInfo.risks.map((item, index) => {
+                  const tone = riskTone(item.frequency);
+                  return (
+                    <div key={index}>
+                      <div className="mb-1 flex items-center justify-between">
+                        <p className="text-sm text-foreground">{item.risk}</p>
+                        <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", tone.chip)}>{item.frequency}</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div className={cn("h-full rounded-full", tone.bar, tone.w)} />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -349,14 +372,14 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
 
       case "benefits":
         return (
-          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-            <h3 className="font-semibold text-foreground mb-3">Potential Benefits</h3>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+            <h3 className="font-heading text-base text-foreground mb-3">Potential benefits</h3>
             <ul className="space-y-3">
               {trialInfo.benefits.map((benefit, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-success/15 flex items-center justify-center flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-success" />
-                  </div>
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-success/15">
+                    <span className="h-2 w-2 rounded-full bg-success" />
+                  </span>
                   <p className="text-sm text-foreground/80">{benefit}</p>
                 </li>
               ))}
@@ -366,93 +389,75 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
 
       case "contacts":
         return (
-          <div className="space-y-4">
-            {/* PI Contact */}
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
+          <div className="space-y-3">
+            {[
+              { person: trialInfo.contacts.pi, tint: "bg-secondary/70 text-primary" },
+              { person: trialInfo.contacts.coordinator, tint: "bg-success/15 text-success" },
+            ].map(({ person, tint }, i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className={cn("grid h-10 w-10 place-items-center rounded-full", tint)}>
+                    <User className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{person.name}</p>
+                    <p className="text-xs text-muted-foreground">{person.role}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-foreground">{trialInfo.contacts.pi.name}</p>
-                  <p className="text-xs text-muted-foreground">{trialInfo.contacts.pi.role}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <a href={`tel:${person.phone}`} className="springy flex items-center justify-center gap-1.5 rounded-xl bg-primary/8 py-2 text-xs font-medium text-primary active:scale-[0.97]">
+                    <Phone className="h-3.5 w-3.5" /> Call
+                  </a>
+                  <a href={`mailto:${person.email}`} className="springy flex items-center justify-center gap-1.5 rounded-xl bg-info/10 py-2 text-xs font-medium text-info active:scale-[0.97]">
+                    <Mail className="h-3.5 w-3.5" /> Email
+                  </a>
                 </div>
               </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-foreground/80">{trialInfo.contacts.pi.phone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-foreground/80">{trialInfo.contacts.pi.email}</span>
-                </div>
-              </div>
-            </div>
+            ))}
 
-            {/* Coordinator Contact */}
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center">
-                  <User className="h-5 w-5 text-success" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">{trialInfo.contacts.coordinator.name}</p>
-                  <p className="text-xs text-muted-foreground">{trialInfo.contacts.coordinator.role}</p>
-                </div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-foreground/80">{trialInfo.contacts.coordinator.phone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-foreground/80">{trialInfo.contacts.coordinator.email}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Site Info */}
-            <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-info/10 flex items-center justify-center">
+            {/* Site */}
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-xs">
+              <div className="mb-2 flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-info/10">
                   <MapPin className="h-5 w-5 text-info" />
                 </div>
                 <div>
                   <p className="font-medium text-foreground">{trialInfo.contacts.site.name}</p>
-                  <p className="text-xs text-muted-foreground">Study Site</p>
+                  <p className="text-xs text-muted-foreground">Study site</p>
                 </div>
               </div>
-              <div className="space-y-2 text-sm">
-                <p className="text-foreground/80">{trialInfo.contacts.site.address}</p>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-foreground/80">{trialInfo.contacts.site.phone}</span>
-                </div>
-              </div>
+              <p className="text-sm text-foreground/80">{trialInfo.contacts.site.address}</p>
+              <a href={`tel:${trialInfo.contacts.site.phone}`} className="mt-2 inline-flex items-center gap-2 text-sm text-primary">
+                <Phone className="h-4 w-4" /> {trialInfo.contacts.site.phone}
+              </a>
             </div>
 
-            {/* Emergency Contact */}
-            <div className="bg-destructive/5 rounded-xl p-4">
+            {/* Emergency */}
+            <a href={`tel:${trialInfo.contacts.emergency.phone}`} className="springy flex items-center justify-between rounded-2xl border border-destructive/25 bg-destructive/8 p-4 active:scale-[0.99]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                <div className="grid h-11 w-11 place-items-center rounded-full bg-destructive/12">
                   <Phone className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
-                  <p className="font-medium text-red-800">24/7 Emergency Line</p>
-                  <p className="text-lg font-bold text-destructive">{trialInfo.contacts.emergency.phone}</p>
+                  <p className="text-xs font-medium text-destructive">{trialInfo.contacts.emergency.available} Emergency line</p>
+                  <p className="font-heading text-lg text-destructive">{trialInfo.contacts.emergency.phone}</p>
                 </div>
               </div>
-            </div>
+              <ChevronRight className="h-5 w-5 text-destructive/60" />
+            </a>
           </div>
         );
 
       case "withdrawal":
         return (
-          <div className="bg-card rounded-xl border border-border shadow-xs p-4">
-            <h3 className="font-semibold text-foreground mb-3">Withdrawal Information</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{trialInfo.withdrawal}</p>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+            <div className="mb-3 flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-info/10">
+                <ShieldCheck className="h-5 w-5 text-info" />
+              </div>
+              <h3 className="font-heading text-base text-foreground">Withdrawal information</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground">{trialInfo.withdrawal}</p>
           </div>
         );
 
@@ -464,29 +469,32 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
   return (
     <div className="flex flex-col h-full bg-surface">
       {/* Header */}
-      <div className="bg-primary text-white px-4 py-4">
-        <div className="flex items-center gap-3">
+      <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+        <div className="relative flex items-center gap-3">
           {onBack && (
-            <button onClick={onBack} className="p-1">
+            <button onClick={onBack} aria-label="Back" className="springy p-1.5 -ml-1.5 rounded-full active:scale-90 hover:bg-white/10">
               <ChevronLeft className="h-5 w-5" />
             </button>
           )}
-          <h1 className="text-lg font-semibold">{title}</h1>
+          <div>
+            <p className="eyebrow text-primary-foreground/55">Trial information</p>
+            <h1 className="display-serif text-lg leading-tight">{title}</h1>
+          </div>
         </div>
       </div>
 
-      {/* Section Navigation */}
-      <div className="bg-card border-b border-border px-4 py-2 overflow-x-auto scrollbar-hide">
+      {/* Section navigation */}
+      <div className="bg-card border-b border-border px-4 py-2.5 overflow-x-auto scrollbar-hide">
         <div className="flex gap-2">
           {sections.map((section) => (
             <button
               key={section.id}
               onClick={() => setActiveSection(section.id)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
+                "flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all",
                 activeSection === section.id
-                  ? "bg-primary text-white"
-                  : "bg-muted text-muted-foreground hover:bg-border"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
               )}
             >
               {section.icon}
@@ -501,11 +509,11 @@ export function AboutTrialScreen({ onBack, info = defaultTrialInfo, title = "Abo
         {renderContent()}
       </div>
 
-      {/* Language Selector */}
+      {/* Language selector */}
       <div className="bg-card border-t border-border p-3">
-        <button className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground">
+        <button className="flex w-full items-center justify-center gap-2 text-sm text-muted-foreground">
           <Globe className="h-4 w-4" />
-          <span>Change Language</span>
+          <span>Change language</span>
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
