@@ -5,7 +5,7 @@ import {
   LayoutDashboard, FlaskConical, MapPin, Bell, User, MessageCircle,
   ChevronRight, ChevronDown, Search, TrendingUp,
   BarChart2, ShieldCheck, Users, Download, Phone, Mail,
-  X, Check, AlertTriangle, Info, SlidersHorizontal,
+  X, Check, AlertTriangle, Info, SlidersHorizontal, ArrowUpRight, Sun,
   FileText, UserPen, Lock, LogOut, Camera,
   UserCheck, Eye, EyeOff, HelpCircle, Building2, Clock, Ticket
 } from "lucide-react"
@@ -112,6 +112,61 @@ function crcEmail(name: string, siteName: string): string {
 function crcPhone(seed: string): string {
   const n = hashNum(seed)
   return `+91 ${90000 + (n % 10000)} ${10000 + (Math.floor(n / 13) % 90000)}`
+}
+
+// ── Animated count-up numeral — eases 0 → value on mount ─────────────────────
+function CountUp({ value, className, duration = 900 }: { value: number; className?: string; duration?: number }) {
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    let raf = 0
+    const start = performance.now()
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setN(Math.round(eased * value))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, duration])
+  return <span className={className}>{n}</span>
+}
+
+// ── Self-drawing progress ring (fraction 0..1) — the day's signature gauge ───
+function ProgressRing({ value, size = 84, stroke = 7, children }: { value: number; size?: number; stroke?: number; children?: React.ReactNode }) {
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  const [p, setP] = useState(0)
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setP(value))
+    return () => cancelAnimationFrame(raf)
+  }, [value])
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={stroke} className="text-white/20" />
+        <circle
+          cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round"
+          className="text-white" strokeDasharray={c} strokeDashoffset={c * (1 - p)}
+          style={{ transition: "stroke-dashoffset 1200ms cubic-bezier(0.22,1,0.36,1)" }}
+        />
+      </svg>
+      <div className="absolute inset-0 grid place-items-center text-center">{children}</div>
+    </div>
+  )
+}
+
+// ── Editorial section marker — gradient tick + small-caps label ──────────────
+function SectionLabel({ label, action }: { label: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2">
+        <span className="h-3.5 w-1 rounded-full dawn-gradient" />
+        <p className="eyebrow text-muted-foreground">{label}</p>
+      </div>
+      {action}
+    </div>
+  )
 }
 
 export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: SponsorDashboardProps) {
@@ -320,6 +375,96 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
     site: { icon: MapPin, bg: "bg-accent/10", color: "text-accent", border: "border-teal-400" },
     system: { icon: Info, bg: "bg-muted", color: "text-muted-foreground", border: "border-border" },
   }
+
+  // ── Portfolio figures for the hero ──
+  const firstName = mockData.user.name.split(/\s+/)[0]
+  const activeTrials = trials.filter(t => t.status === "Active").length
+  const totalEnrolled = trials.reduce((n, t) => n + t.enrolled, 0)
+  const totalTarget = trials.reduce((n, t) => n + t.target, 0)
+  const enrolPct = totalTarget ? Math.round((totalEnrolled / totalTarget) * 100) : 0
+  // Portfolio health = average composite site performance (enrolment + compliance + adherence).
+  const avgHealth = sites.length ? Math.round(sites.reduce((n, s) => n + sitePerformance(s), 0) / sites.length) : 0
+  const healthLabel = avgHealth >= 80 ? "On track" : avgHealth >= 60 ? "Steady" : "Needs attention"
+
+  // ── Immersive dashboard header — fused app bar + portfolio deck ──
+  const immersiveHeader = (
+    <header className="relative overflow-hidden text-primary-foreground">
+      <div className="absolute inset-0 dawn-gradient" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary-deep via-primary-deep/55 to-transparent" />
+      <div className="absolute inset-0 hero-glow" />
+      <div className="absolute inset-0 paper-grain" />
+      <svg viewBox="0 0 200 200" className="pointer-events-none absolute -right-12 -top-12 h-60 w-60 text-white/25" fill="none">
+        <path d="M30 110 a70 70 0 0 1 140 0" stroke="currentColor" strokeWidth="1.5" pathLength={100} className="animate-arc" />
+        <path d="M52 110 a48 48 0 0 1 96 0" stroke="currentColor" strokeWidth="1" pathLength={100} className="animate-arc" style={{ animationDelay: "220ms" }} />
+        <circle cx="100" cy="110" r="22" stroke="currentColor" strokeWidth="1" className="text-white/15" />
+      </svg>
+      <span className="pointer-events-none absolute right-10 top-24 h-2 w-2 rounded-full bg-white/40 animate-drift" />
+      <span className="pointer-events-none absolute right-28 top-36 h-1.5 w-1.5 rounded-full bg-white/30 animate-drift-slow" />
+      <span className="pointer-events-none absolute left-10 top-44 h-1 w-1 rounded-full bg-white/30 animate-drift" />
+
+      <div className="relative px-4 pt-3.5 pb-16">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="eyebrow text-white/65">Sponsor · {mockData.user.org}</p>
+            <h1 className="display-serif text-2xl leading-tight inline-flex items-center gap-2">
+              Hi, {firstName} <Sun className="h-5 w-5 text-white/80 animate-pulse-soft" />
+            </h1>
+          </div>
+          <button onClick={() => setActiveTab("notifs")} aria-label="Notifications" className="springy relative grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur-sm active:scale-95 hover:bg-white/25 ring-1 ring-white/20">
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && <span className="absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-primary-deep">{unreadCount}</span>}
+          </button>
+          <button onClick={() => setActiveTab("me")} aria-label="Account" className="springy grid h-11 w-11 place-items-center rounded-full bg-white/20 text-sm font-semibold ring-1 ring-white/25 backdrop-blur-sm active:scale-95">
+            {mockData.user.initials}
+          </button>
+        </div>
+
+        {/* Portfolio deck */}
+        <div className="relative mt-5 flex items-center gap-4 animate-rise" style={{ animationDelay: "60ms" }}>
+          <ProgressRing value={avgHealth / 100}>
+            <div>
+              <p className="font-heading text-xl leading-none tabular-nums">{avgHealth}%</p>
+              <p className="eyebrow text-[8px] text-white/70 mt-0.5">health</p>
+            </div>
+          </ProgressRing>
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow text-white/70">Portfolio health</p>
+            <h2 className="display-serif text-xl leading-tight">{healthLabel}</h2>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-sm px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
+                <FlaskConical className="h-3.5 w-3.5" /> {activeTrials} active
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 backdrop-blur-sm px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
+                <Users className="h-3.5 w-3.5" /> {totalEnrolled}/{totalTarget} enrolled
+              </span>
+              <button onClick={() => setActiveTab("notifs")} className={cn("springy inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 active:scale-95", unreadCount ? "bg-destructive/30 ring-white/20" : "bg-white/15 ring-white/15")}>
+                <Bell className="h-3.5 w-3.5" /> {unreadCount} alerts
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+
+  // ── Compact dawn app bar for non-dashboard tabs ──
+  const compactBar = (title: string) => (
+    <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+      <div className="relative flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="eyebrow text-primary-foreground/55">Sponsor · {mockData.user.org}</p>
+          <h1 className="display-serif text-lg leading-tight">{title}</h1>
+        </div>
+        <button onClick={() => setActiveTab("notifs")} aria-label="Notifications" className="springy relative grid h-10 w-10 place-items-center rounded-full bg-white/15 backdrop-blur-sm active:scale-95 hover:bg-white/25">
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && <span className="absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-primary-deep">{unreadCount}</span>}
+        </button>
+        <button onClick={() => setActiveTab("me")} aria-label="Account" className="springy grid h-10 w-10 place-items-center rounded-full bg-white/20 text-sm font-semibold ring-1 ring-white/25 backdrop-blur-sm active:scale-95">
+          {mockData.user.initials}
+        </button>
+      </div>
+    </div>
+  )
 
   // ── Edit Trial ──────────────────────────────────────────
   if (editingTrial) {
@@ -770,224 +915,250 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
 
   // ── MAIN TABS ───────────────────────────────────────────
   return (
-    <div className="h-full flex flex-col bg-surface">
-      {/* App Bar */}
-      <div className="bg-primary-deep text-white px-4 py-3 flex items-center justify-between">
-        <div>
-          <p className="font-bold text-base">Good morning, Rajesh ☀️</p>
-          <p className="text-primary-foreground/75 text-xs">{mockData.user.org}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button className="relative" onClick={() => setActiveTab("notifs")}>
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{unreadCount}</span>}
-          </button>
-          <button onClick={() => setActiveTab("me")} className="w-8 h-8 rounded-full bg-info flex items-center justify-center text-xs font-bold">{mockData.user.initials}</button>
-        </div>
-      </div>
+    <div className="h-full flex flex-col bg-background">
+      {activeTab !== "dashboard" && compactBar(
+        activeTab === "trials" ? "Trials"
+          : activeTab === "sites" ? "Sites"
+          : activeTab === "patients" ? "Patient Stats"
+          : activeTab === "notifs" ? "Notifications"
+          : activeTab === "me" ? "Profile"
+          : "Dashboard"
+      )}
 
-      <div className="flex-1 overflow-auto pb-20">
+      <div className="flex-1 overflow-auto pb-20 scrollbar-hide">
 
         {/* ── DASHBOARD TAB ── */}
         {activeTab === "dashboard" && (
-          <div>
-            {/* KPI Strip — counts computed from data, each tile opens its list */}
-            <div className="px-4 pt-4 pb-2">
-              <div className="grid grid-cols-3 gap-3">
+          <>
+            {immersiveHeader}
+            <div className="relative -mt-10 px-4 pb-6 space-y-6">
+              {/* Portfolio bento — floating stat tiles */}
+              <div className="grid grid-cols-3 gap-3 animate-rise" style={{ animationDelay: "120ms" }}>
                 {[
-                  { icon: FlaskConical, val: totalTrials, label: "Total Trials", iconColor: "text-info", bg: "bg-info/5", tab: "trials" },
-                  { icon: MapPin, val: totalSites, label: "Total Sites", iconColor: "text-accent", bg: "bg-accent/5", tab: "sites" },
-                  { icon: Users, val: totalPatients, label: "Patient Stats", iconColor: "text-violet", bg: "bg-violet/5", tab: "patients" },
-                ].map(c => {
-                  const Icon = c.icon
-                  return (
-                    <button key={c.label} onClick={() => setActiveTab(c.tab)} className={cn("rounded-2xl border border-border p-4 text-left shadow-sm", c.bg)}>
-                      <Icon className={cn("w-5 h-5 mb-2", c.iconColor)} />
-                      <p className="text-2xl font-bold text-foreground">{c.val}</p>
-                      <p className="text-xs text-muted-foreground leading-tight">{c.label}</p>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* My Trials */}
-            <div className="px-4 mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-foreground">My Trials</h3>
-                <button onClick={() => setActiveTab("trials")} className="text-info text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
-              </div>
-              <div className="space-y-3">
-                {trials.filter(t => t.status === "Active").map(t => (
-                  <button key={t.id} onClick={() => setSelectedTrial(t)} className="w-full text-left bg-card rounded-2xl border border-border p-4 shadow-xs">
-                    {/* Protocol ID + Status */}
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{t.id}</span>
-                      <div className="flex items-center gap-1.5">
-                        <StatusBadge status={t.status} />
-                        <ChevronRight className="w-4 h-4 text-muted-foreground/70" />
-                      </div>
+                  { onClick: () => setActiveTab("trials"), icon: FlaskConical, ic: "text-info", bg: "bg-info/12", glow: "bg-info/20", value: totalTrials, label: "Total Trials" },
+                  { onClick: () => setActiveTab("sites"), icon: MapPin, ic: "text-accent", bg: "bg-accent/15", glow: "bg-accent/20", value: totalSites, label: "Total Sites" },
+                  { onClick: () => setActiveTab("patients"), icon: Users, ic: "text-violet", bg: "bg-violet/12", glow: "bg-violet/20", value: totalPatients, label: "Patients" },
+                ].map((s, i) => (
+                  <button key={i} onClick={s.onClick} className="springy group relative overflow-hidden bg-card rounded-3xl border border-border p-3.5 text-left shadow-md active:scale-[0.96]">
+                    <span className={cn("absolute -top-6 -right-6 h-16 w-16 rounded-full blur-xl", s.glow)} />
+                    <div className="relative flex items-center justify-between mb-2">
+                      <span className={cn("grid h-9 w-9 place-items-center rounded-2xl", s.bg)}>
+                        <s.icon className={cn("w-5 h-5", s.ic)} />
+                      </span>
+                      <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 transition-colors group-hover:text-primary" />
                     </div>
-                    {/* Phase · Disease · Drug · Sites */}
-                    <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
-                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
-                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-foreground">{t.indication}</p></div>
-                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
-                      <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-foreground">{t.sites}</p></div>
-                    </div>
-                    {/* Study Title */}
-                    <p className="text-xs font-normal text-muted-foreground leading-relaxed mb-3">{t.name}</p>
-                    {/* Randomization Bar */}
-                    <ProgressBar value={Math.round((t.randomized / t.target) * 100)} />
-                    <p className="text-xs text-muted-foreground mt-1">{t.randomized}/{t.target} randomized</p>
+                    <p className="relative font-heading text-3xl tabular-nums text-foreground leading-none"><CountUp value={s.value} /></p>
+                    <p className="relative text-[11px] text-muted-foreground mt-1">{s.label}</p>
                   </button>
                 ))}
               </div>
-            </div>
 
-            {/* Notifications — latest */}
-            <div className="px-4 mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-foreground">Notifications</h3>
-                <button onClick={() => setActiveTab("notifs")} className="text-info text-sm font-medium flex items-center gap-1">See All <ChevronRight className="w-4 h-4" /></button>
-              </div>
-              <div className="space-y-2">
-                {notifications.slice(0, 2).map(n => {
-                  const iconInfo = notifIconMap[n.type] || notifIconMap.system
-                  const Icon = iconInfo.icon
-                  return (
-                    <button key={n.id} onClick={() => setActiveTab("notifs")} className={cn("w-full text-left bg-card rounded-2xl p-3 shadow-sm border-l-4 flex items-start gap-3", iconInfo.border)}>
-                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5", iconInfo.bg)}>
-                        <Icon className={cn("w-4 h-4", iconInfo.color)} />
+              {/* Quick Actions */}
+              <section className="animate-rise" style={{ animationDelay: "190ms" }}>
+                <SectionLabel label="Quick actions" />
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { onClick: () => onNavigate("add-trial"), icon: FlaskConical, orb: "bg-info text-info-foreground", label: "Add Trial" },
+                    { onClick: () => setShowAddSite(true), icon: MapPin, orb: "dawn-gradient text-primary-foreground", label: "Add Site" },
+                    { onClick: () => onNavigate("share-schedule"), icon: FileText, orb: "bg-accent text-accent-foreground", label: "Share Schedule" },
+                  ].map((a, i) => (
+                    <button key={i} onClick={a.onClick} className="springy bg-card rounded-3xl border border-border p-3 shadow-xs flex flex-col items-center gap-2 active:scale-[0.96] hover:shadow-sm">
+                      <div className={cn("grid h-12 w-12 place-items-center rounded-2xl shadow-sm", a.orb)}>
+                        <a.icon className="w-5 h-5" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground leading-tight">{n.title}</p>
-                        <p className="text-xs text-muted-foreground/70 mt-0.5 line-clamp-1">{n.message}</p>
+                      <span className="text-xs font-medium text-foreground text-center leading-tight">{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {/* My Trials */}
+              <section className="animate-rise" style={{ animationDelay: "260ms" }}>
+                <SectionLabel
+                  label="My trials"
+                  action={<button onClick={() => setActiveTab("trials")} className="springy text-info text-sm font-semibold inline-flex items-center gap-0.5 active:scale-95">See all <ChevronRight className="w-4 h-4" /></button>}
+                />
+                <div className="space-y-3">
+                  {trials.filter(t => t.status === "Active").map(t => {
+                    const pct = Math.round((t.randomized / t.target) * 100)
+                    return (
+                      <button key={t.id} onClick={() => setSelectedTrial(t)} className="springy group relative w-full overflow-hidden text-left bg-card rounded-3xl border border-border p-4 pl-5 shadow-sm active:scale-[0.99] hover:shadow-md">
+                        <span className="absolute left-0 top-0 bottom-0 w-1.5 dawn-gradient" />
+                        <div className="flex items-center justify-between mb-2.5">
+                          <span className="font-mono text-xs font-semibold text-primary bg-secondary/50 px-2.5 py-1 rounded-full">{t.id}</span>
+                          <div className="flex items-center gap-1.5">
+                            <StatusBadge status={t.status} />
+                            <span className="grid h-7 w-7 place-items-center rounded-full bg-muted text-muted-foreground/70 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                              <ArrowUpRight className="w-4 h-4" />
+                            </span>
+                          </div>
+                        </div>
+                        <h4 className="font-heading text-foreground text-base leading-snug mb-2.5 line-clamp-2">{t.name}</h4>
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {[
+                            { val: t.phase, cls: "bg-info/10 text-info" },
+                            { val: t.indication, cls: "bg-accent/12 text-accent" },
+                            { val: t.drug, cls: "bg-violet/10 text-violet" },
+                            { val: `${t.sites} sites`, cls: "bg-muted text-muted-foreground" },
+                          ].map(c => <span key={c.val} className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", c.cls)}>{c.val}</span>)}
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] mb-1">
+                          <span className="text-muted-foreground">Randomized</span>
+                          <span className="font-mono font-semibold text-foreground">{t.randomized}/{t.target} · {pct}%</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                          <div className="h-full rounded-full dawn-gradient animate-fill-bar" style={{ width: `${pct}%` }} />
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+
+              {/* Site Performance */}
+              <section className="animate-rise" style={{ animationDelay: "330ms" }}>
+                <SectionLabel
+                  label="Site performance"
+                  action={<button onClick={() => setActiveTab("sites")} className="springy text-info text-sm font-semibold inline-flex items-center gap-0.5 active:scale-95">View all <ChevronRight className="w-4 h-4" /></button>}
+                />
+                <div className="bg-card rounded-3xl border border-border p-4 shadow-sm space-y-3.5">
+                  {sites.map((s, i) => (
+                    <button key={s.id} onClick={() => setSelectedSite(s)} className="springy block w-full text-left active:scale-[0.99]">
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium text-foreground truncate">{s.name}</span>
+                        <span className="font-mono text-xs font-semibold text-foreground tabular-nums shrink-0">{s.enrollmentPct}%</span>
                       </div>
-                      <span className="text-xs text-muted-foreground/70 shrink-0">{n.time}</span>
+                      <div className="h-2 overflow-hidden rounded-full bg-muted">
+                        <div className="h-full rounded-full dawn-gradient animate-fill-bar" style={{ width: `${s.enrollmentPct}%`, animationDelay: `${i * 80}ms` }} />
+                      </div>
                     </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Share Schedule — prominent action card */}
-            <div className="px-4 mb-3">
-              <button
-                onClick={() => onNavigate("share-schedule")}
-                className="w-full bg-violet/5 border border-purple-200 rounded-2xl p-4 flex items-center gap-3 text-left"
-              >
-                <div className="w-10 h-10 rounded-xl bg-violet flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-white" />
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-violet text-sm">Share Schedule</p>
-                  <p className="text-xs text-purple-400">Send protocol documents to sites</p>
+              </section>
+
+              {/* Notifications */}
+              <section className="animate-rise" style={{ animationDelay: "400ms" }}>
+                <SectionLabel
+                  label="Notifications"
+                  action={<button onClick={() => setActiveTab("notifs")} className="springy text-info text-sm font-semibold inline-flex items-center gap-0.5 active:scale-95">See all <ChevronRight className="w-4 h-4" /></button>}
+                />
+                <div className="space-y-2">
+                  {notifications.slice(0, 2).map(n => {
+                    const iconInfo = notifIconMap[n.type] || notifIconMap.system
+                    const Icon = iconInfo.icon
+                    return (
+                      <button key={n.id} onClick={() => setActiveTab("notifs")} className="springy w-full text-left bg-card rounded-2xl border border-border p-3 shadow-xs flex items-start gap-3 active:scale-[0.99]">
+                        <div className={cn("grid h-9 w-9 place-items-center rounded-xl shrink-0", iconInfo.bg)}>
+                          <Icon className={cn("w-4 h-4", iconInfo.color)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground leading-tight">{n.title}</p>
+                          <p className="text-xs text-muted-foreground/70 mt-0.5 line-clamp-1">{n.message}</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground/70 shrink-0">{n.time}</span>
+                        {n.unread && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-destructive" />}
+                      </button>
+                    )
+                  })}
                 </div>
-                <ChevronRight className="w-4 h-4 text-purple-400 shrink-0" />
-              </button>
+              </section>
             </div>
-
-            {/* Quick Actions */}
-            <div className="px-4 mb-4">
-              <div className="flex gap-2">
-                {[
-                  { label: "Add Trial", onClick: () => onNavigate("add-trial"), color: "border-info text-info" },
-                  { label: "Add Site", onClick: () => setShowAddSite(true), color: "border-info text-info" },
-                ].map(a => {
-                  return (
-                    <button key={a.label} onClick={a.onClick} className={cn("flex-1 flex items-center justify-center gap-1 border rounded-xl py-2.5 text-xs font-semibold", a.color)}>
-                      {a.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Site Performance */}
-            <div className="px-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-foreground">Site Performance</h3>
-                <button onClick={() => setActiveTab("sites")} className="text-info text-sm font-medium flex items-center gap-1">View All <ChevronRight className="w-4 h-4" /></button>
-              </div>
-              <div className="bg-card rounded-2xl border border-border p-4 space-y-4">
-                {mockData.sites.map(s => (
-                  <div key={s.id}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-foreground">{s.name}</span>
-                      <span className="text-xs font-bold text-primary-deep">{s.enrollmentPct}%</span>
-                    </div>
-                    <ProgressBar value={s.enrollmentPct} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          </>
         )}
 
         {/* ── TRIALS TAB ── */}
         {activeTab === "trials" && (
           <div className="px-4 pt-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 min-w-0 flex items-center gap-2 bg-card border border-border rounded-xl px-3 py-2">
-                <Search className="w-4 h-4 text-muted-foreground/70 flex-shrink-0" />
-                <input value={trialSearch} onChange={e => setTrialSearch(e.target.value)} placeholder="Search trials..." className="flex-1 min-w-0 text-sm outline-none" />
+            {/* Search + phase toggle + add */}
+            <div className="flex items-center gap-2 mb-3 animate-rise" style={{ animationDelay: "20ms" }}>
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                <input value={trialSearch} onChange={e => setTrialSearch(e.target.value)} placeholder="Search trials…" className="w-full rounded-2xl border border-border bg-card pl-10 pr-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30" />
               </div>
               <button
                 onClick={() => setShowTrialFilters(v => !v)}
-                className={cn("flex-shrink-0 p-2 rounded-xl border", showTrialFilters || phaseFilter !== "All" ? "bg-info border-info" : "bg-card border-border")}>
-                <SlidersHorizontal className={cn("w-4 h-4", showTrialFilters || phaseFilter !== "All" ? "text-white" : "text-muted-foreground")} />
+                className={cn("springy grid h-10 w-10 shrink-0 place-items-center rounded-2xl border active:scale-95", showTrialFilters || phaseFilter !== "All" ? "dawn-gradient border-transparent text-primary-foreground shadow-sm" : "bg-card border-border text-muted-foreground")}>
+                <SlidersHorizontal className="w-4 h-4" />
               </button>
-              <button onClick={() => onNavigate("add-trial")} className="flex-shrink-0 px-3 py-2 bg-info rounded-xl text-white text-xs font-semibold whitespace-nowrap">Add Trial</button>
+              <button onClick={() => onNavigate("add-trial")} className="springy shrink-0 inline-flex items-center gap-1 rounded-2xl dawn-gradient text-primary-foreground px-3.5 py-2.5 text-xs font-semibold active:scale-95 shadow-sm">
+                <FlaskConical className="w-4 h-4" /> Add
+              </button>
             </div>
             {/* Phase filter panel (toggled by the sliders button) */}
             {showTrialFilters && (
-              <div className="bg-card border border-border rounded-xl p-3 mb-3">
+              <div className="bg-card border border-border rounded-2xl p-3 mb-3 shadow-xs animate-rise">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">Filter by Phase</p>
+                  <p className="eyebrow text-muted-foreground/70">Filter by Phase</p>
                   {phaseFilter !== "All" && (
-                    <button onClick={() => setPhaseFilter("All")} className="text-[11px] text-info font-medium">Clear</button>
+                    <button onClick={() => setPhaseFilter("All")} className="text-[11px] text-info font-semibold">Clear</button>
                   )}
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {["All", "Phase I", "Phase II", "Phase III", "Phase IV"].map(p => (
-                    <button key={p} onClick={() => setPhaseFilter(p)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium border", phaseFilter === p ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{p}</button>
+                    <button key={p} onClick={() => setPhaseFilter(p)} className={cn("springy px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95", phaseFilter === p ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-surface text-muted-foreground border border-border")}>{p}</button>
                   ))}
                 </div>
               </div>
             )}
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
+            {/* Status filter chips */}
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1 mb-4 animate-rise" style={{ animationDelay: "70ms" }}>
               {[
-                { label: `All (${trials.length})`, val: "All" },
-                { label: `Active (${trials.filter(t => t.status === "Active").length})`, val: "Active" },
-                { label: `Completed (${trials.filter(t => t.status === "Completed").length})`, val: "Completed" },
-                { label: `Terminated (${trials.filter(t => t.status === "Terminated").length})`, val: "Terminated" },
-              ].map(f => (
-                <button key={f.val} onClick={() => setTrialFilter(f.val)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", trialFilter === f.val ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{f.label}</button>
-              ))}
+                { label: "All", val: "All", count: trials.length },
+                { label: "Active", val: "Active", count: trials.filter(t => t.status === "Active").length },
+                { label: "Completed", val: "Completed", count: trials.filter(t => t.status === "Completed").length },
+                { label: "Terminated", val: "Terminated", count: trials.filter(t => t.status === "Terminated").length },
+              ].map(f => {
+                const active = trialFilter === f.val
+                return (
+                  <button key={f.val} onClick={() => setTrialFilter(f.val)} className={cn("springy shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95", active ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground")}>
+                    {f.label} <span className={cn("tabular-nums", active ? "text-primary-foreground/80" : "text-muted-foreground/60")}>{f.count}</span>
+                  </button>
+                )
+              })}
             </div>
-            <div className="space-y-3">
-              {filteredTrials.map(t => (
-                <div key={t.id} onClick={() => setSelectedTrial(t)} className="bg-card rounded-2xl border border-border p-4 shadow-xs cursor-pointer">
-                  {/* Protocol ID + Status */}
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-0.5 bg-info/10 text-info text-xs rounded-full font-medium">{t.id}</span>
-                    <div className="flex items-center gap-2"><StatusBadge status={t.status} /><ChevronRight className="w-4 h-4 text-muted-foreground/70" /></div>
+            {/* Trial list */}
+            <div key={`${trialFilter}-${phaseFilter}-${trialSearch}`} className="space-y-3">
+              {filteredTrials.length === 0 ? (
+                <div className="rounded-3xl border border-border bg-card p-10 text-center shadow-xs animate-rise">
+                  <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground/50">
+                    <FlaskConical className="h-6 w-6" />
                   </div>
-                  {/* Phase · Disease · Drug · Sites */}
-                  <div className="grid grid-cols-2 gap-y-1.5 gap-x-3 mb-3">
-                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Phase</p><p className="text-xs font-medium text-foreground">{t.phase}</p></div>
-                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Disease</p><p className="text-xs font-medium text-foreground">{t.indication}</p></div>
-                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Drug</p><p className="text-xs font-medium text-foreground">{t.drug}</p></div>
-                    <div><p className="text-[10px] text-muted-foreground/70 uppercase tracking-wide">Sites</p><p className="text-xs font-medium text-foreground">{t.sites}</p></div>
-                  </div>
-                  {/* Study Title */}
-                  <p className="text-xs font-normal text-muted-foreground leading-relaxed mb-3">{t.name}</p>
-                  {/* Enrollment Bar */}
-                  <ProgressBar value={Math.round((t.enrolled / t.target) * 100)} />
-                  <p className="text-xs text-muted-foreground mt-1">{t.enrolled}/{t.target} enrolled</p>
+                  <p className="font-heading text-foreground text-base mt-3">No trials found</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Try a different search or filter.</p>
                 </div>
-              ))}
+              ) : filteredTrials.map((t, i) => {
+                const pct = Math.round((t.enrolled / t.target) * 100)
+                return (
+                  <button key={t.id} onClick={() => setSelectedTrial(t)} className="springy group relative w-full overflow-hidden text-left bg-card rounded-3xl border border-border p-4 pl-5 shadow-sm active:scale-[0.99] hover:shadow-md animate-rise" style={{ animationDelay: `${i * 70}ms` }}>
+                    <span className="absolute left-0 top-0 bottom-0 w-1.5 dawn-gradient" />
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="font-mono text-xs font-semibold text-primary bg-secondary/50 px-2.5 py-1 rounded-full">{t.id}</span>
+                      <div className="flex items-center gap-1.5">
+                        <StatusBadge status={t.status} />
+                        <span className="grid h-7 w-7 place-items-center rounded-full bg-muted text-muted-foreground/70 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                          <ArrowUpRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </div>
+                    <h4 className="font-heading text-foreground text-base leading-snug mb-2.5 line-clamp-2">{t.name}</h4>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {[
+                        { val: t.phase, cls: "bg-info/10 text-info" },
+                        { val: t.indication, cls: "bg-accent/12 text-accent" },
+                        { val: t.drug, cls: "bg-violet/10 text-violet" },
+                        { val: `${t.sites} sites`, cls: "bg-muted text-muted-foreground" },
+                      ].map(c => <span key={c.val} className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", c.cls)}>{c.val}</span>)}
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] mb-1">
+                      <span className="text-muted-foreground">Enrolled</span>
+                      <span className="font-mono font-semibold text-foreground">{t.enrolled}/{t.target} · {pct}%</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full dawn-gradient animate-fill-bar" style={{ width: `${pct}%` }} />
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -1117,40 +1288,74 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
         )}
 
         {/* ── NOTIFS TAB ── */}
-        {activeTab === "notifs" && (
-          <div className="px-4 pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-lg text-foreground">Notifications</h2>
-              <button onClick={() => setNotifications(prev => prev.map(n => ({ ...n, unread: false })))} className="text-info text-sm font-medium">Mark All Read</button>
-            </div>
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4">
-              {["All", "Trials", "Sites", "Recruitment", "System"].map(f => (
-                <button key={f} onClick={() => setNotifFilter(f)} className={cn("flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border", notifFilter === f ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}>{f}</button>
-              ))}
-            </div>
-            <div className="space-y-2">
-              {notifications.map(n => {
-                const iconInfo = notifIconMap[n.type] || notifIconMap.system
-                const Icon = iconInfo.icon
-                return (
-                  <div key={n.id} onClick={() => setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, unread: false } : x))} className={cn("bg-card rounded-xl border p-3 flex gap-3 cursor-pointer", n.unread ? "border-info/20 bg-surface" : "border-border")}>
-                    {n.unread && <div className="w-2 h-2 rounded-full bg-info mt-1.5 flex-shrink-0" />}
-                    <div className={cn("w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0", iconInfo.bg, !n.unread && "opacity-70")}>
-                      <Icon className={cn("w-4 h-4", iconInfo.color)} />
+        {activeTab === "notifs" && (() => {
+          const typeFor: Record<string, string[]> = {
+            Trials: ["trial"], Sites: ["site"], Recruitment: ["milestone", "overdue"], System: ["system"],
+          }
+          const filteredNotifs = notifFilter === "All" ? notifications : notifications.filter(n => (typeFor[notifFilter] ?? []).includes(n.type))
+          return (
+            <div className="px-4 pt-4">
+              {/* Header — unread count + mark all */}
+              <div className="flex items-center justify-between mb-3 animate-rise" style={{ animationDelay: "20ms" }}>
+                <div className="flex items-center gap-2">
+                  <span className="h-3.5 w-1 rounded-full dawn-gradient" />
+                  <p className="eyebrow text-muted-foreground">{unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}</p>
+                </div>
+                {unreadCount > 0 && (
+                  <button onClick={() => setNotifications(prev => prev.map(n => ({ ...n, unread: false })))} className="springy text-info text-sm font-semibold active:scale-95">Mark all read</button>
+                )}
+              </div>
+              {/* Filter chips (now functional) */}
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1 mb-4 animate-rise" style={{ animationDelay: "70ms" }}>
+                {["All", "Trials", "Sites", "Recruitment", "System"].map(f => {
+                  const active = notifFilter === f
+                  return (
+                    <button key={f} onClick={() => setNotifFilter(f)} className={cn("springy shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95", active ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground")}>{f}</button>
+                  )
+                })}
+              </div>
+              {/* List — re-animates on filter change */}
+              <div key={notifFilter} className="space-y-2.5">
+                {filteredNotifs.length === 0 && (
+                  <div className="rounded-3xl border border-border bg-card p-10 text-center shadow-xs animate-rise">
+                    <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground/50">
+                      <Bell className="h-6 w-6" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-sm text-foreground leading-tight">{n.title}</p>
-                        <p className="text-xs text-muted-foreground/70 flex-shrink-0">{n.time}</p>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.message}</p>
-                    </div>
+                    <p className="font-heading text-foreground text-base mt-3">Nothing here</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">No notifications in this category.</p>
                   </div>
-                )
-              })}
+                )}
+                {filteredNotifs.map((n, i) => {
+                  const iconInfo = notifIconMap[n.type] || notifIconMap.system
+                  const Icon = iconInfo.icon
+                  return (
+                    <button
+                      key={n.id}
+                      onClick={() => setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, unread: false } : x))}
+                      className={cn("springy relative w-full overflow-hidden text-left rounded-2xl border bg-card p-3 pl-4 shadow-xs flex gap-3 active:scale-[0.99] animate-rise", n.unread ? "border-border" : "border-border opacity-70")}
+                      style={{ animationDelay: `${i * 60}ms` }}
+                    >
+                      {n.unread && <span className="absolute left-0 top-0 bottom-0 w-1.5 dawn-gradient" />}
+                      <div className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", iconInfo.bg)}>
+                        <Icon className={cn("w-4 h-4", iconInfo.color)} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-semibold text-sm text-foreground leading-tight">{n.title}</p>
+                          <span className="flex items-center gap-1.5 shrink-0">
+                            {n.unread && <span className="h-2 w-2 rounded-full bg-destructive" />}
+                            <span className="text-[11px] text-muted-foreground/70">{n.time}</span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.message}</p>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* ── ME TAB ── */}
         {activeTab === "me" && (

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, ChevronDown, Camera, User, Lock, Globe, Bell, FileText, Shield, ShieldCheck, HelpCircle, LogOut, AlertTriangle, Eye, EyeOff, Check, X, MessageCircle, Mail, Phone, Clock, Ticket } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown, Camera, User, Lock, Globe, Bell, FileText, Shield, ShieldCheck, HelpCircle, LogOut, AlertTriangle, Eye, EyeOff, Check, X, MessageCircle, Mail, Phone, Clock, Ticket, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
 import { toast } from "sonner"
@@ -66,7 +66,7 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   ]
 
   // Language
-  const languages = ["English", "Hindi — हिंदी", "Tamil — தமிழ்", "Telugu — తెలుగు", "Kannada — ಕನ್ನಡ", "Malayalam — മലയാളം", "Bengali — বাংলা", "Marathi — मराठी"]
+  const languages = ["English", "Hindi — हिंदी", "Tamil — தமிழ்", "Telugu — తెలుగు", "Kannada — ಕನ್ನಡ", "Malayalam — മലയാളം", "Bengali — বাংলা", "Marathi — मराठী"]
   const [selectedLanguage, setSelectedLanguage] = useState("English")
 
   // Contact Support form
@@ -105,82 +105,96 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
     return age
   }
 
+  const initials = profile.fullName.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() ?? "").join("") || "PK"
+
   // ── HELPERS ──────────────────────────────────────────────
   const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
-    <button onClick={onToggle} className={cn("relative w-11 h-6 rounded-full transition-colors flex-shrink-0", on ? "bg-accent" : "bg-border")}>
+    <button onClick={onToggle} className={cn("springy relative w-11 h-6 rounded-full transition-colors flex-shrink-0 active:scale-95", on ? "dawn-gradient" : "bg-border")}>
       <div className={cn("absolute top-1 w-4 h-4 bg-card rounded-full shadow transition-transform", on ? "translate-x-6" : "translate-x-1")} />
     </button>
   )
 
-  const SubBar = ({ title, onPress, rightLabel, rightAction }: { title: string; onPress: () => void; rightLabel?: string; rightAction?: () => void }) => (
-    <div className="bg-card border-b border-border px-4 py-4 flex items-center gap-3">
-      <button onClick={onPress} className="p-1"><ChevronLeft className="w-6 h-6 text-primary-deep" /></button>
-      <span className="flex-1 text-center font-bold text-primary-deep text-[17px]">{title}</span>
-      {rightLabel ? (
-        <button onClick={rightAction} className="text-info text-sm font-bold">{rightLabel}</button>
-      ) : (
-        <div className="w-8" />
-      )}
+  // Dawn app bar reused by every sub-screen. Optional right action (e.g. Save).
+  const SubBar = ({ title, eyebrow = "Profile & settings", onPress, rightLabel, rightAction }: { title: string; eyebrow?: string; onPress: () => void; rightLabel?: string; rightAction?: () => void }) => (
+    <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+      <div className="relative flex items-center gap-3">
+        <button onClick={onPress} aria-label="Back" className="springy p-1.5 -ml-1.5 rounded-full active:scale-90 hover:bg-white/10">
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <p className="eyebrow text-primary-foreground/55">{eyebrow}</p>
+          <h1 className="display-serif text-lg leading-tight truncate">{title}</h1>
+        </div>
+        {rightLabel && (
+          <button onClick={rightAction} className="springy rounded-full bg-white/15 backdrop-blur-sm px-3.5 py-1.5 text-sm font-semibold active:scale-95">
+            {rightLabel}
+          </button>
+        )}
+      </div>
     </div>
   )
+
+  const fieldClass = "w-full px-4 py-3 rounded-xl border border-border bg-card text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
 
   // ── SUB-SCREENS ──────────────────────────────────────────
 
   if (section === "edit-profile") {
     return (
-      <div className="h-full flex flex-col bg-surface">
+      <div className="h-full flex flex-col bg-background">
         <SubBar title="Edit Profile" onPress={() => setSection("main")} rightLabel="Save" rightAction={saveProfile} />
-        <div className="flex-1 overflow-auto px-4 py-5 space-y-4">
-          <div className="flex justify-center mb-2">
+        <div className="flex-1 overflow-auto px-4 py-5 space-y-4 scrollbar-hide">
+          <div className="flex justify-center mb-1 animate-rise" style={{ animationDelay: "40ms" }}>
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-violet flex items-center justify-center">
-                <span className="text-white font-bold text-2xl font-[family-name:var(--font-heading)]">PK</span>
+              <div className="w-20 h-20 rounded-full dawn-gradient hero-glow flex items-center justify-center shadow-md">
+                <span className="text-primary-foreground font-bold text-2xl font-heading">{initials}</span>
               </div>
-              <button className="absolute bottom-0 right-0 w-7 h-7 bg-card rounded-full border border-border flex items-center justify-center shadow">
-                <Camera className="w-4 h-4 text-info" />
+              <button className="springy absolute bottom-0 right-0 w-7 h-7 bg-card rounded-full border border-border flex items-center justify-center shadow active:scale-90">
+                <Camera className="w-4 h-4 text-primary" />
               </button>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Full Name *</label>
-            <input value={profile.fullName} onChange={e => setProfile({ ...profile, fullName: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Date of Birth *</label>
-            <input type="date" value={profile.dob} onChange={e => setProfile({ ...profile, dob: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Gender *</label>
-            <select value={profile.gender} onChange={e => setProfile({ ...profile, gender: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card">
-              <option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Phone Number</label>
-            <div className="flex gap-2">
-              <div className="px-4 py-3 rounded-xl border border-border bg-surface text-muted-foreground text-sm font-medium">+91</div>
-              <input value={profile.phone} onChange={e => setProfile({ ...profile, phone: e.target.value })}
-                className="flex-1 px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary" />
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-4 animate-rise" style={{ animationDelay: "110ms" }}>
+            <div>
+              <label className="eyebrow text-muted-foreground mb-1.5 block">Full Name *</label>
+              <input value={profile.fullName} onChange={e => setProfile({ ...profile, fullName: e.target.value })} className={fieldClass} />
             </div>
-            <div className="mt-1.5 bg-warning/10 border border-warning/20 rounded-xl p-2.5 flex items-start gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-warning">Changing this will notify your research team and require OTP verification</p>
+            <div>
+              <label className="eyebrow text-muted-foreground mb-1.5 block">Date of Birth *</label>
+              <input type="date" value={profile.dob} onChange={e => setProfile({ ...profile, dob: e.target.value })} className={fieldClass} />
+            </div>
+            <div>
+              <label className="eyebrow text-muted-foreground mb-1.5 block">Gender *</label>
+              <select value={profile.gender} onChange={e => setProfile({ ...profile, gender: e.target.value })} className={fieldClass}>
+                <option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option>
+              </select>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Email ID</label>
-            <input type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary" />
-            <div className="mt-1.5 bg-warning/10 border border-warning/20 rounded-xl p-2.5 flex items-start gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-warning">Changing this will notify your research team and require OTP verification</p>
+
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-4 animate-rise" style={{ animationDelay: "200ms" }}>
+            <p className="eyebrow text-muted-foreground">Contact — verified channels</p>
+            <div>
+              <label className="text-sm font-medium text-foreground/80 mb-1.5 block">Phone Number</label>
+              <div className="flex gap-2">
+                <div className="px-4 py-3 rounded-xl border border-border bg-surface text-muted-foreground text-sm font-medium font-mono">+91</div>
+                <input value={profile.phone} onChange={e => setProfile({ ...profile, phone: e.target.value })} className={cn(fieldClass, "flex-1")} />
+              </div>
+              <div className="mt-2 bg-warning/10 border border-warning/20 rounded-xl p-2.5 flex items-start gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-warning">Changing this will notify your research team and require OTP verification</p>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground/80 mb-1.5 block">Email ID</label>
+              <input type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} className={fieldClass} />
+              <div className="mt-2 bg-warning/10 border border-warning/20 rounded-xl p-2.5 flex items-start gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-warning">Changing this will notify your research team and require OTP verification</p>
+              </div>
             </div>
           </div>
-          <button onClick={saveProfile} className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">Save Changes</button>
+
+          <button onClick={saveProfile} className="springy w-full bg-primary-deep text-primary-foreground py-3.5 rounded-xl font-semibold text-sm active:scale-[0.98]">Save Changes</button>
         </div>
       </div>
     )
@@ -188,17 +202,17 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
 
   if (section === "change-password") {
     return (
-      <div className="h-full flex flex-col bg-surface">
+      <div className="h-full flex flex-col bg-background">
         <SubBar title="Change Password" onPress={() => setSection("main")} />
-        <div className="flex-1 overflow-auto px-4 py-5 space-y-4">
+        <div className="flex-1 overflow-auto px-4 py-5 space-y-4 scrollbar-hide">
           {/* Current Password */}
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Current Password *</label>
+          <div className="animate-rise" style={{ animationDelay: "40ms" }}>
+            <label className="eyebrow text-muted-foreground mb-1.5 block">Current Password *</label>
             <div className="relative">
               <input type={showPass.current ? "text" : "password"} value={passwords.current}
                 onChange={e => setPasswords({ ...passwords, current: e.target.value })}
                 placeholder="Enter current password"
-                className="w-full px-4 py-3 pr-12 rounded-xl border border-border text-sm outline-none focus:border-primary" />
+                className={cn(fieldClass, "pr-12")} />
               <button onClick={() => setShowPass({ ...showPass, current: !showPass.current })}
                 className="absolute right-3 top-1/2 -translate-y-1/2">
                 {showPass.current ? <EyeOff className="w-5 h-5 text-muted-foreground/70" /> : <Eye className="w-5 h-5 text-muted-foreground/70" />}
@@ -206,68 +220,69 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
             </div>
           </div>
 
-          {/* New Password */}
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">New Password *</label>
+          {/* New Password + strength */}
+          <div className="animate-rise" style={{ animationDelay: "110ms" }}>
+            <label className="eyebrow text-muted-foreground mb-1.5 block">New Password *</label>
             <div className="relative">
               <input type={showPass.new ? "text" : "password"} value={passwords.new}
                 onChange={e => setPasswords({ ...passwords, new: e.target.value })}
                 placeholder="Enter new password"
-                className="w-full px-4 py-3 pr-12 rounded-xl border border-border text-sm outline-none focus:border-primary" />
+                className={cn(fieldClass, "pr-12")} />
               <button onClick={() => setShowPass({ ...showPass, new: !showPass.new })}
                 className="absolute right-3 top-1/2 -translate-y-1/2">
                 {showPass.new ? <EyeOff className="w-5 h-5 text-muted-foreground/70" /> : <Eye className="w-5 h-5 text-muted-foreground/70" />}
               </button>
             </div>
             {passwords.new.length > 0 && (
-              <div className="mt-2">
-                <div className="flex gap-1 mb-1">
+              <div className="mt-2.5">
+                <div className="flex gap-1 mb-1.5">
                   {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className={cn("h-1.5 flex-1 rounded-full", passStrength >= i ? passStrengthColor : "bg-border")} />
+                    <div key={i} className={cn("h-1.5 flex-1 rounded-full transition-colors", passStrength >= i ? passStrengthColor : "bg-border")} />
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">Password Strength: {passStrengthLabel}</p>
+                <p className="text-xs text-muted-foreground">Password strength: <span className="font-semibold text-foreground">{passStrengthLabel}</span></p>
               </div>
             )}
           </div>
 
           {/* Rules checklist */}
-          <div className="space-y-1.5">
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-2 animate-rise" style={{ animationDelay: "200ms" }}>
+            <p className="eyebrow text-muted-foreground mb-1">Requirements</p>
             {passwordRules.map((rule, i) => {
               const met = rule.test(passwords.new)
               return (
-                <div key={i} className="flex items-center gap-2">
-                  {met
-                    ? <Check className="w-4 h-4 text-success flex-shrink-0" />
-                    : <X className="w-4 h-4 text-destructive flex-shrink-0" />}
-                  <span className={cn("text-sm", met ? "text-success" : "text-destructive")}>{rule.label}</span>
+                <div key={i} className="flex items-center gap-2.5">
+                  <span className={cn("grid h-5 w-5 place-items-center rounded-full flex-shrink-0", met ? "bg-success/15" : "bg-muted")}>
+                    {met ? <Check className="w-3 h-3 text-success" /> : <X className="w-3 h-3 text-muted-foreground/60" />}
+                  </span>
+                  <span className={cn("text-sm", met ? "text-foreground" : "text-muted-foreground")}>{rule.label}</span>
                 </div>
               )
             })}
           </div>
 
           {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Confirm New Password *</label>
+          <div className="animate-rise" style={{ animationDelay: "280ms" }}>
+            <label className="eyebrow text-muted-foreground mb-1.5 block">Confirm New Password *</label>
             <div className="relative">
               <input type={showPass.confirm ? "text" : "password"} value={passwords.confirm}
                 onChange={e => setPasswords({ ...passwords, confirm: e.target.value })}
                 placeholder="Confirm new password"
-                className="w-full px-4 py-3 pr-12 rounded-xl border border-border text-sm outline-none focus:border-primary" />
+                className={cn(fieldClass, "pr-12")} />
               <button onClick={() => setShowPass({ ...showPass, confirm: !showPass.confirm })}
                 className="absolute right-3 top-1/2 -translate-y-1/2">
                 {showPass.confirm ? <EyeOff className="w-5 h-5 text-muted-foreground/70" /> : <Eye className="w-5 h-5 text-muted-foreground/70" />}
               </button>
             </div>
             {passwords.confirm.length > 0 && (
-              <p className={cn("text-xs mt-1 flex items-center gap-1", passMatch ? "text-success" : "text-destructive")}>
+              <p className={cn("text-xs mt-1.5 flex items-center gap-1", passMatch ? "text-success" : "text-destructive")}>
                 {passMatch ? <><Check className="w-3.5 h-3.5" /> Passwords match</> : <><X className="w-3.5 h-3.5" /> Passwords do not match</>}
               </p>
             )}
           </div>
 
           <button disabled={!canUpdatePass}
-            className={cn("w-full py-3.5 rounded-xl font-semibold text-sm", canUpdatePass ? "bg-primary-deep text-white" : "bg-border text-muted-foreground/70")}>
+            className={cn("springy w-full py-3.5 rounded-xl font-semibold text-sm active:scale-[0.98]", canUpdatePass ? "bg-primary-deep text-primary-foreground" : "bg-muted text-muted-foreground/70")}>
             Update Password
           </button>
         </div>
@@ -276,115 +291,105 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   }
 
   if (section === "notification-prefs") {
+    const groups = [
+      {
+        title: "Visit Reminders", delay: "40ms",
+        items: [
+          { label: "Push Notifications", key: "visitPush" as const },
+          { label: "SMS Reminders",      key: "visitSMS"  as const },
+          { label: "Email Reminders",    key: "visitEmail" as const },
+        ],
+        remind: true,
+      },
+      {
+        title: "Medication Reminders", delay: "110ms",
+        items: [
+          { label: "Push Notifications", key: "medPush" as const },
+          { label: "SMS Reminders",      key: "medSMS"  as const },
+        ],
+      },
+      {
+        title: "General Notifications", delay: "200ms",
+        items: [
+          { label: "Trial Updates",        key: "trialUpdates" as const },
+          { label: "Messages from PI",     key: "piMessages"   as const },
+          { label: "System Notifications", key: "systemNotifs" as const },
+        ],
+      },
+    ]
     return (
-      <div className="h-full flex flex-col bg-surface">
-        <SubBar title="Notification Preferences" onPress={() => setSection("main")} />
-        <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-          {/* Visit Reminders */}
-          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3">
-            <p className="font-semibold text-foreground text-sm border-b border-border pb-2">Visit Reminders</p>
-            {[
-              { label: "Push Notifications", key: "visitPush" as const },
-              { label: "SMS Reminders",      key: "visitSMS"  as const },
-              { label: "Email Reminders",    key: "visitEmail" as const },
-            ].map(item => (
-              <div key={item.key} className="flex items-center justify-between">
-                <span className="text-sm text-foreground/80">{item.label}</span>
-                <Toggle on={notifPrefs[item.key]} onToggle={() => setNotifPrefs({ ...notifPrefs, [item.key]: !notifPrefs[item.key] })} />
-              </div>
-            ))}
-            <div className="pt-1">
-              <p className="text-sm text-foreground/80 mb-2">Remind me before visit:</p>
-              {[1, 2, 3].map(days => (
-                <label key={days} className="flex items-center gap-3 py-1.5 cursor-pointer">
-                  <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center", notifPrefs.visitRemindDays === days ? "border-info" : "border-border")}>
-                    {notifPrefs.visitRemindDays === days && <div className="w-2.5 h-2.5 rounded-full bg-info" />}
+      <div className="h-full flex flex-col bg-background">
+        <SubBar title="Notifications" onPress={() => setSection("main")} />
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-4 scrollbar-hide">
+          {groups.map(group => (
+            <div key={group.title} className="bg-card rounded-2xl border border-border shadow-xs p-4 animate-rise" style={{ animationDelay: group.delay }}>
+              <p className="eyebrow text-muted-foreground border-b border-border pb-2.5 mb-1">{group.title}</p>
+              <div className="divide-y divide-border/60">
+                {group.items.map(item => (
+                  <div key={item.key} className="flex items-center justify-between py-3">
+                    <span className="text-sm text-foreground/80">{item.label}</span>
+                    <Toggle on={notifPrefs[item.key]} onToggle={() => setNotifPrefs({ ...notifPrefs, [item.key]: !notifPrefs[item.key] })} />
                   </div>
-                  <span className="text-sm text-foreground/80">{days} day{days > 1 ? "s" : ""} before</span>
-                </label>
-              ))}
+                ))}
+              </div>
+              {group.remind && (
+                <div className="pt-3">
+                  <p className="text-sm text-foreground/80 mb-2">Remind me before visit</p>
+                  <div className="flex gap-2">
+                    {[1, 2, 3].map(days => {
+                      const active = notifPrefs.visitRemindDays === days
+                      return (
+                        <button key={days} onClick={() => setNotifPrefs({ ...notifPrefs, visitRemindDays: days })}
+                          className={cn("springy flex-1 rounded-xl border py-2.5 text-sm font-medium active:scale-95", active ? "border-primary bg-primary/8 text-primary" : "border-border text-muted-foreground")}>
+                          {days} day{days > 1 ? "s" : ""}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          ))}
 
-          {/* Medication Reminders */}
-          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3">
-            <p className="font-semibold text-foreground text-sm border-b border-border pb-2">Medication Reminders</p>
-            {[
-              { label: "Push Notifications", key: "medPush" as const },
-              { label: "SMS Reminders",      key: "medSMS"  as const },
-            ].map(item => (
-              <div key={item.key} className="flex items-center justify-between">
-                <span className="text-sm text-foreground/80">{item.label}</span>
-                <Toggle on={notifPrefs[item.key]} onToggle={() => setNotifPrefs({ ...notifPrefs, [item.key]: !notifPrefs[item.key] })} />
-              </div>
-            ))}
-          </div>
-
-          {/* General */}
-          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3">
-            <p className="font-semibold text-foreground text-sm border-b border-border pb-2">General Notifications</p>
-            {[
-              { label: "Trial Updates",       key: "trialUpdates"  as const },
-              { label: "Messages from PI",    key: "piMessages"    as const },
-              { label: "System Notifications",key: "systemNotifs"  as const },
-            ].map(item => (
-              <div key={item.key} className="flex items-center justify-between">
-                <span className="text-sm text-foreground/80">{item.label}</span>
-                <Toggle on={notifPrefs[item.key]} onToggle={() => setNotifPrefs({ ...notifPrefs, [item.key]: !notifPrefs[item.key] })} />
-              </div>
-            ))}
-          </div>
-
-          <button className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">Save Preferences</button>
+          <button onClick={() => { toast.success("Preferences saved"); setSection("main") }} className="springy w-full bg-primary-deep text-primary-foreground py-3.5 rounded-xl font-semibold text-sm active:scale-[0.98]">Save Preferences</button>
         </div>
       </div>
     )
   }
 
-  if (section === "terms") {
+  if (section === "terms" || section === "privacy") {
+    const isTerms = section === "terms"
+    const blocks = isTerms
+      ? [
+          { h: "1. Use of Application", p: "This application is designed to help patients manage their clinical trial visit schedules, medication reminders, and communication with research teams." },
+          { h: "2. Privacy", p: "Your personal health information is protected and handled in accordance with applicable privacy laws including HIPAA and GDPR." },
+          { h: "3. Data Security", p: "We implement industry-standard security measures to protect your data. All communications are encrypted using TLS 1.3." },
+          { h: "4. Medical Disclaimer", p: "This application is for informational purposes only and does not replace professional medical advice. Always consult your healthcare provider." },
+          { h: "5. User Responsibilities", p: "You are responsible for keeping your login credentials confidential and for all activities under your account." },
+        ]
+      : [
+          { h: "Information We Collect", p: "We collect information you provide directly, including contact details, health information relevant to your trial participation, and usage data." },
+          { h: "How We Use Information", p: "Your information is used to manage your trial participation, send reminders, and facilitate communication with your research team." },
+          { h: "Data Sharing", p: "Your data is shared only with your designated research team and the clinical trial sponsor as required by your trial protocol." },
+          { h: "Your Rights", p: "You have the right to access, correct, or request deletion of your personal data at any time by contacting your research team." },
+        ]
     return (
-      <div className="h-full flex flex-col bg-surface">
-        <SubBar title="Terms & Conditions" onPress={() => setSection("main")} />
-        <div className="flex-1 overflow-auto px-4 py-4">
-          <p className="text-[13px] text-muted-foreground mb-4">Version 2.1 · Effective 1 Jan 2025</p>
-          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3 text-sm text-foreground/80">
-            <h3 className="font-semibold text-foreground">1. Use of Application</h3>
-            <p>This application is designed to help patients manage their clinical trial visit schedules, medication reminders, and communication with research teams.</p>
-            <h3 className="font-semibold text-foreground">2. Privacy</h3>
-            <p>Your personal health information is protected and handled in accordance with applicable privacy laws including HIPAA and GDPR.</p>
-            <h3 className="font-semibold text-foreground">3. Data Security</h3>
-            <p>We implement industry-standard security measures to protect your data. All communications are encrypted using TLS 1.3.</p>
-            <h3 className="font-semibold text-foreground">4. Medical Disclaimer</h3>
-            <p>This application is for informational purposes only and does not replace professional medical advice. Always consult your healthcare provider.</p>
-            <h3 className="font-semibold text-foreground">5. User Responsibilities</h3>
-            <p>You are responsible for keeping your login credentials confidential and for all activities under your account.</p>
-            <div className="flex items-center gap-2 mt-4 text-success">
-              <Check className="w-4 h-4" />
-              <span className="text-sm font-medium">You accepted this on 15 March 2025</span>
-            </div>
+      <div className="h-full flex flex-col bg-background">
+        <SubBar title={isTerms ? "Terms & Conditions" : "Privacy Policy"} eyebrow="Legal" onPress={() => setSection("main")} />
+        <div className="flex-1 overflow-auto px-4 py-4 scrollbar-hide">
+          <div className="flex items-center justify-between mb-4 animate-rise" style={{ animationDelay: "40ms" }}>
+            <span className="eyebrow text-muted-foreground">Version 2.1</span>
+            <span className="text-xs text-muted-foreground font-mono">Effective 01 Jan 2025</span>
           </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (section === "privacy") {
-    return (
-      <div className="h-full flex flex-col bg-surface">
-        <SubBar title="Privacy Policy" onPress={() => setSection("main")} />
-        <div className="flex-1 overflow-auto px-4 py-4">
-          <p className="text-[13px] text-muted-foreground mb-4">Version 2.1 · Effective 1 Jan 2025</p>
-          <div className="bg-card rounded-2xl border border-border shadow-xs p-4 space-y-3 text-sm text-foreground/80">
-            <h3 className="font-semibold text-foreground">Information We Collect</h3>
-            <p>We collect information you provide directly, including contact details, health information relevant to your trial participation, and usage data.</p>
-            <h3 className="font-semibold text-foreground">How We Use Information</h3>
-            <p>Your information is used to manage your trial participation, send reminders, and facilitate communication with your research team.</p>
-            <h3 className="font-semibold text-foreground">Data Sharing</h3>
-            <p>Your data is shared only with your designated research team and the clinical trial sponsor as required by your trial protocol.</p>
-            <h3 className="font-semibold text-foreground">Your Rights</h3>
-            <p>You have the right to access, correct, or request deletion of your personal data at any time by contacting your research team.</p>
-            <div className="flex items-center gap-2 mt-4 text-success">
-              <Check className="w-4 h-4" />
+          <div className="space-y-3">
+            {blocks.map((b, i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-4 shadow-xs animate-rise" style={{ animationDelay: `${110 + i * 60}ms` }}>
+                <h3 className="font-heading text-base text-foreground mb-1.5">{b.h}</h3>
+                <p className="text-sm leading-relaxed text-foreground/80">{b.p}</p>
+              </div>
+            ))}
+            <div className="flex items-center gap-2.5 rounded-2xl border border-success/25 bg-success/8 p-4 text-success animate-rise" style={{ animationDelay: `${110 + blocks.length * 60}ms` }}>
+              <Check className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium">You accepted this on 15 March 2025</span>
             </div>
           </div>
@@ -395,23 +400,26 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
 
   if (section === "faq") {
     return (
-      <div className="h-full flex flex-col bg-surface">
-        <SubBar title="FAQ" onPress={() => setSection("help")} />
-        <div className="flex-1 overflow-auto px-4 py-4 space-y-2">
-          {faqs.map((faq, i) => (
-            <div key={i} className="bg-card rounded-2xl overflow-hidden">
-              <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full px-4 py-4 flex items-center justify-between gap-3 text-left">
-                <span className="text-sm font-medium text-foreground">{faq.q}</span>
-                <ChevronDown className={cn("w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform", openFaq === i && "rotate-180")} />
-              </button>
-              {openFaq === i && (
-                <div className="px-4 pb-4">
-                  <p className="text-sm text-muted-foreground">{faq.a}</p>
-                </div>
-              )}
-            </div>
-          ))}
+      <div className="h-full flex flex-col bg-background">
+        <SubBar title="FAQ" eyebrow="Help & support" onPress={() => setSection("help")} />
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-2.5 scrollbar-hide">
+          {faqs.map((faq, i) => {
+            const open = openFaq === i
+            return (
+              <div key={i} className={cn("rounded-2xl border bg-card shadow-xs overflow-hidden transition-colors animate-rise", open ? "border-primary/40" : "border-border")} style={{ animationDelay: `${40 + i * 60}ms` }}>
+                <button onClick={() => setOpenFaq(open ? null : i)}
+                  className="w-full px-4 py-4 flex items-center justify-between gap-3 text-left">
+                  <span className={cn("text-sm font-medium", open ? "text-primary" : "text-foreground")}>{faq.q}</span>
+                  <ChevronDown className={cn("w-5 h-5 flex-shrink-0 transition-transform", open ? "rotate-180 text-primary" : "text-muted-foreground")} />
+                </button>
+                {open && (
+                  <div className="px-4 pb-4">
+                    <p className="text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
     )
@@ -420,48 +428,47 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   if (section === "contact-support") {
     if (ticketSubmitted) {
       return (
-        <div className="h-full flex flex-col bg-surface">
-          <SubBar title="Contact Support" onPress={() => { setSection("help"); setTicketSubmitted(false) }} />
+        <div className="h-full flex flex-col bg-background">
+          <SubBar title="Contact Support" eyebrow="Help & support" onPress={() => { setSection("help"); setTicketSubmitted(false) }} />
           <div className="flex-1 flex flex-col items-center justify-center px-6 gap-4 text-center">
-            <div className="w-16 h-16 bg-success/15 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-success/15 rounded-full flex items-center justify-center animate-pop">
               <Check className="w-8 h-8 text-success" />
             </div>
-            <h3 className="font-bold text-foreground text-lg">Ticket Submitted!</h3>
+            <h3 className="font-heading text-foreground text-xl">Ticket Submitted!</h3>
             <p className="text-sm text-muted-foreground">We'll respond within 24 hours.</p>
-            <div className="bg-card rounded-xl px-4 py-3 border border-border">
-              <p className="text-xs text-muted-foreground">Ticket ID</p>
-              <p className="font-mono text-primary-deep font-semibold">{lastTicketId}</p>
+            <div className="bg-card rounded-2xl px-5 py-3 border border-border shadow-xs">
+              <p className="eyebrow text-muted-foreground">Ticket ID</p>
+              <p className="font-mono text-primary-deep font-semibold mt-0.5">{lastTicketId}</p>
             </div>
-            <button onClick={() => setSection("tickets")} className="text-sm text-info font-medium">View my tickets</button>
+            <button onClick={() => setSection("tickets")} className="text-sm text-info font-semibold">View my tickets →</button>
           </div>
         </div>
       )
     }
     return (
-      <div className="h-full flex flex-col bg-surface">
-        <SubBar title="Contact Support" onPress={() => setSection("help")} />
-        <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Issue Category</label>
-            <select value={contactForm.category} onChange={e => setContactForm({ ...contactForm, category: e.target.value })}
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary bg-card">
-              <option>Login Issue</option><option>Notification Problem</option><option>App Bug</option><option>Visit Query</option><option>Other</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Subject</label>
-            <input value={contactForm.subject} onChange={e => setContactForm({ ...contactForm, subject: e.target.value })}
-              placeholder="Brief subject"
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground/80 mb-1.5">Description</label>
-            <textarea rows={5} value={contactForm.description} onChange={e => setContactForm({ ...contactForm, description: e.target.value })}
-              placeholder="Describe your issue in detail..."
-              className="w-full px-4 py-3 rounded-xl border border-border text-sm outline-none focus:border-primary resize-none" />
+      <div className="h-full flex flex-col bg-background">
+        <SubBar title="Contact Support" eyebrow="Help & support" onPress={() => setSection("help")} />
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-4 scrollbar-hide">
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-4 animate-rise" style={{ animationDelay: "40ms" }}>
+            <div>
+              <label className="eyebrow text-muted-foreground mb-1.5 block">Issue Category</label>
+              <select value={contactForm.category} onChange={e => setContactForm({ ...contactForm, category: e.target.value })} className={fieldClass}>
+                <option>Login Issue</option><option>Notification Problem</option><option>App Bug</option><option>Visit Query</option><option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="eyebrow text-muted-foreground mb-1.5 block">Subject</label>
+              <input value={contactForm.subject} onChange={e => setContactForm({ ...contactForm, subject: e.target.value })}
+                placeholder="Brief subject" className={fieldClass} />
+            </div>
+            <div>
+              <label className="eyebrow text-muted-foreground mb-1.5 block">Description</label>
+              <textarea rows={5} value={contactForm.description} onChange={e => setContactForm({ ...contactForm, description: e.target.value })}
+                placeholder="Describe your issue in detail..." className={cn(fieldClass, "resize-none")} />
+            </div>
           </div>
           <button onClick={handleSubmitTicket}
-            className="w-full bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">
+            className="springy w-full bg-primary-deep text-primary-foreground py-3.5 rounded-xl font-semibold text-sm active:scale-[0.98]">
             Submit Ticket
           </button>
         </div>
@@ -471,26 +478,29 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
 
   if (section === "tickets") {
     return (
-      <div className="h-full flex flex-col bg-surface">
-        <SubBar title="My Tickets" onPress={() => setSection("help")} />
-        <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+      <div className="h-full flex flex-col bg-background">
+        <SubBar title="My Tickets" eyebrow="Help & support" onPress={() => setSection("help")} />
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-3 scrollbar-hide">
           {tickets.length === 0 && (
-            <p className="text-sm text-muted-foreground/70 bg-card rounded-2xl border border-border p-6 text-center">You haven't raised any tickets yet.</p>
+            <div className="flex flex-col items-center gap-2 bg-card rounded-2xl border border-border p-8 text-center shadow-xs">
+              <Ticket className="w-8 h-8 text-muted-foreground/40" />
+              <p className="text-sm text-muted-foreground/70">You haven't raised any tickets yet.</p>
+            </div>
           )}
-          {tickets.map(t => (
-            <div key={t.id} className="bg-card rounded-2xl border border-border shadow-sm p-4">
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="font-mono text-xs font-semibold text-primary-deep">{t.id}</span>
-                <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", ticketStatusStyle(t.status))}>{t.status}</span>
+          {tickets.map((tk, i) => (
+            <div key={tk.id} className="bg-card rounded-2xl border border-border shadow-xs p-4 animate-rise" style={{ animationDelay: `${40 + i * 60}ms` }}>
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <span className="font-mono text-xs font-semibold text-primary-deep">{tk.id}</span>
+                <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full", ticketStatusStyle(tk.status))}>{tk.status}</span>
               </div>
-              <p className="text-sm font-medium text-foreground">{t.subject}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t.category} · {t.date}</p>
+              <p className="text-sm font-medium text-foreground">{tk.subject}</p>
+              <p className="text-xs text-muted-foreground mt-1">{tk.category} · {tk.date}</p>
             </div>
           ))}
         </div>
         <div className="px-4 py-4 border-t border-border bg-card">
           <button onClick={() => { setTicketSubmitted(false); setSection("contact-support") }}
-            className="w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-white flex items-center justify-center gap-2">
+            className="springy w-full py-3.5 rounded-xl font-semibold text-sm bg-primary-deep text-primary-foreground flex items-center justify-center gap-2 active:scale-[0.98]">
             <MessageCircle className="w-4 h-4" /> Raise New Ticket
           </button>
         </div>
@@ -499,18 +509,19 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   }
 
   if (section === "help") {
+    const helpItems = [
+      { icon: HelpCircle,    bg: "bg-info/10",    ic: "text-info",    label: "Frequently Asked Questions", sub: "Browse common questions",   action: () => setSection("faq") },
+      { icon: MessageCircle, bg: "bg-success/15", ic: "text-success", label: "Contact Support",            sub: "Get help from our team",    action: () => setSection("contact-support") },
+      { icon: Ticket,        bg: "bg-violet/10",  ic: "text-violet",  label: "My Tickets",                 sub: "Track your raised tickets", action: () => setSection("tickets") },
+    ]
     return (
-      <div className="h-full flex flex-col bg-surface">
+      <div className="h-full flex flex-col bg-background">
         <SubBar title="Help & Support" onPress={() => setSection("main")} />
-        <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
-          {[
-            { icon: HelpCircle,    bg: "bg-info/10",    ic: "text-info",     label: "Frequently Asked Questions", sub: "Browse common questions",    action: () => setSection("faq") },
-            { icon: MessageCircle, bg: "bg-success/15", ic: "text-success",   label: "Contact Support",            sub: "Get help from our team",     action: () => setSection("contact-support") },
-            { icon: Ticket,        bg: "bg-violet/10",  ic: "text-violet",   label: "My Tickets",                 sub: "Track your raised tickets",  action: () => setSection("tickets") },
-          ].map((item, i) => {
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-3 scrollbar-hide">
+          {helpItems.map((item, i) => {
             const Icon = item.icon
             return (
-              <button key={i} onClick={item.action} className="w-full bg-card rounded-2xl p-4 flex items-center justify-between shadow-sm">
+              <button key={i} onClick={item.action} className="springy w-full bg-card rounded-2xl border border-border p-4 flex items-center justify-between shadow-xs active:scale-[0.99] animate-rise" style={{ animationDelay: `${40 + i * 60}ms` }}>
                 <div className="flex items-center gap-3">
                   <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", item.bg)}>
                     <Icon className={cn("w-5 h-5", item.ic)} />
@@ -525,12 +536,21 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
             )
           })}
 
-          <div className="bg-info/5 rounded-2xl p-4">
-            <p className="text-sm font-semibold text-primary mb-3">Contact Us</p>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">support@patientvisitschedule.com</span></div>
-              <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">1800-XXX-XXXX (Toll Free)</span></div>
-              <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-muted-foreground" /><span className="text-sm text-foreground/80">Mon – Fri, 9:00 AM – 6:00 PM</span></div>
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-xs animate-rise" style={{ animationDelay: "220ms" }}>
+            <p className="eyebrow text-primary mb-3">Contact Us</p>
+            <div className="space-y-2.5">
+              <a href="mailto:support@patientvisitschedule.com" className="springy flex items-center gap-2.5 active:scale-[0.99]">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-info/10"><Mail className="w-4 h-4 text-info" /></span>
+                <span className="text-sm text-foreground/80">support@patientvisitschedule.com</span>
+              </a>
+              <a href="tel:1800XXXXXXX" className="springy flex items-center gap-2.5 active:scale-[0.99]">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-success/15"><Phone className="w-4 h-4 text-success" /></span>
+                <span className="text-sm text-foreground/80">1800-XXX-XXXX (Toll Free)</span>
+              </a>
+              <div className="flex items-center gap-2.5">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-warning/15"><Clock className="w-4 h-4 text-warning" /></span>
+                <span className="text-sm text-foreground/80">Mon – Fri, 9:00 AM – 6:00 PM</span>
+              </div>
             </div>
           </div>
         </div>
@@ -539,110 +559,154 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
   }
 
   // ── MAIN SCREEN ──────────────────────────────────────────
-  const menuItems = [
-    { icon: User,        label: t("editProfile"),              action: () => setSection("edit-profile") },
-    { icon: Lock,        label: t("changePassword"),           action: () => setSection("change-password") },
-    { icon: Globe,       label: t("preferredLanguage"),        action: () => setShowLanguagePicker(true) },
-    { icon: Bell,        label: t("notificationPreferences"),  action: () => setSection("notification-prefs") },
-    { icon: FileText,    label: t("termsConditions"),          action: () => setSection("terms") },
-    { icon: Shield,      label: t("privacyPolicy"),            action: () => setSection("privacy") },
-    { icon: HelpCircle,  label: t("helpSupport"),              action: () => setSection("help") },
+  const infoRows: { label: string; val: string; verify?: boolean }[] = [
+    { label: "Date of birth", val: computeAge(profile.dob) != null ? `${formatDob(profile.dob)} · ${computeAge(profile.dob)} yrs` : formatDob(profile.dob) },
+    { label: "Gender", val: profile.gender },
+    { label: "Phone number", val: `+91 ${profile.phone}`, verify: true },
+    { label: "Email ID", val: profile.email, verify: true },
+    { label: "Preferred language", val: selectedLanguage },
+  ]
+
+  const menuGroups: { eyebrow: string; delay: string; items: { icon: typeof User; label: string; meta?: string; action: () => void }[] }[] = [
+    {
+      eyebrow: "Account", delay: "200ms",
+      items: [
+        { icon: User, label: t("editProfile"),    action: () => setSection("edit-profile") },
+        { icon: Lock, label: t("changePassword"), action: () => setSection("change-password") },
+      ],
+    },
+    {
+      eyebrow: "Preferences", delay: "280ms",
+      items: [
+        { icon: Globe, label: t("preferredLanguage"),       meta: selectedLanguage, action: () => setShowLanguagePicker(true) },
+        { icon: Bell,  label: t("notificationPreferences"),                          action: () => setSection("notification-prefs") },
+      ],
+    },
+    {
+      eyebrow: "Legal & support", delay: "360ms",
+      items: [
+        { icon: FileText,   label: t("termsConditions"), action: () => setSection("terms") },
+        { icon: Shield,     label: t("privacyPolicy"),   action: () => setSection("privacy") },
+        { icon: HelpCircle, label: t("helpSupport"),     action: () => setSection("help") },
+      ],
+    },
   ]
 
   return (
-    <div className="h-full flex flex-col bg-surface">
+    <div className="h-full flex flex-col bg-background">
       {/* App Bar */}
-      <div className="bg-card border-b border-border px-4 py-4 flex items-center gap-3">
-        {onBack && <button onClick={onBack} className="p-1"><ChevronLeft className="w-6 h-6 text-primary-deep" /></button>}
-        <span className="flex-1 text-center font-bold text-primary-deep text-[17px]">{t("profileSettings")}</span>
-        <div className="w-8" />
+      <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+        <div className="relative flex items-center gap-3">
+          {onBack && (
+            <button onClick={onBack} aria-label="Back" className="springy p-1.5 -ml-1.5 rounded-full active:scale-90 hover:bg-white/10">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          <div>
+            <p className="eyebrow text-primary-foreground/55">Account</p>
+            <h1 className="display-serif text-lg leading-tight">{t("profileSettings")}</h1>
+          </div>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        {/* Profile Header */}
-        <div className="bg-card px-4 py-6 flex flex-col items-center">
-          <div className="relative mb-3">
-            <div className="w-20 h-20 rounded-full bg-violet flex items-center justify-center">
-              <span className="text-white font-bold text-2xl font-[family-name:var(--font-heading)]">PK</span>
+      <div className="flex-1 overflow-auto scrollbar-hide px-4 py-4 space-y-4">
+        {/* Identity hero — the dawn gesture */}
+        <div className="dawn-gradient hero-glow paper-grain rounded-3xl p-5 text-primary-foreground shadow-md animate-rise" style={{ animationDelay: "40ms" }}>
+          <div className="relative flex items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
+                <span className="font-heading font-bold text-2xl">{initials}</span>
+              </div>
+              <button onClick={() => setSection("edit-profile")} aria-label="Change photo" className="springy absolute -bottom-1 -right-1 w-7 h-7 bg-card rounded-full border border-border flex items-center justify-center shadow active:scale-90">
+                <Camera className="w-3.5 h-3.5 text-primary" />
+              </button>
             </div>
-            <button className="absolute bottom-0 right-0 w-7 h-7 bg-card rounded-full border border-border flex items-center justify-center shadow">
-              <Camera className="w-4 h-4 text-info" />
-            </button>
+            <div className="min-w-0">
+              <h2 className="font-heading text-xl leading-tight truncate">{profile.fullName}</h2>
+              <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-sm px-2.5 py-0.5 text-xs font-semibold">
+                <Sparkles className="w-3 h-3" /> Patient
+              </span>
+            </div>
           </div>
-          <h2 className="font-bold text-foreground text-[18px] font-[family-name:var(--font-heading)]">{profile.fullName}</h2>
-          <span className="px-3 py-1 bg-info/10 text-info text-xs rounded-full font-semibold mt-1">Patient</span>
         </div>
 
         {/* Profile Info Card */}
-        <div className="mx-4 mt-3 bg-card rounded-2xl border border-border p-4 shadow-xs">
-          {[
-            { label: "Name", val: profile.fullName },
-            { label: "DOB / Age", val: computeAge(profile.dob) != null ? `${formatDob(profile.dob)} · ${computeAge(profile.dob)} yrs` : formatDob(profile.dob) },
-            { label: "Gender", val: profile.gender },
-            { label: "Phone No.", val: `+91 ${profile.phone}`, verify: true },
-            { label: "Email ID", val: profile.email, verify: true },
-            { label: "Preferred Language", val: selectedLanguage },
-          ].map(r => (
-            <div key={r.label} className="py-2 border-b border-border last:border-0">
-              <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
-                {r.label}
-                {r.verify && <ShieldCheck className="w-3 h-3 text-warning" />}
-              </p>
-              <p className="text-sm text-foreground font-medium mt-0.5">{r.val}</p>
-            </div>
-          ))}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "110ms" }}>
+          <p className="eyebrow text-muted-foreground mb-1">Personal details</p>
+          <div className="divide-y divide-border/60">
+            {infoRows.map(r => (
+              <div key={r.label} className="flex items-center justify-between gap-3 py-2.5">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  {r.label}
+                  {r.verify && <ShieldCheck className="w-3 h-3 text-success" />}
+                </p>
+                <p className="text-sm text-foreground font-medium text-right truncate">{r.val}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Menu Items */}
-        <div className="mx-4 mt-3 bg-card rounded-2xl border border-border divide-y divide-border shadow-xs overflow-hidden">
-          {menuItems.map((item, i) => {
-            const Icon = item.icon
-            return (
-              <button key={i} onClick={item.action}
-                className="w-full px-4 py-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-surface flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <span className="text-[15px] text-foreground">{item.label}</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-              </button>
-            )
-          })}
-        </div>
+        {/* Grouped settings */}
+        {menuGroups.map(group => (
+          <div key={group.eyebrow} className="animate-rise" style={{ animationDelay: group.delay }}>
+            <p className="eyebrow text-muted-foreground mb-2 px-1">{group.eyebrow}</p>
+            <div className="bg-card rounded-2xl border border-border divide-y divide-border shadow-xs overflow-hidden">
+              {group.items.map((item, i) => {
+                const Icon = item.icon
+                return (
+                  <button key={i} onClick={item.action}
+                    className="springy w-full px-4 py-3.5 flex items-center justify-between active:bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-secondary/60 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-5 h-5 text-primary" />
+                      </div>
+                      <span className="text-[15px] text-foreground">{item.label}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {item.meta && <span className="text-xs text-muted-foreground">{item.meta}</span>}
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
 
         {/* Logout */}
-        <div className="mx-4 mt-3 bg-card rounded-2xl border border-border shadow-xs overflow-hidden">
+        <div className="animate-rise" style={{ animationDelay: "440ms" }}>
           <button onClick={() => setShowLogoutDialog(true)}
-            className="w-full px-4 py-3.5 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0">
+            className="springy w-full bg-card rounded-2xl border border-destructive/20 shadow-xs px-4 py-3.5 flex items-center gap-3 active:scale-[0.99]">
+            <div className="w-9 h-9 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
               <LogOut className="w-5 h-5 text-destructive" />
             </div>
-            <span className="text-[15px] text-destructive font-medium">{t("logout")}</span>
+            <span className="text-[15px] text-destructive font-semibold">{t("logout")}</span>
           </button>
         </div>
 
         {/* Version Footer */}
-        <div className="text-center pt-6 pb-8">
-          <p className="text-[12px] text-muted-foreground">Patient Visit Schedule  v2.1.0</p>
-          <p className="text-[12px] text-muted-foreground">© 2025 MTB Health Technologies</p>
+        <div className="text-center pt-2 pb-4">
+          <p className="text-xs text-muted-foreground">Patient Visit Schedule · v2.1.0</p>
+          <p className="text-xs text-muted-foreground">© 2025 MTB Health Technologies</p>
         </div>
       </div>
 
       {/* Logout Confirmation Dialog */}
       {showLogoutDialog && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
-          <div className="bg-card rounded-2xl p-6 w-full max-w-xs shadow-xl">
-            <h3 className="font-bold text-foreground text-lg mb-2">Log Out?</h3>
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 p-6 animate-fade-in" onClick={() => setShowLogoutDialog(false)}>
+          <div className="bg-card rounded-3xl p-6 w-full max-w-xs shadow-xl animate-rise" onClick={e => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-3">
+              <LogOut className="w-6 h-6 text-destructive" />
+            </div>
+            <h3 className="font-heading text-foreground text-lg mb-1.5">Log Out?</h3>
             <p className="text-sm text-muted-foreground mb-5">Are you sure you want to log out of Patient Visit Schedule?</p>
             <div className="flex gap-3">
               <button onClick={() => setShowLogoutDialog(false)}
-                className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground/80">
+                className="springy flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground/80 active:scale-95">
                 Cancel
               </button>
               <button onClick={() => { setShowLogoutDialog(false); onLogout?.() }}
-                className="flex-1 py-2.5 rounded-xl bg-destructive text-white text-sm font-semibold">
+                className="springy flex-1 py-2.5 rounded-xl bg-destructive text-destructive-foreground text-sm font-semibold active:scale-95">
                 Log Out
               </button>
             </div>
@@ -652,25 +716,27 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
 
       {/* Language Picker Bottom Sheet */}
       {showLanguagePicker && (
-        <div className="absolute inset-0 bg-black/50 z-50 flex items-end">
-          <div className="bg-card rounded-t-3xl w-full p-5">
-            <h3 className="font-bold text-primary-deep text-base mb-4">{t("preferredLanguage")}</h3>
-            <div className="space-y-1 max-h-64 overflow-auto">
+        <div className="absolute inset-0 bg-black/50 z-50 flex items-end animate-fade-in" onClick={() => setShowLanguagePicker(false)}>
+          <div className="bg-card rounded-t-3xl w-full p-5 animate-rise" onClick={e => e.stopPropagation()}>
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
+            <h3 className="font-heading text-primary-deep text-lg mb-4">{t("preferredLanguage")}</h3>
+            <div className="space-y-1 max-h-64 overflow-auto scrollbar-hide">
               {languages.map((lang, i) => {
                 const key = lang.split(" ")[0]
+                const active = selectedLanguage === key
                 return (
-                  <label key={i} onClick={() => { setSelectedLanguage(key); setLang(key) }}
-                    className="flex items-center gap-3 py-2.5 cursor-pointer">
-                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0", selectedLanguage === key ? "border-info" : "border-border")}>
-                      {selectedLanguage === key && <div className="w-2.5 h-2.5 rounded-full bg-info" />}
+                  <button key={i} onClick={() => { setSelectedLanguage(key); setLang(key) }}
+                    className={cn("springy flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-left active:scale-[0.99]", active && "bg-primary/8")}>
+                    <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0", active ? "border-primary" : "border-border")}>
+                      {active && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
                     </div>
-                    <span className="text-sm text-foreground">{lang}</span>
-                  </label>
+                    <span className={cn("text-sm", active ? "text-foreground font-medium" : "text-foreground/80")}>{lang}</span>
+                  </button>
                 )
               })}
             </div>
             <button onClick={() => setShowLanguagePicker(false)}
-              className="w-full mt-4 bg-primary-deep text-white py-3.5 rounded-xl font-semibold text-sm">
+              className="springy w-full mt-4 bg-primary-deep text-primary-foreground py-3.5 rounded-xl font-semibold text-sm active:scale-[0.98]">
               {t("apply")}
             </button>
           </div>

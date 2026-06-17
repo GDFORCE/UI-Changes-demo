@@ -519,7 +519,7 @@ export default function PatientVisitScheduleApp() {
     if (tab === "chat") { navigate("chat"); return }
     if (navRole === "patient") {
       if (tab === "dashboard") navigate("patient-dashboard")
-      else if (tab === "my-trial") navigate("my-visits")
+      else if (tab === "my-trial") navigate("my-trial")
       else if (tab === "calendar") navigate("patient-calendar")
       else if (tab === "me") navigate("profile-settings")
     } else if (navRole === "sponsor") {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { ChevronLeft, ChevronRight, RotateCw, Settings, Building2, Phone, Calendar, Stethoscope, Tag } from "lucide-react"
+import { ChevronLeft, ChevronRight, RotateCw, Settings, Building2, Phone, CalendarDays, Clock, Stethoscope, Tag, Check, AlertTriangle, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "../bottom-nav"
 
@@ -55,14 +55,6 @@ function initials(name: string) {
     .join("")
 }
 
-function getStatusColor(status: TeamVisitStatus) {
-  switch (status) {
-    case "completed": return "teal"
-    case "overdue": return "red"
-    default: return "orange"
-  }
-}
-
 // Dominant status for a day → drives the colour of the date cell.
 function getDayStatus(visits: TeamVisit[]): TeamVisitStatus | null {
   if (visits.length === 0) return null
@@ -73,7 +65,7 @@ function getDayStatus(visits: TeamVisit[]): TeamVisitStatus | null {
 
 function getDayBgClass(status: TeamVisitStatus) {
   switch (status) {
-    case "completed": return "bg-accent/10"
+    case "completed": return "bg-accent/12"
     case "overdue": return "bg-destructive/10"
     default: return "bg-warning/15"
   }
@@ -87,11 +79,20 @@ function getDayTextClass(status: TeamVisitStatus) {
   }
 }
 
-function getStatusLabel(status: TeamVisitStatus) {
+function getDayDotClass(status: TeamVisitStatus) {
   switch (status) {
-    case "completed": return "Completed"
-    case "overdue": return "Overdue ⚠"
-    default: return "Scheduled"
+    case "completed": return "bg-accent"
+    case "overdue": return "bg-destructive"
+    default: return "bg-warning"
+  }
+}
+
+// Full tonal kit for a visit card, keyed off status — all semantic tokens.
+function visitTone(status: TeamVisitStatus) {
+  switch (status) {
+    case "completed": return { rail: "bg-accent", chip: "bg-accent/15 text-accent", label: "Completed", Icon: Check }
+    case "overdue": return { rail: "bg-destructive", chip: "bg-destructive/10 text-destructive", label: "Overdue", Icon: AlertTriangle }
+    default: return { rail: "bg-warning", chip: "bg-warning/15 text-warning", label: "Scheduled", Icon: Clock }
   }
 }
 
@@ -192,136 +193,181 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
   }
   const weekLabel = `${weekDays[0].getDate()}–${weekDays[6].getDate()} ${weekDays[6].toLocaleString("en-US", { month: "long", year: "numeric" })}`
 
+  // Period navigation, contextual to the active view.
+  const periodNav =
+    viewMode === "month"
+      ? {
+          label: formatMonthYear(currentMonth),
+          prev: () => { const d = new Date(currentMonth); d.setMonth(d.getMonth() - 1); setCurrentMonth(d) },
+          next: () => { const d = new Date(currentMonth); d.setMonth(d.getMonth() + 1); setCurrentMonth(d) },
+        }
+      : viewMode === "week"
+      ? { label: weekLabel, prev: prevWeek, next: nextWeek }
+      : { label: formatHeaderDate(selectedDate), prev: prevDay, next: nextDay }
+
+  // Visits within the period currently in view (drives the contextual subtitle).
+  const periodVisitCount =
+    viewMode === "month"
+      ? teamVisits.filter(v => v.date.getFullYear() === currentMonth.getFullYear() && v.date.getMonth() === currentMonth.getMonth()).length
+      : viewMode === "week"
+      ? weekVisitCount
+      : visitsForSelected.length
+
+  // Jump back to "today" for whichever view is active.
+  function goToday() {
+    if (viewMode === "month") {
+      setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+      setSelectedDate(today)
+    } else if (viewMode === "week") {
+      const s = new Date(today)
+      s.setDate(today.getDate() - today.getDay())
+      setWeekStart(s)
+      setSelectedWeekDay(today)
+    } else {
+      setSelectedDate(today)
+    }
+  }
+
   const settingsScreen = "calendar-settings"
 
-  const renderVisitCard = (v: TeamVisit, i: number) => {
-    const color = getStatusColor(v.status)
+  // ── Shared visit card — site-wide, privacy-safe ────────────
+  const VisitCard = ({ v }: { v: TeamVisit }) => {
+    const tone = visitTone(v.status)
+    const ToneIcon = tone.Icon
     return (
-      <div
-        key={i}
-        className={cn(
-          "bg-card rounded-xl p-4 border-l-4 shadow-sm",
-          color === "teal" && "border-accent",
-          color === "red" && "border-red-500",
-          color === "orange" && "border-orange-500"
-        )}
-      >
-        <div className="flex items-center justify-between mb-1">
-          <span className="font-bold text-sm text-foreground">{v.time}</span>
-          <span className={cn(
-            "px-2 py-0.5 rounded-full text-xs font-semibold",
-            color === "teal" && "bg-accent/10 text-accent",
-            color === "red" && "bg-destructive/10 text-destructive",
-            color === "orange" && "bg-warning/15 text-warning"
-          )}>
-            {getStatusLabel(v.status)}
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 pl-5 shadow-xs">
+        <span className={cn("absolute left-0 top-0 bottom-0 w-1.5", tone.rail)} />
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold text-foreground">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground" /> {v.time}
+          </span>
+          <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold", tone.chip)}>
+            <ToneIcon className="h-3 w-3" /> {tone.label}
           </span>
         </div>
-        <p className="font-semibold text-foreground text-sm">{initials(v.name)} · {v.subj}</p>
+        <p className="font-heading text-base text-foreground">{initials(v.name)} · {v.subj}</p>
         <p className="text-xs text-muted-foreground">{v.protocolId} · {v.indication}</p>
         <p className="text-xs text-muted-foreground">{v.visit} · {v.visitName}</p>
-        <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Tag className="w-3.5 h-3.5 text-muted-foreground/70" /> Visit type: <span className="font-medium text-muted-foreground">{v.visitType}</span></p>
-        {/* On the CRC view, surface which PI is attending the patient for this visit. */}
-        {role === "crc" && <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Stethoscope className="w-3.5 h-3.5 text-muted-foreground/70" /> PI: <span className="font-medium text-muted-foreground">{v.pi}</span></p>}
-        {v.location && <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Building2 className="w-3.5 h-3.5 text-muted-foreground/70" /> {v.location}</p>}
-        {v.visitType === "Telephonic" && <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Phone className="w-3.5 h-3.5 text-muted-foreground/70" /> Telephonic visit</p>}
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Tag className="h-3.5 w-3.5 text-muted-foreground/70" /> {v.visitType}
+          </span>
+          {/* On the CRC view, surface which PI is attending the patient for this visit. */}
+          {role === "crc" && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Stethoscope className="h-3.5 w-3.5 text-muted-foreground/70" /> {v.pi}
+            </span>
+          )}
+          {v.visitType === "Telephonic" ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Phone className="h-3.5 w-3.5 text-muted-foreground/70" /> Telephonic visit
+            </span>
+          ) : v.location && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Building2 className="h-3.5 w-3.5 text-muted-foreground/70" /> {v.location}
+            </span>
+          )}
+        </div>
       </div>
     )
   }
 
-  const emptyState = (
-    <div className="flex flex-col items-center py-8 text-muted-foreground/70">
-      <Calendar className="w-8 h-8 mb-2" />
-      <p className="text-sm">No visits on this day</p>
+  const EmptyDay = ({ text }: { text: string }) => (
+    <div className="flex flex-col items-center gap-2 py-10 text-muted-foreground/60">
+      <CalendarDays className="h-8 w-8" />
+      <p className="text-sm">{text}</p>
     </div>
   )
 
   return (
-    <div className="h-full flex flex-col bg-surface">
+    <div className="h-full flex flex-col bg-background">
       {/* App Bar */}
-      <div className="bg-primary-deep text-white px-4 py-3">
-        <div className="flex items-center justify-between">
-          <button onClick={onBack} className="p-1">
-            <ChevronLeft className="w-5 h-5" />
+      <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+        <div className="relative flex items-center gap-3">
+          <button onClick={onBack} aria-label="Back" className="springy p-1.5 -ml-1.5 rounded-full active:scale-90 hover:bg-white/10">
+            <ChevronLeft className="h-5 w-5" />
           </button>
-          {viewMode === "day" ? (
-            <div className="flex items-center gap-2">
-              <button onClick={prevDay}><ChevronLeft className="w-5 h-5" /></button>
-              <span className="font-semibold text-sm">{formatHeaderDate(selectedDate)}</span>
-              <button onClick={nextDay}><ChevronRight className="w-5 h-5" /></button>
-            </div>
-          ) : viewMode === "week" ? (
-            <div className="flex items-center gap-2">
-              <button onClick={prevWeek}><ChevronLeft className="w-5 h-5" /></button>
-              <span className="font-semibold text-sm">{weekLabel}</span>
-              <button onClick={nextWeek}><ChevronRight className="w-5 h-5" /></button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button onClick={() => {
-                const d = new Date(currentMonth)
-                d.setMonth(d.getMonth() - 1)
-                setCurrentMonth(d)
-              }}>
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <span className="font-semibold text-base">{formatMonthYear(currentMonth)}</span>
-              <button onClick={() => {
-                const d = new Date(currentMonth)
-                d.setMonth(d.getMonth() + 1)
-                setCurrentMonth(d)
-              }}>
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            <button onClick={handleSync} className="p-2">
-              <RotateCw className={cn("w-5 h-5 transition-transform", syncing && "animate-spin")} />
-            </button>
-            <button onClick={() => onNavigate(settingsScreen)} className="p-2">
-              <Settings className="w-5 h-5" />
-            </button>
+          <div className="flex-1 min-w-0">
+            <p className="eyebrow text-primary-foreground/55">Site schedule</p>
+            <h1 className="display-serif text-lg leading-tight">Team Calendar</h1>
           </div>
+          <button onClick={handleSync} aria-label="Sync" className="springy p-2 rounded-full active:scale-90 hover:bg-white/10">
+            <RotateCw className={cn("w-5 h-5 transition-transform", syncing && "animate-spin")} />
+          </button>
+          <button onClick={() => onNavigate(settingsScreen)} aria-label="Calendar settings" className="springy p-2 rounded-full active:scale-90 hover:bg-white/10">
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
-        <p className="text-center text-[11px] text-primary-foreground/75 mt-1">
-          {role === "pi" ? "PI · Site 02 · All patients" : "CRC · Site 02 · All patients"}
+        <p className="relative mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-primary-foreground/70">
+          <Users className="h-3.5 w-3.5" /> {role === "pi" ? "PI" : "CRC"} · Site 02 · All patients
         </p>
-        {syncStatus === "syncing" && (
-          <p className="text-center text-xs text-blue-300 mt-1">Syncing...</p>
-        )}
+        {syncStatus === "syncing" && <p className="relative text-center text-xs text-primary-foreground/70 mt-1.5">Syncing…</p>}
         {syncStatus === "done" && (
-          <p className="text-center text-xs text-accent mt-1">Updated just now</p>
+          <p className="relative text-center text-xs text-primary-foreground/90 mt-1.5 inline-flex items-center justify-center gap-1 w-full">
+            <Check className="h-3.5 w-3.5" /> Updated just now
+          </p>
         )}
       </div>
 
-      <div className="flex-1 overflow-auto pb-4">
-        {/* View Mode Tabs */}
-        <div className="px-4 py-3 bg-card border-b border-border">
-          <div className="flex rounded-xl border border-primary-deep overflow-hidden">
-            {(["day", "week", "month"] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => {
-                  setViewMode(mode)
-                  if (mode === "day") setSelectedDate(today)
-                }}
-                className={cn(
-                  "flex-1 py-2 text-sm font-medium capitalize transition-colors",
-                  viewMode === mode ? "bg-primary-deep text-white" : "text-primary-deep bg-card"
-                )}
-              >
-                {mode}
-              </button>
-            ))}
+      <div className="flex-1 overflow-auto scrollbar-hide pb-4">
+        {/* View mode + editorial period navigator */}
+        <div className="bg-card border-b border-border px-4 pt-4 pb-4 space-y-3.5">
+          <div className="flex items-center justify-between gap-3">
+            <button onClick={periodNav.prev} aria-label="Previous" className="springy grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-surface active:scale-90 hover:border-primary/40">
+              <ChevronLeft className="w-5 h-5 text-foreground/70" />
+            </button>
+            <div className="min-w-0 text-center">
+              <p className="eyebrow text-accent">{viewMode} view</p>
+              <h2 className="dawn-text font-heading text-xl leading-tight truncate">{periodNav.label}</h2>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {periodVisitCount} {periodVisitCount === 1 ? "visit" : "visits"} in view
+              </p>
+            </div>
+            <button onClick={periodNav.next} aria-label="Next" className="springy grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-surface active:scale-90 hover:border-primary/40">
+              <ChevronRight className="w-5 h-5 text-foreground/70" />
+            </button>
+          </div>
+
+          {/* Segmented control + Today jump */}
+          <div className="flex items-center gap-2">
+            <div className="flex flex-1 rounded-full bg-muted p-1">
+              {(["day", "week", "month"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => {
+                    setViewMode(mode)
+                    if (mode === "day") setSelectedDate(today)
+                  }}
+                  className={cn(
+                    "flex-1 py-2 text-sm font-semibold capitalize rounded-full transition-all",
+                    viewMode === mode ? "dawn-gradient text-primary-foreground shadow-sm" : "text-muted-foreground"
+                  )}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={goToday}
+              className="springy shrink-0 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-card px-3.5 py-2 text-xs font-semibold text-primary active:scale-95 hover:bg-secondary/40"
+            >
+              <CalendarDays className="h-3.5 w-3.5" /> Today
+            </button>
           </div>
         </div>
 
-        {/* Status legend */}
-        <div className="flex justify-center gap-4 py-2 bg-card border-b border-border">
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-accent" /><span className="text-[11px] text-muted-foreground">Completed</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-warning" /><span className="text-[11px] text-muted-foreground">Upcoming</span></div>
-          <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-destructive" /><span className="text-[11px] text-muted-foreground">Overdue</span></div>
+        {/* Status legend — tinted chips */}
+        <div className="flex justify-center gap-2 py-2.5 bg-card border-b border-border">
+          {[
+            { cls: "bg-accent/12 text-accent", dot: "bg-accent", label: "Completed" },
+            { cls: "bg-warning/15 text-warning", dot: "bg-warning", label: "Scheduled" },
+            { cls: "bg-destructive/10 text-destructive", dot: "bg-destructive", label: "Overdue" },
+          ].map(l => (
+            <span key={l.label} className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold", l.cls)}>
+              <span className={cn("h-1.5 w-1.5 rounded-full", l.dot)} /> {l.label}
+            </span>
+          ))}
         </div>
 
         {/* MONTH VIEW */}
@@ -330,34 +376,46 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             <div className="px-4 py-4 bg-card">
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {daysOfWeek.map((d, i) => (
-                  <div key={i} className="text-center text-xs font-semibold text-muted-foreground py-1">{d}</div>
+                  <div key={i} className={cn("text-center text-[11px] font-semibold py-1", i === 0 || i === 6 ? "text-accent/70" : "text-muted-foreground/70")}>{d}</div>
                 ))}
               </div>
               {weeks.map((week, wi) => (
-                <div key={wi} className="grid grid-cols-7 gap-1">
+                <div key={wi} className="grid grid-cols-7 gap-1 animate-rise" style={{ animationDelay: `${60 + wi * 55}ms` }}>
                   {week.map((day, di) => {
                     const cellDate = day ? new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day) : null
                     const visits = cellDate ? getVisitsForDate(cellDate) : []
                     const dayStatus = getDayStatus(visits)
                     const isToday = cellDate && cellDate.toDateString() === today.toDateString()
                     const isSelected = cellDate && cellDate.toDateString() === selectedDate.toDateString()
+                    const isWeekend = di === 0 || di === 6
                     return (
                       <button
                         key={di}
                         onClick={() => cellDate && setSelectedDate(cellDate)}
                         disabled={!day}
                         className={cn(
-                          "aspect-square flex items-center justify-center rounded-full",
-                          isSelected && "bg-primary-deep",
+                          "springy relative aspect-square flex flex-col items-center justify-center rounded-2xl transition-all active:scale-90",
+                          isSelected && "dawn-gradient hero-glow shadow-md ring-2 ring-white/40",
                           !isSelected && isToday && "ring-1 ring-inset ring-info",
                           !isSelected && !isToday && dayStatus && getDayBgClass(dayStatus),
+                          !isSelected && !isToday && !dayStatus && isWeekend && "bg-surface/50",
                           !day && "invisible"
                         )}
                       >
                         <span className={cn(
-                          "text-sm font-medium",
-                          isSelected ? "text-white" : dayStatus ? getDayTextClass(dayStatus) : "text-foreground"
+                          "text-sm leading-none",
+                          isSelected ? "font-bold text-primary-foreground"
+                            : isToday ? "font-bold text-info"
+                            : dayStatus ? cn("font-semibold", getDayTextClass(dayStatus))
+                            : "font-medium text-foreground"
                         )}>{day}</span>
+                        {!isSelected && visits.length > 0 && (
+                          <span className="absolute bottom-1.5 flex items-center gap-0.5">
+                            {visits.slice(0, 3).map((v, vi) => (
+                              <span key={vi} className={cn("h-1 w-1 rounded-full", getDayDotClass(v.status))} />
+                            ))}
+                          </span>
+                        )}
                       </button>
                     )
                   })}
@@ -366,15 +424,24 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             </div>
 
             {/* Selected day visits */}
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-foreground text-base">{formatDay(selectedDate)}</h3>
+            <div className="px-4 py-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="eyebrow text-muted-foreground">Selected day</p>
+                  <h3 className="font-heading text-foreground text-lg leading-tight">{formatDay(selectedDate)}</h3>
+                </div>
                 {visitsForSelected.length > 0 && (
-                  <span className="text-xs text-muted-foreground/70">{visitsForSelected.length} visit{visitsForSelected.length > 1 ? "s" : ""}</span>
+                  <span className="shrink-0 rounded-full bg-primary/8 px-2.5 py-1 text-xs font-semibold text-primary">
+                    {visitsForSelected.length} visit{visitsForSelected.length > 1 ? "s" : ""}
+                  </span>
                 )}
               </div>
-              {visitsForSelected.length === 0 ? emptyState : (
-                <div className="space-y-3">{visitsForSelected.map(renderVisitCard)}</div>
+              {visitsForSelected.length === 0 ? (
+                <EmptyDay text="No visits on this day" />
+              ) : (
+                <div className="space-y-3">
+                  {visitsForSelected.map((v, i) => <VisitCard key={i} v={v} />)}
+                </div>
               )}
             </div>
           </>
@@ -384,7 +451,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
         {viewMode === "week" && (
           <>
             {/* 7-day header row */}
-            <div className="bg-card border-b border-border px-4 py-3">
+            <div className="bg-card border-b border-border px-4 py-3 animate-rise" style={{ animationDelay: "40ms" }}>
               <div className="grid grid-cols-7 gap-1">
                 {weekDays.map((d, i) => {
                   const dayVisits = getVisitsForDate(d)
@@ -392,20 +459,23 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
                   const isToday = d.toDateString() === today.toDateString()
                   const isSelected = d.toDateString() === selectedWeekDay.toDateString()
                   return (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedWeekDay(d)}
-                      className="flex flex-col items-center gap-1"
-                    >
+                    <button key={i} onClick={() => setSelectedWeekDay(d)} className="flex flex-col items-center gap-1.5">
                       <span className="text-[11px] text-muted-foreground/70">{weekDayNames[d.getDay()]}</span>
                       <div className={cn(
-                        "w-8 h-8 flex items-center justify-center rounded-full",
-                        isSelected && "bg-primary-deep text-white",
+                        "relative w-9 h-9 flex items-center justify-center rounded-2xl transition-colors",
+                        isSelected && "dawn-gradient text-primary-foreground shadow-sm",
                         !isSelected && isToday && "ring-1 ring-inset ring-info",
                         !isSelected && dayStatus && cn(getDayBgClass(dayStatus), getDayTextClass(dayStatus)),
                         !isSelected && !dayStatus && "text-foreground"
                       )}>
                         <span className="text-sm font-semibold">{d.getDate()}</span>
+                        {!isSelected && dayVisits.length > 0 && (
+                          <span className="absolute bottom-1 flex items-center gap-0.5">
+                            {dayVisits.slice(0, 3).map((v, vi) => (
+                              <span key={vi} className={cn("h-1 w-1 rounded-full", getDayDotClass(v.status))} />
+                            ))}
+                          </span>
+                        )}
                       </div>
                     </button>
                   )
@@ -414,7 +484,7 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             </div>
 
             {/* Week overview strip */}
-            <div className="px-4 py-2 bg-surface">
+            <div className="px-4 py-2.5 bg-surface">
               <p className="text-xs text-muted-foreground text-center">
                 This week: {weekVisitCount} visit{weekVisitCount !== 1 ? "s" : ""}
                 {overdueThisWeek > 0 && ` · ${overdueThisWeek} overdue`}
@@ -422,10 +492,24 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
             </div>
 
             {/* Visits for selected week day */}
-            <div className="px-4 py-3">
-              <h3 className="font-semibold text-foreground mb-3 text-base">{formatDay(selectedWeekDay)}</h3>
-              {visitsForWeekDay.length === 0 ? emptyState : (
-                <div className="space-y-3">{visitsForWeekDay.map(renderVisitCard)}</div>
+            <div className="px-4 py-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="eyebrow text-muted-foreground">Selected day</p>
+                  <h3 className="font-heading text-foreground text-lg leading-tight">{formatDay(selectedWeekDay)}</h3>
+                </div>
+                {visitsForWeekDay.length > 0 && (
+                  <span className="shrink-0 rounded-full bg-primary/8 px-2.5 py-1 text-xs font-semibold text-primary">
+                    {visitsForWeekDay.length} visit{visitsForWeekDay.length > 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+              {visitsForWeekDay.length === 0 ? (
+                <EmptyDay text="No visits on this day" />
+              ) : (
+                <div className="space-y-3">
+                  {visitsForWeekDay.map((v, i) => <VisitCard key={i} v={v} />)}
+                </div>
               )}
             </div>
           </>
@@ -434,9 +518,23 @@ export function TeamCalendarScreen({ onNavigate, onBack, role = "pi", initialVie
         {/* DAY VIEW */}
         {viewMode === "day" && (
           <div className="px-4 py-4">
-            <h3 className="font-semibold text-foreground mb-3">{formatDay(selectedDate)}</h3>
-            {visitsForSelected.length === 0 ? emptyState : (
-              <div className="space-y-3">{visitsForSelected.map(renderVisitCard)}</div>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="eyebrow text-muted-foreground">Selected day</p>
+                <h3 className="font-heading text-foreground text-lg leading-tight">{formatDay(selectedDate)}</h3>
+              </div>
+              {visitsForSelected.length > 0 && (
+                <span className="shrink-0 rounded-full bg-primary/8 px-2.5 py-1 text-xs font-semibold text-primary">
+                  {visitsForSelected.length} visit{visitsForSelected.length > 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+            {visitsForSelected.length === 0 ? (
+              <EmptyDay text="No visits scheduled today" />
+            ) : (
+              <div className="space-y-3">
+                {visitsForSelected.map((v, i) => <VisitCard key={i} v={v} />)}
+              </div>
             )}
           </div>
         )}

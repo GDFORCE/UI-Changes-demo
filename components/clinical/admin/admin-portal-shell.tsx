@@ -148,18 +148,25 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
     setSettingsOpen(false);
   };
 
-  const renderNavItem = ({ id, label, icon: Icon, code, match }: NavItem) => {
+  const renderNavItem = ({ id, label, icon: Icon, code, match }: NavItem, index: number) => {
     const active = currentScreen === id || (match?.includes(currentScreen) ?? false);
     return (
       <button
         key={id}
         onClick={() => onNavigate(id)}
-        className={`group flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left text-sm transition-colors ${
-          active ? "bg-white/15 text-white font-semibold" : "text-blue-100 hover:bg-white/10"
+        style={{ animationDelay: `${60 + index * 35}ms` }}
+        className={`springy active:scale-[0.98] animate-rise group relative flex items-center gap-3 w-full pl-4 pr-3 py-2.5 rounded-xl text-left text-sm ${
+          active
+            ? "bg-white/15 text-primary-foreground font-semibold shadow-sm"
+            : "text-primary-foreground/70 hover:bg-white/10 hover:text-primary-foreground"
         }`}
         title={`${code} · ${label}`}
       >
-        <span className={`w-1 h-5 rounded-full -ml-2 ${active ? "bg-card" : "bg-transparent"}`} />
+        <span
+          className={`absolute left-1 top-1/2 -translate-y-1/2 w-1 rounded-full transition-all duration-300 ${
+            active ? "h-6 bg-accent" : "h-0 bg-transparent group-hover:h-3 group-hover:bg-white/40"
+          }`}
+        />
         <Icon className="h-[18px] w-[18px] shrink-0" />
         <span className="truncate">{label}</span>
       </button>
@@ -169,21 +176,28 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
   return (
     <div className="min-h-screen flex bg-surface text-foreground">
       {/* ── Left sidebar (14 spec items + More) ───────────────────── */}
-      <aside className="w-60 shrink-0 bg-primary text-white flex flex-col h-screen sticky top-0">
-        <div className="px-4 py-4 border-b border-white/10">
-          <h1 className="text-base font-semibold leading-tight">TrialSync</h1>
-          <p className="text-[11px] text-primary-foreground/75">Platform Admin Portal</p>
+      <aside className="w-60 shrink-0 bg-primary-deep text-primary-foreground flex flex-col h-screen sticky top-0 dawn-ambient overflow-hidden">
+        <div className="relative px-4 py-5 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl dawn-gradient flex items-center justify-center shadow-sm shrink-0">
+              <FlaskConical className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="display-serif text-base leading-tight truncate">TrialSync</h1>
+              <p className="eyebrow text-primary-foreground/60 text-[10px]">Admin Portal</p>
+            </div>
+          </div>
         </div>
-        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
+        <nav className="relative flex-1 overflow-y-auto px-2.5 py-3 space-y-1 scrollbar-hide">
           {primaryNav.map(renderNavItem)}
           <div className="pt-3 mt-2 border-t border-white/10">
-            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-blue-300">More</p>
-            {moreNav.map(renderNavItem)}
+            <p className="px-3 pb-1.5 eyebrow text-primary-foreground/50 text-[10px]">More</p>
+            {moreNav.map((item, i) => renderNavItem(item, primaryNav.length + i))}
           </div>
         </nav>
         <button
           onClick={() => onNavigate("welcome")}
-          className="flex items-center gap-3 px-4 py-3 border-t border-white/10 text-sm text-blue-100 hover:bg-white/10"
+          className="springy active:scale-[0.98] relative flex items-center gap-3 px-4 py-3.5 border-t border-white/10 text-sm text-primary-foreground/70 hover:bg-white/10 hover:text-primary-foreground"
         >
           <LogOut className="h-[18px] w-[18px]" />
           Sign out
@@ -193,15 +207,15 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
       {/* ── Main column ───────────────────────────────────────────── */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-20 bg-card border-b border-border">
+        <header className="sticky top-0 z-20 bg-card/90 backdrop-blur-md border-b border-border">
           <div className="flex items-center justify-between px-6 h-16">
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-primary leading-tight truncate">{title}</h2>
-              <p className="text-xs text-muted-foreground">{today}</p>
+              <p className="eyebrow text-accent text-[10px]">{today}</p>
+              <h2 className="display-serif text-lg text-foreground leading-tight truncate">{title}</h2>
             </div>
             <div className="flex items-center gap-1 relative">
               <button
-                className="p-2 rounded-lg text-muted-foreground hover:bg-muted"
+                className="springy active:scale-90 p-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
                 onClick={() => { closeMenus(); setSearchOpen(true); }}
                 aria-label="Global search"
               >
@@ -209,17 +223,17 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
               </button>
               <div className="relative">
                 <button
-                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted relative"
+                  className="springy active:scale-90 p-2 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground relative"
                   onClick={() => { setSettingsOpen(false); setBellOpen((v) => !v); }}
                   aria-label="Notifications"
                 >
                   <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 bg-destructive text-white text-[9px] font-semibold rounded-full min-w-[15px] h-[15px] px-1 flex items-center justify-center">
+                  <span className="absolute top-1 right-1 bg-destructive text-destructive-foreground text-[9px] font-semibold rounded-full min-w-[15px] h-[15px] px-1 flex items-center justify-center ring-2 ring-card animate-pulse-soft">
                     {notifications.length}
                   </span>
                 </button>
                 {bellOpen && (
-                  <div className="absolute right-0 top-12 z-30 w-[320px] bg-card rounded-xl shadow-xl border border-border overflow-hidden">
+                  <div className="absolute right-0 top-12 z-30 w-[320px] bg-card rounded-2xl shadow-xl border border-border overflow-hidden animate-rise">
                     <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                       <span className="text-sm font-semibold text-primary">Notifications</span>
                       <button onClick={() => setBellOpen(false)} aria-label="Close">
@@ -253,7 +267,7 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
                   <Settings className="h-5 w-5" />
                 </button>
                 {settingsOpen && (
-                  <div className="absolute right-0 top-12 z-30 w-[240px] bg-card rounded-xl shadow-xl border border-border overflow-hidden">
+                  <div className="absolute right-0 top-12 z-30 w-[240px] bg-card rounded-2xl shadow-xl border border-border overflow-hidden animate-rise">
                     <div className="px-3 py-2 border-b border-border text-sm font-semibold text-primary">
                       Platform settings
                     </div>
@@ -281,7 +295,7 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
                 )}
               </div>
               <div className="ml-2 flex items-center gap-2 pl-2 border-l border-border">
-                <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold">
+                <div className="h-8 w-8 rounded-full dawn-gradient text-primary-foreground flex items-center justify-center text-xs font-semibold shadow-sm">
                   PA
                 </div>
                 <div className="hidden lg:block leading-tight">
@@ -299,8 +313,8 @@ export function AdminPortalShell({ currentScreen, title, onNavigate, children }:
 
       {/* ── Global search overlay ─────────────────────────────────── */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center pt-24 px-4" onClick={() => { setSearchOpen(false); setSearchQuery(""); }}>
-          <div className="w-full max-w-2xl bg-card rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm flex items-start justify-center pt-24 px-4 animate-fade-in" onClick={() => { setSearchOpen(false); setSearchQuery(""); }}>
+          <div className="w-full max-w-2xl bg-card rounded-2xl shadow-2xl overflow-hidden animate-rise" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <Search className="h-5 w-5 text-muted-foreground/70 shrink-0" />
               <Input

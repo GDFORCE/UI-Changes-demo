@@ -101,6 +101,39 @@ const countBadge: Record<Urgency, string> = {
   blue: "bg-info/10 text-info",
 };
 
+const tileTint: Record<Urgency, string> = {
+  red: "bg-destructive/10 text-destructive",
+  amber: "bg-warning/15 text-warning",
+  green: "bg-success/15 text-success",
+  blue: "bg-info/10 text-info",
+};
+
+// Eased count-up for headline numbers.
+function useCountUp(target: number, duration = 850) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return val;
+}
+
+function AnimatedCount({ value, className }: { value: string; className?: string }) {
+  const numeric = parseInt(value.replace(/[^0-9]/g, ""), 10);
+  const hasComma = value.includes(",");
+  const n = useCountUp(isNaN(numeric) ? 0 : numeric);
+  if (isNaN(numeric)) return <span className={className}>{value}</span>;
+  return <span className={className}>{hasComma ? n.toLocaleString() : n}</span>;
+}
+
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
@@ -157,26 +190,27 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   return (
     <div className="p-6 lg:p-8 max-w-[1400px] mx-auto space-y-6">
       {/* ── Header row: subtitle + actions (ADM-01 §1 / §7) ─────────── */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center justify-between gap-4 flex-wrap animate-rise" style={{ animationDelay: "20ms" }}>
         <div>
-          <h1 className="text-xl font-bold text-primary">Platform overview</h1>
-          <p className="text-sm text-muted-foreground">Real-time snapshot of users, trials, approvals and system health.</p>
+          <p className="eyebrow text-accent">Platform admin</p>
+          <h1 className="display-serif text-2xl text-foreground">Platform overview</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Real-time snapshot of users, trials, approvals and system health.</p>
         </div>
         <div className="flex items-center gap-2">
           {navMessage && (
-            <span className="text-xs font-medium text-primary bg-info/5 border border-info/20 rounded-lg px-3 py-1.5 flex items-center gap-1">
+            <span className="text-xs font-medium text-success bg-success/10 border border-success/20 rounded-lg px-3 py-1.5 flex items-center gap-1 animate-pop">
               <ArrowRight className="h-3 w-3" /> {navMessage}
             </span>
           )}
           <button
             onClick={() => doRefresh(true)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground/80 bg-card border border-border rounded-lg px-3 py-2 hover:bg-surface"
+            className="springy active:scale-95 flex items-center gap-2 text-sm font-medium text-foreground/80 bg-card border border-border rounded-xl px-3.5 py-2 hover:bg-surface hover:border-primary/30"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> Refresh
           </button>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-primary rounded-lg px-3 py-2 hover:bg-primary/90"
+            className="springy active:scale-95 flex items-center gap-2 text-sm font-semibold text-primary-foreground dawn-gradient hero-glow rounded-xl px-3.5 py-2 shadow-sm"
           >
             <Download className="h-4 w-4" /> Export PDF
           </button>
@@ -185,18 +219,21 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       {/* ── §2 Summary tiles (5) ────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-        {summaryTiles.map((t) => (
+        {summaryTiles.map((t, i) => (
           <button
             key={t.key}
             onClick={() => go(t.dest, `tile-${t.key}`)}
-            className="text-left bg-card border border-border rounded-xl p-4 hover:border-info hover:shadow-sm transition-all"
+            style={{ animationDelay: `${80 + i * 70}ms` }}
+            className="springy active:scale-[0.98] animate-rise group text-left bg-card border border-border rounded-2xl p-4 shadow-xs hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5"
           >
             <div className="flex items-center justify-between">
-              <t.icon className={`h-5 w-5 ${tileAccent[t.urgency]}`} />
-              <ChevronRight className="h-4 w-4 text-gray-300" />
+              <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${tileTint[t.urgency]}`}>
+                <t.icon className="h-5 w-5" />
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
             </div>
-            <div className="text-2xl font-bold text-primary mt-2">{t.count}</div>
-            <div className="text-xs font-medium text-foreground/80 mt-1">{t.label}</div>
+            <AnimatedCount value={t.count} className="block text-3xl font-mono font-semibold text-foreground mt-3 tabular-nums" />
+            <div className="text-xs font-semibold text-foreground/80 mt-1">{t.label}</div>
             <div className="text-[11px] text-muted-foreground mt-1 leading-tight">{t.sub}</div>
             <div className={`text-[11px] font-semibold mt-1.5 ${tileAccent[t.urgency]}`}>{t.trend}</div>
           </button>
@@ -205,13 +242,16 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       {/* ── Quick access (moved to top) ─────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {quickAccess.map(({ dest, label, icon: Icon }) => (
+        {quickAccess.map(({ dest, label, icon: Icon }, i) => (
           <button
             key={dest}
             onClick={() => go(dest, "quick-access")}
-            className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-card hover:bg-info/5 hover:border-info transition-colors py-4"
+            style={{ animationDelay: `${440 + i * 60}ms` }}
+            className="springy active:scale-[0.98] animate-rise group flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card shadow-xs hover:border-accent/40 hover:bg-accent/5 hover:-translate-y-0.5 py-4"
           >
-            <Icon className="h-5 w-5 text-info" />
+            <div className="h-9 w-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center transition-transform group-hover:scale-110">
+              <Icon className="h-5 w-5" />
+            </div>
             <span className="text-xs font-medium text-foreground/80">{label}</span>
           </button>
         ))}
@@ -222,17 +262,18 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         {/* Left: distribution + activity */}
         <div className="lg:col-span-2 space-y-6">
           {/* §4 User distribution */}
-          <Card className="border border-border shadow-sm">
+          <Card className="border border-border shadow-xs rounded-2xl animate-rise" style={{ animationDelay: "560ms" }}>
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-primary">User distribution by entity</h3>
-                <span className="text-xs text-muted-foreground/70">{totalUsers.toLocaleString()} total</span>
+                <h3 className="eyebrow text-muted-foreground">User distribution by entity</h3>
+                <span className="text-xs text-muted-foreground/70 font-mono">{totalUsers.toLocaleString()} total</span>
               </div>
-              <div className="flex h-3 w-full rounded-full overflow-hidden">
-                {distribution.map((d) => (
+              <div className="flex h-3.5 w-full rounded-full overflow-hidden bg-muted">
+                {distribution.map((d, i) => (
                   <div
                     key={d.label}
-                    style={{ width: `${(d.count / totalUsers) * 100}%`, backgroundColor: d.color }}
+                    className="animate-fill-bar h-full"
+                    style={{ width: `${(d.count / totalUsers) * 100}%`, backgroundColor: d.color, animationDelay: `${640 + i * 90}ms` }}
                     title={`${d.label}: ${d.count}`}
                   />
                 ))}
@@ -244,8 +285,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.color }} />
                       <span className="text-xs text-muted-foreground">{d.label}</span>
                     </div>
-                    <div className="text-sm font-semibold text-primary mt-0.5">
-                      {d.count}
+                    <div className="text-sm font-semibold text-foreground mt-0.5 font-mono">
+                      <AnimatedCount value={String(d.count)} />
                       <span className="text-[10px] font-normal text-muted-foreground/70 ml-1">
                         {Math.round((d.count / totalUsers) * 100)}%
                       </span>
@@ -257,25 +298,26 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </Card>
 
           {/* Recent platform activity */}
-          <Card className="border border-border shadow-sm">
+          <Card className="border border-border shadow-xs rounded-2xl overflow-hidden animate-rise" style={{ animationDelay: "640ms" }}>
             <CardContent className="p-0">
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-border">
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border">
                 <Clock className="h-4 w-4 text-info" />
-                <span className="text-sm font-semibold text-primary flex-1">Recent platform activity</span>
+                <span className="eyebrow text-muted-foreground flex-1">Recent platform activity</span>
                 <span className="text-[11px] text-muted-foreground/70">Last 6 events</span>
               </div>
               {activityFeed.map((ev, i) => (
                 <button
                   key={i}
                   onClick={() => go(ev.dest, "activity-feed")}
-                  className="w-full text-left flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0 hover:bg-surface"
+                  className="group w-full text-left flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0 hover:bg-surface transition-colors"
                 >
-                  <span className={`h-2 w-2 rounded-full shrink-0 ${dotClass[ev.dot]}`} />
+                  <span className={`h-2 w-2 rounded-full shrink-0 ${dotClass[ev.dot]} ${ev.dot === "red" ? "animate-pulse-soft" : ""}`} />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium text-foreground truncate">{ev.title}</div>
                     <div className="text-xs text-muted-foreground truncate">{ev.sub}</div>
                   </div>
                   <span className="text-xs text-muted-foreground/70 shrink-0">{ev.time}</span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/30 shrink-0 -ml-1 opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5" />
                 </button>
               ))}
             </CardContent>
@@ -285,25 +327,25 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
         {/* Right: §3 Pending admin actions */}
         <div className="lg:col-span-1">
-          <Card className="border border-border shadow-sm">
+          <Card className="border border-border shadow-xs rounded-2xl overflow-hidden animate-rise" style={{ animationDelay: "700ms" }}>
             <CardContent className="p-0">
-              <div className="flex items-center gap-2 px-5 py-3 border-b border-border">
+              <div className="flex items-center gap-2 px-5 py-3.5 border-b border-border">
                 <AlertTriangle className="h-4 w-4 text-warning" />
-                <span className="text-sm font-semibold text-primary flex-1">Pending admin actions</span>
+                <span className="eyebrow text-muted-foreground flex-1">Pending admin actions</span>
               </div>
               {pendingActions.map((a) => (
                 <div
                   key={a.label}
-                  className="flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0"
+                  className="flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0 hover:bg-surface/60 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium text-foreground">{a.label}</div>
                     <div className="text-xs text-muted-foreground truncate">{a.sub}</div>
                   </div>
-                  <Badge className={`${countBadge[a.urgency]} hover:opacity-100 text-[11px] shrink-0`}>{a.count}</Badge>
+                  <Badge className={`${countBadge[a.urgency]} hover:opacity-100 text-[11px] shrink-0 font-mono`}>{a.count}</Badge>
                   <button
                     onClick={() => go(a.dest, `pending-${a.label}`)}
-                    className="text-xs font-semibold text-info hover:underline shrink-0"
+                    className="springy active:scale-95 text-xs font-semibold text-primary hover:underline shrink-0"
                   >
                     Action
                   </button>

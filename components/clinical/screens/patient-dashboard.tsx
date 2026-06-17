@@ -1,7 +1,7 @@
 "use client"
 
 import { BottomNav } from "../bottom-nav"
-import { ChevronRight, Check, Calendar, Bell, MessageCircle, Activity } from "lucide-react"
+import { ChevronRight, Check, Calendar, Bell, MessageCircle, Activity, Clock } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
@@ -15,8 +15,7 @@ const VISITS_DONE = 6
 
 /**
  * Dawn ring — a circular progress dial. On the gradient hero it renders in
- * cream/white (the hero itself is the dawn gesture); on paper it carries the
- * dawn gradient. The fill sweeps in on load.
+ * cream/white (the hero itself is the dawn gesture); the fill sweeps in on load.
  */
 function DawnRing({ pct, size = 84, tone = "dawn" }: { pct: number; size?: number; tone?: "dawn" | "light" }) {
   const light = tone === "light"
@@ -32,13 +31,9 @@ function DawnRing({ pct, size = 84, tone = "dawn" }: { pct: number; size?: numbe
         </defs>
         <circle cx="42" cy="42" r="34" stroke={light ? "rgb(255 255 255 / 0.22)" : "var(--border)"} strokeWidth="7" />
         <circle
-          cx="42"
-          cy="42"
-          r="34"
+          cx="42" cy="42" r="34"
           stroke={light ? "rgb(255 255 255 / 0.95)" : "url(#dawn-ring)"}
-          strokeWidth="7"
-          strokeLinecap="round"
-          pathLength="100"
+          strokeWidth="7" strokeLinecap="round" pathLength="100"
           className="animate-arc"
           style={{ ["--arc-rest" as string]: String(100 - pct) }}
         />
@@ -46,6 +41,18 @@ function DawnRing({ pct, size = 84, tone = "dawn" }: { pct: number; size?: numbe
       <div className={cn("absolute inset-0 flex flex-col items-center justify-center", light ? "text-primary-foreground" : "text-foreground")}>
         <span className="font-heading text-xl leading-none tabular-nums">{pct}%</span>
       </div>
+    </div>
+  )
+}
+
+/** Editorial section header: index numeral · small-caps label · hairline rule. */
+function SectionHeader({ index, label, action }: { index: string; label: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 mb-3">
+      <span className="font-heading text-sm text-accent tabular-nums">{index}</span>
+      <p className="eyebrow text-primary shrink-0">{label}</p>
+      <span className="h-px flex-1 bg-border" />
+      {action}
     </div>
   )
 }
@@ -72,21 +79,21 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
   while (calendarCells.length % 7 !== 0) calendarCells.push(null)
 
   const notifications = [
-    { id: "1", icon: Bell, bg: "bg-accent/15", color: "text-accent", title: "Visit 7 Tomorrow", body: "Follow-Up Visit at AIIMS Delhi · 23 May 2025", time: "2h ago", unread: true, screen: "my-visits" },
+    { id: "1", icon: Bell, bg: "bg-accent/15", color: "text-accent", title: "Visit 7 Tomorrow", body: "Follow-Up Visit at AIIMS Delhi · 23 May 2025", time: "2h ago", unread: true, screen: "my-trial" },
     { id: "2", icon: MessageCircle, bg: "bg-violet/10", color: "text-violet", title: "Message from Dr. Sharma", body: "Please fast for 8 hours before your Visit 7 blood draw.", time: "Yesterday", unread: true, screen: "chat" },
   ]
 
   return (
     <div className="h-full flex flex-col bg-background">
       <div className="flex-1 overflow-auto pb-6">
-        {/* ── Dawn hero — one even deep plum with a soft rose glow up top; the
-            Next Visit card lifts up over its rounded bottom ── */}
+        {/* ── Dawn hero — even deep plum, layered sunrise atmosphere ── */}
         <div
           className="hero-glow paper-grain relative overflow-hidden rounded-b-[28px] px-6 pt-6 pb-7 text-primary-foreground shadow-md"
           style={{ backgroundImage: "radial-gradient(125% 92% at 50% -8%, var(--primary) 0%, var(--primary-deep) 56%)" }}
         >
-          {/* warm sun glow + drifting motes */}
+          {/* atmosphere: corner sun glow + a wide warm dawn rising along the bottom */}
           <span aria-hidden className="absolute -top-14 -right-12 h-44 w-44 rounded-full bg-[var(--dawn-from)] opacity-30 blur-2xl" />
+          <span aria-hidden className="absolute -bottom-20 left-1/2 -translate-x-1/2 h-44 w-[135%] rounded-[100%] bg-[var(--dawn-mid)] opacity-25 blur-3xl" />
           <span aria-hidden className="animate-drift absolute top-10 right-24 h-2.5 w-2.5 rounded-full bg-white/30" />
           <span aria-hidden className="animate-drift-slow absolute top-24 left-12 h-2 w-2 rounded-full bg-white/20" />
 
@@ -116,7 +123,7 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
             </div>
           </div>
 
-          {/* progress — seated in a frosted glass panel */}
+          {/* progress — frosted glass panel */}
           <div className="relative mt-5 flex items-center gap-4 rounded-3xl bg-white/10 px-4 py-4 ring-1 ring-white/15 backdrop-blur-sm animate-rise" style={{ animationDelay: "130ms" }}>
             <DawnRing pct={progressPct} tone="light" size={72} />
             <div className="min-w-0 flex-1">
@@ -136,62 +143,50 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
           </div>
         </div>
 
-        {/* ── Next Visit — feature card, sitting cleanly below the hero ── */}
-        <div className="px-4 mt-4 animate-rise" style={{ animationDelay: "200ms" }}>
-          <button onClick={() => onNavigate("my-visits")} className="group w-full text-left">
-            <div className="dawn-ambient relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-sm transition-all group-hover:shadow-md group-active:scale-[0.99]">
-              <div className="relative flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl dawn-gradient text-primary-foreground shadow-sm">
-                    <Calendar className="h-5 w-5" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="eyebrow text-accent">{t("nextVisit")}</p>
-                    <p className="font-heading text-[18px] text-foreground leading-tight">Visit 7</p>
-                  </div>
+        {/* ── 01 · Next Visit — date-block feature card ── */}
+        <div className="px-4 mt-5 animate-rise" style={{ animationDelay: "200ms" }}>
+          <SectionHeader index="01" label={t("nextVisit")} />
+          <button onClick={() => onNavigate("my-trial")} className="group block w-full text-left">
+            <div className="dawn-ambient relative overflow-hidden rounded-3xl border border-border bg-card p-4 shadow-sm transition-all group-hover:shadow-md group-active:scale-[0.99]">
+              <div className="relative flex gap-4">
+                {/* date tear-block */}
+                <div className="hero-glow flex flex-col items-center justify-center rounded-2xl dawn-gradient px-4 py-3 text-primary-foreground shadow-sm shrink-0">
+                  <span className="font-heading text-[26px] leading-none">23</span>
+                  <span className="eyebrow text-primary-foreground/85 mt-1">May</span>
                 </div>
-                <span className="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-warning/15 text-warning">{t("upcoming")}</span>
-              </div>
-
-              <div className="relative grid grid-cols-2 gap-x-3 gap-y-3 mb-4">
-                {[
-                  { k: t("protocolId"), v: "Protocol-001" },
-                  { k: t("phase"), v: "Phase II" },
-                  { k: t("indication"), v: "Diabetes" },
-                  { k: t("visitType"), v: t("followUpVisit") },
-                ].map((f) => (
-                  <div key={f.k}>
-                    <p className="eyebrow text-muted-foreground/60">{f.k}</p>
-                    <p className="text-sm text-foreground font-medium mt-0.5">{f.v}</p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="eyebrow text-accent">In 4 days</p>
+                    <span className="shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-warning/15 text-warning">{t("upcoming")}</span>
                   </div>
-                ))}
-              </div>
-
-              <div className="relative flex items-center justify-between pt-3 border-t border-border">
-                <div>
-                  <p className="text-sm font-semibold text-primary">23 May 2025</p>
-                  <p className="text-xs text-muted-foreground">{t("window")} 20 May – 26 May</p>
+                  <p className="font-heading text-[17px] text-foreground leading-tight mt-1">Visit 7 · {t("followUpVisit")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">AIIMS Delhi · Dr. Sharma</p>
+                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" /> {t("window")} 20 – 26 May
+                  </p>
                 </div>
+              </div>
+              <div className="relative mt-3.5 pt-3 border-t border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Protocol-001 · Phase II · Diabetes</span>
                 <span className="flex items-center gap-1 text-sm font-medium text-accent">
-                  {t("viewDetails")}
-                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  {t("viewDetails")} <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </div>
             </div>
           </button>
         </div>
 
-        {/* ── Calendar mini ── */}
-        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "320ms" }}>
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-accent" />
-              <p className="eyebrow text-primary">{t("calendar")}</p>
-            </div>
-            <button onClick={() => onNavigate("patient-calendar")} className="flex items-center gap-1 text-sm font-medium text-accent hover:underline underline-offset-2">
-              {t("openCalendar")} <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+        {/* ── 02 · This Month — calendar mini ── */}
+        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "280ms" }}>
+          <SectionHeader
+            index="02"
+            label={t("calendar")}
+            action={
+              <button onClick={() => onNavigate("patient-calendar")} className="flex items-center gap-1 text-sm font-medium text-accent hover:underline underline-offset-2">
+                {t("openCalendar")} <ChevronRight className="w-4 h-4" />
+              </button>
+            }
+          />
           <button onClick={() => onNavigate("patient-calendar")} className="w-full text-left rounded-3xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
             <p className="text-center font-heading text-foreground mb-3">
               {calendarMonth.toLocaleString("en-US", { month: "long", year: "numeric" })}
@@ -209,16 +204,24 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                   <div
                     key={i}
                     className={cn(
-                      "aspect-square flex items-center justify-center rounded-full text-xs font-medium",
+                      "relative aspect-square flex flex-col items-center justify-center rounded-2xl text-xs font-medium",
                       !day && "invisible",
-                      status === "completed" && "bg-accent/15 text-accent",
+                      status === "completed" && "bg-accent/12 text-accent",
                       status === "upcoming" && "bg-warning/15 text-warning",
                       status === "scheduled" && "bg-info/10 text-info",
-                      !status && isToday && "ring-1 ring-inset ring-accent text-accent",
+                      !status && isToday && "ring-1 ring-inset ring-info text-info",
                       !status && !isToday && "text-foreground/80",
                     )}
                   >
                     {day}
+                    {status && (
+                      <span className={cn(
+                        "absolute bottom-1 h-1 w-1 rounded-full",
+                        status === "completed" && "bg-accent",
+                        status === "upcoming" && "bg-warning",
+                        status === "scheduled" && "bg-info",
+                      )} />
+                    )}
                   </div>
                 )
               })}
@@ -231,17 +234,17 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
           </button>
         </div>
 
-        {/* ── Notifications ── */}
-        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "380ms" }}>
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-accent" />
-              <p className="eyebrow text-primary">{t("notifications")}</p>
-            </div>
-            <button onClick={() => onNavigate("notifications")} className="text-sm font-medium text-accent hover:underline underline-offset-2">
-              {t("seeAll")}
-            </button>
-          </div>
+        {/* ── 03 · Updates — notifications ── */}
+        <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "360ms" }}>
+          <SectionHeader
+            index="03"
+            label={t("notifications")}
+            action={
+              <button onClick={() => onNavigate("notifications")} className="text-sm font-medium text-accent hover:underline underline-offset-2">
+                {t("seeAll")}
+              </button>
+            }
+          />
           <div className="space-y-3">
             {notifications.map((n) => (
               <button
@@ -266,9 +269,9 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
           </div>
         </div>
 
-        {/* ── Recent activity ── */}
+        {/* ── 04 · Recent activity ── */}
         <div className="px-4 mt-6 animate-rise" style={{ animationDelay: "440ms" }}>
-          <p className="eyebrow text-primary mb-2.5">{t("recentActivity")}</p>
+          <SectionHeader index="04" label={t("recentActivity")} />
           <div className="rounded-3xl border border-border bg-card divide-y divide-border shadow-sm overflow-hidden">
             {recentActivity.map((activity) => (
               <div key={activity.visit} className="p-4 flex items-center justify-between">
@@ -296,7 +299,7 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
         notificationCount={2}
         onTabChange={(tab) => {
           setActiveTab(tab)
-          if (tab === "my-trial") onNavigate("my-visits")
+          if (tab === "my-trial") onNavigate("my-trial")
           if (tab === "chat") onNavigate("chat")
           if (tab === "calendar") onNavigate("patient-calendar")
           if (tab === "me") onNavigate("profile-settings")

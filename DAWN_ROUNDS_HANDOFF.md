@@ -93,26 +93,74 @@ lucide-react. Screens render inside a phone `MobileFrame` driven by
   — patient handbook: identity hero, stat tiles, schedule timeline, severity-
   coded risk bars, tappable tel:/mailto: contacts. Preserved ALL exports +
   `defaultTrialInfo` + `buildTrialInfo` + section nav + `info`/`title` props.
+- `components/clinical/screens/patient/profile-settings-screen.tsx`
+  — dawn identity hero (avatar/name/role), personal-details card, grouped
+  settings (Account / Preferences / Legal & support) with dawn sub-screen app
+  bars, redesigned edit-profile / change-password (strength + rules card) /
+  notification toggles / terms+privacy / FAQ / contact-support / tickets / help.
+  Preserved: `onBack`, `onLogout`, every `Section`, all state, `handleSubmitTicket`,
+  `saveProfile`, DOB/age helpers, i18n `t`/`setLang`, `ticketStatusStyle`/`SupportTicket` import.
+- `components/clinical/screens/patient-calendar-screen.tsx`
+  — dawn app bar + segmented day/week/month + period nav, dawn-gradient selected
+  date cells with status dots, shared `VisitCard` (full/week/day variants), tokenised
+  status rails. Preserved: `onNavigate`/`onBack`, `priyaVisits`, ALL helper fns,
+  all state + sync logic, week/day nav fns, BottomNav routing.
+- `components/clinical/screens/patient/chat-screen.tsx`
+  — role-aware; dawn-ambient headers, frosted unread chip, tokenised channel
+  meta/bubbles (removed all slate/purple/white hardcodes), staggered groups,
+  dawn compose overlay. Preserved: types, ALL data maps, `getStatusIcon`, every
+  state/handler, scroll effect, and the `onConversationOpenChange` effect (nav hide).
 
 ### ✓ Already at-bar (verified — DO NOT rebuild)
 - `components/clinical/screens/patient-dashboard.tsx` (DawnRing, sunrise hero,
   numbered editorial sections, calendar mini, i18n) — complete already.
 - `components/clinical/screens/patient/my-visits-screen.tsx` (recent commit).
 
-### ▶ NEXT UP (remaining patient module)
-1. `components/clinical/screens/patient/profile-settings-screen.tsx` (~681 lines)
-2. `components/clinical/screens/patient-calendar-screen.tsx`
-3. `components/clinical/screens/patient/chat-screen.tsx` (~688 lines; role-aware,
-   has `onConversationOpenChange`, `userRole` prop — page.tsx hides nav when a
-   conversation thread is open, so KEEP `onConversationOpenChange` calls).
+### ◧ Research Team module (in progress)
+- ✅ `components/clinical/screens/research-team-dashboard.tsx` — ground-up rebuild,
+  type-clean. Dawn app bar + day-at-a-glance gradient hero (visits/tasks/overdue),
+  portfolio stat tiles (Trials/Sponsors/PIs), quick actions, My Trials, Tasks Today,
+  Today's Visits (status rails), Overdue, plus rebuilt sub-views: All Trials /
+  Sponsors / PIs lists, Patient Record (dawn identity hero + schedule table + history
+  timeline), and the Update-Visit bottom sheet. Preserved ALL props/types/data/
+  helpers/state/handlers + delegations to `TrialSummaryScreen` & `SiteUserProfile`.
+  Fixed latent bugs: Tasks tab now actually renders (`activeTab==="tasks"`), broken
+  `text-primary-foreground/75/80` class, hardcoded slate/teal/red → tokens.
+- ✅ `components/clinical/screens/trial-summary-screen.tsx` — dawn-ambient header,
+  dawn-gradient identity hero, enrolment funnel (animate-fill-bar) + counters,
+  trial team (tel:/mailto:), patients, documents + version history, edit/share
+  bottom-sheets, confirmation toast. Preserved ALL exports/props/helpers/state.
+- ✅ `components/clinical/screens/site-user-profile.tsx` ("Me" tab) — dawn identity
+  hero, account-details card, grouped menus, full dawn sub-sheets (edit profile,
+  entity change, change password, notifications, my trials, team members, invite,
+  reports, T&C, help/FAQ/contact/tickets). Preserved ALL exports/props/state.
+- ✅ `components/clinical/screens/team-calendar-screen.tsx` (`crc-calendar`, shared
+  PI/CRC) — rebuilt ground-up to match the established Dawn Rounds calendar: dawn
+  app bar + role·site subtitle + sync/settings, editorial period navigator
+  (dawn-text label + visits-in-view), segmented day/week/month (dawn-gradient
+  active) + Today jump, tinted status legend, rounded-2xl month/week cells with
+  dawn-gradient selection + status dots, shared privacy-safe VisitCard (status
+  rail/chip, initials·subj, protocol·indication, visit type, PI on CRC view,
+  location/telephonic). Preserved props (onNavigate/onBack/role/initialView),
+  teamVisits data, sync logic, settings nav, role-based BottomNav routing.
+- **Research-team module COMPLETE** ✅ (dashboard, trial-summary, Me, calendar).
 
-### ⏭ Then (rest of app, one at a time)
-- Dashboards: `sponsor-dashboard`, `pi-dashboard`, `research-team-dashboard`.
+### ▶ NEXT UP (patient module COMPLETE ✅ — start the rest of the app)
+- Dashboards: `sponsor-dashboard`, `pi-dashboard`.
 - Trial mgmt: `add-trial`, `visit-schedule`, `patient-list`, `add-patient`,
   `visit-detail`, `trial-summary-screen`, `schedule-review-screen`,
   `share-schedule-flow`, `invite-patient`.
 - Calendars: `team-calendar-screen`, `calendar-settings-screen`.
-- Notifications: `notification-screen`, `notification-detail-sheet`.
+- Notifications: ✅ `notification-screen` + `notification-detail-sheet` — DONE.
+  Dawn app bar (eyebrow + display-serif), dawn-gradient hero with count-up unread
+  number + frosted visits/meds/alerts breakdown chips, dawn-gradient filter pills
+  with mono counts, rounded-2xl notification cards (unread = dawn-gradient left
+  rail + accent wash + pulse-soft urgency dot on overdue/missed/deviation/screen-
+  fail), staggered animate-rise, animated bulk checkboxes, redesigned detail view
+  (glowing medallion, tokenised Related Details rows w/ lucide icons replacing
+  emoji, dawn-gradient action, tokenised Stop/Continue block), animate-pop delete
+  dialog. Killed sky/slate hardcodes → tokens. Preserved ALL props/state/types/
+  maps/handlers/behaviors (long-press bulk, mark-read, filters, grouping).
 - Collaboration: `team-screen`, `site-user-profile`.
 - Admin (17): everything in `components/clinical/screens/admin/`.
 - Misc: `success-screen` (post-auth, ok to restyle).
@@ -121,11 +169,11 @@ lucide-react. Screens render inside a phone `MobileFrame` driven by
   session-timeout, no-internet.
 
 ## Git
-Branch `main`. The 3 rebuilt files + earlier patient WIP are UNCOMMITTED.
+Branch `main`. All patient-module rebuilds + earlier WIP are UNCOMMITTED.
 Suggested checkpoint commit (only if user asks):
-`feat(patient): Dawn Rounds ground-up rebuild — Medication, My Trial, About Trial`
+`feat(patient): Dawn Rounds ground-up rebuild — full patient module`
 
 ## First action in the new session
 Read `app/globals.css` (skim tokens) and the target screen file, then rebuild
-per the recipe above and run `npx tsc --noEmit`. Start with
-`profile-settings-screen.tsx`.
+per the recipe above and run `npx tsc --noEmit`. The patient module is done —
+start the next group with `sponsor-dashboard`.

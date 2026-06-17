@@ -87,7 +87,7 @@ interface TeamMember {
 }
 
 const teamRoleStyle: Record<TeamRole, string> = {
-  "Principal Investigator": "bg-accent/10 text-accent",
+  "Principal Investigator": "bg-accent/12 text-accent",
   "Clinical Research Coordinator": "bg-success/15 text-success",
   "Sponsor Contact": "bg-info/10 text-info",
 }
@@ -139,21 +139,21 @@ const patientStatusStyle: Record<string, { label: string; cls: string }> = {
   "on-track": { label: "On Track", cls: "bg-success/15 text-success" },
   overdue: { label: "Overdue", cls: "bg-destructive/10 text-destructive" },
   completed: { label: "Completed", cls: "bg-info/10 text-info" },
-  withdrawn: { label: "Withdrawn", cls: "bg-border text-muted-foreground" },
+  withdrawn: { label: "Withdrawn", cls: "bg-muted text-muted-foreground" },
 }
 
 // Reusable label/value row for the detail panels.
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">{label}</p>
+      <p className="eyebrow text-muted-foreground/60">{label}</p>
       <p className="text-sm text-foreground mt-0.5">{value}</p>
     </div>
   )
 }
 
 function PanelTitle({ children }: { children: React.ReactNode }) {
-  return <p className="font-semibold text-sm text-foreground mb-3">{children}</p>
+  return <p className="eyebrow text-muted-foreground mb-3">{children}</p>
 }
 
 const emptyShareForm = {
@@ -208,13 +208,21 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
   }
 
   const counters: { label: string; value: number; cls: string }[] = [
-    { label: "Total Screened", value: data.screened, cls: "bg-info/5 text-info" },
-    { label: "Screen Failures", value: data.screenFail, cls: "bg-warning/10 text-warning" },
-    { label: "Randomized", value: data.randomized, cls: "bg-violet/5 text-violet" },
-    { label: "Follow Up", value: data.followUp, cls: "bg-accent/5 text-accent" },
-    { label: "Completed", value: data.completed, cls: "bg-success/10 text-success" },
+    { label: "Total Screened", value: data.screened, cls: "bg-info/10 text-info" },
+    { label: "Screen Failures", value: data.screenFail, cls: "bg-warning/15 text-warning" },
+    { label: "Randomized", value: data.randomized, cls: "bg-violet/10 text-violet" },
+    { label: "Follow Up", value: data.followUp, cls: "bg-accent/12 text-accent" },
+    { label: "Completed", value: data.completed, cls: "bg-success/15 text-success" },
     { label: "Withdrawn", value: data.withdrawn, cls: "bg-muted text-muted-foreground" },
-    { label: "Dropout", value: data.dropout, cls: "bg-rose-50 text-rose-700" },
+    { label: "Dropout", value: data.dropout, cls: "bg-destructive/10 text-destructive" },
+  ]
+
+  // Enrolment funnel — proportions relative to total screened.
+  const screenedBase = data.screened || 1
+  const funnel = [
+    { label: "Screened", value: data.screened, pct: 100, bar: "bg-info" },
+    { label: "Randomized", value: data.randomized, pct: Math.round((data.randomized / screenedBase) * 100), bar: "bg-violet" },
+    { label: "Completed", value: data.completed, pct: Math.round((data.completed / screenedBase) * 100), bar: "bg-success" },
   ]
 
   const documents = [
@@ -233,39 +241,52 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
   const team = buildTeam(data)
 
   return (
-    <div className="h-full flex flex-col bg-surface">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
-        <button onClick={onBack} className="p-1"><ChevronLeft className="w-5 h-5" /></button>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold leading-tight truncate">Trial Summary</p>
-          <p className="text-xs text-primary-foreground/75 truncate">{data.id} · {data.title}</p>
+      <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
+        <div className="relative flex items-center gap-3">
+          <button onClick={onBack} aria-label="Back" className="springy p-1.5 -ml-1.5 rounded-full active:scale-90 hover:bg-white/10">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <p className="eyebrow text-primary-foreground/55">Trial summary</p>
+            <h1 className="display-serif text-lg leading-tight truncate">{data.id}</h1>
+          </div>
+          <TrialActionsMenu
+            triggerClassName="text-primary-foreground"
+            onEdit={openEdit}
+            onDownload={downloadTrial}
+            onShare={openShare}
+          />
         </div>
-        <TrialActionsMenu
-          triggerClassName="text-white"
-          onEdit={openEdit}
-          onDownload={downloadTrial}
-          onShare={openShare}
-        />
       </div>
 
-      <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
-        {/* Panel 1 — Trial Details */}
-        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
-          <PanelTitle>Trial Details</PanelTitle>
-          <div className="grid grid-cols-2 gap-y-3 gap-x-3">
-            <DetailRow label="Protocol ID" value={data.id} />
-            <DetailRow label="CTRI No." value={ctriNo(data.id)} />
-            <div className="col-span-2"><DetailRow label="Study Title" value={data.title} /></div>
-            <DetailRow label="Phase" value={data.phase} />
-            <DetailRow label="Indication" value={data.disease} />
-            <DetailRow label="Drug Name" value={data.drug} />
+      <div className="flex-1 overflow-auto scrollbar-hide px-4 py-4 space-y-3">
+        {/* Identity hero — the dawn gesture */}
+        <div className="dawn-gradient hero-glow paper-grain rounded-3xl p-5 text-primary-foreground shadow-md animate-rise" style={{ animationDelay: "40ms" }}>
+          <div className="relative flex items-center justify-between gap-2">
+            <span className="font-mono text-xs tabular-nums rounded-full bg-white/20 px-2.5 py-1 backdrop-blur-sm">{data.id}</span>
+            <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold backdrop-blur-sm">{data.status}</span>
           </div>
+          <h2 className="relative mt-3 font-heading text-lg leading-snug">{data.title}</h2>
+          <div className="relative mt-3 flex flex-wrap gap-2 text-xs">
+            {[data.phase, data.disease, data.drug].map((c, i) => (
+              <span key={i} className="rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">{c}</span>
+            ))}
+          </div>
+          <p className="relative mt-3 text-sm text-white/85 inline-flex items-center gap-1.5">
+            <Building2 className="h-4 w-4" /> {data.sponsor} · {data.recruitment}
+          </p>
         </div>
 
-        {/* Panel 2 — Sponsor / Site / PI */}
-        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+        {/* Panel — Registry & people */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "110ms" }}>
+          <PanelTitle>Trial Details</PanelTitle>
           <div className="grid grid-cols-2 gap-y-3 gap-x-3">
+            <div className="col-span-2 flex items-start gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
+              <DetailRow label="CTRI No." value={ctriNo(data.id)} />
+            </div>
             <div className="flex items-start gap-2">
               <Building2 className="w-4 h-4 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
               <DetailRow label="Sponsor Name" value={data.sponsor} />
@@ -285,17 +306,43 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
           </div>
         </div>
 
-        {/* Panel — Trial Team (everyone related to this trial) */}
-        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+        {/* Panel — Status (funnel + counters) */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "180ms" }}>
+          <PanelTitle>Enrolment</PanelTitle>
+          <div className="space-y-3 mb-4">
+            {funnel.map((f, i) => (
+              <div key={f.label}>
+                <div className="flex items-center justify-between mb-1 text-xs">
+                  <span className="text-muted-foreground">{f.label}</span>
+                  <span className="font-mono tabular-nums text-foreground font-semibold">{f.value} <span className="text-muted-foreground/60">· {f.pct}%</span></span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className={cn("h-full rounded-full animate-fill-bar", f.bar)} style={{ width: `${f.pct}%`, animationDelay: `${i * 120}ms` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {counters.map(c => (
+              <div key={c.label} className={cn("rounded-xl p-2.5 text-center", c.cls)}>
+                <p className="font-heading text-lg leading-none tabular-nums">{c.value}</p>
+                <p className="text-[10px] font-medium mt-1 leading-tight">{c.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Panel — Trial Team */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "250ms" }}>
           <div className="flex items-center gap-2 mb-3">
             <Users className="w-4 h-4 text-muted-foreground/70" />
             <PanelTitle>Trial Team</PanelTitle>
           </div>
           <div className="space-y-2.5">
             {team.map(m => (
-              <div key={`${m.role}-${m.name}`} className="rounded-xl border border-border bg-surface p-3">
+              <div key={`${m.role}-${m.name}`} className="rounded-2xl border border-border bg-surface p-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-secondary/60 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
                     {initials(m.name)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -307,11 +354,11 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
                   </span>
                 </div>
                 <div className="mt-2.5 pt-2.5 border-t border-border space-y-1.5">
-                  <a href={`mailto:${m.email}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info">
+                  <a href={`mailto:${m.email}`} className="springy flex items-center gap-2 text-xs text-muted-foreground hover:text-info active:scale-[0.99]">
                     <Mail className="w-3.5 h-3.5 flex-shrink-0" />
                     <span className="truncate">{m.email}</span>
                   </a>
-                  <a href={`tel:${m.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-info">
+                  <a href={`tel:${m.phone.replace(/\s/g, "")}`} className="springy flex items-center gap-2 text-xs text-muted-foreground hover:text-info active:scale-[0.99]">
                     <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{m.phone}</span>
                   </a>
@@ -321,26 +368,13 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
           </div>
         </div>
 
-        {/* Panel 3 — Status counters */}
-        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
-          <PanelTitle>Status</PanelTitle>
-          <div className="grid grid-cols-3 gap-2">
-            {counters.map(c => (
-              <div key={c.label} className={cn("rounded-xl p-2.5 text-center", c.cls)}>
-                <p className="text-lg font-bold leading-none">{c.value}</p>
-                <p className="text-[10px] font-medium mt-1 leading-tight">{c.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Panel 4 — Patients */}
-        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+        {/* Panel — Patients */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "320ms" }}>
           <div className="flex items-center justify-between mb-3">
             <PanelTitle>Patients</PanelTitle>
             <button
               onClick={onAddPatient}
-              className="flex-shrink-0 px-3 py-1.5 bg-info rounded-lg text-white text-xs font-semibold whitespace-nowrap"
+              className="springy flex-shrink-0 px-3 py-1.5 bg-primary text-primary-foreground rounded-full text-xs font-semibold whitespace-nowrap active:scale-95"
             >
               Add Patient
             </button>
@@ -352,10 +386,10 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
             {patients.map(p => {
               const st = patientStatusStyle[p.status] ?? { label: p.status, cls: "bg-muted text-muted-foreground" }
               return (
-                <div key={p.id} className="rounded-xl border border-border bg-surface p-3">
+                <div key={p.id} className="rounded-2xl border border-border bg-surface p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-secondary/60 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {initials(p.name)}
                       </div>
                       <div className="min-w-0">
@@ -377,8 +411,8 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
           </div>
         </div>
 
-        {/* Panel 5 — Documents */}
-        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs">
+        {/* Panel — Documents + version */}
+        <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "390ms" }}>
           <PanelTitle>Documents</PanelTitle>
           <div className="space-y-2.5">
             {documents.map(d => (
@@ -397,13 +431,13 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
           <div className="mt-4 pt-3 border-t border-border">
             <div className="flex items-center gap-2 mb-3">
               <History className="w-4 h-4 text-muted-foreground/70" />
-              <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider">Version History</p>
+              <p className="eyebrow text-muted-foreground/70">Version History</p>
             </div>
             <div className="space-y-2">
               {versionHistory.map(v => (
-                <div key={v.version} className="flex items-center justify-between rounded-lg bg-surface px-3 py-2">
+                <div key={v.version} className="flex items-center justify-between rounded-xl bg-surface px-3 py-2">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{v.version}</p>
+                    <p className="text-sm font-semibold text-foreground font-mono">{v.version}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{v.note}</p>
                   </div>
                   <div className="flex items-center gap-1 text-[11px] text-muted-foreground/70 flex-shrink-0">
@@ -419,63 +453,66 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
 
       {/* Edit Trial modal */}
       {showEdit && (
-        <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40" onClick={() => setShowEdit(false)}>
-          <div onClick={e => e.stopPropagation()} className="bg-card rounded-t-3xl max-h-[88%] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40 animate-fade-in" onClick={() => setShowEdit(false)}>
+          <div onClick={e => e.stopPropagation()} className="bg-card rounded-t-3xl max-h-[88%] flex flex-col animate-rise">
+            <div className="px-4 pt-3">
+              <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
+            </div>
+            <div className="flex items-center justify-between px-4 pb-3 border-b border-border">
               <div className="min-w-0">
-                <p className="font-semibold text-foreground">Edit Trial</p>
-                <p className="text-xs text-muted-foreground truncate">{data.id}</p>
+                <p className="font-heading text-base text-foreground">Edit Trial</p>
+                <p className="text-xs text-muted-foreground truncate font-mono">{data.id}</p>
               </div>
-              <button onClick={() => setShowEdit(false)} className="p-1 rounded-full hover:bg-muted">
+              <button onClick={() => setShowEdit(false)} className="springy p-1.5 rounded-full hover:bg-muted active:scale-90">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+            <div className="flex-1 overflow-auto scrollbar-hide px-4 py-4 space-y-3">
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Study Title</label>
+                <label className="eyebrow text-muted-foreground">Study Title</label>
                 <textarea
                   value={editDraft.title}
                   onChange={e => setEditDraft(f => ({ ...f, title: e.target.value }))}
                   rows={2}
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none resize-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Phase</label>
+                  <label className="eyebrow text-muted-foreground">Phase</label>
                   <input
                     value={editDraft.phase}
                     onChange={e => setEditDraft(f => ({ ...f, phase: e.target.value }))}
-                    className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                    className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Indication</label>
+                  <label className="eyebrow text-muted-foreground">Indication</label>
                   <input
                     value={editDraft.disease}
                     onChange={e => setEditDraft(f => ({ ...f, disease: e.target.value }))}
-                    className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                    className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Drug Name</label>
+                <label className="eyebrow text-muted-foreground">Drug Name</label>
                 <input
                   value={editDraft.drug}
                   onChange={e => setEditDraft(f => ({ ...f, drug: e.target.value }))}
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Status</label>
-                <div className="mt-1 flex gap-2">
+                <label className="eyebrow text-muted-foreground">Status</label>
+                <div className="mt-1.5 flex rounded-full bg-muted p-1">
                   {(["Active", "Completed", "Terminated"] as const).map(s => (
                     <button
                       key={s}
                       onClick={() => setEditDraft(f => ({ ...f, status: s }))}
-                      className={cn("flex-1 rounded-xl border px-2 py-2 text-xs font-medium",
-                        editDraft.status === s ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}
+                      className={cn("flex-1 rounded-full px-2 py-2 text-xs font-semibold transition-all",
+                        editDraft.status === s ? "bg-card text-foreground shadow-xs" : "text-muted-foreground")}
                     >
                       {s}
                     </button>
@@ -483,17 +520,17 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
                 </div>
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Recruitment Status</label>
+                <label className="eyebrow text-muted-foreground">Recruitment Status</label>
                 <input
                   value={editDraft.recruitment}
                   onChange={e => setEditDraft(f => ({ ...f, recruitment: e.target.value }))}
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
             </div>
 
             <div className="px-4 py-3 border-t border-border">
-              <button onClick={saveEdit} className="w-full rounded-xl py-3 text-sm font-semibold text-white bg-info">
+              <button onClick={saveEdit} className="springy w-full rounded-xl py-3 text-sm font-semibold text-primary-foreground bg-primary-deep active:scale-[0.98]">
                 Save Changes
               </button>
             </div>
@@ -503,58 +540,59 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
 
       {/* Share Trial modal */}
       {showShare && (
-        <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40" onClick={() => setShowShare(false)}>
-          <div onClick={e => e.stopPropagation()} className="bg-card rounded-t-3xl max-h-[88%] flex flex-col">
-            {/* Modal header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/40 animate-fade-in" onClick={() => setShowShare(false)}>
+          <div onClick={e => e.stopPropagation()} className="bg-card rounded-t-3xl max-h-[88%] flex flex-col animate-rise">
+            <div className="px-4 pt-3">
+              <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
+            </div>
+            <div className="flex items-center justify-between px-4 pb-3 border-b border-border">
               <div className="min-w-0">
-                <p className="font-semibold text-foreground">Share Trial</p>
+                <p className="font-heading text-base text-foreground inline-flex items-center gap-1.5"><Share2 className="w-4 h-4 text-primary" /> Share Trial</p>
                 <p className="text-xs text-muted-foreground truncate">Share {data.id} with an organization member</p>
               </div>
-              <button onClick={() => setShowShare(false)} className="p-1 rounded-full hover:bg-muted">
+              <button onClick={() => setShowShare(false)} className="springy p-1.5 rounded-full hover:bg-muted active:scale-90">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
 
-            {/* Form */}
-            <div className="flex-1 overflow-auto px-4 py-4 space-y-3">
+            <div className="flex-1 overflow-auto scrollbar-hide px-4 py-4 space-y-3">
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Full Name</label>
+                <label className="eyebrow text-muted-foreground">Full Name</label>
                 <input
                   value={shareForm.fullName}
                   onChange={e => setShareForm(f => ({ ...f, fullName: e.target.value }))}
                   placeholder="e.g. Dr. Anita Rao"
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Designation</label>
+                <label className="eyebrow text-muted-foreground">Designation</label>
                 <input
                   value={shareForm.designation}
                   onChange={e => setShareForm(f => ({ ...f, designation: e.target.value }))}
                   placeholder="e.g. Co-Investigator"
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Email ID</label>
+                <label className="eyebrow text-muted-foreground">Email ID</label>
                 <input
                   type="email"
                   value={shareForm.email}
                   onChange={e => setShareForm(f => ({ ...f, email: e.target.value }))}
                   placeholder="name@example.com"
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Role</label>
-                <div className="mt-1 flex gap-2">
+                <label className="eyebrow text-muted-foreground">Role</label>
+                <div className="mt-1.5 flex rounded-full bg-muted p-1">
                   {(["PI", "Research Team"] as const).map(r => (
                     <button
                       key={r}
                       onClick={() => setShareForm(f => ({ ...f, role: r }))}
-                      className={cn("flex-1 rounded-xl border px-3 py-2 text-sm font-medium",
-                        shareForm.role === r ? "bg-info text-white border-info" : "bg-card text-muted-foreground border-border")}
+                      className={cn("flex-1 rounded-full px-3 py-2 text-sm font-semibold transition-all",
+                        shareForm.role === r ? "bg-card text-foreground shadow-xs" : "text-muted-foreground")}
                     >
                       {r}
                     </button>
@@ -562,40 +600,39 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
                 </div>
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Phone No.</label>
+                <label className="eyebrow text-muted-foreground">Phone No.</label>
                 <input
                   type="tel"
                   value={shareForm.phone}
                   onChange={e => setShareForm(f => ({ ...f, phone: e.target.value }))}
                   placeholder="+91 98765 43210"
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Org. Name</label>
+                <label className="eyebrow text-muted-foreground">Org. Name</label>
                 <input
                   value={shareForm.orgName}
                   onChange={e => setShareForm(f => ({ ...f, orgName: e.target.value }))}
                   placeholder="Organization name"
-                  className="mt-1 w-full bg-surface border border-border rounded-xl px-3 py-2.5 text-sm outline-none focus:border-info"
+                  className="mt-1.5 w-full bg-card border border-border rounded-xl px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Access Type</label>
-                <div className="mt-1 flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2.5">
+                <label className="eyebrow text-muted-foreground">Access Type</label>
+                <div className="mt-1.5 flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2.5">
                   <span className="text-sm font-medium text-foreground">{shareForm.accessType}</span>
                   <span className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground/70"><Lock className="w-3 h-3" /> Default</span>
                 </div>
               </div>
             </div>
 
-            {/* Footer */}
             <div className="px-4 py-3 border-t border-border">
               <button
                 onClick={submitShare}
                 disabled={!shareValid}
-                className={cn("w-full rounded-xl py-3 text-sm font-semibold text-white",
-                  shareValid ? "bg-info" : "bg-slate-300")}
+                className={cn("springy w-full rounded-xl py-3 text-sm font-semibold active:scale-[0.98]",
+                  shareValid ? "bg-primary-deep text-primary-foreground" : "bg-muted text-muted-foreground/70 cursor-not-allowed")}
               >
                 Share Trial
               </button>
@@ -606,12 +643,12 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
 
       {/* Confirmation toast */}
       {toast && (
-        <div className="absolute bottom-4 left-4 right-4 z-50 flex items-start gap-3 bg-primary-deep rounded-2xl px-4 py-3 shadow-2xl ring-1 ring-white/10">
+        <div className="absolute bottom-4 left-4 right-4 z-50 flex items-start gap-3 bg-primary-deep rounded-2xl px-4 py-3 shadow-2xl ring-1 ring-white/10 animate-rise">
           <div className="w-8 h-8 rounded-full bg-success flex items-center justify-center flex-shrink-0">
-            <Check className="w-4 h-4 text-white" />
+            <Check className="w-4 h-4 text-success-foreground" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-white leading-snug">{toast}</p>
+            <p className="text-sm font-semibold text-primary-foreground leading-snug">{toast}</p>
           </div>
         </div>
       )}

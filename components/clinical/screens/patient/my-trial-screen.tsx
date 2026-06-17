@@ -3,7 +3,7 @@
 import { useState } from "react"
 import {
   ChevronLeft, ChevronRight, Check, Clock, Pill, CheckCircle,
-  MapPin, Phone, Home, Building2, Calendar, Sparkles, Stethoscope,
+  Phone, Home, Building2, Calendar, Sparkles, Stethoscope, Layers,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -193,11 +193,6 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
             >
               <Phone className="w-4 h-4" /> Contact PI
             </button>
-            {selectedVisit.type === "Hospital" && (
-              <button className="springy w-full border border-primary/30 bg-card text-primary rounded-full py-3.5 font-semibold text-sm transition-colors hover:border-primary hover:bg-secondary/50 active:scale-[0.98] inline-flex items-center justify-center gap-2">
-                <MapPin className="w-4 h-4" /> Get Directions
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -209,15 +204,17 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
     <div className="h-full flex flex-col bg-surface">
       {/* Header */}
       <div className="bg-primary-deep text-primary-foreground px-4 pt-3.5 pb-4 dawn-ambient">
-        <div className="relative flex items-center justify-between">
-          <div>
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <p className="eyebrow text-primary-foreground/55 mb-0.5">Protocol-001 · Dr. Sharma</p>
             <h1 className="display-serif text-xl leading-tight">My Trial</h1>
           </div>
-          <div className="rounded-full bg-white/12 px-3 py-1.5 text-center backdrop-blur-sm">
-            <p className="font-mono text-sm leading-none tabular-nums">Wk 12</p>
-            <p className="text-[10px] text-white/65 mt-0.5">of 24</p>
-          </div>
+          <button
+            onClick={() => onNavigate("my-visits")}
+            className="springy shrink-0 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold text-primary-foreground backdrop-blur-sm transition-colors hover:bg-white/25 active:scale-95"
+          >
+            <Layers className="h-3.5 w-3.5" /> All trials
+          </button>
         </div>
       </div>
 
