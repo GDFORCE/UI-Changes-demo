@@ -9,6 +9,10 @@ interface OTPScreenProps {
   onVerify: () => void
   onBack: () => void
   entityType?: string | null
+  /** Override the header eyebrow (e.g. invite flow has no "Step 4 of 5"). */
+  eyebrow?: string
+  /** Progress step for the header bar; omit to hide it (invite flow). */
+  step?: number
 }
 
 const OTP_DURATION = 300 // 5 minutes
@@ -143,7 +147,7 @@ function OtpRow({
   )
 }
 
-export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
+export function OTPScreen({ onVerify, onBack, entityType, eyebrow, step }: OTPScreenProps) {
   const isPatient = entityType === "patient"
   // Patient verifies via phone only; everyone else via phone AND email.
   const channels: Channel[] = isPatient ? ["phone"] : ["phone", "email"]
@@ -187,7 +191,7 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
   return (
     <div className="h-full flex flex-col bg-background paper-grain">
       <AuthHeader
-        eyebrow="Step 4 of 5"
+        eyebrow={eyebrow}
         title={isLocked ? "Verification paused" : "Check your messages"}
         subtitle={
           isLocked
@@ -197,7 +201,7 @@ export function OTPScreen({ onVerify, onBack, entityType }: OTPScreenProps) {
               : "We've sent a 6-digit code to both your phone and your email."
         }
         onBack={onBack}
-        step={4}
+        step={step}
       />
 
       <div className="flex-1 px-6 pt-3 pb-4 overflow-auto">

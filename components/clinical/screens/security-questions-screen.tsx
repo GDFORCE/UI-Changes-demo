@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils"
 interface SecurityQuestionsScreenProps {
   onSubmit: () => void
   onBack: () => void
+  /** Override the header eyebrow (e.g. invite flow has no "Step 3 of 5"). */
+  eyebrow?: string
+  /** Progress step for the header bar; omit to hide it (invite flow). */
+  step?: number
 }
 
 // Production apps ask several questions so a single leaked answer can't unlock an
@@ -37,7 +41,7 @@ const PLACEHOLDER = "Please select a question"
 const inputClass =
   "w-full px-4 py-3 rounded-lg border border-border bg-card text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/15"
 
-export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsScreenProps) {
+export function SecurityQuestionsScreen({ onSubmit, onBack, eyebrow, step }: SecurityQuestionsScreenProps) {
   const [questions, setQuestions] = useState<string[]>(Array(NUM_QUESTIONS).fill(""))
   const [answers, setAnswers] = useState<string[]>(Array(NUM_QUESTIONS).fill(""))
   const [revealed, setRevealed] = useState<boolean[]>(Array(NUM_QUESTIONS).fill(false))
@@ -54,11 +58,11 @@ export function SecurityQuestionsScreen({ onSubmit, onBack }: SecurityQuestionsS
   return (
     <div className="h-full flex flex-col bg-background paper-grain">
       <AuthHeader
-        eyebrow="Step 3 of 5"
+        eyebrow={eyebrow}
         title="Only you would know"
         subtitle="Three security questions help us verify it's you and recover your account if it's ever locked."
         onBack={onBack}
-        step={3}
+        step={step}
       />
 
       <div className="flex-1 px-6 pt-3 pb-4 overflow-auto">

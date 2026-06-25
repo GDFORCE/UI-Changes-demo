@@ -3,9 +3,11 @@
 import { MtbLogoMark } from "@/components/clinical/mtb-logo"
 
 interface WelcomeScreenProps {
+  /** "Register your organization" — set up a new org/site and become its owner/admin. */
   onSignUp: () => void
+  /** "Join with an invite" — attach to an existing site as a member via an invite code. */
+  onJoinInvite: () => void
   onSignIn: () => void
-  onForgotPassword: () => void
 }
 
 /**
@@ -13,8 +15,12 @@ interface WelcomeScreenProps {
  * Cream-blush paper, Bricolage display, and the sunrise motif: the patient's
  * journey drawn as an arc of visits with the sun (the next visit) rising
  * along it in the dawn gradient.
+ *
+ * Two entry intents, by action rather than self-declared role:
+ *  • Register your organization → you're the first in → you become admin/owner.
+ *  • Join with an invite        → you attach to an existing site → role comes from the invite.
  */
-export function WelcomeScreen({ onSignUp, onSignIn, onForgotPassword }: WelcomeScreenProps) {
+export function WelcomeScreen({ onSignUp, onJoinInvite, onSignIn }: WelcomeScreenProps) {
   return (
     <div className="h-full flex flex-col bg-background paper-grain dawn-ambient overflow-hidden">
       {/* ── Masthead ── */}
@@ -102,28 +108,34 @@ export function WelcomeScreen({ onSignUp, onSignIn, onForgotPassword }: WelcomeS
       </div>
 
       {/* ── Actions ── */}
+      {/* Two intents, by action: register a new org (→ owner/admin) or join an existing one (→ member). */}
       <div className="px-7 pb-9 space-y-3">
         <button
           onClick={onSignUp}
           className="springy w-full py-4 rounded-full bg-primary text-primary-foreground text-[15px] font-semibold tracking-tight shadow-md transition-colors duration-200 hover:bg-primary-deep active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background animate-rise"
           style={{ animationDelay: "560ms" }}
         >
-          Create an account
+          Register your organization
         </button>
         <button
-          onClick={onSignIn}
+          onClick={onJoinInvite}
           className="springy w-full py-4 rounded-full border border-primary/30 bg-card text-primary text-[15px] font-semibold tracking-tight transition-colors duration-200 hover:border-primary hover:bg-secondary/50 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background animate-rise"
           style={{ animationDelay: "620ms" }}
         >
-          Sign in
+          Join with an invite
         </button>
-        <button
-          onClick={onForgotPassword}
-          className="w-full py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-md animate-rise"
+        <p
+          className="text-center text-sm text-muted-foreground pt-1 animate-rise"
           style={{ animationDelay: "680ms" }}
         >
-          Forgot password?
-        </button>
+          Already a member?{" "}
+          <button
+            onClick={onSignIn}
+            className="font-semibold text-primary transition-colors hover:text-primary-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 rounded-sm"
+          >
+            Sign in
+          </button>
+        </p>
       </div>
     </div>
   )

@@ -12,11 +12,10 @@ interface EntityTypeScreenProps {
 }
 
 const entities = [
-  { id: "sponsor", label: "Sponsor", description: "Owns and funds the clinical trial" },
-  { id: "cro", label: "CRO", description: "Runs the trial on a sponsor's behalf" },
-  { id: "smo", label: "SMO", description: "Manages a network of trial sites" },
-  { id: "site", label: "Site / Hospital", description: "Where patient visits take place" },
-  { id: "patient", label: "Patient", description: "Taking part in a clinical trial" },
+  { id: "sponsor", label: "Sponsor" },
+  { id: "cro", label: "CRO" },
+  { id: "smo", label: "SMO" },
+  { id: "site", label: "Site / Hospital" },
 ]
 
 /**
@@ -45,7 +44,7 @@ export function EntityTypeScreen({ selectedEntity, onSelect, onContinue, onBack 
                 aria-checked={isSelected}
                 onClick={() => onSelect(entity.id)}
                 className={cn(
-                  "group relative w-full flex items-center gap-4 px-5 py-4 text-left transition-colors duration-200 animate-rise",
+                  "group relative w-full flex items-center gap-4 px-5 py-7 text-left transition-colors duration-200 animate-rise",
                   i > 0 && "border-t border-border",
                   isSelected ? "bg-secondary/45" : "hover:bg-surface",
                 )}
@@ -70,9 +69,6 @@ export function EntityTypeScreen({ selectedEntity, onSelect, onContinue, onBack 
                 <span className="flex-1 min-w-0">
                   <span className={cn("block font-heading text-[17px] leading-snug transition-colors", isSelected ? "text-primary" : "text-foreground")}>
                     {entity.label}
-                  </span>
-                  <span className="block text-[13px] text-muted-foreground leading-snug mt-0.5">
-                    {entity.description}
                   </span>
                 </span>
                 <span

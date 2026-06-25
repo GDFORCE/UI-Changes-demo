@@ -6,6 +6,7 @@ import { BottomNav, type UserRole } from "@/components/clinical/bottom-nav"
 import { MtbLogoMark } from "@/components/clinical/mtb-logo"
 import { WelcomeScreen } from "@/components/clinical/screens/welcome-screen"
 import { EntityTypeScreen } from "@/components/clinical/screens/entity-type-screen"
+import { JoinInviteScreen } from "@/components/clinical/screens/join-invite-screen"
 import { RegistrationScreen } from "@/components/clinical/screens/registration-screen"
 import { OTPScreen } from "@/components/clinical/screens/otp-screen"
 import { SecurityQuestionsScreen } from "@/components/clinical/screens/security-questions-screen"
@@ -44,6 +45,7 @@ import { LanguageProvider } from "@/lib/i18n"
 type Screen =
   | "welcome"
   | "entity-type"
+  | "join-invite"
   | "registration"
   | "security-questions"
   | "otp"
@@ -85,6 +87,7 @@ const screenCategories = [
     screens: [
       { id: "welcome", label: "Welcome" },
       { id: "entity-type", label: "Entity Type" },
+      { id: "join-invite", label: "Join with Invite" },
       { id: "registration", label: "Registration" },
       { id: "security-questions", label: "Security Questions" },
       { id: "otp", label: "OTP" },
@@ -210,8 +213,15 @@ export default function PatientVisitScheduleApp() {
         return (
           <WelcomeScreen
             onSignUp={() => navigate("entity-type")}
+            onJoinInvite={() => navigate("join-invite")}
             onSignIn={() => navigate("sign-in")}
-            onForgotPassword={() => navigate("forgot-password")}
+          />
+        )
+      case "join-invite":
+        return (
+          <JoinInviteScreen
+            onJoin={() => navigate("security-questions")}
+            onBack={goBack}
           />
         )
       case "entity-type":
@@ -231,21 +241,31 @@ export default function PatientVisitScheduleApp() {
             entityType={selectedEntity}
           />
         )
-      case "security-questions":
+      case "security-questions": {
+        const fromInvite = history.includes("join-invite")
         return (
           <SecurityQuestionsScreen
             onSubmit={() => navigate("otp")}
             onBack={goBack}
+            // The invite flow isn't a numbered 5-step registration, so drop the step bar.
+            eyebrow={fromInvite ? "Account recovery" : "Step 3 of 5"}
+            step={fromInvite ? undefined : 3}
           />
         )
-      case "otp":
+      }
+      case "otp": {
+        const fromInvite = history.includes("join-invite")
         return (
           <OTPScreen
             onVerify={() => navigate("password")}
             onBack={goBack}
             entityType={selectedEntity}
+            // The invite flow isn't a numbered 5-step registration, so drop the step bar.
+            eyebrow={fromInvite ? "Verify it's you" : "Step 4 of 5"}
+            step={fromInvite ? undefined : 4}
           />
         )
+      }
       case "password":
         return (
           <PasswordScreen
@@ -474,7 +494,7 @@ export default function PatientVisitScheduleApp() {
 
   // Pre-login / onboarding screens — no nav.
   const authScreens: Screen[] = [
-    "welcome", "entity-type", "registration", "security-questions", "otp", "password", "success",
+    "welcome", "entity-type", "join-invite", "registration", "security-questions", "otp", "password", "success",
     "sign-in", "forgot-password", "session-timeout", "no-internet",
   ]
   // Screens that already render their own bottom nav.

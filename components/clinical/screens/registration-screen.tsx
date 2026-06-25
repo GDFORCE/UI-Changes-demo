@@ -1,7 +1,7 @@
 "use client"
 
 import { AuthHeader } from "../auth-header"
-import { Check, X } from "lucide-react"
+import { Check, X, ClipboardCheck } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/lib/i18n"
@@ -19,6 +19,15 @@ const entityLabels: Record<string, string> = {
   site: "Site / Hospital",
   patient: "Patient",
 }
+
+// Responsibilities shown in the floating box before an organization fills the form.
+const registrationInstructions = [
+  "The Authorized Signatory / Responsible person of the organization should fill this form.",
+  "All fields marked with an asterisk (*) are mandatory.",
+  "After submitting, check your registered email for verification before signing in.",
+  "Uploaded documents must be self-attested with the company stamp and seal.",
+  "You are responsible for the accuracy and authenticity of all information provided.",
+]
 
 const inputClass =
   "w-full px-4 py-3 rounded-lg border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground/55 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/15"
@@ -249,6 +258,8 @@ export function RegistrationScreen({ onSubmit, onBack, entityType }: Registratio
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [showTermsModal, setShowTermsModal] = useState(false)
   const [termsScrolled, setTermsScrolled] = useState(false)
+  // Floating responsibilities box — shown on entry for organization registrations.
+  const [showInstructions, setShowInstructions] = useState(() => entityType !== "patient")
   const entityLabel = (entityType && entityLabels[entityType]) || entityLabels.sponsor
 
   const handleTermsScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -337,6 +348,54 @@ export function RegistrationScreen({ onSubmit, onBack, entityType }: Registratio
           Continue
         </button>
       </div>
+
+      {/* Registration instructions — floating box, centered */}
+      {showInstructions && (
+        <div className="absolute inset-0 bg-primary-deep/50 backdrop-blur-[2px] flex items-center justify-center px-5 z-50">
+          <div
+            className="bg-background w-full max-w-sm rounded-3xl shadow-xl flex flex-col overflow-hidden animate-rise"
+            style={{ maxHeight: "85%", animationDuration: "320ms" }}
+          >
+            {/* Header */}
+            <div className="px-6 pt-6 pb-4 text-center">
+              <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-primary">
+                <ClipboardCheck className="w-6 h-6" />
+              </span>
+              <p className="eyebrow text-accent mb-1">Before you register</p>
+              <h2 className="font-heading text-xl text-foreground leading-snug">
+                Your responsibilities
+              </h2>
+              <p className="text-[13px] text-muted-foreground mt-1.5 leading-relaxed">
+                Please read the points below. You are registering on behalf of your organization.
+              </p>
+            </div>
+
+            {/* Instructions list */}
+            <div className="flex-1 overflow-auto px-6 pb-2">
+              <ol className="space-y-3">
+                {registrationInstructions.map((text, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary font-heading text-[13px] tabular-nums text-primary">
+                      {i + 1}
+                    </span>
+                    <span className="text-[13px] text-muted-foreground leading-relaxed pt-0.5">{text}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Accept */}
+            <div className="px-6 py-4">
+              <button
+                onClick={() => setShowInstructions(false)}
+                className="w-full py-3.5 rounded-full font-semibold text-sm bg-primary text-primary-foreground shadow-md transition-all hover:bg-primary-deep active:scale-[0.99]"
+              >
+                Accept &amp; Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Terms & Conditions Modal */}
       {showTermsModal && (
