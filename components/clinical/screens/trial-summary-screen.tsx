@@ -217,14 +217,6 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
     { label: "Dropout", value: data.dropout, cls: "bg-destructive/10 text-destructive" },
   ]
 
-  // Enrolment funnel — proportions relative to total screened.
-  const screenedBase = data.screened || 1
-  const funnel = [
-    { label: "Screened", value: data.screened, pct: 100, bar: "bg-info" },
-    { label: "Randomized", value: data.randomized, pct: Math.round((data.randomized / screenedBase) * 100), bar: "bg-violet" },
-    { label: "Completed", value: data.completed, pct: Math.round((data.completed / screenedBase) * 100), bar: "bg-success" },
-  ]
-
   const documents = [
     { label: "Uploaded Protocol", value: `${data.id}_Protocol_v2.1.pdf` },
     { label: "Uploaded by", value: data.pi },
@@ -309,19 +301,6 @@ export function TrialSummaryScreen({ trial, patients, onBack, onAddPatient }: Tr
         {/* Panel — Status (funnel + counters) */}
         <div className="bg-card rounded-2xl border border-border p-4 shadow-xs animate-rise" style={{ animationDelay: "180ms" }}>
           <PanelTitle>Enrolment</PanelTitle>
-          <div className="space-y-3 mb-4">
-            {funnel.map((f, i) => (
-              <div key={f.label}>
-                <div className="flex items-center justify-between mb-1 text-xs">
-                  <span className="text-muted-foreground">{f.label}</span>
-                  <span className="font-mono tabular-nums text-foreground font-semibold">{f.value} <span className="text-muted-foreground/60">· {f.pct}%</span></span>
-                </div>
-                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <div className={cn("h-full rounded-full animate-fill-bar", f.bar)} style={{ width: `${f.pct}%`, animationDelay: `${i * 120}ms` }} />
-                </div>
-              </div>
-            ))}
-          </div>
           <div className="grid grid-cols-3 gap-2">
             {counters.map(c => (
               <div key={c.label} className={cn("rounded-xl p-2.5 text-center", c.cls)}>

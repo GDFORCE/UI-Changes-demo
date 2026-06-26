@@ -635,12 +635,12 @@ export function ProfileSettingsScreen({ onBack, onLogout }: ProfileSettingsScree
           <p className="eyebrow text-muted-foreground mb-1">Personal details</p>
           <div className="divide-y divide-border/60">
             {infoRows.map(r => (
-              <div key={r.label} className="flex items-center justify-between gap-3 py-2.5">
+              <div key={r.label} className="py-2.5">
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   {r.label}
                   {r.verify && <ShieldCheck className="w-3 h-3 text-success" />}
                 </p>
-                <p className="text-sm text-foreground font-medium text-right truncate">{r.val}</p>
+                <p className="text-sm text-foreground font-medium mt-0.5">{r.val}</p>
               </div>
             ))}
           </div>

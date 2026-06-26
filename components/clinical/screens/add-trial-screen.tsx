@@ -5,11 +5,15 @@ import { RefreshCw, X, ArrowRight, CheckCircle2, UploadCloud } from "lucide-reac
 import { useState } from "react"
 
 interface AddTrialScreenProps {
-  onSave: () => void
+  onSave: (details?: TrialDetails) => void
   onBack: () => void
+  /** App-bar title. Defaults to "Add New Trial". */
+  title?: string
+  /** Label for the final CTA. Defaults to "Save Trial". */
+  saveLabel?: string
 }
 
-interface TrialDetails {
+export interface TrialDetails {
   ctri: string
   title: string
   phase: string
@@ -67,7 +71,7 @@ const EXTRACTED_FROM_UPLOAD: TrialDetails = {
   totalVisits: "12",
 }
 
-export function AddTrialScreen({ onSave, onBack }: AddTrialScreenProps) {
+export function AddTrialScreen({ onSave, onBack, title = "Add New Trial", saveLabel = "Save Trial" }: AddTrialScreenProps) {
   const [protocolId, setProtocolId] = useState("")
   const [resolved, setResolved] = useState(false)
   const [source, setSource] = useState<"database" | "upload" | null>(null)
@@ -110,7 +114,7 @@ export function AddTrialScreen({ onSave, onBack }: AddTrialScreenProps) {
 
   return (
     <div className="h-full flex flex-col bg-surface">
-      <AppBar title="Add New Trial" showBack onBack={onBack} />
+      <AppBar title={title} showBack onBack={onBack} />
 
       <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
         {/* Step 1 — Protocol ID lookup */}
@@ -288,11 +292,11 @@ export function AddTrialScreen({ onSave, onBack }: AddTrialScreenProps) {
             </div>
 
             <button
-              onClick={onSave}
+              onClick={() => onSave(details)}
               disabled={!resolved}
               className="w-full py-4 rounded-full font-semibold bg-primary text-white disabled:opacity-60"
             >
-              Save Trial
+              {saveLabel}
             </button>
         </div>
       </div>

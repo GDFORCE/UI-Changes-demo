@@ -136,7 +136,7 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                   <Activity className="h-3 w-3" /> 93% adherence
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-semibold">
-                  Next in 4 days
+                  Next Visit in 4 days
                 </span>
               </div>
             </div>
@@ -206,8 +206,8 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                     className={cn(
                       "relative aspect-square flex flex-col items-center justify-center rounded-2xl text-xs font-medium",
                       !day && "invisible",
-                      status === "completed" && "bg-accent/12 text-accent",
-                      status === "upcoming" && "bg-warning/15 text-warning",
+                      status === "completed" && "bg-success/15 text-success",
+                      status === "upcoming" && "bg-accent/15 text-accent",
                       status === "scheduled" && "bg-info/10 text-info",
                       !status && isToday && "ring-1 ring-inset ring-info text-info",
                       !status && !isToday && "text-foreground/80",
@@ -217,8 +217,8 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
                     {status && (
                       <span className={cn(
                         "absolute bottom-1 h-1 w-1 rounded-full",
-                        status === "completed" && "bg-accent",
-                        status === "upcoming" && "bg-warning",
+                        status === "completed" && "bg-success",
+                        status === "upcoming" && "bg-accent",
                         status === "scheduled" && "bg-info",
                       )} />
                     )}
@@ -227,8 +227,8 @@ export function PatientDashboard({ onNavigate }: PatientDashboardProps) {
               })}
             </div>
             <div className="flex justify-center gap-4 mt-3 pt-3 border-t border-border">
-              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-accent" />{t("completed")}</span>
-              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-warning" />{t("upcoming")}</span>
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-success" />{t("completed")}</span>
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-accent" />{t("upcoming")}</span>
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span className="w-2.5 h-2.5 rounded-full bg-info" />{t("scheduled")}</span>
             </div>
           </button>

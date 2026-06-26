@@ -292,7 +292,7 @@ export default function PatientVisitScheduleApp() {
                 navigate("sponsor-dashboard")
               }
             }}
-            onSignUp={() => navigate("entity-type")}
+            onSignUp={() => navigate("welcome")}
             onForgotPassword={() => navigate("forgot-password")}
           />
         )

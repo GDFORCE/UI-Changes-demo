@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { ChevronLeft, Check, FileText, Upload, Search, X, AlertCircle, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { AddTrialScreen, type TrialDetails } from "./add-trial-screen"
+import { VisitScheduleScreen } from "./visit-schedule-screen"
 
 interface ShareScheduleFlowProps {
   onBack: () => void
@@ -68,6 +70,10 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
   const [loading, setLoading]           = useState(false)
   const [done, setDone]                 = useState(false)
   const [showDiscard, setShowDiscard]   = useState(false)
+  // Sub-flow for adding a brand-new protocol — mirrors the "Add Trial" process
+  // (protocol details → visit schedule) but ends by sharing instead of saving.
+  const [addProtocolStep, setAddProtocolStep] = useState<null | "details" | "schedule">(null)
+  const [newProtocol, setNewProtocol]   = useState<TrialDetails | null>(null)
 
   const filteredSites = mockSites.filter(s =>
     s.name.toLowerCase().includes(siteSearch.toLowerCase()) ||
@@ -93,6 +99,43 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
   const handleShare = () => {
     setLoading(true)
     setTimeout(() => { setLoading(false); setDone(true) }, 1400)
+  }
+
+  const shareCtaLabel = `Share with ${selectedSites.size} Site${selectedSites.size !== 1 ? "s" : ""} →`
+
+  // After the visit schedule is confirmed, share the newly-added protocol to the sites.
+  const handleProtocolShared = () => {
+    const name = newProtocol?.title?.trim()
+      ? `${newProtocol.title.trim().slice(0, 40)}.pdf`
+      : "New Protocol.pdf"
+    setSelectedDoc(null)
+    setUploadedFileName(name)
+    setAddProtocolStep(null)
+    handleShare()
+  }
+
+  // ── Add new protocol — step 1: protocol details (same as "Add Trial") ──
+  if (addProtocolStep === "details") {
+    return (
+      <AddTrialScreen
+        title="Add Protocol"
+        saveLabel="Next: Visit Schedule →"
+        onBack={() => setAddProtocolStep(null)}
+        onSave={(proto) => { setNewProtocol(proto ?? null); setAddProtocolStep("schedule") }}
+      />
+    )
+  }
+
+  // ── Add new protocol — step 2: visit schedule, ends by sharing ──
+  if (addProtocolStep === "schedule") {
+    return (
+      <VisitScheduleScreen
+        saveLabel={shareCtaLabel}
+        saveToast="Protocol shared"
+        onBack={() => setAddProtocolStep("details")}
+        onSave={handleProtocolShared}
+      />
+    )
   }
 
   // ── Discard dialog ───────────────────────────────────────
@@ -283,7 +326,7 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
 
             {/* Upload new */}
             <div>
-              <p className="font-semibold text-foreground text-sm mb-2">Upload Document</p>
+              <p className="font-semibold text-foreground text-sm mb-2">Upload a New Protocol</p>
               {uploadedFileName ? (
                 <div className="bg-accent/5 border-2 border-teal-300 rounded-2xl p-4 flex items-center gap-3">
                   <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center shrink-0">
@@ -301,22 +344,17 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
                   </button>
                 </div>
               ) : (
-                <label className="cursor-pointer block">
-                  <div
-                    className="border-2 border-dashed border-border rounded-2xl p-6 flex flex-col items-center gap-2 text-center bg-card hover:border-primary-deep hover:bg-surface transition-colors"
-                    onClick={() => {
-                      // Simulate file upload
-                      setUploadedFileName("VisitSchedule_Protocol001_v3.pdf")
-                      setSelectedDoc(null)
-                    }}
-                  >
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-1">
-                      <Upload className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <p className="font-semibold text-foreground text-sm">Tap to upload a document</p>
-                    <p className="text-xs text-muted-foreground/70">PDF, DOC, XLS, PNG, JPG</p>
+                <button
+                  type="button"
+                  onClick={() => setAddProtocolStep("details")}
+                  className="w-full border-2 border-dashed border-border rounded-2xl p-6 flex flex-col items-center gap-2 text-center bg-card hover:border-primary-deep hover:bg-surface transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-1">
+                    <Upload className="w-6 h-6 text-muted-foreground" />
                   </div>
-                </label>
+                  <p className="font-semibold text-foreground text-sm">Add a new protocol</p>
+                  <p className="text-xs text-muted-foreground/70">Enter the protocol details, then share</p>
+                </button>
               )}
             </div>
 

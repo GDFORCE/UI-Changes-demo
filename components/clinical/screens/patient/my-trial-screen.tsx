@@ -13,17 +13,30 @@ interface MyTrialScreenProps {
   onNavigate: (screen: string) => void
 }
 
-const visits = [
-  { num: 1, name: "Screening", date: "3 Mar 2025", status: "completed", type: "Hospital" },
-  { num: 2, name: "Baseline", date: "10 Mar 2025", status: "completed", type: "Hospital" },
-  { num: 3, name: "Week 2", date: "24 Mar 2025", status: "completed", type: "Hospital" },
-  { num: 4, name: "Week 4", date: "7 Apr 2025", status: "completed", type: "Hospital" },
-  { num: 5, name: "Week 8", date: "5 May 2025", status: "completed", type: "Hospital" },
-  { num: 6, name: "Week 12", date: "19 May 2025", status: "completed", type: "Hospital" },
-  { num: 7, name: "Week 14 Follow-Up", date: "23 May 2025", status: "upcoming", type: "Hospital", window: "20–26 May" },
-  { num: 8, name: "Week 16 Check-In", date: "9 Jun 2025", status: "scheduled", type: "Hospital" },
-  { num: 9, name: "Week 20 Check-In", date: "7 Jul 2025", status: "scheduled", type: "Telephonic" },
-  { num: 10, name: "End of Trial", date: "18 Aug 2025", status: "scheduled", type: "Hospital" },
+interface TrialVisit {
+  num: number
+  name: string
+  /** Scheduled (planned) date for the visit. */
+  date: string
+  status: "completed" | "upcoming" | "scheduled"
+  type: string
+  /** Allowed visit window around the scheduled date. */
+  window: string
+  /** Date the visit actually took place (completed visits only). */
+  actualDate?: string
+}
+
+const visits: TrialVisit[] = [
+  { num: 1, name: "Screening", date: "3 Mar 2025", status: "completed", type: "Hospital", window: "1–5 Mar 2025", actualDate: "3 Mar 2025" },
+  { num: 2, name: "Baseline", date: "10 Mar 2025", status: "completed", type: "Hospital", window: "8–12 Mar 2025", actualDate: "11 Mar 2025" },
+  { num: 3, name: "Week 2", date: "24 Mar 2025", status: "completed", type: "Hospital", window: "22–26 Mar 2025", actualDate: "24 Mar 2025" },
+  { num: 4, name: "Week 4", date: "7 Apr 2025", status: "completed", type: "Hospital", window: "5–9 Apr 2025", actualDate: "7 Apr 2025" },
+  { num: 5, name: "Week 8", date: "5 May 2025", status: "completed", type: "Hospital", window: "3–7 May 2025", actualDate: "6 May 2025" },
+  { num: 6, name: "Week 12", date: "19 May 2025", status: "completed", type: "Hospital", window: "17–21 May 2025", actualDate: "19 May 2025" },
+  { num: 7, name: "Week 14 Follow-Up", date: "23 May 2025", status: "upcoming", type: "Hospital", window: "20–26 May 2025" },
+  { num: 8, name: "Week 16 Check-In", date: "9 Jun 2025", status: "scheduled", type: "Hospital", window: "7–11 Jun 2025" },
+  { num: 9, name: "Week 20 Check-In", date: "7 Jul 2025", status: "scheduled", type: "Telephonic", window: "5–9 Jul 2025" },
+  { num: 10, name: "End of Trial", date: "18 Aug 2025", status: "scheduled", type: "Hospital", window: "16–20 Aug 2025" },
 ]
 
 type MedStatus = "taken" | "pending" | "notTaken" | "skipped"
@@ -132,21 +145,29 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
                 {selectedVisit.status === "upcoming" ? "Upcoming" : selectedVisit.status === "completed" ? "Completed ✓" : "Scheduled"}
               </span>
             </div>
-            <h2 className="relative display-serif text-xl mb-2">Visit {selectedVisit.num} · {selectedVisit.name}</h2>
-            <div className="relative flex flex-wrap gap-2 text-sm">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
-                <Calendar className="w-3.5 h-3.5" /> {selectedVisit.date}
-              </span>
-              {selectedVisit.window && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
-                  <Clock className="w-3.5 h-3.5" /> Window {selectedVisit.window}
-                </span>
-              )}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-sm">
-                <TypeIcon className="w-3.5 h-3.5" /> {selectedVisit.type}
-              </span>
+            <h2 className="relative display-serif text-xl mb-3">Visit {selectedVisit.num} · {selectedVisit.name}</h2>
+            <div className="relative grid grid-cols-2 gap-x-3 gap-y-3">
+              {[
+                { icon: Calendar, label: "Scheduled", value: selectedVisit.date },
+                { icon: Clock, label: "Window", value: selectedVisit.window },
+                { icon: CheckCircle, label: "Actual date", value: selectedVisit.actualDate ?? "Awaiting visit" },
+                { icon: TypeIcon, label: "Visit type", value: selectedVisit.type },
+              ].map((r) => {
+                const RowIcon = r.icon
+                return (
+                  <div key={r.label} className="flex items-center gap-2 min-w-0">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/18 backdrop-blur-sm">
+                      <RowIcon className="w-3.5 h-3.5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-wide text-white/65 leading-none">{r.label}</p>
+                      <p className="text-sm font-medium leading-tight truncate">{r.value}</p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-            <p className="relative mt-3 text-sm text-white/85 inline-flex items-center gap-1.5">
+            <p className="relative mt-3 pt-3 border-t border-white/20 text-sm text-white/85 inline-flex items-center gap-1.5">
               <Stethoscope className="w-4 h-4" /> AIIMS Delhi · Dr. Sharma
             </p>
           </div>
@@ -322,9 +343,7 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
                           <TypeIcon className="h-3 w-3" /> {v.type}
                         </span>
                       </div>
-                      {v.window && (
-                        <p className="mt-1 text-xs text-warning">Window: {v.window}</p>
-                      )}
+                      <p className={cn("mt-1 text-xs", isNext ? "text-warning" : "text-muted-foreground")}>Window: {v.window}</p>
                     </div>
                   </button>
                 )

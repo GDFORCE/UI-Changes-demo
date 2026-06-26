@@ -9,6 +9,10 @@ import { cn } from "@/lib/utils"
 interface VisitScheduleScreenProps {
   onSave: () => void
   onBack: () => void
+  /** Label for the final CTA. Defaults to "Save Template". */
+  saveLabel?: string
+  /** Toast shown when the CTA is tapped. Defaults to "Visit template saved". */
+  saveToast?: string
 }
 
 interface Visit {
@@ -36,7 +40,7 @@ const INITIAL_VISITS: Visit[] = [
     clinicalTasks: ["Vital signs", "Final exam", "Blood draw"], adminTasks: ["eCRF", "Study completion form"] },
 ]
 
-export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps) {
+export function VisitScheduleScreen({ onSave, onBack, saveLabel = "Save Template", saveToast = "Visit template saved" }: VisitScheduleScreenProps) {
   const [activeFilter, setActiveFilter] = useState<"all" | "pending" | "ok">("all")
   const [visits, setVisits] = useState<Visit[]>(INITIAL_VISITS)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -108,7 +112,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
   }
 
   const handleSaveTemplate = () => {
-    toast.success("Visit template saved")
+    toast.success(saveToast)
     onSave()
   }
 
@@ -266,7 +270,7 @@ export function VisitScheduleScreen({ onSave, onBack }: VisitScheduleScreenProps
           onClick={handleSaveTemplate}
           className="w-full py-3.5 bg-primary text-white rounded-xl font-semibold text-sm"
         >
-          Save Template
+          {saveLabel}
         </button>
       </div>
 

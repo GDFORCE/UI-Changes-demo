@@ -88,7 +88,7 @@ export function JoinInviteScreen({ onJoin, onBack }: JoinInviteScreenProps) {
                   : "bg-muted text-muted-foreground/60 cursor-not-allowed",
               )}
             >
-              Find my invitation
+              Next
             </button>
           )}
         </div>

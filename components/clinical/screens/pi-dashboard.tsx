@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment } from "react"
 import { BottomNav } from "../bottom-nav"
 import {
   CheckCircle, Clock, AlertTriangle, FileText, ChevronRight, ChevronLeft,
   PenLine, Users, Calendar, Building2, UserPlus, Send, FilePlus2, X, ChevronDown,
-  Check, Search, Sun, ArrowUpRight, ClipboardList,
+  Check, Search, Sun, ArrowUpRight, ClipboardList, SlidersHorizontal,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TrialSummaryScreen } from "@/components/clinical/screens/trial-summary-screen"
@@ -46,11 +46,14 @@ type Patient = {
   visitCompleted?: boolean
   lastUpdated?: string
   history?: VisitRecord[]
+  protocol?: string
+  phase?: string
+  indication?: string
 }
 
 const initialPatients: Patient[] = [
   {
-    id: "SUBJ-001", name: "Priya Krishnan", age: 45, visit: "Visit 7", visitName: "Efficacy Assessment", visitType: "Hospital", dateISO: "2026-05-23", status: "on-track",
+    id: "SUBJ-001", name: "Priya Krishnan", age: 45, visit: "Visit 7", visitName: "Efficacy Assessment", visitType: "Hospital", dateISO: "2026-05-23", status: "on-track", protocol: "Protocol-001", phase: "Phase II", indication: "Type 2 Diabetes",
     history: [
       { visit: "Visit 1", dateISO: "2026-01-15", type: "Screening", outcome: "completed", note: "Eligibility confirmed, ICF signed" },
       { visit: "Visit 2", dateISO: "2026-02-05", type: "Baseline", outcome: "completed", note: "Randomized to treatment arm" },
@@ -61,7 +64,7 @@ const initialPatients: Patient[] = [
     ],
   },
   {
-    id: "SUBJ-002", name: "Rahul Mehta", age: 52, visit: "Visit 4", visitName: "Safety Follow-up", visitType: "Hospital", dateISO: "2026-05-19", status: "overdue",
+    id: "SUBJ-002", name: "Rahul Mehta", age: 52, visit: "Visit 4", visitName: "Safety Follow-up", visitType: "Hospital", dateISO: "2026-05-19", status: "overdue", protocol: "Protocol-001", phase: "Phase II", indication: "Type 2 Diabetes",
     history: [
       { visit: "Visit 1", dateISO: "2026-02-10", type: "Screening", outcome: "completed", note: "ICF signed" },
       { visit: "Visit 2", dateISO: "2026-03-03", type: "Baseline", outcome: "completed", note: "Randomized" },
@@ -69,13 +72,13 @@ const initialPatients: Patient[] = [
     ],
   },
   {
-    id: "SUBJ-003", name: "Anita Patel", age: 38, visit: "Visit 2", visitName: "Baseline", visitType: "Hospital", dateISO: "2026-06-08", status: "on-track",
+    id: "SUBJ-003", name: "Anita Patel", age: 38, visit: "Visit 2", visitName: "Baseline", visitType: "Hospital", dateISO: "2026-06-08", status: "on-track", protocol: "Protocol-001", phase: "Phase II", indication: "Type 2 Diabetes",
     history: [
       { visit: "Visit 1", dateISO: "2026-05-18", type: "Screening", outcome: "completed", note: "Eligibility confirmed" },
     ],
   },
   {
-    id: "SUBJ-004", name: "Vijay Sharma", age: 61, visit: "Visit 5", visitName: "Lab & Vitals", visitType: "Hospital", dateISO: "2026-06-08", status: "on-track",
+    id: "SUBJ-004", name: "Vijay Sharma", age: 61, visit: "Visit 5", visitName: "Lab & Vitals", visitType: "Hospital", dateISO: "2026-06-08", status: "on-track", protocol: "Protocol-005", phase: "Phase III", indication: "Asthma",
     history: [
       { visit: "Visit 1", dateISO: "2026-02-20", type: "Screening", outcome: "completed" },
       { visit: "Visit 2", dateISO: "2026-03-13", type: "Baseline", outcome: "completed", note: "Randomized" },
@@ -84,7 +87,7 @@ const initialPatients: Patient[] = [
     ],
   },
   {
-    id: "SUBJ-005", name: "Deepa Nair", age: 44, visit: "—", visitName: "—", visitType: "—", dateISO: "", status: "withdrawn",
+    id: "SUBJ-005", name: "Deepa Nair", age: 44, visit: "—", visitName: "—", visitType: "—", dateISO: "", status: "withdrawn", protocol: "Protocol-001", phase: "Phase II", indication: "Type 2 Diabetes",
     history: [
       { visit: "Visit 1", dateISO: "2026-03-01", type: "Screening", outcome: "completed" },
       { visit: "Visit 2", dateISO: "2026-03-22", type: "Baseline", outcome: "completed", note: "Randomized" },
@@ -109,6 +112,17 @@ const PROTOCOL_SCHEDULE: { visit: string; type: string }[] = [
 ]
 const VISIT_INTERVAL_DAYS = 21
 const VISIT_WINDOW_DAYS = 3
+
+// Activities performed at each visit, keyed by visit type — shown when a visit
+// row is expanded in the patient record's visit schedule.
+const VISIT_ACTIVITIES: Record<string, string[]> = {
+  "Screening": ["Informed consent", "Eligibility check", "Medical history", "Vital signs", "Blood draw"],
+  "Baseline": ["Randomisation", "Vital signs", "ECG", "Blood draw", "Drug dispensing"],
+  "Safety Follow-up": ["Vital signs", "Adverse event review", "Concomitant meds review"],
+  "Efficacy Assessment": ["Vital signs", "Efficacy questionnaire", "Blood draw", "Lab panel"],
+  "Lab & Vitals": ["Vital signs", "Blood draw", "Lab panel"],
+  "End of Study": ["Final assessment", "Vital signs", "Blood draw", "Drug accountability", "Study completion form"],
+}
 
 type ScheduledVisit = { visit: string; type: string; dateISO: string; state: "completed" | "missed" | "upcoming" | "planned" }
 
@@ -202,8 +216,13 @@ const subjectInitials = (full: string) =>
   full.split(/\s+/).filter(Boolean).map(w => w[0]?.toUpperCase() ?? "").join(".")
 
 const overduePatients = [
-  { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", daysOverdue: 3, lastContact: "19 May" },
+  { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", visitName: "Safety Follow-up", protocol: "Protocol-001", indication: "Type 2 Diabetes", visitDate: "19 May 2026", daysOverdue: 3, lastContact: "19 May" },
 ]
+
+// Lightweight filler visits for days beyond the current week — the load chart
+// only needs the count + status, so detailed records aren't required here.
+const fillVisits = (n: number, status = "on-track"): WeekVisit[] =>
+  Array.from({ length: n }, (_, i) => ({ time: "09:00", subj: `SUBJ-${i + 1}`, name: "—", visit: "—", status }))
 
 const weekDays = [
   { day: "Mon", date: "26", weekday: "Monday", visits: [] as WeekVisit[] },
@@ -228,6 +247,14 @@ const weekDays = [
   { day: "Sun", date: "1", weekday: "Sunday", visits: [
     { time: "11:00", subj: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 5", status: "on-track" },
   ] as WeekVisit[] },
+  // Next week — lets the schedule scroll across dates.
+  { day: "Mon", date: "2", weekday: "Monday", visits: fillVisits(3) },
+  { day: "Tue", date: "3", weekday: "Tuesday", visits: fillVisits(6) },
+  { day: "Wed", date: "4", weekday: "Wednesday", visits: fillVisits(2) },
+  { day: "Thu", date: "5", weekday: "Thursday", visits: [...fillVisits(3), ...fillVisits(1, "overdue")] },
+  { day: "Fri", date: "6", weekday: "Friday", visits: fillVisits(1) },
+  { day: "Sat", date: "7", weekday: "Saturday", visits: [] as WeekVisit[] },
+  { day: "Sun", date: "8", weekday: "Sunday", visits: fillVisits(2) },
 ]
 
 const statusStyle: Record<string, { label: string; bg: string; text: string; rail: string }> = {
@@ -323,50 +350,36 @@ function WeekLoadChart({ days, total, onView }: { days: typeof weekDays; total: 
         <span className="shrink-0 rounded-full bg-primary/8 px-2.5 py-0.5 text-xs font-semibold text-primary whitespace-nowrap">{total} visits</span>
       </div>
 
-      {/* Brick towers — one brick per visit, growing from the baseline */}
-      <div className="flex items-end justify-between gap-1 border-b border-dashed border-border pb-2">
-        {days.map((d, di) => (
-          <div key={d.day} className="flex flex-1 flex-col items-center justify-end gap-1" style={{ minHeight: 68 }}>
-            <span
-              className={cn("font-mono text-[10px] font-semibold tabular-nums", d.visits.length ? "text-foreground" : "text-transparent")}
-              style={{ opacity: grown ? 1 : 0, transition: "opacity 400ms ease", transitionDelay: `${di * 60 + 200}ms` }}
-            >
-              {d.visits.length || 0}
-            </span>
-            <div className="flex w-6 flex-col-reverse items-stretch gap-1">
-              {d.visits.length === 0 ? (
-                <span
-                  className="h-1 rounded-full bg-muted"
-                  style={{ transformOrigin: "center", transform: grown ? "scaleX(1)" : "scaleX(0)", transition: "transform 400ms ease", transitionDelay: `${di * 50}ms` }}
-                />
-              ) : (
-                d.visits.map((v, bi) => (
-                  <span
-                    key={bi}
-                    className={cn("h-3 rounded-md shadow-xs", v.status === "overdue" ? "bg-destructive" : "dawn-gradient")}
-                    style={{
-                      transformOrigin: "bottom",
-                      transform: grown ? "scaleY(1)" : "scaleY(0)",
-                      opacity: grown ? 1 : 0,
-                      transition: "transform 520ms cubic-bezier(0.34,1.56,0.64,1), opacity 300ms ease",
-                      transitionDelay: `${di * 70 + bi * 90}ms`,
-                    }}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Day labels */}
-      <div className="mt-2 flex items-center justify-between gap-1">
-        {days.map((d) => {
-          const isBusy = d.visits.length > 0 && d.visits.length === busiest.visits.length
+      {/* Per-day load — fixed-size intensity tiles + count, scrollable across dates */}
+      <div className="flex items-stretch gap-2 overflow-x-auto scrollbar-hide border-t border-dashed border-border pt-3 -mx-1 px-1">
+        {days.map((d, di) => {
+          const n = d.visits.length
+          const hasOverdue = d.visits.some((v) => v.status === "overdue")
+          const isBusy = n > 0 && n === busiest.visits.length
+          // Load tier → warm-to-deep fill in the app's dawn / accent palette.
+          const tier =
+            n === 0 ? "bg-muted text-muted-foreground/40"
+              : hasOverdue ? "bg-destructive/12 text-destructive ring-1 ring-destructive/30"
+              : n >= 5 ? "dawn-gradient text-primary-foreground shadow-sm"
+              : n >= 3 ? "bg-accent/25 text-accent"
+              : "bg-accent/12 text-accent"
           return (
-            <div key={d.day} className="flex flex-1 flex-col items-center gap-1">
-              <span className="text-[10px] font-medium text-muted-foreground/70">{d.day}</span>
-              <span className={cn("grid h-7 w-7 place-items-center rounded-full text-xs font-semibold transition-colors", isBusy ? "dawn-gradient text-primary-foreground shadow-sm" : "text-foreground/70")}>{d.date}</span>
+            <div key={`${d.day}-${d.date}`} className="flex w-11 shrink-0 flex-col items-center gap-1.5">
+              <div
+                className={cn("relative grid h-10 w-10 place-items-center rounded-2xl transition-all", tier)}
+                style={{
+                  transform: grown ? "scale(1)" : "scale(0.6)",
+                  opacity: grown ? 1 : 0,
+                  transition: "transform 480ms cubic-bezier(0.34,1.56,0.64,1), opacity 320ms ease",
+                  transitionDelay: `${di * 70}ms`,
+                }}
+              >
+                <Calendar className="h-4 w-4" />
+                {hasOverdue && <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-destructive ring-2 ring-card" />}
+              </div>
+              <span className={cn("font-mono text-xs font-bold tabular-nums leading-none", n ? "text-foreground" : "text-muted-foreground/40")}>{n}</span>
+              <span className="mt-0.5 text-[10px] font-medium leading-none text-muted-foreground/70">{d.day}</span>
+              <span className={cn("grid h-6 w-6 place-items-center rounded-full text-[11px] font-semibold transition-colors", isBusy ? "dawn-gradient text-primary-foreground shadow-sm" : "text-foreground/70")}>{d.date}</span>
             </div>
           )
         })}
@@ -390,6 +403,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   const [editPatient, setEditPatient] = useState<Patient | null>(null)
   const [viewPatient, setViewPatient] = useState<Patient | null>(null)
   const [recordScheduleOpen, setRecordScheduleOpen] = useState(false)
+  const [expandedScheduleVisit, setExpandedScheduleVisit] = useState<string | null>(null)
   const [form, setForm] = useState<{ visit: string; visitName: string; visitType: string; dateISO: string; status: PatientStatus; note: string }>({
     visit: "", visitName: "", visitType: "Hospital", dateISO: "", status: "on-track", note: "",
   })
@@ -400,6 +414,11 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   // Patients roster — search + status filter
   const [patientQuery, setPatientQuery] = useState("")
   const [patientFilter, setPatientFilter] = useState<string>("all")
+  // My Trials — search + status / phase filters (mirrors the sponsor dashboard)
+  const [trialSearch, setTrialSearch] = useState("")
+  const [trialFilter, setTrialFilter] = useState("All")
+  const [phaseFilter, setPhaseFilter] = useState("All")
+  const [showTrialFilters, setShowTrialFilters] = useState(false)
 
   // Open straight to a trial's summary when requested (e.g. after a new trial is saved).
   useEffect(() => {
@@ -507,12 +526,8 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
       </div>
       <h4 className="font-heading text-foreground text-base leading-snug mb-2.5 line-clamp-2">{tr.title}</h4>
       <div className="flex flex-wrap gap-1.5 mb-3">
-        {[
-          { val: tr.phase, cls: "bg-info/10 text-info" },
-          { val: tr.disease, cls: "bg-accent/12 text-accent" },
-          { val: tr.drug, cls: "bg-violet/10 text-violet" },
-        ].map(c => (
-          <span key={c.val} className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", c.cls)}>{c.val}</span>
+        {[tr.phase, tr.disease, tr.drug].map(val => (
+          <span key={val} className="rounded-full bg-muted text-muted-foreground px-2.5 py-0.5 text-[11px] font-medium">{val}</span>
         ))}
       </div>
       <div className="grid grid-cols-2 gap-y-2 gap-x-3 pt-3 border-t border-border">
@@ -684,11 +699,10 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
         {/* Quick Actions */}
         <section className="animate-rise" style={{ animationDelay: "190ms" }}>
           <SectionLabel label="Quick actions" />
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {[
               { onClick: () => onNavigate("add-trial"), icon: FilePlus2, orb: "bg-info text-info-foreground", label: "New Trial" },
               { onClick: () => onNavigate("add-patient"), icon: UserPlus, orb: "dawn-gradient text-primary-foreground", label: "Add Patient" },
-              { onClick: () => onNavigate("invite-patient"), icon: Send, orb: "bg-accent text-accent-foreground", label: "Invite Patient" },
             ].map((a, i) => (
               <button key={i} onClick={a.onClick} className="springy bg-card rounded-3xl border border-border p-3 shadow-xs flex flex-col items-center gap-2 active:scale-[0.96] hover:shadow-sm">
                 <div className={cn("grid h-12 w-12 place-items-center rounded-2xl shadow-sm", a.orb)}>
@@ -809,22 +823,30 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
             />
             <div className="space-y-2.5">
               {overduePatients.map((p) => (
-                <div key={p.id} className="relative overflow-hidden bg-card rounded-2xl border border-destructive/30 p-4 pl-5 shadow-xs">
-                  <span className="absolute left-0 top-0 bottom-0 w-1.5 bg-destructive" />
-                  <span className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-destructive/10 blur-2xl animate-pulse-soft" />
-                  <div className="relative flex items-start gap-3">
-                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-destructive/12 text-destructive">
-                      <AlertTriangle className="h-5 w-5 animate-pulse-soft" />
+                <div key={p.id} className="springy relative overflow-hidden bg-card rounded-2xl border border-destructive/30 p-3 pl-4 shadow-xs">
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-destructive" />
+                  <span className="pointer-events-none absolute -right-6 -top-8 h-20 w-20 rounded-full bg-destructive/10 blur-2xl animate-pulse-soft" />
+                  <div className="relative flex items-center gap-2.5">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-destructive/12 text-destructive">
+                      <AlertTriangle className="h-4 w-4 animate-pulse-soft" />
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground text-sm">{p.name}</p>
-                      <p className="text-xs text-muted-foreground/70">{p.id} · {p.visit}</p>
-                      <p className="text-xs text-destructive mt-1 font-medium">{p.daysOverdue} days overdue · Last contact {p.lastContact}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-foreground text-sm truncate">{p.name}</p>
+                        <span className="shrink-0 rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-bold text-destructive">{p.daysOverdue}d overdue</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground/70 truncate">{p.id} · {p.visit} · Last contact {p.lastContact}</p>
                     </div>
-                    <button className="springy shrink-0 self-center bg-destructive text-destructive-foreground px-4 py-1.5 rounded-full text-xs font-semibold active:scale-95 shadow-sm">
+                    <button
+                      onClick={() => { const full = patients.find(pt => pt.id === p.id); if (full) setViewPatient(full) }}
+                      className="springy shrink-0 bg-destructive text-destructive-foreground px-3.5 py-1.5 rounded-full text-xs font-semibold active:scale-95 shadow-sm"
+                    >
                       Review
                     </button>
                   </div>
+                  <span className="relative ml-[2.875rem] mt-2 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground/80 max-w-[calc(100%-2.875rem)] truncate">
+                    <FileText className="h-3 w-3 shrink-0" /> {p.protocol} · {p.indication}
+                  </span>
                 </div>
               ))}
             </div>
@@ -836,38 +858,10 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
   // ── Patients tab (operational roster) ─────────────────────────────────────
   const renderPatients = () => {
-    const order = ["all", "on-track", "overdue", "completed", "withdrawn", "screen-failure", "dropout"]
-    const statusCounts = patients.reduce<Record<string, number>>((acc, p) => {
-      acc[p.status] = (acc[p.status] ?? 0) + 1
-      return acc
-    }, {})
-    const chips = order
-      .filter(k => k === "all" || statusCounts[k])
-      .map(k => ({ key: k, label: k === "all" ? "All" : statusStyle[k].label, count: k === "all" ? patients.length : statusCounts[k] }))
-
-    const q = patientQuery.trim().toLowerCase()
-    const filtered = patients.filter(p => {
-      const matchFilter = patientFilter === "all" || p.status === patientFilter
-      const matchQuery = !q || p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)
-      return matchFilter && matchQuery
-    })
-    const overdueCount = statusCounts["overdue"] ?? 0
-
     return (
       <div className="flex-1 overflow-auto scrollbar-hide pb-4">
-        <div className="px-4 pt-4 space-y-3">
-          <div className="flex items-end justify-between animate-rise" style={{ animationDelay: "20ms" }}>
-            <p className="text-sm text-muted-foreground">
-              <span className="font-heading text-2xl text-foreground tabular-nums"><CountUp value={patients.length} /></span> subjects enrolled
-            </p>
-            {overdueCount > 0 && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-destructive">
-                <AlertTriangle className="h-3.5 w-3.5" /> {overdueCount} overdue
-              </span>
-            )}
-          </div>
-
-          <div className="flex gap-2.5 animate-rise" style={{ animationDelay: "70ms" }}>
+        <div className="px-4 pt-4">
+          <div className="flex gap-2.5 animate-rise" style={{ animationDelay: "20ms" }}>
             <button onClick={() => onNavigate("add-patient")} className="springy flex-1 flex items-center justify-center gap-1.5 dawn-gradient text-primary-foreground py-3 rounded-2xl text-sm font-semibold active:scale-[0.98] shadow-sm">
               <UserPlus className="w-4 h-4" /> Add Patient
             </button>
@@ -875,44 +869,10 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
               <Send className="w-4 h-4" /> Send Invite
             </button>
           </div>
-
-          <div className="relative animate-rise" style={{ animationDelay: "120ms" }}>
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-            <input
-              value={patientQuery}
-              onChange={(e) => setPatientQuery(e.target.value)}
-              placeholder="Search by name or subject ID…"
-              className="w-full rounded-2xl border border-border bg-card pl-10 pr-10 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
-            />
-            {patientQuery && (
-              <button onClick={() => setPatientQuery("")} aria-label="Clear search" className="springy absolute right-3 top-1/2 -translate-y-1/2 grid h-6 w-6 place-items-center rounded-full text-muted-foreground/60 hover:bg-muted active:scale-90">
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 animate-rise" style={{ animationDelay: "170ms" }}>
-            {chips.map(f => {
-              const active = patientFilter === f.key
-              return (
-                <button
-                  key={f.key}
-                  onClick={() => setPatientFilter(f.key)}
-                  className={cn(
-                    "springy shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95",
-                    active ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground"
-                  )}
-                >
-                  {f.label}
-                  <span className={cn("tabular-nums", active ? "text-primary-foreground/80" : "text-muted-foreground/60")}>{f.count}</span>
-                </button>
-              )
-            })}
-          </div>
         </div>
 
-        <div key={`${patientFilter}-${q}`} className="px-4 pt-3 space-y-3">
-          {filtered.length === 0 ? (
+        <div className="px-4 pt-3 space-y-3">
+          {patients.length === 0 ? (
             <div className="rounded-3xl border border-border bg-card p-10 text-center shadow-xs animate-rise">
               <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground/50">
                 <Users className="h-6 w-6" />
@@ -921,57 +881,68 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
               <p className="text-xs text-muted-foreground mt-0.5">Try a different search or filter.</p>
             </div>
           ) : (
-            filtered.map((p, idx) => {
+            patients.map((p, idx) => {
               const style = statusStyle[p.status]
               const total = PROTOCOL_TOTAL_VISITS
               const completed = p.history?.filter(v => v.outcome === "completed").length ?? 0
-              const pct = Math.round((completed / total) * 100)
               return (
                 <div key={p.id} className="animate-rise" style={{ animationDelay: `${idx * 70}ms` }}>
                   <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-                    <span className={cn("absolute left-0 top-0 bottom-0 w-1.5", style.rail)} />
-                    <button onClick={() => setViewPatient(p)} className="block w-full text-left p-4 pl-5 transition-colors active:bg-muted/30">
-                      <div className="flex items-start gap-3">
-                        <div className={cn("h-12 w-12 shrink-0 rounded-full p-[2px]", style.rail)}>
-                          <div className="grid h-full w-full place-items-center rounded-full bg-card">
-                            <span className="font-heading text-sm font-bold text-foreground">{patientInitials(p.name)}</span>
-                          </div>
+                    <button onClick={() => setViewPatient(p)} className="block w-full text-left p-4 transition-colors active:bg-muted/30">
+                      {/* Header — avatar · subject id · status */}
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full dawn-gradient text-primary-foreground text-sm font-bold shadow-sm">
+                          {patientInitials(p.name)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-semibold text-foreground truncate">{p.name}</p>
-                            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
-                          </div>
-                          <p className="font-mono text-xs text-muted-foreground/70">{p.id} · Age {p.age}</p>
+                          <p className="font-heading text-base font-bold text-foreground leading-tight">{p.id}</p>
+                          <p className="text-xs text-muted-foreground">{patientInitials(p.name)} · Age {p.age}</p>
                         </div>
                         <span className={cn("shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold", style.bg, style.text)}>{style.label}</span>
                       </div>
 
-                      <div className="mt-3.5">
-                        <div className="mb-1 flex items-center justify-between text-[11px]">
-                          <span className="text-muted-foreground">Trial progress</span>
-                          <span className="font-mono font-semibold text-foreground">{completed}/{total} visits</span>
-                        </div>
-                        <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full dawn-gradient animate-fill-bar" style={{ width: `${pct}%` }} />
+                      {/* Trial meta */}
+                      <div className="mt-3.5 grid grid-cols-3 gap-2">
+                        {[
+                          { label: "Protocol ID", val: p.protocol ?? "—" },
+                          { label: "Phase", val: p.phase ?? "—" },
+                          { label: "Indication", val: p.indication ?? "—" },
+                        ].map(f => (
+                          <div key={f.label} className="min-w-0">
+                            <p className="eyebrow text-muted-foreground/60 text-[9px]">{f.label}</p>
+                            <p className="text-xs font-medium text-foreground mt-0.5 truncate">{f.val}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Next visit */}
+                      <div className="mt-3 rounded-2xl border border-border bg-surface p-3.5">
+                        <p className="eyebrow text-muted-foreground/60 text-[9px] mb-2.5">Next Visit</p>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-3">
+                          {[
+                            { label: "Visit No.", val: visitNumber(p.visit) },
+                            { label: "Visit Name", val: p.visitName ?? "—" },
+                            { label: "Visit Type", val: p.visitType ?? "—" },
+                            { label: "Visit Date", val: p.dateISO ? new Date(p.dateISO + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—" },
+                          ].map(f => (
+                            <div key={f.label} className="min-w-0">
+                              <p className="eyebrow text-muted-foreground/60 text-[9px]">{f.label}</p>
+                              <p className="text-sm font-medium text-foreground mt-0.5">{f.val}</p>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium", p.status === "overdue" ? "bg-destructive/10 text-destructive" : "bg-muted text-foreground/80")}>
-                          <Clock className="h-3 w-3" /> {visitLine(p)}
-                        </span>
-                        {p.visitCompleted && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-medium text-success">
-                            <CheckCircle className="h-3 w-3" /> Visit completed
-                          </span>
-                        )}
+                      {/* Visits completed */}
+                      <div className="mt-3 flex items-center justify-between">
+                        <p className="eyebrow text-muted-foreground/60 text-[9px]">Visits Completed</p>
+                        <p className="font-mono text-xs font-semibold text-foreground tabular-nums">{completed} of {total}</p>
                       </div>
 
                       {p.note && <p className="mt-2 text-[11px] text-muted-foreground/70">Remarks: {p.note}</p>}
                     </button>
 
-                    <div className="flex gap-2 px-4 pb-4 pl-5">
+                    <div className="flex gap-2 px-4 pb-4">
                       <button onClick={() => openVisitUpdate(p)} className="springy flex-1 dawn-gradient text-primary-foreground py-2.5 rounded-xl text-xs font-semibold active:scale-[0.98] shadow-sm">
                         Update Visit
                       </button>
@@ -1110,18 +1081,85 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   }
 
   // ── My Trials tab ─────────────────────────────────────────────────────────
-  const renderMyTrials = () => (
-    <div className="flex-1 overflow-auto scrollbar-hide pb-4 pt-4 px-4 space-y-3">
-      <button onClick={() => onNavigate("add-trial")} className="springy w-full flex items-center justify-center gap-1.5 dawn-gradient text-primary-foreground py-3 rounded-2xl text-sm font-semibold active:scale-[0.98] shadow-sm animate-rise" style={{ animationDelay: "40ms" }}>
-        <FilePlus2 className="w-4 h-4" /> Add Trial
-      </button>
-      {piTrials.map((tr, i) => (
-        <div key={tr.id} className="animate-rise" style={{ animationDelay: `${100 + i * 70}ms` }}>
-          <TrialPanel tr={tr} />
+  const renderMyTrials = () => {
+    const q = trialSearch.trim().toLowerCase()
+    const filteredTrials = piTrials.filter(tr => {
+      const matchesStatus = trialFilter === "All" || tr.status === trialFilter
+      const matchesPhase = phaseFilter === "All" || tr.phase === phaseFilter
+      const matchesSearch = !q ||
+        tr.id.toLowerCase().includes(q) || tr.title.toLowerCase().includes(q) ||
+        tr.disease.toLowerCase().includes(q) || tr.drug.toLowerCase().includes(q)
+      return matchesStatus && matchesPhase && matchesSearch
+    })
+    const statusChips = [
+      { label: "All", val: "All", count: piTrials.length },
+      { label: "Active", val: "Active", count: piTrials.filter(t => t.status === "Active").length },
+      { label: "Completed", val: "Completed", count: piTrials.filter(t => t.status === "Completed").length },
+      { label: "Terminated", val: "Terminated", count: piTrials.filter(t => t.status === "Terminated").length },
+    ]
+    return (
+      <div className="flex-1 overflow-auto scrollbar-hide pb-4 pt-4 px-4">
+        {/* Search + filter toggle + add */}
+        <div className="flex items-center gap-2 mb-3 animate-rise" style={{ animationDelay: "20ms" }}>
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+            <input value={trialSearch} onChange={e => setTrialSearch(e.target.value)} placeholder="Search trials…" className="w-full rounded-2xl border border-border bg-card pl-10 pr-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30" />
+          </div>
+          <button
+            onClick={() => setShowTrialFilters(v => !v)}
+            className={cn("springy grid h-10 w-10 shrink-0 place-items-center rounded-2xl border active:scale-95", showTrialFilters || phaseFilter !== "All" ? "dawn-gradient border-transparent text-primary-foreground shadow-sm" : "bg-card border-border text-muted-foreground")}>
+            <SlidersHorizontal className="w-4 h-4" />
+          </button>
+          <button onClick={() => onNavigate("add-trial")} className="springy shrink-0 inline-flex items-center gap-1 rounded-2xl dawn-gradient text-primary-foreground px-3.5 py-2.5 text-xs font-semibold active:scale-95 shadow-sm">
+            <FilePlus2 className="w-4 h-4" /> Add Trial
+          </button>
         </div>
-      ))}
-    </div>
-  )
+        {/* Phase filter panel (toggled by the sliders button) */}
+        {showTrialFilters && (
+          <div className="bg-card border border-border rounded-2xl p-3 mb-3 shadow-xs animate-rise">
+            <div className="flex items-center justify-between mb-2">
+              <p className="eyebrow text-muted-foreground/70">Filter by Phase</p>
+              {phaseFilter !== "All" && (
+                <button onClick={() => setPhaseFilter("All")} className="text-[11px] text-info font-semibold">Clear</button>
+              )}
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {["All", "Phase I", "Phase II", "Phase III", "Phase IV"].map(p => (
+                <button key={p} onClick={() => setPhaseFilter(p)} className={cn("springy px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95", phaseFilter === p ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-surface text-muted-foreground border border-border")}>{p}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Status filter chips */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1 mb-4 animate-rise" style={{ animationDelay: "70ms" }}>
+          {statusChips.map(f => {
+            const active = trialFilter === f.val
+            return (
+              <button key={f.val} onClick={() => setTrialFilter(f.val)} className={cn("springy shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95", active ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground")}>
+                {f.label} <span className={cn("tabular-nums", active ? "text-primary-foreground/80" : "text-muted-foreground/60")}>{f.count}</span>
+              </button>
+            )
+          })}
+        </div>
+        {/* Trial list */}
+        <div key={`${trialFilter}-${phaseFilter}-${trialSearch}`} className="space-y-3">
+          {filteredTrials.length === 0 ? (
+            <div className="rounded-3xl border border-border bg-card p-10 text-center shadow-xs animate-rise">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground/50">
+                <FileText className="h-6 w-6" />
+              </div>
+              <p className="font-heading text-foreground text-base mt-3">No trials found</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Try a different search or filter.</p>
+            </div>
+          ) : filteredTrials.map((tr, i) => (
+            <div key={tr.id} className="animate-rise" style={{ animationDelay: `${100 + i * 70}ms` }}>
+              <TrialPanel tr={tr} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   // ── Profile / Me tab ──────────────────────────────────────────────────────
   const renderMe = () => (
@@ -1213,7 +1251,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
     const style = statusStyle[p.status]
     return (
       <div className="h-full flex flex-col bg-background">
-        <SubHeader eyebrow="Patient" title="Patient Record" onBack={() => { setViewPatient(null); setRecordScheduleOpen(false) }} />
+        <SubHeader eyebrow="Patient" title="Patient Record" onBack={() => { setViewPatient(null); setRecordScheduleOpen(false); setExpandedScheduleVisit(null) }} />
         <div className="flex-1 overflow-auto scrollbar-hide px-4 py-4 space-y-4">
           {/* Identity hero — dawn gesture */}
           <div className="dawn-gradient hero-glow paper-grain rounded-3xl p-5 text-primary-foreground shadow-md animate-rise" style={{ animationDelay: "40ms" }}>
@@ -1288,17 +1326,53 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                         const fmt = (x: Date) => x.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
                         return `${fmt(start)} – ${fmt(end)}`
                       })()
+                      const activities = VISIT_ACTIVITIES[v.type] ?? []
+                      const open = expandedScheduleVisit === v.visit
+                      const isDone = v.state === "completed"
+                      const showBorder = i < arr.length - 1 && !open
                       return (
-                        <tr key={v.visit} className={cn(i < arr.length - 1 && "border-b border-border")}>
-                          <td className="py-2.5 px-3">
-                            <div className="flex items-center gap-1.5">
-                              <Icon className={cn("w-3.5 h-3.5 shrink-0", sc.color)} />
-                              <span className="text-sm font-semibold text-foreground whitespace-nowrap">{v.visit}</span>
-                            </div>
-                          </td>
-                          <td className="py-2.5 px-3 text-xs text-muted-foreground">{v.type}</td>
-                          <td className="py-2.5 px-3 text-xs text-muted-foreground text-right whitespace-nowrap">{windowLabel}</td>
-                        </tr>
+                        <Fragment key={v.visit}>
+                          <tr
+                            onClick={() => setExpandedScheduleVisit(open ? null : v.visit)}
+                            className={cn("cursor-pointer transition-colors hover:bg-surface/60", showBorder && "border-b border-border", open && "bg-surface/60")}
+                          >
+                            <td className="py-2.5 px-3">
+                              <div className="flex items-center gap-1.5">
+                                <Icon className={cn("w-3.5 h-3.5 shrink-0", sc.color)} />
+                                <span className="text-sm font-semibold text-foreground whitespace-nowrap">{v.visit}</span>
+                              </div>
+                            </td>
+                            <td className="py-2.5 px-3 text-xs text-muted-foreground">{v.type}</td>
+                            <td className="py-2.5 px-3 text-xs text-muted-foreground text-right whitespace-nowrap">
+                              <span className="inline-flex items-center gap-1.5">
+                                {windowLabel}
+                                <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground/60 transition-transform", open && "rotate-180")} />
+                              </span>
+                            </td>
+                          </tr>
+                          {open && (
+                            <tr className={cn(i < arr.length - 1 && "border-b border-border")}>
+                              <td colSpan={3} className="px-3 pb-3 pt-0 bg-surface/60">
+                                <p className="eyebrow text-muted-foreground/60 text-[9px] mb-1.5">
+                                  {isDone ? "Activities completed" : "Planned activities"}
+                                </p>
+                                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                                  {activities.map((a) => (
+                                    <div key={a} className="flex items-center gap-1.5">
+                                      {isDone
+                                        ? <CheckCircle className="w-3.5 h-3.5 shrink-0 text-success" />
+                                        : <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />}
+                                      <span className={cn("text-xs", isDone ? "text-foreground" : "text-muted-foreground")}>{a}</span>
+                                    </div>
+                                  ))}
+                                  {activities.length === 0 && (
+                                    <p className="text-xs text-muted-foreground/60 italic col-span-2">No activities listed.</p>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
                       )
                     })}
                   </tbody>

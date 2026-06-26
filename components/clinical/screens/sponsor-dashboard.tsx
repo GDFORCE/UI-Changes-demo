@@ -37,20 +37,20 @@ const mockData = {
     { id: "SITE-003", name: "Fortis Bangalore", hospital: "Fortis Hospital Bangalore", city: "Bengaluru", state: "Karnataka", status: "Completed", pi: "Dr. Anand Krishnan", piEmail: "a.krishnan@fortishealthcare.com", piPhone: "+91 98300 34567", crc: "Ms. Kavitha Nair", enrolled: 32, target: 50, enrollmentPct: 65, trials: ["Protocol-003"], patients: 32, visitCompliance: 87, overdueVisits: 0, department: "Oncology", screened: 36, screenFail: 4, randomized: 32, withdrawn: 0, dropouts: 0, followUp: 14, completed: 18 },
     { id: "SITE-004", name: "AIIMS Delhi", hospital: "All India Institute of Medical Sciences", city: "New Delhi", state: "Delhi", status: "Terminated", pi: "Dr. Meera Pillai", piEmail: "m.pillai@aiims.ac.in", piPhone: "+91 98400 45678", crc: "Dr. Rajan Verma", enrolled: 12, target: 40, enrollmentPct: 30, trials: ["Protocol-004"], patients: 12, visitCompliance: 60, overdueVisits: 0, department: "Cardiology", screened: 15, screenFail: 3, randomized: 10, withdrawn: 4, dropouts: 2, followUp: 4, completed: 0 },
   ],
-  // De-identified subject roster — sponsors see aggregate / coded data only (no patient PII).
+  // De-identified subject roster — sponsors see coded data only (initials, no full names / PII).
   patients: [
-    { id: "SUBJ-001", trial: "Protocol-001", site: "Apollo Mumbai", status: "Active", enrolled: "12 Mar 2025", age: 54, sex: "F" },
-    { id: "SUBJ-002", trial: "Protocol-001", site: "Apollo Mumbai", status: "Active", enrolled: "15 Mar 2025", age: 61, sex: "M" },
-    { id: "SUBJ-003", trial: "Protocol-001", site: "Max Delhi", status: "Screening", enrolled: "2 Apr 2025", age: 47, sex: "F" },
-    { id: "SUBJ-004", trial: "Protocol-001", site: "Max Delhi", status: "Withdrawn", enrolled: "18 Feb 2025", age: 58, sex: "M" },
-    { id: "SUBJ-005", trial: "Protocol-002", site: "Apollo Mumbai", status: "Active", enrolled: "5 Apr 2025", age: 50, sex: "F" },
-    { id: "SUBJ-006", trial: "Protocol-002", site: "Max Delhi", status: "Active", enrolled: "9 Apr 2025", age: 65, sex: "M" },
-    { id: "SUBJ-007", trial: "Protocol-002", site: "Max Delhi", status: "Screening", enrolled: "20 Apr 2025", age: 43, sex: "F" },
-    { id: "SUBJ-008", trial: "Protocol-003", site: "Fortis Bangalore", status: "Completed", enrolled: "10 Jan 2025", age: 60, sex: "M" },
-    { id: "SUBJ-009", trial: "Protocol-003", site: "Fortis Bangalore", status: "Completed", enrolled: "14 Jan 2025", age: 57, sex: "F" },
-    { id: "SUBJ-010", trial: "Protocol-003", site: "Fortis Bangalore", status: "Active", enrolled: "22 Jan 2025", age: 49, sex: "M" },
-    { id: "SUBJ-011", trial: "Protocol-004", site: "AIIMS Delhi", status: "Withdrawn", enrolled: "8 Mar 2025", age: 62, sex: "F" },
-    { id: "SUBJ-012", trial: "Protocol-004", site: "AIIMS Delhi", status: "Active", enrolled: "11 Mar 2025", age: 55, sex: "M" },
+    { id: "SUBJ-001", initials: "A.K.", trial: "Protocol-001", site: "Apollo Mumbai", status: "Active", enrolled: "12 Mar 2025", age: 54, sex: "F", visitsDone: 7 },
+    { id: "SUBJ-002", initials: "R.S.", trial: "Protocol-001", site: "Apollo Mumbai", status: "Active", enrolled: "15 Mar 2025", age: 61, sex: "M", visitsDone: 6 },
+    { id: "SUBJ-003", initials: "M.P.", trial: "Protocol-001", site: "Max Delhi", status: "Screening", enrolled: "2 Apr 2025", age: 47, sex: "F", visitsDone: 1 },
+    { id: "SUBJ-004", initials: "S.V.", trial: "Protocol-001", site: "Max Delhi", status: "Withdrawn", enrolled: "18 Feb 2025", age: 58, sex: "M", visitsDone: 4 },
+    { id: "SUBJ-005", initials: "P.D.", trial: "Protocol-002", site: "Apollo Mumbai", status: "Active", enrolled: "5 Apr 2025", age: 50, sex: "F", visitsDone: 5 },
+    { id: "SUBJ-006", initials: "K.N.", trial: "Protocol-002", site: "Max Delhi", status: "Active", enrolled: "9 Apr 2025", age: 65, sex: "M", visitsDone: 4 },
+    { id: "SUBJ-007", initials: "A.S.", trial: "Protocol-002", site: "Max Delhi", status: "Screening", enrolled: "20 Apr 2025", age: 43, sex: "F", visitsDone: 1 },
+    { id: "SUBJ-008", initials: "V.R.", trial: "Protocol-003", site: "Fortis Bangalore", status: "Completed", enrolled: "10 Jan 2025", age: 60, sex: "M", visitsDone: 8 },
+    { id: "SUBJ-009", initials: "G.I.", trial: "Protocol-003", site: "Fortis Bangalore", status: "Completed", enrolled: "14 Jan 2025", age: 57, sex: "F", visitsDone: 8 },
+    { id: "SUBJ-010", initials: "T.M.", trial: "Protocol-003", site: "Fortis Bangalore", status: "Active", enrolled: "22 Jan 2025", age: 49, sex: "M", visitsDone: 6 },
+    { id: "SUBJ-011", initials: "N.B.", trial: "Protocol-004", site: "AIIMS Delhi", status: "Withdrawn", enrolled: "8 Mar 2025", age: 62, sex: "F", visitsDone: 3 },
+    { id: "SUBJ-012", initials: "D.J.", trial: "Protocol-004", site: "AIIMS Delhi", status: "Active", enrolled: "11 Mar 2025", age: 55, sex: "M", visitsDone: 5 },
   ],
   notifications: [
     { id: 1, type: "trial", title: "Protocol-002 shared with Apollo Mumbai", message: "Hypertension Study has been assigned to the site. PI Dr. Sharma has been notified.", time: "2h ago", unread: true },
@@ -88,6 +88,56 @@ function sitePerformance(s: { enrolled: number; target: number; visitCompliance:
 // Derive a recruitment status label from the trial's lifecycle status.
 function recruitmentStatus(status: string) {
   return status === "Active" ? "Recruiting" : status === "Completed" ? "Closed" : "Terminated"
+}
+
+// Per-protocol visit schedule (name + planned study day) used to render a
+// subject's visit timeline. Sponsors see coded visit status, not clinical data.
+const VISIT_SCHEDULE = [
+  { name: "Screening", day: -14, window: "±3" },
+  { name: "Baseline", day: 1, window: "-2/+2" },
+  { name: "Follow-up 1", day: 7, window: "±2" },
+  { name: "Follow-up 2", day: 14, window: "±2" },
+  { name: "Follow-up 3", day: 28, window: "±3" },
+  { name: "Follow-up 4", day: 42, window: "±3" },
+  { name: "Follow-up 5", day: 49, window: "±3" },
+  { name: "End of Study", day: 56, window: "±5" },
+]
+
+type SubjectVisitStatus = "Completed" | "Upcoming" | "Missed" | "Withdrawn"
+
+// Build a subject's visit list from the schedule + how many visits they've done.
+// Deterministic per subject so the timeline is stable between renders.
+function buildSubjectVisits(p: { id: string; enrolled: string; visitsDone: number; status: string }) {
+  const enrolledDate = new Date(p.enrolled)
+  const seed = hashNum(p.id)
+  return VISIT_SCHEDULE.map((v, i) => {
+    const date = new Date(enrolledDate)
+    date.setDate(date.getDate() + (v.day - VISIT_SCHEDULE[0].day))
+    const dateLabel = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    let status: SubjectVisitStatus
+    if (i < p.visitsDone) {
+      // One in-window "missed" blip for variety on longer journeys.
+      status = i > 0 && i === p.visitsDone - 2 && seed % 3 === 0 ? "Missed" : "Completed"
+    } else if (p.status === "Withdrawn" || p.status === "Terminated") {
+      status = "Withdrawn"
+    } else {
+      status = "Upcoming"
+    }
+    return { ...v, num: i + 1, date: dateLabel, status }
+  })
+}
+
+const SUBJECT_VISIT_STYLE: Record<SubjectVisitStatus, { node: string; chip: string; rail: string }> = {
+  Completed: { node: "bg-accent text-white",        chip: "bg-accent/10 text-accent",           rail: "bg-accent" },
+  Upcoming:  { node: "bg-muted text-muted-foreground", chip: "bg-info/10 text-info",             rail: "bg-border" },
+  Missed:    { node: "bg-destructive text-white",   chip: "bg-destructive/10 text-destructive", rail: "bg-destructive" },
+  Withdrawn: { node: "bg-warning text-white",       chip: "bg-warning/10 text-warning",         rail: "bg-warning" },
+}
+
+// Small status indicator-dot colour for subject avatars / list rows.
+const SUBJECT_STATUS_DOT: Record<string, string> = {
+  Active: "bg-success", Screening: "bg-warning", Withdrawn: "bg-muted-foreground",
+  Completed: "bg-accent", Terminated: "bg-destructive",
 }
 
 // Two-letter avatar initials, ignoring honorifics (Dr./Mr./Ms.).
@@ -178,6 +228,11 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   const [siteFilter, setSiteFilter] = useState("All")
   const [notifFilter, setNotifFilter] = useState("All")
   const [selectedTrial, setSelectedTrial] = useState<typeof trials[0] | null>(null)
+  // Subject roster drill-down off a trial's recruitment panel (or a single site card).
+  const [showSubjectList, setShowSubjectList] = useState(false)
+  const [subjectSite, setSubjectSite] = useState<string | null>(null) // null = all sites on the trial
+  const [subjectStatusFilter, setSubjectStatusFilter] = useState("All") // All | Active | Screening | Withdrawn | Completed
+  const [selectedSubject, setSelectedSubject] = useState<typeof mockData.patients[0] | null>(null)
   const [selectedSite, setSelectedSite] = useState<typeof mockData.sites[0] | null>(null)
   const [editingTrial, setEditingTrial] = useState<typeof trials[0] | null>(null)
   const [editDraft, setEditDraft] = useState({ name: "", phase: "", indication: "", drug: "", duration: "", target: "", status: "Active" })
@@ -287,6 +342,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
       if (t) { setSelectedTrial(t); setActiveTab("dashboard") }
     }
   }, [initialTrialId])
+
+  // Reset the subject drill-down whenever the open trial changes or closes.
+  useEffect(() => {
+    setShowSubjectList(false)
+    setSubjectSite(null)
+    setSubjectStatusFilter("All")
+    setSelectedSubject(null)
+  }, [selectedTrial])
+
+  // Open the subject roster, scoped to all sites (site === null) or one site.
+  const openSubjectList = (site: string | null) => {
+    setSubjectSite(site)
+    setSubjectStatusFilter("All")
+    setShowSubjectList(true)
+  }
 
   const openEditTrial = (t: typeof trials[0]) => {
     setEditDraft({ name: t.name, phase: t.phase, indication: t.indication, drug: t.drug, duration: t.duration, target: String(t.target), status: t.status })
@@ -563,6 +633,185 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
   if (selectedTrial) {
     const t = selectedTrial
     const enrolled = t.enrolled; const target = t.target
+    const trialSubjects = mockData.patients.filter(p => p.trial === t.id)
+    const scopeSubjects = subjectSite ? trialSubjects.filter(p => p.site === subjectSite) : trialSubjects
+
+    // ── Subject Visit Detail (drill-down from the subject list) ──
+    if (selectedSubject) {
+      const s = selectedSubject
+      const visits = buildSubjectVisits(s)
+      const completed = visits.filter(v => v.status === "Completed").length
+      const pct = Math.round((completed / visits.length) * 100)
+      return (
+        <div className="h-full flex flex-col bg-surface">
+          {/* Hero — subject identity + visit-completion gauge */}
+          <div className="relative bg-primary-deep text-white hero-glow paper-grain px-4 pt-3 pb-6">
+            <div className="relative flex items-center gap-3 mb-5">
+              <button onClick={() => setSelectedSubject(null)} className="p-1 -ml-1 rounded-full hover:bg-white/10 transition-colors"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+              <span className="font-semibold flex-1 tracking-tight">Subject Profile</span>
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/15 flex items-center gap-1.5">
+                <span className={cn("w-1.5 h-1.5 rounded-full", SUBJECT_STATUS_DOT[s.status] ?? "bg-white")} />{s.status}
+              </span>
+            </div>
+            <div className="relative flex items-center gap-5">
+              <ProgressRing value={completed / visits.length} size={92} stroke={7}>
+                <div>
+                  <p className="text-2xl font-bold leading-none tracking-tight"><CountUp value={pct} />%</p>
+                  <p className="text-[9px] text-white/55 uppercase tracking-[0.15em] mt-1">Visits</p>
+                </div>
+              </ProgressRing>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2.5 mb-2.5">
+                  <div className="w-11 h-11 rounded-2xl bg-white/15 grid place-items-center text-sm font-bold ring-1 ring-white/20 shrink-0">{s.initials}</div>
+                  <div className="min-w-0">
+                    <p className="text-lg font-bold leading-tight tracking-tight">{s.id}</p>
+                    <p className="text-xs text-white/65">{s.age}{s.sex} · {s.initials}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="px-2 py-1 rounded-lg text-[10px] font-medium bg-white/10 text-white/90 flex items-center gap-1"><MapPin className="w-3 h-3" />{s.site}</span>
+                  <span className="px-2 py-1 rounded-lg text-[10px] font-medium bg-white/10 text-white/90 flex items-center gap-1"><Clock className="w-3 h-3" />Enrolled {s.enrolled}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Visit journey timeline */}
+          <div className="flex-1 overflow-auto pb-24 px-4 pt-5">
+            <SectionLabel label="Visit Journey" action={<span className="text-[11px] font-semibold text-muted-foreground tabular-nums">{completed}/{visits.length} done</span>} />
+            <div className="relative">
+              {visits.map((v, i) => {
+                const style = SUBJECT_VISIT_STYLE[v.status]
+                const isLast = i === visits.length - 1
+                return (
+                  <div key={v.num} className="relative pl-10 pb-3 last:pb-0 animate-rise" style={{ animationDelay: `${i * 55}ms` }}>
+                    {!isLast && <span className={cn("absolute left-[15px] top-7 bottom-0 w-0.5", style.rail)} />}
+                    <span className={cn("absolute left-1.5 top-1.5 w-7 h-7 rounded-full grid place-items-center shadow-sm ring-4 ring-surface", style.node)}>
+                      {v.status === "Completed" ? <Check className="w-3.5 h-3.5" />
+                        : v.status === "Missed" ? <X className="w-3.5 h-3.5" />
+                        : v.status === "Withdrawn" ? <AlertTriangle className="w-3 h-3" />
+                        : <span className="text-[11px] font-bold">{v.num}</span>}
+                    </span>
+                    <div className="bg-card rounded-2xl border border-border p-3.5 shadow-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-foreground truncate">{v.name}</p>
+                        <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0", style.chip)}>{v.status}</span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-2">
+                        <span>Day {v.day >= 0 ? `+${v.day}` : v.day}</span>
+                        <span className="w-0.5 h-0.5 rounded-full bg-muted-foreground/40" />
+                        <span>Window {v.window}</span>
+                        <span className="w-0.5 h-0.5 rounded-full bg-muted-foreground/40" />
+                        <span>{v.date}</span>
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // ── Subject List (drill-down from the recruitment panel or a single site) ──
+    if (showSubjectList) {
+      const statusOrder = ["Active", "Screening", "Withdrawn", "Completed"] as const
+      // "All" first, then each status that actually has subjects in this scope.
+      const filterChips = [
+        { st: "All", n: scopeSubjects.length },
+        ...statusOrder
+          .map(st => ({ st: st as string, n: scopeSubjects.filter(p => p.status === st).length }))
+          .filter(x => x.n > 0),
+      ]
+      const visibleSubjects = subjectStatusFilter === "All"
+        ? scopeSubjects
+        : scopeSubjects.filter(p => p.status === subjectStatusFilter)
+      return (
+        <div className="h-full flex flex-col bg-surface">
+          {/* Hero header — scope + roster summary */}
+          <div className="relative bg-primary-deep text-white hero-glow paper-grain px-4 pt-3 pb-5">
+            <div className="relative flex items-center gap-3">
+              <button onClick={() => { setShowSubjectList(false); setSubjectSite(null) }} className="p-1 -ml-1 rounded-full hover:bg-white/10 transition-colors"><ChevronRight className="w-5 h-5 rotate-180" /></button>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-white/55 font-semibold">{subjectSite ? "Site Subjects" : "Trial Subjects"}</p>
+                <p className="font-bold truncate tracking-tight">{subjectSite ?? t.id}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-2xl font-bold leading-none"><CountUp value={visibleSubjects.length} /></p>
+                <p className="text-[9px] text-white/55 uppercase tracking-wider">{subjectStatusFilter === "All" ? "Subjects" : subjectStatusFilter}</p>
+              </div>
+            </div>
+            {/* Status filter chips */}
+            <div className="relative mt-3.5 flex flex-wrap gap-1.5">
+              {filterChips.map(({ st, n }) => {
+                const active = subjectStatusFilter === st
+                return (
+                  <button
+                    key={st}
+                    onClick={() => setSubjectStatusFilter(st)}
+                    className={cn(
+                      "springy px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 border transition-colors active:scale-95",
+                      active ? "bg-white text-primary-deep border-white shadow-sm" : "bg-white/10 text-white border-transparent hover:bg-white/15"
+                    )}
+                  >
+                    {st !== "All" && <span className={cn("w-1.5 h-1.5 rounded-full", SUBJECT_STATUS_DOT[st] ?? "bg-white")} />}
+                    {st} <span className={cn("tabular-nums", active ? "text-primary-deep/60" : "text-white/55")}>{n}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-auto pb-24 px-4 pt-4 space-y-2.5">
+            {visibleSubjects.map((p, i) => {
+              const pct = Math.round((p.visitsDone / VISIT_SCHEDULE.length) * 100)
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedSubject(p)}
+                  className="springy animate-rise w-full text-left bg-card rounded-2xl border border-border p-3.5 shadow-sm hover:shadow-md active:scale-[0.99] flex items-center gap-3.5"
+                  style={{ animationDelay: `${i * 45}ms` }}
+                >
+                  <div className="relative shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-primary-deep text-white grid place-items-center text-sm font-bold ring-1 ring-border">{p.initials}</div>
+                    <span className={cn("absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-card", SUBJECT_STATUS_DOT[p.status] ?? "bg-muted-foreground")} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-foreground tracking-tight">{p.id}</p>
+                      <span className="text-[10px] font-semibold text-muted-foreground bg-surface px-1.5 py-0.5 rounded-md">{p.initials}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{p.age}{p.sex}{subjectSite ? "" : ` · ${p.site}`} · {p.enrolled}</p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full rounded-full bg-accent transition-[width] duration-700" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-[10px] font-semibold text-muted-foreground tabular-nums shrink-0">{p.visitsDone}/{VISIT_SCHEDULE.length}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end justify-between self-stretch gap-1.5 shrink-0">
+                    <StatusBadge status={p.status} />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
+                  </div>
+                </button>
+              )
+            })}
+            {visibleSubjects.length === 0 && (
+              <div className="text-center py-12">
+                <div className="w-12 h-12 rounded-full bg-muted grid place-items-center mx-auto mb-3"><Users className="w-6 h-6 text-muted-foreground/60" /></div>
+                <p className="text-sm text-muted-foreground/70">
+                  {subjectStatusFilter === "All"
+                    ? `No subjects enrolled${subjectSite ? " at this site" : ""} yet.`
+                    : `No ${subjectStatusFilter.toLowerCase()} subjects${subjectSite ? " at this site" : ""}.`}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="h-full flex flex-col bg-surface">
         <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
@@ -601,8 +850,12 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             </div>
           </div>
 
-          {/* PANEL 2 — Recruitment Details Across All Sites */}
-          <div className="bg-card rounded-2xl border border-border p-4">
+          {/* PANEL 2 — Recruitment Details Across All Sites (tap anywhere to view subjects) */}
+          <button
+            type="button"
+            onClick={() => openSubjectList(null)}
+            className="springy w-full text-left bg-card rounded-2xl border border-border p-4 shadow-sm hover:shadow-md hover:border-primary-deep/40 active:scale-[0.99]"
+          >
             <p className="font-semibold text-sm text-foreground mb-3">Recruitment · Across All Sites</p>
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div className="bg-surface rounded-lg p-2.5 text-center"><p className="text-lg font-bold text-primary-deep">{t.sites}</p><p className="text-[10px] text-muted-foreground">Total Sites</p></div>
@@ -627,7 +880,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
             <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1">Enrolment</p>
             <ProgressBar value={Math.round((enrolled / target) * 100)} />
             <p className="text-xs text-muted-foreground mt-1">{enrolled} / {target} enrolled ({Math.round((enrolled / target) * 100)}%)</p>
-          </div>
+          </button>
 
           {/* PANEL 3 — Sites (per-site recruitment status) */}
           <div className="bg-card rounded-2xl border border-border p-4">
@@ -638,9 +891,21 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 className="text-info text-xs font-semibold">Add Site</button>
             </div>
             <div className="space-y-3">
-              {sites.filter(s => s.trials.includes(t.id)).map(site => (
-                <div key={site.id} className="bg-surface rounded-xl border border-border p-3">
-                  <p className="font-semibold text-sm text-foreground">{site.name}</p>
+              {sites.filter(s => s.trials.includes(t.id)).map(site => {
+                const siteSubjectCount = trialSubjects.filter(p => p.site === site.name).length
+                return (
+                <button
+                  key={site.id}
+                  type="button"
+                  onClick={() => openSubjectList(site.name)}
+                  className="springy w-full text-left bg-surface rounded-xl border border-border p-3 shadow-xs hover:shadow-md hover:border-primary-deep/40 active:scale-[0.99]"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-semibold text-sm text-foreground">{site.name}</p>
+                    <span className="flex items-center gap-0.5 text-[11px] font-semibold text-primary-deep shrink-0 bg-card border border-border rounded-full px-2 py-0.5">
+                      {siteSubjectCount} <Users className="w-3 h-3" /><ChevronRight className="w-3 h-3 -mr-0.5" />
+                    </span>
+                  </div>
                   <p className="text-xs text-muted-foreground flex items-start gap-1"><MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />{site.hospital}, {site.city}, {site.state}</p>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 mt-2 mb-2">
                     <p className="text-xs text-muted-foreground">PI: <span className="text-foreground">{site.pi}</span></p>
@@ -663,8 +928,9 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                       </div>
                     ))}
                   </div>
-                </div>
-              ))}
+                </button>
+                )
+              })}
               {sites.filter(s => s.trials.includes(t.id)).length === 0 && (
                 <p className="text-xs text-muted-foreground/70 italic">No sites added to this trial yet.</p>
               )}
@@ -995,12 +1261,9 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                         </div>
                         <h4 className="font-heading text-foreground text-base leading-snug mb-2.5 line-clamp-2">{t.name}</h4>
                         <div className="flex flex-wrap gap-1.5 mb-3">
-                          {[
-                            { val: t.phase, cls: "bg-info/10 text-info" },
-                            { val: t.indication, cls: "bg-accent/12 text-accent" },
-                            { val: t.drug, cls: "bg-violet/10 text-violet" },
-                            { val: `${t.sites} sites`, cls: "bg-muted text-muted-foreground" },
-                          ].map(c => <span key={c.val} className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", c.cls)}>{c.val}</span>)}
+                          {[t.phase, t.indication, t.drug, `${t.sites} sites`].map(val => (
+                            <span key={val} className="rounded-full bg-muted text-muted-foreground px-2.5 py-0.5 text-[11px] font-medium">{val}</span>
+                          ))}
                         </div>
                         <div className="flex items-center justify-between text-[11px] mb-1">
                           <span className="text-muted-foreground">Randomized</span>
@@ -1081,7 +1344,7 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                 <SlidersHorizontal className="w-4 h-4" />
               </button>
               <button onClick={() => onNavigate("add-trial")} className="springy shrink-0 inline-flex items-center gap-1 rounded-2xl dawn-gradient text-primary-foreground px-3.5 py-2.5 text-xs font-semibold active:scale-95 shadow-sm">
-                <FlaskConical className="w-4 h-4" /> Add
+                <FlaskConical className="w-4 h-4" /> Add Trial
               </button>
             </div>
             {/* Phase filter panel (toggled by the sliders button) */}
@@ -1142,12 +1405,9 @@ export function SponsorDashboard({ onNavigate, initialTrialId, initialTab }: Spo
                     </div>
                     <h4 className="font-heading text-foreground text-base leading-snug mb-2.5 line-clamp-2">{t.name}</h4>
                     <div className="flex flex-wrap gap-1.5 mb-3">
-                      {[
-                        { val: t.phase, cls: "bg-info/10 text-info" },
-                        { val: t.indication, cls: "bg-accent/12 text-accent" },
-                        { val: t.drug, cls: "bg-violet/10 text-violet" },
-                        { val: `${t.sites} sites`, cls: "bg-muted text-muted-foreground" },
-                      ].map(c => <span key={c.val} className={cn("rounded-full px-2.5 py-0.5 text-[11px] font-semibold", c.cls)}>{c.val}</span>)}
+                      {[t.phase, t.indication, t.drug, `${t.sites} sites`].map(val => (
+                        <span key={val} className="rounded-full bg-muted text-muted-foreground px-2.5 py-0.5 text-[11px] font-medium">{val}</span>
+                      ))}
                     </div>
                     <div className="flex items-center justify-between text-[11px] mb-1">
                       <span className="text-muted-foreground">Enrolled</span>
