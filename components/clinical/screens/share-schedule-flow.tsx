@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, Check, FileText, Upload, Search, X, AlertCircle, Users } from "lucide-react"
+import { ChevronLeft, Check, FileText, Upload, Search, X, AlertCircle, Users, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { AddTrialScreen, type TrialDetails } from "./add-trial-screen"
 import { VisitScheduleScreen } from "./visit-schedule-screen"
@@ -72,7 +72,7 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
   const [showDiscard, setShowDiscard]   = useState(false)
   // Sub-flow for adding a brand-new protocol — mirrors the "Add Trial" process
   // (protocol details → visit schedule) but ends by sharing instead of saving.
-  const [addProtocolStep, setAddProtocolStep] = useState<null | "details" | "schedule">(null)
+  const [addProtocolStep, setAddProtocolStep] = useState<null | "details" | "schedule" | "preview">(null)
   const [newProtocol, setNewProtocol]   = useState<TrialDetails | null>(null)
 
   const filteredSites = mockSites.filter(s =>
@@ -101,9 +101,9 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
     setTimeout(() => { setLoading(false); setDone(true) }, 1400)
   }
 
-  const shareCtaLabel = `Share with ${selectedSites.size} Site${selectedSites.size !== 1 ? "s" : ""} →`
+  const shareCtaLabel = `Share Trial with ${selectedSites.size} Site${selectedSites.size !== 1 ? "s" : ""} →`
 
-  // After the visit schedule is confirmed, share the newly-added protocol to the sites.
+  // After the preview is confirmed, share the newly-added protocol to the sites.
   const handleProtocolShared = () => {
     const name = newProtocol?.title?.trim()
       ? `${newProtocol.title.trim().slice(0, 40)}.pdf`
@@ -126,15 +126,159 @@ export function ShareScheduleFlow({ onBack, onSuccess }: ShareScheduleFlowProps)
     )
   }
 
-  // ── Add new protocol — step 2: visit schedule, ends by sharing ──
+  // ── Add new protocol — step 2: visit schedule, continues to preview ──
   if (addProtocolStep === "schedule") {
     return (
       <VisitScheduleScreen
-        saveLabel={shareCtaLabel}
-        saveToast="Protocol shared"
+        saveLabel="Next: Review Trial →"
+        saveToast="Schedule saved"
         onBack={() => setAddProtocolStep("details")}
-        onSave={handleProtocolShared}
+        onSave={() => setAddProtocolStep("preview")}
       />
+    )
+  }
+
+  // ── Add new protocol — step 3: trial preview, then share ──
+  // First time the trial is shared to the sites, so every recruitment figure
+  // is 0 — enrolment only begins once each PI reviews and approves.
+  if (addProtocolStep === "preview") {
+    const p = newProtocol
+    const today = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+    const recruitment = [
+      { label: "Screened",   color: "text-foreground" },
+      { label: "Screen Fail", color: "text-destructive" },
+      { label: "Randomized", color: "text-foreground" },
+      { label: "Withdrawn",  color: "text-warning" },
+      { label: "Dropout",    color: "text-warning" },
+      { label: "Follow-up",  color: "text-accent" },
+      { label: "Completed",  color: "text-accent" },
+    ]
+    const trialFields = [
+      { label: "CTRI Number", val: p?.ctri || "—" },
+      { label: "Phase",       val: p?.phase || "—" },
+      { label: "Disease",     val: p?.indications?.join(", ") || "—" },
+      { label: "Drug",        val: p?.drug || "—" },
+      { label: "Duration",    val: p?.duration || "—" },
+      { label: "Total Visits", val: p?.totalVisits || "—" },
+    ]
+
+    return (
+      <div className="h-full flex flex-col bg-surface">
+        {/* App Bar */}
+        <div className="bg-primary-deep text-white px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setAddProtocolStep("schedule")} className="p-1">
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <span className="font-semibold flex-1">Review &amp; Share</span>
+        </div>
+
+        <div className="flex-1 overflow-auto px-4 py-4 space-y-4">
+          {/* PANEL 1 — Trial Details */}
+          <div className="bg-primary-deep rounded-2xl p-5 text-white">
+            <div className="flex items-start justify-between mb-3">
+              <span className="px-2 py-0.5 bg-info/30 text-white/80 text-xs rounded-full font-medium font-mono">
+                {p?.ctri || "New Protocol"}
+              </span>
+              <span className="px-2 py-0.5 bg-white/20 text-xs rounded-full font-semibold">Active</span>
+            </div>
+            <h2 className="text-lg font-bold mb-3">{p?.title || "Untitled Study"}</h2>
+            <div className="grid grid-cols-2 gap-y-2.5 gap-x-3">
+              {trialFields.map(f => (
+                <div key={f.label}>
+                  <p className="text-[10px] text-white/75 uppercase tracking-wide">{f.label}</p>
+                  <p className="text-sm font-medium">{f.val}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* First-share notice */}
+          <div className="bg-info/10 border border-info/20 rounded-xl p-3 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-info shrink-0 mt-0.5" />
+            <p className="text-xs text-info">
+              This trial is being shared for the first time. Recruitment begins once each site&apos;s PI reviews and approves the schedule.
+            </p>
+          </div>
+
+          {/* PANEL 2 — Recruitment · Across All Sites (all zero on first share) */}
+          <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
+            <p className="font-semibold text-sm text-foreground mb-3">Recruitment · Across All Sites</p>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="bg-surface rounded-lg p-2.5 text-center">
+                <p className="text-lg font-bold text-primary-deep">{selectedSites.size}</p>
+                <p className="text-[10px] text-muted-foreground">Total Sites</p>
+              </div>
+              <div className="bg-surface rounded-lg p-2.5 text-center">
+                <p className="text-lg font-bold text-primary-deep">{p?.sampleSize || 0}</p>
+                <p className="text-[10px] text-muted-foreground">Sample Size</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5 mb-3">
+              {recruitment.map(m => (
+                <div key={m.label} className="bg-surface rounded-lg p-1.5 text-center border border-border">
+                  <p className={cn("text-sm font-bold leading-none", m.color)}>0</p>
+                  <p className="text-[9px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1">Enrolment</p>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-accent rounded-full" style={{ width: "0%" }} />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">0 / {p?.sampleSize || 0} enrolled (0%)</p>
+          </div>
+
+          {/* Sharing with — site chips */}
+          <div className="bg-primary-deep rounded-2xl p-4">
+            <p className="text-[10px] font-bold text-blue-300 uppercase tracking-wider mb-2">
+              Sharing with {selectedSites.size} site{selectedSites.size !== 1 ? "s" : ""}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {selectedSitesList.map(s => (
+                <span key={s.id} className="bg-white/15 text-white text-xs px-2.5 py-1 rounded-full font-medium">{s.name}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* PANEL — Documents + version history */}
+          <div className="bg-card rounded-2xl border border-border p-4">
+            <p className="font-semibold text-sm text-foreground mb-3">Documents</p>
+            <div className="flex items-start gap-3 py-2 border-b border-border">
+              <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-foreground">Uploaded Protocol</p>
+                <p className="text-[11px] text-muted-foreground/70">Uploaded just now · {today}</p>
+              </div>
+              <Download className="w-4 h-4 text-info flex-shrink-0" />
+            </div>
+            <div className="flex items-start gap-3 py-2 border-b border-border">
+              <FileText className="w-4 h-4 text-muted-foreground/70 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-foreground">Schedule Template</p>
+                <p className="text-[11px] text-muted-foreground/70">v1.0 · created {today}</p>
+              </div>
+              <Download className="w-4 h-4 text-info flex-shrink-0" />
+            </div>
+            <div className="py-2">
+              <p className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider mb-1.5">Version History</p>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="px-1.5 py-0.5 bg-muted text-muted-foreground rounded font-medium">v1</span>
+                <span className="text-muted-foreground">Initial · {today}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer CTA — Share Trial */}
+        <div className="px-4 pb-4 pt-3 bg-card border-t border-border">
+          <button
+            onClick={handleProtocolShared}
+            className="w-full py-3.5 rounded-xl text-sm font-semibold bg-violet text-white flex items-center justify-center gap-2"
+          >
+            {shareCtaLabel}
+          </button>
+        </div>
+      </div>
     )
   }
 

@@ -200,9 +200,9 @@ export function MyTrialScreen({ onNavigate }: MyTrialScreenProps) {
           </div>
 
           {selectedVisit.status === "completed" && (
-            <div className="flex items-center gap-2 rounded-2xl border border-success/25 bg-success/8 p-4 text-sm text-success">
-              <CheckCircle className="w-4 h-4 shrink-0" />
-              Completed on {selectedVisit.date} · Confirmed by Dr. Sharma
+            <div className="flex items-start gap-2 rounded-2xl border border-success/25 bg-success/8 p-4 text-sm text-success">
+              <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>Completed on {selectedVisit.date} · Confirmed by Dr. Sharma, <span className="font-medium">Principal Investigator</span></span>
             </div>
           )}
 

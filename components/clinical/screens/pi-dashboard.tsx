@@ -216,7 +216,7 @@ const subjectInitials = (full: string) =>
   full.split(/\s+/).filter(Boolean).map(w => w[0]?.toUpperCase() ?? "").join(".")
 
 const overduePatients = [
-  { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", visitName: "Safety Follow-up", protocol: "Protocol-001", indication: "Type 2 Diabetes", visitDate: "19 May 2026", daysOverdue: 3, lastContact: "19 May" },
+  { id: "SUBJ-002", name: "Rahul Mehta", visit: "Visit 4", visitName: "Safety Follow-up", protocol: "Protocol-001", phase: "Phase II", indication: "Type 2 Diabetes", visitDate: "19 May 2026", daysOverdue: 3, lastContact: "19 May" },
 ]
 
 // Lightweight filler visits for days beyond the current week — the load chart
@@ -411,9 +411,11 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
   const [completedVisits] = useState<Set<string>>(new Set(
     todayVisits.filter(v => v.done).map(v => v.id)
   ))
-  // Patients roster — search + status filter
+  // Patients roster — search + status filter (mirrors My Trials)
   const [patientQuery, setPatientQuery] = useState("")
   const [patientFilter, setPatientFilter] = useState<string>("all")
+  const [patientIndication, setPatientIndication] = useState<string>("All")
+  const [showPatientFilters, setShowPatientFilters] = useState(false)
   // My Trials — search + status / phase filters (mirrors the sponsor dashboard)
   const [trialSearch, setTrialSearch] = useState("")
   const [trialFilter, setTrialFilter] = useState("All")
@@ -845,7 +847,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
                     </button>
                   </div>
                   <span className="relative ml-[2.875rem] mt-2 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-foreground/80 max-w-[calc(100%-2.875rem)] truncate">
-                    <FileText className="h-3 w-3 shrink-0" /> {p.protocol} · {p.indication}
+                    <FileText className="h-3 w-3 shrink-0" /> {p.protocol} · {p.phase} · {p.indication}
                   </span>
                 </div>
               ))}
@@ -858,6 +860,27 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
 
   // ── Patients tab (operational roster) ─────────────────────────────────────
   const renderPatients = () => {
+    const q = patientQuery.trim().toLowerCase()
+    const filteredPatients = patients.filter(p => {
+      const matchesStatus = patientFilter === "all" || p.status === patientFilter
+      const matchesIndication = patientIndication === "All" || p.indication === patientIndication
+      const matchesSearch = !q ||
+        p.id.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) ||
+        (p.protocol ?? "").toLowerCase().includes(q) || (p.indication ?? "").toLowerCase().includes(q)
+      return matchesStatus && matchesIndication && matchesSearch
+    })
+    const statusChips = [
+      { label: "All", val: "all" },
+      { label: "On Track", val: "on-track" },
+      { label: "Overdue", val: "overdue" },
+      { label: "Completed", val: "completed" },
+      { label: "Screen Failure", val: "screen-failure" },
+      { label: "Withdrawn", val: "withdrawn" },
+      { label: "Dropout", val: "dropout" },
+    ].map(c => ({ ...c, count: c.val === "all" ? patients.length : patients.filter(p => p.status === c.val).length }))
+       .filter(c => c.val === "all" || c.count > 0)
+    const indications = ["All", ...Array.from(new Set(patients.map(p => p.indication).filter(Boolean) as string[]))]
+
     return (
       <div className="flex-1 overflow-auto scrollbar-hide pb-4">
         <div className="px-4 pt-4">
@@ -871,8 +894,54 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
           </div>
         </div>
 
-        <div className="px-4 pt-3 space-y-3">
-          {patients.length === 0 ? (
+        {/* Search + filter toggle */}
+        <div className="px-4 pt-3">
+          <div className="flex items-center gap-2 animate-rise" style={{ animationDelay: "40ms" }}>
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+              <input value={patientQuery} onChange={e => setPatientQuery(e.target.value)} placeholder="Search by Subject ID…" className="w-full rounded-2xl border border-border bg-card pl-10 pr-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30" />
+            </div>
+            <button
+              onClick={() => setShowPatientFilters(v => !v)}
+              className={cn("springy grid h-10 w-10 shrink-0 place-items-center rounded-2xl border active:scale-95", showPatientFilters || patientIndication !== "All" ? "dawn-gradient border-transparent text-primary-foreground shadow-sm" : "bg-card border-border text-muted-foreground")}>
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Indication filter panel (toggled by the sliders button) */}
+        {showPatientFilters && (
+          <div className="px-4 pt-3">
+            <div className="bg-card border border-border rounded-2xl p-3 shadow-xs animate-rise">
+              <div className="flex items-center justify-between mb-2">
+                <p className="eyebrow text-muted-foreground/70">Filter by Indication</p>
+                {patientIndication !== "All" && (
+                  <button onClick={() => setPatientIndication("All")} className="text-[11px] text-info font-semibold">Clear</button>
+                )}
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {indications.map(ind => (
+                  <button key={ind} onClick={() => setPatientIndication(ind)} className={cn("springy px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95", patientIndication === ind ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-surface text-muted-foreground border border-border")}>{ind}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Status filter chips */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 pt-3 pb-1 animate-rise" style={{ animationDelay: "70ms" }}>
+          {statusChips.map(f => {
+            const active = patientFilter === f.val
+            return (
+              <button key={f.val} onClick={() => setPatientFilter(f.val)} className={cn("springy shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all active:scale-95", active ? "dawn-gradient text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground")}>
+                {f.label} <span className={cn("tabular-nums", active ? "text-primary-foreground/80" : "text-muted-foreground/60")}>{f.count}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div key={`${patientFilter}-${patientIndication}-${patientQuery}`} className="px-4 pt-3 space-y-3">
+          {filteredPatients.length === 0 ? (
             <div className="rounded-3xl border border-border bg-card p-10 text-center shadow-xs animate-rise">
               <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground/50">
                 <Users className="h-6 w-6" />
@@ -881,7 +950,7 @@ export function PIDashboard({ onNavigate, initialTab = "dashboard", initialTrial
               <p className="text-xs text-muted-foreground mt-0.5">Try a different search or filter.</p>
             </div>
           ) : (
-            patients.map((p, idx) => {
+            filteredPatients.map((p, idx) => {
               const style = statusStyle[p.status]
               const total = PROTOCOL_TOTAL_VISITS
               const completed = p.history?.filter(v => v.outcome === "completed").length ?? 0

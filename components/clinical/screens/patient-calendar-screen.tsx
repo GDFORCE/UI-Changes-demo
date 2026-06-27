@@ -72,12 +72,14 @@ function getDayDotClass(status: string) {
 }
 
 // Full tonal kit for a visit card, keyed off status — all semantic tokens.
+// `block` colours the date tear-block; upcoming uses the dawn gradient so it
+// echoes the dashboard's "Next Visit" feature card.
 function visitTone(status: string) {
   switch (status) {
-    case "completed": return { rail: "bg-success", chip: "bg-success/15 text-success", label: "Completed" }
-    case "upcoming": return { rail: "bg-accent", chip: "bg-accent/15 text-accent", label: "Upcoming" }
-    case "missed": return { rail: "bg-destructive", chip: "bg-destructive/10 text-destructive", label: "Missed" }
-    default: return { rail: "bg-info", chip: "bg-info/10 text-info", label: "Scheduled" }
+    case "completed": return { rail: "bg-success", chip: "bg-success/15 text-success", label: "Completed", block: "bg-success" }
+    case "upcoming": return { rail: "bg-accent", chip: "bg-accent/15 text-accent", label: "Upcoming", block: "dawn-gradient" }
+    case "missed": return { rail: "bg-destructive", chip: "bg-destructive/10 text-destructive", label: "Missed", block: "bg-destructive" }
+    default: return { rail: "bg-info", chip: "bg-info/10 text-info", label: "Scheduled", block: "bg-info" }
   }
 }
 
@@ -191,44 +193,54 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
       ? { label: weekLabel, prev: prevWeek, next: nextWeek }
       : { label: formatHeaderDate(selectedDate), prev: prevDay, next: nextDay }
 
-  // ── Shared visit card ────────────────────────────────────
+  // ── Shared visit card — mirrors the dashboard's "Next Visit" feature card:
+  //    a date tear-block on the left, visit details on the right. ──────────
   const VisitCard = ({ v, variant }: { v: typeof priyaVisits[number]; variant: "full" | "week" | "day" }) => {
     const tone = visitTone(v.status)
     return (
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 pl-5 shadow-xs">
-        <span className={cn("absolute left-0 top-0 bottom-0 w-1.5", tone.rail)} />
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold text-foreground">
-            <Clock className="h-3.5 w-3.5 text-muted-foreground" /> 10:00 AM
-          </span>
-          <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold", tone.chip)}>{tone.label}</span>
-        </div>
-        <p className="font-heading text-base text-foreground">{v.name}</p>
-        <p className="text-xs text-muted-foreground">{v.visit}</p>
+      <div className="dawn-ambient relative overflow-hidden rounded-3xl border border-border bg-card p-4 shadow-sm">
+        <div className="relative flex gap-4">
+          {/* date tear-block */}
+          <div className={cn("hero-glow flex flex-col items-center justify-center rounded-2xl px-4 py-3 text-white shadow-sm shrink-0", tone.block)}>
+            <span className="font-heading text-[26px] leading-none">{v.date.getDate()}</span>
+            <span className="eyebrow text-white/85 mt-1">{v.date.toLocaleString("en-US", { month: "short" })}</span>
+          </div>
 
-        {v.location && (
-          <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Building2 className="h-3.5 w-3.5" /> {v.location}
-          </p>
-        )}
-        {variant === "full" && v.type === "Telephonic" && (
-          <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Phone className="h-3.5 w-3.5" /> Telephonic visit
-          </p>
-        )}
-        {variant === "full" && (
-          <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Stethoscope className="h-3.5 w-3.5" /> {v.doctor}
-          </p>
-        )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold text-foreground">
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" /> 10:00 AM
+              </span>
+              <span className={cn("shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold", tone.chip)}>{tone.label}</span>
+            </div>
+            <p className="font-heading text-[17px] text-foreground leading-tight mt-1">{v.name}</p>
+            <p className="text-xs text-muted-foreground">{v.visit}</p>
+
+            {v.location && (
+              <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Building2 className="h-3.5 w-3.5" /> {v.location}
+              </p>
+            )}
+            {variant === "full" && v.type === "Telephonic" && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Phone className="h-3.5 w-3.5" /> Telephonic visit
+              </p>
+            )}
+            {variant === "full" && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Stethoscope className="h-3.5 w-3.5" /> {v.doctor}
+              </p>
+            )}
+          </div>
+        </div>
 
         {v.status === "completed" && variant !== "day" && (
-          <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-success">
+          <p className="relative mt-3 pt-3 border-t border-border inline-flex items-center gap-1 text-xs font-medium text-success">
             <Check className="h-3.5 w-3.5" /> Completed on {v.date.toLocaleDateString("en-GB", { day: "numeric", month: variant === "week" ? "long" : "short", year: "numeric" })}
           </p>
         )}
         {variant === "full" && v.status === "missed" && (
-          <div className="mt-2">
+          <div className="relative mt-3 pt-3 border-t border-border">
             <p className="inline-flex items-center gap-1 text-xs text-destructive">
               <AlertTriangle className="h-3.5 w-3.5" /> Was due · Contact team
             </p>
@@ -236,7 +248,7 @@ export function PatientCalendarScreen({ onNavigate, onBack }: PatientCalendarScr
           </div>
         )}
         {variant === "full" && (v.status === "upcoming" || v.status === "scheduled") && (
-          <button onClick={() => onNavigate("my-trial")} className="springy mt-3 text-xs text-info font-semibold active:scale-95">
+          <button onClick={() => onNavigate("my-trial")} className="springy relative mt-3 pt-3 border-t border-border w-full text-left text-xs text-info font-semibold active:scale-95">
             View Details →
           </button>
         )}
